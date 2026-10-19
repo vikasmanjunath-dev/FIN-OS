@@ -6,6 +6,7 @@ import { CalcField, Collapsible, Bullet } from '@/components/CalcUI';
 import { usePersisted } from '@/hooks/usePersisted';
 import { computeView, DEFAULT_INPUTS } from '@/lib/taxSavings';
 import { Colors, Spacing, Typography } from '@/constants/theme';
+import { LinkButton } from '@/components/LinkButton';
 
 export default function TaxSavingsScreen() {
   const { value: f, setValue: set, reset } = usePersisted('finos_tax_savings_inputs_v1', DEFAULT_INPUTS);
@@ -61,7 +62,7 @@ export default function TaxSavingsScreen() {
         <CalcField label="80C ALREADY USED" sub="PPF, ELSS, LIC, EPF… leave blank to assume about 12% of income" prefix="₹" value={f.used80c} onChange={v => up({ used80c: v })} />
         <CalcField label="HEALTH INSURANCE ALREADY CLAIMED (80D)" prefix="₹" value={f.usedHealth} onChange={v => up({ usedHealth: v })} />
         <CalcField label="NPS ALREADY CLAIMED (80CCD(1B))" prefix="₹" value={f.usedNps} onChange={v => up({ usedNps: v })} />
-        <Text onPress={reset} style={{ color: Colors.textMuted, fontSize: 12, fontWeight: '700' }}>Reset</Text>
+        <LinkButton onPress={reset} textStyle={{ color: Colors.textMuted, fontSize: 12, fontWeight: '700' }}>Reset</LinkButton>
       </Card>
 
       <TouchableOpacity onPress={() => router.push('/tools/taxplanner')} accessibilityRole="button" accessibilityLabel="Open the full tax planner"

@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { TrackerScreen, Card, SectionLabel, Stat, inr, inrShort } from '@/components/TrackerUI';
-import { Colors, Spacing, Typography } from '@/constants/theme';
+import { Colors, Spacing, Typography, Btn } from '@/constants/theme';
 import { COINS, buildHolding, summarize, type CryptoHolding, type Prices } from '@/lib/crypto';
 import { addHolding, loadCrypto, removeHolding, setPrice } from '@/lib/cryptoStorage';
 
@@ -144,6 +144,6 @@ const s = StyleSheet.create({
   chipTxt: { color: Colors.textMuted, fontSize: 12, fontWeight: '800' },
   inputBox: { minHeight: 44, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 10, fontSize: 15 },
   err: { color: Colors.red, fontSize: 12, marginTop: Spacing.sm },
-  btn: { minHeight: 44, justifyContent: 'center', marginTop: Spacing.md, backgroundColor: Colors.orange, borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
-  btnTxt: { color: '#000', fontWeight: '900', fontSize: 14 },
+  btn: { ...Btn.base, backgroundColor: Colors.orange, marginTop: Spacing.md },
+  btnTxt: { ...Btn.text, color: '#000' },
 });

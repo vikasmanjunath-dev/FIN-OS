@@ -13,6 +13,7 @@ export function Nudges(props: { incomeMonthly: number; savingsRate: number | nul
   const [list, setList] = useState<Nudge[]>([]);
   const [dismissed, setDismissed] = useState<Dismissed>({});
   const [ready, setReady] = useState(false);
+  const [more, setMore] = useState(false);          // one idea at a time; the rest are one tap away
   const key = `${props.incomeMonthly}|${props.savingsRate}|${props.topCategory?.name}|${props.topCategory?.spent}|${props.monthlySip}`;
 
   const refresh = useCallback(() => {
@@ -31,7 +32,7 @@ export function Nudges(props: { incomeMonthly: number; savingsRate: number | nul
   return (
     <View style={s.wrap}>
       <Text style={s.label}>WORTH A LOOK</Text>
-      {shown.map(n => (
+      {(more ? shown : shown.slice(0, 1)).map(n => (
         <View key={n.id} style={[s.card, { borderLeftColor: TONE[n.tone] }]}>
           <Text style={s.icon}>{n.icon}</Text>
           <TouchableOpacity style={{ flex: 1 }} accessibilityRole="button" accessibilityLabel={`${n.title}. ${n.action}`} onPress={() => router.push(n.route as any)}>
@@ -44,6 +45,11 @@ export function Nudges(props: { incomeMonthly: number; savingsRate: number | nul
           </TouchableOpacity>
         </View>
       ))}
+      {shown.length > 1 ? (
+        <TouchableOpacity accessibilityRole="button" accessibilityState={{ expanded: more }} onPress={() => setMore(m => !m)} style={s.more}>
+          <Text style={s.moreTxt}>{more ? 'Show fewer ideas' : `${shown.length - 1} more idea${shown.length - 1 === 1 ? '' : 's'}`}</Text>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 }
@@ -57,4 +63,6 @@ const s = StyleSheet.create({
   body: { color: Colors.textMuted, fontSize: 12, lineHeight: 17, marginTop: 3 },
   action: { fontSize: 12, fontWeight: '800', marginTop: 6 },
   x: { color: Colors.textDim, fontSize: 14, padding: 4 },
+  more: { minHeight: 44, justifyContent: 'center', alignItems: 'center' },
+  moreTxt: { color: Colors.cyan, fontSize: 13, fontWeight: '700' },
 });

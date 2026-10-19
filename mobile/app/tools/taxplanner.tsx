@@ -7,6 +7,7 @@ import { usePersisted } from '@/hooks/usePersisted';
 import { compute } from '@/lib/taxPlanner';
 import { PLANNER_DEFAULTS, PLANNER_KEY, loadPrefill, toParams, savePlannerResults, type PlannerFields } from '@/lib/taxPlannerStorage';
 import { Colors, Spacing, Typography } from '@/constants/theme';
+import { LinkButton } from '@/components/LinkButton';
 
 export default function TaxPlannerScreen() {
   const { value: f, setValue: set, reset, loaded } = usePersisted<PlannerFields>(PLANNER_KEY, PLANNER_DEFAULTS);
@@ -105,7 +106,7 @@ export default function TaxPlannerScreen() {
       <Card>
         <CalcField label="EQUITY LONG-TERM GAINS" prefix="₹" value={f.ltcg} onChange={v => up({ ltcg: v })} sub="₹1.25L is exempt, the rest is taxed at 12.5%." />
         <CalcField label="EQUITY SHORT-TERM GAINS" prefix="₹" value={f.stcg} onChange={v => up({ stcg: v })} sub="Taxed at 20%." />
-        <Text style={s.reset} onPress={() => { reset(); setPrefilled([]); }} accessibilityRole="button">Reset all fields</Text>
+        <LinkButton onPress={() => { reset(); setPrefilled([]); }} textStyle={s.reset}>Reset all fields</LinkButton>
       </Card>
 
       <TouchableOpacity onPress={() => router.push('/tools/itr')} accessibilityRole="button" accessibilityLabel="Open the ITR prep kit"

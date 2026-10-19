@@ -1,0 +1,142 @@
+{
+ "text_scale": 2.0,
+ "view_w": 320,
+ "mode": "dark",
+ "populated": false,
+ "results": {
+  "/learn/reels": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Go to scene 1",
+     "w": 35,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 2",
+     "w": 35,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 3",
+     "w": 35,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 4",
+     "w": 35,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 5",
+     "w": 35,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 6",
+     "w": 35,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 7",
+     "w": 35,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 1",
+     "w": 42,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 2",
+     "w": 42,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 3",
+     "w": 42,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 4",
+     "w": 42,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 5",
+     "w": 42,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 6",
+     "w": 42,
+     "h": 44,
+     "role": "button"
+    }
+   ],
+   "overlap": [
+    {
+     "a": "Same \u20b95,000 every month. Very different ",
+     "b": "Tap to pause \u00b7 swipe up for the next one"
+    },
+    {
+     "a": "Same \u20b95,000 every month. Very different ",
+     "b": "Your \u20b9100 is quietly shrinking"
+    },
+    {
+     "a": "Same \u20b95,000 every month. Very different ",
+     "b": "\u20b9100"
+    },
+    {
+     "a": "Tap to pause \u00b7 swipe up for the next one",
+     "b": "Your \u20b9100 is quietly shrinking"
+    },
+    {
+     "a": "Your \u20b9100 is quietly shrinking.",
+     "b": "Tap to pause \u00b7 swipe up for the next one"
+    }
+   ],
+   "safe": [
+    {
+     "band": "bottom",
+     "text": "Same \u20b95,000 every month. Very different ",
+     "y": 1031
+    },
+    {
+     "band": "top",
+     "text": "\u2715",
+     "y": 14
+    },
+    {
+     "band": "top",
+     "text": "Money reels",
+     "y": 4
+    },
+    {
+     "band": "top",
+     "text": "1 / 5",
+     "y": 40
+    },
+    {
+     "band": "top",
+     "text": "\ud83d\udd07",
+     "y": 13
+    }
+   ]
+  }
+ },
+ "not_loaded": []
+}

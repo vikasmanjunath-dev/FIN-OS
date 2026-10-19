@@ -1,10 +1,10 @@
 import React, { useCallback } from 'react';
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity, RefreshControl } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, RefreshControl } from 'react-native';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { useFinosContext } from '@/hooks/useFinosContext';
 import { MetricCard } from '@/components/MetricCard';
-import { TrackerStorageNotice } from '@/components/TrackerUI';
+import { TrackerStorageNotice, NavCard } from '@/components/TrackerUI';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 
 export default function TrackScreen() {
@@ -77,17 +77,12 @@ export default function TrackScreen() {
         <Text style={styles.sectionSub}>Nothing leaves your device unless you sign in to sync</Text>
       </View>
 
-      <TouchableOpacity style={styles.manualCard} activeOpacity={0.8}
-        onPress={() => { Haptics.selectionAsync(); router.push('/tracker/transactions' as any); }} accessibilityRole="button">
-        <Text style={styles.manualTitle}>✍️ Log them here</Text>
-        <Text style={styles.manualSub}>Add a transaction in a few taps, repeat a recent one, or set up monthly entries for rent and SIPs. Tap to open.</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.manualCard} activeOpacity={0.8}
-        onPress={() => { Haptics.selectionAsync(); router.push('/tracker/import' as any); }} accessibilityRole="button">
-        <Text style={styles.manualTitle}>📄 Import a bank statement</Text>
-        <Text style={styles.manualSub}>Pick your bank's CSV (or paste it). It is read on this phone — nothing is uploaded — with a preview first and a one-tap undo. Tap to open.</Text>
-      </TouchableOpacity>
+      <NavCard style={styles.navSlot} title="✍️ Log them here"
+        sub="Add a transaction in a few taps, repeat a recent one, or set up monthly entries for rent and SIPs."
+        onPress={() => { Haptics.selectionAsync(); router.push('/tracker/transactions' as any); }} />
+      <NavCard style={styles.navSlot} title="📄 Import a bank statement"
+        sub="Pick your bank's CSV (or paste it). It is read on this phone — nothing is uploaded — with a preview first and a one-tap undo."
+        onPress={() => { Haptics.selectionAsync(); router.push('/tracker/import' as any); }} />
 
       <View style={styles.aaInfoBox}>
         <Text style={styles.aaInfoText}>
@@ -101,7 +96,7 @@ export default function TrackScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bg },
   content: { paddingBottom: 80 },
-  header: { padding: Spacing.lg, paddingTop: Spacing.xxl },
+  header: { padding: Spacing.lg, paddingTop: Spacing.md },
 
   ieRow: { flexDirection: 'row', paddingHorizontal: Spacing.lg, gap: Spacing.sm, marginBottom: Spacing.md },
 
@@ -130,7 +125,5 @@ const styles = StyleSheet.create({
   connectBtn: { borderWidth: 1, borderRadius: Radii.md, paddingVertical: Spacing.sm, alignItems: 'center' },
   connectBtnText: { fontSize: 13, fontWeight: '700' },
 
-  manualCard: { margin: Spacing.lg, backgroundColor: Colors.overlay, borderRadius: Radii.lg, borderWidth: 1, borderColor: Colors.border, padding: Spacing.md },
-  manualTitle: { ...Typography.body, fontWeight: '700', marginBottom: Spacing.xs },
-  manualSub: { ...Typography.caption, lineHeight: 18 },
+  navSlot: { marginHorizontal: Spacing.lg },   // the same 16 px between stacked cards as everywhere else (the old 24 px margin on all sides doubled up to 48)
 });

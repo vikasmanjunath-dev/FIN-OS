@@ -1,0 +1,525 @@
+{
+ "text_scale": 1.0,
+ "view_w": 390,
+ "mode": "dark",
+ "populated": true,
+ "results": {
+  "/tools/calc/[id]": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tools/calculators": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Search calculators",
+     "w": 342,
+     "h": 43,
+     "role": "input"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udcc8 INVESTMENT & WEALTH",
+     "y": 705
+    }
+   ]
+  },
+  "/tools/calendar": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Previous month",
+     "w": 44,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Next month",
+     "w": 44,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Add your own dates or export the calendar",
+     "w": 342,
+     "h": 16,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tools/credit": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "0 means all on time",
+     "y": 670
+    },
+    {
+     "band": "bottom",
+     "text": "HARD INQUIRIES IN THE LAST 12 MONTHS",
+     "y": 699
+    }
+   ]
+  },
+  "/tools/debt": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tools/dna": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "\u2190 Previous",
+     "w": 72,
+     "h": 32,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tools/goalopt": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Worked out from your income and spending",
+     "y": 693
+    }
+   ]
+  },
+  "/tools/homeloan": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "% p.a.",
+     "y": 687
+    }
+   ]
+  },
+  "/tools/itr": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "LTA (A YEAR)",
+     "y": 683
+    }
+   ]
+  },
+  "/tools/leak": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Transport",
+     "y": 705
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b919,471",
+     "y": 705
+    }
+   ]
+  },
+  "/tools/lifecover": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "= Recommended cover",
+     "y": 679
+    },
+    {
+     "band": "bottom",
+     "text": "The larger of the two methods, plus debt",
+     "y": 709
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b94,32,00,000",
+     "y": 694
+    }
+   ]
+  },
+  "/tools/offers": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "cash + PF + NPS + gratuity",
+     "y": 676
+    }
+   ]
+  },
+  "/tools/prepay": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tools/realestate": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "DOWN PAYMENT",
+     "y": 680
+    }
+   ]
+  },
+  "/tools/rebalance": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Use the Aggressive mix",
+     "w": 93,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Use the Moderate mix",
+     "w": 84,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Use the Conservative mix",
+     "w": 105,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Use the Income mix",
+     "w": 70,
+     "h": 33,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83e\udd47",
+     "y": 684
+    },
+    {
+     "band": "bottom",
+     "text": "Gold",
+     "y": 672
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b90 \u00b7 0.0% now \u00b7 target 10.0%",
+     "y": 687
+    },
+    {
+     "band": "bottom",
+     "text": "ADD",
+     "y": 669
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b92.10L",
+     "y": 687
+    }
+   ]
+  },
+  "/tools/report": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Share the report",
+     "w": 308,
+     "h": 41,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Financial-independence progress: 12% (25",
+     "y": 707
+    }
+   ]
+  },
+  "/tools/retirement": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "RETIRE AT AGE",
+     "y": 670
+    }
+   ]
+  },
+  "/tools/salary": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "LTA",
+     "y": 668
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9",
+     "y": 706
+    }
+   ]
+  },
+  "/tools/score": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9",
+     "y": 672
+    },
+    {
+     "band": "bottom",
+     "text": "\u2713 From your last 25 days of logged spend",
+     "y": 720
+    }
+   ]
+  },
+  "/tools/stepup": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "years",
+     "y": 675
+    }
+   ]
+  },
+  "/tools/tax": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Reset",
+     "y": 690
+    }
+   ]
+  },
+  "/tools/taxplanner": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Reset all fields",
+     "w": 308,
+     "h": 32,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "REGIME",
+     "y": 702
+    }
+   ]
+  },
+  "/tools/windfall": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "6-month safety net first \u2014 liquid, befor",
+     "y": 674
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udccd Liquid mutual fund or sweep FD (same-",
+     "y": 731
+    }
+   ]
+  }
+ },
+ "not_loaded": []
+}

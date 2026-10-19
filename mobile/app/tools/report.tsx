@@ -7,7 +7,7 @@ import { buildReport, toText } from '@/lib/report';
 import { collectEvents } from '@/lib/calendar';
 import { loadCalendarSources } from '@/lib/calendarStorage';
 import { loadSavedScore } from '@/lib/moneyScoreStorage';
-import { Colors, Spacing, Typography } from '@/constants/theme';
+import { Colors, Spacing, Typography, Btn } from '@/constants/theme';
 
 const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
@@ -75,7 +75,7 @@ export default function ReportScreen() {
 }
 
 const s = StyleSheet.create({
-  btn: { minHeight: 44, justifyContent: 'center', backgroundColor: Colors.cyan, borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginTop: Spacing.sm },
-  btnTxt: { color: '#000', fontWeight: '900', fontSize: 14 },
+  btn: { ...Btn.base, backgroundColor: Colors.cyan, marginTop: Spacing.sm },
+  btnTxt: { ...Btn.text, color: '#000' },
   title: { fontSize: 18, fontWeight: '900', color: Colors.textPrimary },
 });

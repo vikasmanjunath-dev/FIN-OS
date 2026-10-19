@@ -1,0 +1,472 @@
+{
+ "text_scale": 1.0,
+ "view_w": 390,
+ "mode": "dark",
+ "populated": false,
+ "results": {
+  "/tracker/budget": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Spending forecast",
+     "y": 697
+    },
+    {
+     "band": "bottom",
+     "text": "What this month is likely to cost, categ",
+     "y": 729
+    },
+    {
+     "band": "bottom",
+     "text": "\u203a",
+     "y": 716
+    }
+   ]
+  },
+  "/tracker/crypto": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tracker/emergency": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "6 months suits most salaried people; cho",
+     "y": 705
+    }
+   ]
+  },
+  "/tracker/epf": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udf82",
+     "y": 677
+    },
+    {
+     "band": "bottom",
+     "text": "Used to calculate your retirement date; ",
+     "y": 698
+    }
+   ]
+  },
+  "/tracker/fixed": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udc67",
+     "y": 684
+    },
+    {
+     "band": "bottom",
+     "text": "Sukanya Samriddhi Yojana",
+     "y": 684
+    }
+   ]
+  },
+  "/tracker/goals": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Plan your life goals \u2192",
+     "y": 708
+    }
+   ]
+  },
+  "/tracker/gold": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "WEIGHT (GRAMS)",
+     "y": 695
+    }
+   ]
+  },
+  "/tracker/harvest": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Held 12 months or less, already sold thi",
+     "y": 697
+    }
+   ]
+  },
+  "/tracker/health": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Not recorded: add your monthly spend and",
+     "y": 718
+    }
+   ]
+  },
+  "/tracker/holdings-import": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tracker/import": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tracker/insurance": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udee1\ufe0f",
+     "y": 668
+    },
+    {
+     "band": "bottom",
+     "text": "If others depend on your income, term co",
+     "y": 710
+    }
+   ]
+  },
+  "/tracker/networth": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "From your EPF tracker",
+     "y": 668
+    }
+   ]
+  },
+  "/tracker/nps": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udfe2",
+     "y": 677
+    },
+    {
+     "band": "bottom",
+     "text": "Employer pays / month",
+     "y": 674
+    },
+    {
+     "band": "bottom",
+     "text": "Corporate NPS, if any",
+     "y": 691
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9",
+     "y": 674
+    }
+   ]
+  },
+  "/tracker/passive": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Taxable",
+     "w": 40,
+     "h": 20,
+     "role": "switch"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tracker/ppf": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "NICKNAME (OPTIONAL)",
+     "y": 673
+    }
+   ]
+  },
+  "/tracker/recurring": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83e\ude7a",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "Health",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udfac",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "Entertainment",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udf93",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "Education",
+     "y": 703
+    }
+   ]
+  },
+  "/tracker/subscriptions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Half-yearly",
+     "y": 693
+    },
+    {
+     "band": "bottom",
+     "text": "Yearly",
+     "y": 693
+    }
+   ]
+  },
+  "/tracker/transactions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83e\ude7a",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "Health",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udfac",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "Entertainment",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udf93",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "Education",
+     "y": 703
+    }
+   ]
+  },
+  "/tracker/watchlist": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tools/salary": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "LTA",
+     "y": 668
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9",
+     "y": 706
+    }
+   ]
+  }
+ },
+ "not_loaded": [
+  "/tools/sip",
+  "/tools/emi"
+ ]
+}

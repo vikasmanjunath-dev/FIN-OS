@@ -1,0 +1,737 @@
+{
+ "text_scale": 2.0,
+ "view_w": 320,
+ "mode": "dark",
+ "populated": false,
+ "results": {
+  "/tracker/budget": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Add Food & Dining budget",
+     "w": 189,
+     "h": 40,
+     "role": "button"
+    },
+    {
+     "label": "Add Groceries budget",
+     "w": 147,
+     "h": 40,
+     "role": "button"
+    },
+    {
+     "label": "Add Transport budget",
+     "w": 147,
+     "h": 40,
+     "role": "button"
+    },
+    {
+     "label": "Add Shopping budget",
+     "w": 146,
+     "h": 40,
+     "role": "button"
+    },
+    {
+     "label": "Add Bills & Utilities budget",
+     "w": 192,
+     "h": 40,
+     "role": "button"
+    },
+    {
+     "label": "Add Housing budget",
+     "w": 133,
+     "h": 40,
+     "role": "button"
+    },
+    {
+     "label": "Add EMI & Loans budget",
+     "w": 172,
+     "h": 40,
+     "role": "button"
+    },
+    {
+     "label": "Add Subscriptions budget",
+     "w": 188,
+     "h": 40,
+     "role": "button"
+    },
+    {
+     "label": "Add Health budget",
+     "w": 116,
+     "h": 40,
+     "role": "button"
+    },
+    {
+     "label": "Add Entertainment budget",
+     "w": 192,
+     "h": 40,
+     "role": "button"
+    },
+    {
+     "label": "Add Education budget",
+     "w": 150,
+     "h": 40,
+     "role": "button"
+    },
+    {
+     "label": "Add Travel budget",
+     "w": 110,
+     "h": 40,
+     "role": "button"
+    }
+   ],
+   "overlap": [
+    {
+     "a": "Income / month",
+     "b": "Spend / month"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "MONTHLY",
+     "y": 696
+    }
+   ]
+  },
+  "/tracker/crypto": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Tax is 30% + 4% cess (31.2%) on each coi",
+     "y": 887
+    }
+   ]
+  },
+  "/tracker/emergency": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "You have",
+     "y": 704
+    },
+    {
+     "band": "bottom",
+     "text": "Target",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "\u2014",
+     "y": 713
+    },
+    {
+     "band": "bottom",
+     "text": "Still needed",
+     "y": 704
+    }
+   ]
+  },
+  "/tracker/epf": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Add your monthly basic pay, date of birt",
+     "y": 790
+    }
+   ]
+  },
+  "/tracker/fixed": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [
+    {
+     "a": "Interest earned",
+     "b": "Yield so far"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Invested",
+     "y": 708
+    },
+    {
+     "band": "bottom",
+     "text": "Interest earned",
+     "y": 708
+    },
+    {
+     "band": "bottom",
+     "text": "Yield so far",
+     "y": 708
+    }
+   ]
+  },
+  "/tracker/goals": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    }
+   ]
+  },
+  "/tracker/gold": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "TOTAL GOLD VALUE",
+     "y": 710
+    }
+   ]
+  },
+  "/tracker/harvest": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [
+    {
+     "a": "Type today's price: it is not fetched.",
+     "b": "ACQUISITION DATE"
+    },
+    {
+     "a": "The date you bought it. It decides long-",
+     "b": "\uff0b Add holding"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b90",
+     "y": 701
+    }
+   ]
+  },
+  "/tracker/health": {
+   "hscroll": [
+    {
+     "what": "text past the right edge",
+     "text": "Not enough data",
+     "right": 417,
+     "width": 320
+    }
+   ],
+   "clipped": [
+    {
+     "text": "Not enough data",
+     "axis": "x",
+     "text_box": [
+      41,
+      469,
+      417,
+      525
+     ],
+     "clip_box": [
+      24,
+      422,
+      296,
+      1062
+     ]
+    }
+   ],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Not enough data yet. Record your income ",
+     "y": 696
+    }
+   ]
+  },
+  "/tracker/holdings-import": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    }
+   ]
+  },
+  "/tracker/import": {
+   "hscroll": [],
+   "clipped": [
+    {
+     "text": "Import a bank statement",
+     "axis": "y",
+     "text_box": [
+      24,
+      92,
+      275,
+      356
+     ],
+     "clip_box": [
+      24,
+      92,
+      296,
+      290
+     ]
+    },
+    {
+     "text": "Import a bank statement",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    }
+   ],
+   "small": [],
+   "overlap": [
+    {
+     "a": "Import a bank statement",
+     "b": "Bring in your bank's CSV (or Account Agg"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Choose a CSV file",
+     "y": 688
+    }
+   ]
+  },
+  "/tracker/insurance": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Critical illness",
+     "y": 693
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b90 recorded",
+     "y": 683
+    }
+   ]
+  },
+  "/tracker/networth": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [
+    {
+     "a": "\ud83c\udfe7",
+     "b": "Savings / cash"
+    },
+    {
+     "a": "\ud83d\udcb3",
+     "b": "Credit card dues"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "FIRE progress needs your monthly expense",
+     "y": 709
+    },
+    {
+     "band": "bottom",
+     "text": "Add your monthly expenses or income in B",
+     "y": 845
+    }
+   ]
+  },
+  "/tracker/nps": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [
+    {
+     "a": "\ud83d\udc64",
+     "b": "You pay / month"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Tier 1 balance",
+     "y": 713
+    }
+   ]
+  },
+  "/tracker/passive": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Remove Equity dividends",
+     "w": 39,
+     "h": 75,
+     "role": "button"
+    },
+    {
+     "label": "Taxable",
+     "w": 40,
+     "h": 20,
+     "role": "switch"
+    },
+    {
+     "label": "Remove FD / debt interest",
+     "w": 39,
+     "h": 75,
+     "role": "button"
+    },
+    {
+     "label": "Remove Rental income",
+     "w": 39,
+     "h": 75,
+     "role": "button"
+    },
+    {
+     "label": "Remove SWP from mutual funds",
+     "w": 39,
+     "h": 75,
+     "role": "button"
+    },
+    {
+     "label": "Remove SGB coupon (2.5%)",
+     "w": 39,
+     "h": 75,
+     "role": "button"
+    },
+    {
+     "label": "Remove Other passive income",
+     "w": 39,
+     "h": 75,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Add your monthly spending below to see h",
+     "y": 729
+    }
+   ]
+  },
+  "/tracker/ppf": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "80C eligible / yr",
+     "y": 733
+    },
+    {
+     "band": "bottom",
+     "text": "Deposits / yr",
+     "y": 705
+    },
+    {
+     "band": "bottom",
+     "text": "Combined projections",
+     "y": 761
+    }
+   ]
+  },
+  "/tracker/recurring": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9",
+     "y": 671
+    }
+   ]
+  },
+  "/tracker/subscriptions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Billed Weekly",
+     "w": 97,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Billed Monthly",
+     "w": 110,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Billed Quarterly",
+     "w": 118,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Billed Half-yearly",
+     "w": 135,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Billed Yearly",
+     "w": 86,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Status active",
+     "w": 91,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Status trial",
+     "w": 66,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Status paused",
+     "w": 98,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Status cancelled",
+     "w": 124,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Usefulness 1 of 5",
+     "w": 34,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Usefulness 2 of 5",
+     "w": 37,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Usefulness 3 of 5",
+     "w": 38,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Usefulness 4 of 5",
+     "w": 38,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Usefulness 5 of 5",
+     "w": 38,
+     "h": 42,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Active",
+     "y": 677
+    },
+    {
+     "band": "bottom",
+     "text": "0",
+     "y": 714
+    },
+    {
+     "band": "bottom",
+     "text": "Due in 7 days",
+     "y": 705
+    },
+    {
+     "band": "bottom",
+     "text": "Trials",
+     "y": 677
+    }
+   ]
+  },
+  "/tracker/transactions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Today",
+     "w": 87,
+     "h": 40,
+     "role": "button"
+    },
+    {
+     "label": "Yesterday",
+     "w": 124,
+     "h": 40,
+     "role": "button"
+    }
+   ],
+   "overlap": [
+    {
+     "a": "Expense",
+     "b": "Income"
+    },
+    {
+     "a": "Income",
+     "b": "Invested"
+    },
+    {
+     "a": "Invested",
+     "b": "Transfer"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "WHAT FOR (OPTIONAL)",
+     "y": 694
+    }
+   ]
+  },
+  "/tracker/watchlist": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "\u25b8 About this list",
+     "w": 272,
+     "h": 30,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "\uff0b Add to watchlist",
+     "y": 740
+    }
+   ]
+  }
+ },
+ "not_loaded": []
+}

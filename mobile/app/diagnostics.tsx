@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { TrackerScreen, Card, SectionLabel } from '@/components/TrackerUI';
 import { CheckRow, Collapsible, Bullet } from '@/components/CalcUI';
 import { SharePreview } from '@/components/SharePreview';
@@ -65,6 +65,12 @@ export default function DiagnosticsScreen() {
           </View>
         )}
         <Text style={[Typography.caption, { marginTop: Spacing.md, lineHeight: 16 }]}>The newest 20 are kept. A message can still carry a word written in plain prose, so read it before you share it.</Text>
+      </Card>
+
+      <SectionLabel>MONEY REELS</SectionLabel>
+      <Card>
+        <Text style={[Typography.caption, { lineHeight: 17 }]}>How the reels are used on this phone: reels finished, moves started, minutes a day. Counted here, never sent, and you can delete the counts.</Text>
+        <TouchableOpacity accessibilityRole="button" style={[s.action, { marginTop: Spacing.md }]} onPress={() => router.push('/learn/health' as never)}><Text style={s.actionTxt}>Open reels health</Text></TouchableOpacity>
       </Card>
 
       <SectionLabel>SCREEN COUNTS (OFF BY DEFAULT)</SectionLabel>

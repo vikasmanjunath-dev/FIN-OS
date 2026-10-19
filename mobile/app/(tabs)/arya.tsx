@@ -3,6 +3,7 @@ import {
   View, Text, StyleSheet, FlatList, TextInput,
   TouchableOpacity, KeyboardAvoidingView, Platform, Pressable,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { router, useFocusEffect } from 'expo-router';
 import { useAryaChat } from '@/hooks/useAryaChat';
@@ -22,6 +23,7 @@ const SUGGESTED = [
 ];
 
 export default function AryaScreen() {
+  const insets = useSafeAreaInsets();
   const { messages, isStreaming, send, stop, clear } = useAryaChat();
   const [input, setInput] = React.useState('');
   const listRef = useRef<FlatList>(null);
@@ -50,7 +52,7 @@ export default function AryaScreen() {
     <KeyboardAvoidingView
       style={styles.root}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}   // where this view starts below the top of the screen (the old 88 was a guess)
     >
       {/* ── Header ── */}
       <View style={styles.header}>
@@ -88,7 +90,7 @@ export default function AryaScreen() {
         keyExtractor={m => m.id}
         renderItem={({ item }) => <AryaBubble message={item} onAsk={handleSuggest} />}
         contentContainerStyle={styles.messageList}
-        onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: true })}
+        onContentSizeChange={() => { if (messages.length > 1) listRef.current?.scrollToEnd({ animated: true }); }}   // the greeting plus the suggestions stay at the top: scrolling to the end cut the greeting under the header
         showsVerticalScrollIndicator={false}
         ListFooterComponent={
           messages.length <= 1 ? (
@@ -147,11 +149,11 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bg },
 
   header: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: Spacing.lg, paddingTop: Spacing.xxl, paddingBottom: Spacing.md,
+    flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', columnGap: Spacing.md, rowGap: Spacing.xs,
+    paddingHorizontal: Spacing.md, paddingTop: Spacing.md, paddingBottom: Spacing.md,   // one 16 px gutter for header, chips, messages and input
     borderBottomWidth: 1, borderBottomColor: Colors.border,
   },
-  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, flexShrink: 1 },
   avatarRing: {
     width: 40, height: 40, borderRadius: Radii.full,
     backgroundColor: 'rgba(123,47,247,0.15)', borderWidth: 1.5, borderColor: Colors.purple,
@@ -168,10 +170,10 @@ const styles = StyleSheet.create({
 
   messageList: { paddingTop: Spacing.md, paddingBottom: Spacing.lg },
 
-  suggestContainer: { paddingHorizontal: Spacing.lg, paddingTop: Spacing.lg, gap: Spacing.sm },
+  suggestContainer: { paddingHorizontal: Spacing.md, paddingTop: Spacing.lg, gap: Spacing.sm },
   suggestLabel: { ...Typography.label, marginBottom: Spacing.xs },
   suggestBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     backgroundColor: Colors.overlay, borderWidth: 1, borderColor: Colors.border,
     borderRadius: Radii.md, padding: Spacing.sm + 2, paddingHorizontal: Spacing.md,
   },
@@ -183,13 +185,13 @@ const styles = StyleSheet.create({
     borderTopWidth: 1, borderTopColor: Colors.border, backgroundColor: Colors.surface,
   },
   input: {
-    flex: 1, minHeight: 40, maxHeight: 120,
+    flex: 1, minHeight: 44, maxHeight: 120, textAlignVertical: 'center',
     backgroundColor: Colors.overlay, borderWidth: 1, borderColor: Colors.borderMed,
-    borderRadius: Radii.xl, paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm,
-    color: Colors.textPrimary, fontSize: 14,
+    borderRadius: Radii.xl, paddingHorizontal: Spacing.md, paddingTop: 11, paddingBottom: 11,
+    color: Colors.textPrimary, fontSize: 15,
   },
   sendBtn: {
-    width: 40, height: 40, borderRadius: Radii.full,
+    width: 44, height: 44, borderRadius: Radii.full,
     backgroundColor: Colors.purple, alignItems: 'center', justifyContent: 'center',
   },
   sendBtnDisabled: { backgroundColor: 'rgba(123,47,247,0.25)' },

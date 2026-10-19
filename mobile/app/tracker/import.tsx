@@ -6,7 +6,7 @@ import { parseStatement, fromAA, topCategories } from '@/lib/statementImport';
 import { importStatementRows, undoImportBatch, listImportBatches, previewImport, type ImportBatchInfo } from '@/lib/txnStorage';
 import { loadTrackerData, persistDerived } from '@/lib/trackerStorage';
 import { TrackerScreen, Card, SectionLabel, Stat, inr } from '@/components/TrackerUI';
-import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
+import { Colors, Spacing, Radii, Typography, Btn } from '@/constants/theme';
 
 interface Parsed {
   ok: boolean; format: string; rows: any[]; skipped: { line: number; reason: string }[]; warnings: string[];
@@ -226,10 +226,10 @@ export default function ImportStatementScreen() {
 }
 
 const s = StyleSheet.create({
-  primary: { minHeight: 44, justifyContent: 'center', backgroundColor: Colors.cyan, borderRadius: Radii.md, paddingVertical: 14, alignItems: 'center' },
-  primaryTxt: { color: Colors.bg, fontWeight: '800', fontSize: 14 },
-  secondary: { minHeight: 44, justifyContent: 'center', borderWidth: 1, borderColor: Colors.cyan + '66', borderRadius: Radii.md, paddingVertical: 12, alignItems: 'center', marginTop: Spacing.sm },
-  secondaryTxt: { color: Colors.cyan, fontWeight: '800', fontSize: 14 },
+  primary: { ...Btn.base, backgroundColor: Colors.cyan },
+  primaryTxt: { ...Btn.text, color: Colors.bg },
+  secondary: { ...Btn.base, borderWidth: 1, borderColor: Colors.cyan + '66', marginTop: Spacing.sm },
+  secondaryTxt: { ...Btn.text, color: Colors.cyan },
   paste: {
     backgroundColor: Colors.bg, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.md, padding: Spacing.md,
     color: Colors.textPrimary, fontSize: 12, minHeight: 110, maxHeight: 220, textAlignVertical: 'top',

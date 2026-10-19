@@ -1,0 +1,928 @@
+{
+ "text_scale": 1.0,
+ "view_w": 390,
+ "mode": "dark",
+ "populated": true,
+ "results": {
+  "/tools/calc/[id]": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tools/calculators": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udcc8 INVESTMENT & WEALTH",
+     "y": 706
+    }
+   ]
+  },
+  "/tools/calendar": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "26",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "27",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "28",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "29",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "30",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "31",
+     "y": 673
+    }
+   ]
+  },
+  "/tools/credit": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "0 means all on time",
+     "y": 670
+    },
+    {
+     "band": "bottom",
+     "text": "HARD INQUIRIES IN THE LAST 12 MONTHS",
+     "y": 699
+    }
+   ]
+  },
+  "/tools/debt": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tools/dna": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tools/goalopt": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Worked out from your income and spending",
+     "y": 693
+    }
+   ]
+  },
+  "/tools/homeloan": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "% p.a.",
+     "y": 687
+    }
+   ]
+  },
+  "/tools/itr": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "LTA (A YEAR)",
+     "y": 683
+    }
+   ]
+  },
+  "/tools/leak": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Transport",
+     "y": 705
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b919,471",
+     "y": 705
+    }
+   ]
+  },
+  "/tools/lifecover": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "= Recommended cover",
+     "y": 679
+    },
+    {
+     "band": "bottom",
+     "text": "The larger of the two methods, plus debt",
+     "y": 709
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b94,32,00,000",
+     "y": 694
+    }
+   ]
+  },
+  "/tools/offers": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "cash + PF + NPS + gratuity",
+     "y": 676
+    }
+   ]
+  },
+  "/tools/prepay": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tools/realestate": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "DOWN PAYMENT",
+     "y": 680
+    }
+   ]
+  },
+  "/tools/rebalance": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83e\udd47",
+     "y": 684
+    },
+    {
+     "band": "bottom",
+     "text": "Gold",
+     "y": 672
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b90 \u00b7 0.0% now \u00b7 target 10.0%",
+     "y": 687
+    },
+    {
+     "band": "bottom",
+     "text": "ADD",
+     "y": 669
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b92.10L",
+     "y": 687
+    }
+   ]
+  },
+  "/tools/report": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Financial-independence progress: 12% (25",
+     "y": 710
+    }
+   ]
+  },
+  "/tools/retirement": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "RETIRE AT AGE",
+     "y": 670
+    }
+   ]
+  },
+  "/tools/salary": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "LTA",
+     "y": 668
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9",
+     "y": 706
+    }
+   ]
+  },
+  "/tools/score": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9",
+     "y": 672
+    },
+    {
+     "band": "bottom",
+     "text": "\u2713 From your last 25 days of logged spend",
+     "y": 720
+    }
+   ]
+  },
+  "/tools/stepup": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "years",
+     "y": 675
+    }
+   ]
+  },
+  "/tools/tax": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Reset",
+     "y": 690
+    }
+   ]
+  },
+  "/tools/taxplanner": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "REGIME",
+     "y": 702
+    }
+   ]
+  },
+  "/tools/windfall": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "6-month safety net first \u2014 liquid, befor",
+     "y": 674
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udccd Liquid mutual fund or sweep FD (same-",
+     "y": 731
+    }
+   ]
+  },
+  "/tracker/budget": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Spending forecast",
+     "y": 697
+    },
+    {
+     "band": "bottom",
+     "text": "What this month is likely to cost, categ",
+     "y": 729
+    },
+    {
+     "band": "bottom",
+     "text": "\u203a",
+     "y": 716
+    }
+   ]
+  },
+  "/tracker/crypto": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tracker/emergency": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tracker/epf": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udf82",
+     "y": 677
+    },
+    {
+     "band": "bottom",
+     "text": "Used to calculate your retirement date; ",
+     "y": 698
+    }
+   ]
+  },
+  "/tracker/fixed": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udc67",
+     "y": 684
+    },
+    {
+     "band": "bottom",
+     "text": "Sukanya Samriddhi Yojana",
+     "y": 684
+    }
+   ]
+  },
+  "/tracker/goals": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b91,00,000",
+     "y": 668
+    },
+    {
+     "band": "bottom",
+     "text": "of",
+     "y": 668
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b99,00,000",
+     "y": 668
+    },
+    {
+     "band": "bottom",
+     "text": "\u00b7 save about \u20b947,059/month to get there",
+     "y": 683
+    }
+   ]
+  },
+  "/tracker/gold": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "WEIGHT (GRAMS)",
+     "y": 695
+    }
+   ]
+  },
+  "/tracker/harvest": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Held 12 months or less, already sold thi",
+     "y": 697
+    }
+   ]
+  },
+  "/tracker/health": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udee1\ufe0f",
+     "y": 678
+    },
+    {
+     "band": "bottom",
+     "text": "Emergency fund",
+     "y": 677
+    },
+    {
+     "band": "bottom",
+     "text": "A+",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "12/15",
+     "y": 676
+    }
+   ]
+  },
+  "/tracker/holdings-import": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tracker/import": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tracker/insurance": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tracker/networth": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "ASSETS",
+     "y": 703
+    }
+   ]
+  },
+  "/tracker/nps": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udfe2",
+     "y": 677
+    },
+    {
+     "band": "bottom",
+     "text": "Employer pays / month",
+     "y": 674
+    },
+    {
+     "band": "bottom",
+     "text": "Corporate NPS, if any",
+     "y": 691
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9",
+     "y": 674
+    }
+   ]
+  },
+  "/tracker/passive": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udcca",
+     "y": 684
+    },
+    {
+     "band": "bottom",
+     "text": "\u2715",
+     "y": 679
+    }
+   ]
+  },
+  "/tracker/ppf": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "NICKNAME (OPTIONAL)",
+     "y": 673
+    }
+   ]
+  },
+  "/tracker/recurring": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83e\ude7a",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "Health",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udfac",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "Entertainment",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udf93",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "Education",
+     "y": 703
+    }
+   ]
+  },
+  "/tracker/subscriptions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "NAME",
+     "y": 683
+    }
+   ]
+  },
+  "/tracker/transactions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "CATEGORY",
+     "y": 670
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udf7d\ufe0f",
+     "y": 705
+    },
+    {
+     "band": "bottom",
+     "text": "Food & Dining",
+     "y": 705
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\uded2",
+     "y": 705
+    },
+    {
+     "band": "bottom",
+     "text": "Groceries",
+     "y": 705
+    }
+   ]
+  },
+  "/tracker/watchlist": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  }
+ },
+ "not_loaded": []
+}

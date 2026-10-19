@@ -5,7 +5,8 @@ import { TrackerScreen, Card, SectionLabel, Bar, inr, inrShort } from '@/compone
 import { CalcField, Collapsible, Bullet, toNum } from '@/components/CalcUI';
 import { plan, roadmap, validateProfile, validateGoals, type PlanInput } from '@/lib/lifeGoals';
 import { loadPlanner, saveDraft, clearDraft, savePlanTotals, BLANK_GOAL, type PlannerForm, type Prefilled } from '@/lib/lifeGoalsStorage';
-import { Colors, Spacing, Typography } from '@/constants/theme';
+import { Colors, Spacing, Typography, Btn } from '@/constants/theme';
+import { LinkButton } from '@/components/LinkButton';
 
 const KIND_COLOR = { figure: Colors.textPrimary, assumption: Colors.gold, pointer: Colors.cyan } as const;
 
@@ -79,7 +80,7 @@ export default function LifeGoalsScreen() {
           </View>
           <CalcField label="INFLATION A YEAR (ASSUMPTION)" suffix="%" value={g.inflation} onChange={v => setGoal(i, 'inflation', v)} />
           {form.goals.length > 1 ? (
-            <Text style={s.remove} accessibilityRole="button" onPress={() => { setSaved(false); setForm(f => (f ? { ...f, goals: f.goals.filter((_, j) => j !== i) } : f)); }}>Remove this goal</Text>
+            <LinkButton onPress={() => { setSaved(false); setForm(f => (f ? { ...f, goals: f.goals.filter((_, j) => j !== i) } : f)); }} textStyle={s.remove}>Remove this goal</LinkButton>
           ) : null}
         </Card>
       ))}
@@ -142,7 +143,7 @@ export default function LifeGoalsScreen() {
               {ph.items.map((it, k) => (
                 <View key={k} style={{ marginTop: Spacing.sm }}>
                   <Text style={[Typography.body, { lineHeight: 20, color: KIND_COLOR[it.kind] }]}>{it.text}</Text>
-                  {it.href ? <Text style={s.link} accessibilityRole="button" onPress={() => router.push(it.href as never)}>Open</Text> : null}
+                  {it.href ? <LinkButton onPress={() => router.push(it.href as never)} textStyle={s.link}>Open</LinkButton> : null}
                 </View>
               ))}
             </Card>
@@ -183,8 +184,8 @@ const s = StyleSheet.create({
   name: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
   link: { color: Colors.cyan, fontWeight: '800', marginTop: 4, fontSize: 12 },
   remove: { color: Colors.red, fontWeight: '700', fontSize: 12 },
-  add: { borderWidth: 1, borderColor: Colors.borderMed, borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginBottom: Spacing.md },
-  addTxt: { color: Colors.cyan, fontWeight: '800' },
-  save: { marginTop: Spacing.md, backgroundColor: Colors.cyan, borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
-  saveTxt: { color: Colors.bg, fontWeight: '900' },
+  add: { ...Btn.base, borderWidth: 1, borderColor: Colors.borderMed, marginBottom: Spacing.md },
+  addTxt: { ...Btn.text, color: Colors.cyan },
+  save: { ...Btn.base, backgroundColor: Colors.cyan, marginTop: Spacing.md },
+  saveTxt: { ...Btn.text, color: Colors.bg },
 });

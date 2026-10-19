@@ -5,7 +5,7 @@ import { TrackerScreen, Card, SectionLabel, inr, inrShort } from '@/components/T
 import { CalcField, Collapsible, Bullet, toNum } from '@/components/CalcUI';
 import { analyse, lossWorth, parseNewPosition, taxYearStart, LTCG_EXEMPT, type Position } from '@/lib/taxHarvest';
 import { loadHarvest, saveHarvest } from '@/lib/taxHarvestStorage';
-import { Colors, Spacing, Typography } from '@/constants/theme';
+import { Colors, Spacing, Typography, Btn } from '@/constants/theme';
 
 export default function TaxHarvestScreen() {
   const [positions, setPositions] = useState<Position[] | null>(null);
@@ -181,6 +181,6 @@ const s = StyleSheet.create({
   amt: { fontSize: 14, fontWeight: '900' },
   note: { marginTop: 6, lineHeight: 17 },
   del: { color: Colors.red, fontSize: 18, padding: 6, minHeight: 44, minWidth: 44, textAlign: 'center', textAlignVertical: 'center' },
-  add: { minHeight: 44, justifyContent: 'center', borderWidth: 1, borderColor: Colors.teal + '66', borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
-  addTxt: { color: Colors.teal, fontWeight: '800', fontSize: 14 },
+  add: { ...Btn.base, borderWidth: 1, borderColor: Colors.teal + '66' },
+  addTxt: { ...Btn.text, color: Colors.teal },
 });

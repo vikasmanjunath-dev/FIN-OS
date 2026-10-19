@@ -7,6 +7,7 @@ import { compute, compareToBudget, EVENT_IDS, EVENT_LABELS, EVENT_MULTIPLIERS, f
 import { loadForecastInputs, saveForecastTotal, type ForecastInputs } from '@/lib/forecastStorage';
 import { monthSpend } from '@/lib/budget';
 import { Colors, Spacing, Typography } from '@/constants/theme';
+import { LinkButton } from '@/components/LinkButton';
 
 const WINDOWS = [3, 6, 12] as const;
 const monthName = (ym: string) => new Date(`${ym}-01T00:00:00`).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
@@ -45,7 +46,7 @@ export default function ForecastScreen() {
               ? `There are no logged expenses in the ${monthsBack} complete months before this one. Income and investments are never counted as spending. Log a few weeks of expenses, or pick a longer history above.`
               : 'The forecast is worked out from the expenses you log. Log expenses (or import a statement) and it appears here. Nothing is assumed in the meantime.'}
           </Text>
-          <Text style={s.link} onPress={() => router.push('/tracker/transactions')} accessibilityRole="button">Log or import expenses</Text>
+          <LinkButton onPress={() => router.push('/tracker/transactions')} textStyle={s.link}>Log or import expenses</LinkButton>
         </Card>
         <WindowPicker value={monthsBack} onChange={setMonthsBack} />
       </TrackerScreen>
@@ -160,7 +161,7 @@ export default function ForecastScreen() {
       ) : (
         <Card>
           <Text style={Typography.body}>You have not set any category limits, so there is nothing to compare the forecast with.</Text>
-          <Text style={s.link} onPress={() => router.push('/tracker/budget')} accessibilityRole="button">Set limits in Budget</Text>
+          <LinkButton onPress={() => router.push('/tracker/budget')} textStyle={s.link}>Set limits in Budget</LinkButton>
         </Card>
       )}
 

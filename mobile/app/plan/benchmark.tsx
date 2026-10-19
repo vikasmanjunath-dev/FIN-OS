@@ -6,6 +6,7 @@ import { Collapsible, Bullet } from '@/components/CalcUI';
 import { benchmark, tally, NO_PEER_DATA, type BenchRow, type BenchStatus } from '@/lib/benchmark';
 import { loadBenchInput } from '@/lib/benchmarkStorage';
 import { Colors, Spacing, Typography } from '@/constants/theme';
+import { LinkButton } from '@/components/LinkButton';
 
 const TONE: Record<BenchStatus, { label: string; color: string }> = {
   meets: { label: 'Meets the target', color: Colors.teal },
@@ -66,7 +67,7 @@ export default function BenchmarkScreen() {
       <SectionLabel>WHY THERE IS NO PEER COMPARISON</SectionLabel>
       <Card><Text style={[Typography.caption, { lineHeight: 18 }]}>{NO_PEER_DATA}</Text></Card>
 
-      <Text style={s.link} accessibilityRole="button" onPress={() => router.push('/tools/score')}>Open the Money Score for ranked next steps</Text>
+      <LinkButton onPress={() => router.push('/tools/score')} textStyle={s.link}>Open the Money Score for ranked next steps</LinkButton>
       {Object.keys(sources).length > 0 ? (
         <Collapsible title="Where the figures came from">
           {Object.entries(sources).map(([k, v]) => <Bullet key={k}>{`${k.replace(/([A-Z])/g, ' $1').toLowerCase()}: from ${v}`}</Bullet>)}

@@ -5,6 +5,7 @@ import { CalcField, Segmented, CheckRow, Collapsible, Bullet, TwoLineChart, toNu
 import { usePersisted } from '@/hooks/usePersisted';
 import { simulate, breakEven } from '@/lib/prepayInvest';
 import { Colors, Spacing, Typography } from '@/constants/theme';
+import { LinkButton } from '@/components/LinkButton';
 
 const DEFAULTS = {
   loan: '5000000', rate: '8.5', years: '20', monthly: '20000', lump: '0', ret: '12',
@@ -94,7 +95,7 @@ export default function PrepayScreen() {
         <Segmented label="YOUR TAX SLAB" value={f.slab} onChange={v => up({ slab: v })}
           options={SLABS.map(x => ({ id: x, label: `${x}%` }))} />
         <CheckRow label="I claim the Sec 24(b) home-loan interest deduction (old regime, self-occupied, up to ₹2L a year) — this makes the loan cheaper, so prepaying is worth less." value={f.claim24b} onChange={v => up({ claim24b: v })} />
-        <Text onPress={reset} style={{ color: Colors.textMuted, fontSize: 12, fontWeight: '700' }}>Reset to defaults</Text>
+        <LinkButton onPress={reset} textStyle={{ color: Colors.textMuted, fontSize: 12, fontWeight: '700' }}>Reset to defaults</LinkButton>
       </Card>
 
       <Collapsible title="How this is calculated — and what it can't tell you">

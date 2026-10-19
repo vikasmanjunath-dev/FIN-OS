@@ -7,6 +7,7 @@ import { usePersisted } from '@/hooks/usePersisted';
 import { compute, DEFAULT_INCLUDE, MIN_DAYS, type LeakOptions } from '@/lib/leak';
 import { loadLeakInputs, saveLeakFigures } from '@/lib/leakStorage';
 import { Colors, Spacing, Typography } from '@/constants/theme';
+import { LinkButton } from '@/components/LinkButton';
 
 const DEFAULTS = { include: null as string[] | null, rate: '12', redirect: '25' };
 const RATES = ['8', '10', '12', '14'];
@@ -81,7 +82,7 @@ export default function LeakScreen() {
           <Card>
             <Segmented label="EXPECTED RETURN" value={f.rate} onChange={v => set(p => ({ ...p, rate: v }))} options={RATES.map(x => ({ id: x, label: `${x}% a year` }))} />
             <Segmented label="HOW MUCH OF THE LEAK YOU COULD REDIRECT" value={f.redirect} onChange={v => set(p => ({ ...p, redirect: v }))} options={REDIRECTS.map(x => ({ id: x, label: `${x}%` }))} />
-            <Text onPress={reset} style={{ color: Colors.textMuted, fontSize: 12, fontWeight: '700' }}>Reset</Text>
+            <LinkButton onPress={reset} textStyle={{ color: Colors.textMuted, fontSize: 12, fontWeight: '700' }}>Reset</LinkButton>
           </Card>
         </>
       )}

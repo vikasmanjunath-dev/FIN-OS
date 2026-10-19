@@ -1,0 +1,734 @@
+{
+ "text_scale": 2.0,
+ "view_w": 320,
+ "mode": "dark",
+ "populated": false,
+ "results": {
+  "/tools/calc/[id]": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    }
+   ]
+  },
+  "/tools/calculators": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "schedule, prepayment, affordability",
+     "y": 675
+    },
+    {
+     "band": "bottom",
+     "text": "SIP step-up",
+     "y": 728
+    }
+   ]
+  },
+  "/tools/calendar": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "1 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "2 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "3 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "4 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "5 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "6 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "7 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "8 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "9 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "10 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "11 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "12 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "13 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "14 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "15 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "16 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "17 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "18 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "19 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "20 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "21 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "22 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "23 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "24 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "25 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "26 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "27 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "28 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "29 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "30 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "31 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "INSURANCE DUE",
+     "y": 681
+    },
+    {
+     "band": "bottom",
+     "text": "\u2014",
+     "y": 723
+    },
+    {
+     "band": "bottom",
+     "text": "NEXT TAX DATE",
+     "y": 681
+    },
+    {
+     "band": "bottom",
+     "text": "15 Dec",
+     "y": 723
+    }
+   ]
+  },
+  "/tools/credit": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "YOUR NUMBERS",
+     "y": 720
+    }
+   ]
+  },
+  "/tools/debt": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Switch on a loan below and give its bala",
+     "y": 670
+    }
+   ]
+  },
+  "/tools/dna": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "How many orbits have you completed? (Age",
+     "y": 699
+    }
+   ]
+  },
+  "/tools/goalopt": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Open Goals",
+     "w": 238,
+     "h": 33,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Open Goals",
+     "y": 683
+    }
+   ]
+  },
+  "/tools/homeloan": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "TOTAL INTEREST",
+     "y": 713
+    },
+    {
+     "band": "bottom",
+     "text": "TOTAL COST",
+     "y": 713
+    }
+   ]
+  },
+  "/tools/itr": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "SALARY",
+     "y": 704
+    }
+   ]
+  },
+  "/tools/leak": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "No expenses are logged yet. Log your spe",
+     "y": 702
+    }
+   ]
+  },
+  "/tools/lifecover": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "YOUR DETAILS",
+     "y": 671
+    },
+    {
+     "band": "bottom",
+     "text": "ANNUAL INCOME",
+     "y": 722
+    }
+   ]
+  },
+  "/tools/offers": {
+   "hscroll": [
+    {
+     "what": "text past the right edge",
+     "text": "OLD-REGIME DEDUCTIONS / YR",
+     "right": 322,
+     "width": 320
+    }
+   ],
+   "clipped": [
+    {
+     "text": "OLD-REGIME DEDUCTIONS / YR",
+     "axis": "x",
+     "text_box": [
+      189,
+      2233,
+      322,
+      2337
+     ],
+     "clip_box": [
+      24,
+      2216,
+      296,
+      2817
+     ]
+    },
+    {
+     "text": "EXPECTED PAYOUT",
+     "axis": "x",
+     "text_box": [
+      189,
+      3102,
+      312,
+      3154
+     ],
+     "clip_box": [
+      24,
+      2875,
+      296,
+      3746
+     ]
+    },
+    {
+     "text": "%",
+     "axis": "x",
+     "text_box": [
+      287,
+      3172,
+      310,
+      3205
+     ],
+     "clip_box": [
+      24,
+      2875,
+      296,
+      3746
+     ]
+    },
+    {
+     "text": "EMPLOYER NPS",
+     "axis": "x",
+     "text_box": [
+      189,
+      3233,
+      315,
+      3285
+     ],
+     "clip_box": [
+      24,
+      2875,
+      296,
+      3746
+     ]
+    }
+   ],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "years.",
+     "y": 694
+    }
+   ]
+  },
+  "/tools/prepay": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Your assumed 12% return beats the loan, ",
+     "y": 798
+    }
+   ]
+  },
+  "/tools/realestate": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Renting and investing wins",
+     "y": 849
+    }
+   ]
+  },
+  "/tools/rebalance": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "No holdings found yet. Add your portfoli",
+     "y": 703
+    }
+   ]
+  },
+  "/tools/report": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "This opens your phone's share sheet. The",
+     "y": 841
+    }
+   ]
+  },
+  "/tools/retirement": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Add your current age below, or record a ",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "Projections and simulations stay hidden ",
+     "y": 863
+    }
+   ]
+  },
+  "/tools/salary": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "CTC BREAKUP (ANNUAL \u20b9)",
+     "y": 694
+    }
+   ]
+  },
+  "/tools/score": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "PEOPLE WHO DEPEND ON YOUR INCOME (SPOUSE",
+     "y": 758
+    }
+   ]
+  },
+  "/tools/stepup": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "STEP-UP ADVANTAGE",
+     "y": 711
+    },
+    {
+     "band": "bottom",
+     "text": "EXTRA INVESTED",
+     "y": 690
+    },
+    {
+     "band": "bottom",
+     "text": "+\u20b944.73L",
+     "y": 860
+    }
+   ]
+  },
+  "/tools/tax": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "YOUR NUMBERS",
+     "y": 671
+    },
+    {
+     "band": "bottom",
+     "text": "ANNUAL INCOME (BEFORE TAX)",
+     "y": 748
+    }
+   ]
+  },
+  "/tools/taxplanner": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Enter your annual income to see both reg",
+     "y": 719
+    }
+   ]
+  },
+  "/tools/windfall": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udfe0 Property sale",
+     "y": 686
+    }
+   ]
+  }
+ },
+ "not_loaded": []
+}

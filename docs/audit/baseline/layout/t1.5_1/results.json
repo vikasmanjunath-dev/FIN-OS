@@ -1,0 +1,477 @@
+{
+ "text_scale": 1.5,
+ "view_w": 375,
+ "mode": "dark",
+ "populated": true,
+ "results": {
+  "/tracker/budget": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "Take-home, after tax",
+     "y": 680
+    }
+   ]
+  },
+  "/tracker/crypto": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "COIN",
+     "y": 680
+    },
+    {
+     "band": "bottom",
+     "text": "BTC",
+     "y": 716
+    },
+    {
+     "band": "bottom",
+     "text": "ETH",
+     "y": 716
+    },
+    {
+     "band": "bottom",
+     "text": "USDT",
+     "y": 716
+    },
+    {
+     "band": "bottom",
+     "text": "BNB",
+     "y": 716
+    }
+   ]
+  },
+  "/tracker/emergency": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udee1\ufe0f",
+     "y": 701
+    },
+    {
+     "band": "bottom",
+     "text": "Emergency fund balance",
+     "y": 679
+    },
+    {
+     "band": "bottom",
+     "text": "Savings + liquid funds + short FDs set a",
+     "y": 765
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9",
+     "y": 698
+    }
+   ]
+  },
+  "/tracker/epf": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "From the EPFO passbook or UMANG app",
+     "y": 710
+    }
+   ]
+  },
+  "/tracker/fixed": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "KIND",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udfe6",
+     "y": 711
+    },
+    {
+     "band": "bottom",
+     "text": "Fixed Deposit",
+     "y": 711
+    }
+   ]
+  },
+  "/tracker/goals": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    }
+   ]
+  },
+  "/tracker/gold": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83e\ude99 Physical",
+     "y": 707
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udcdc SGB",
+     "y": 707
+    }
+   ]
+  },
+  "/tracker/harvest": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "GAINS ALREADY BOOKED THIS YEAR",
+     "y": 685
+    }
+   ]
+  },
+  "/tracker/health": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "Aim for net worth of 5\u00d7 annual income by",
+     "y": 676
+    }
+   ]
+  },
+  "/tracker/holdings-import": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "Zerodha: Console \u2192 Portfolio \u2192 Holdings ",
+     "y": 743
+    }
+   ]
+  },
+  "/tracker/import": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "Download the statement as CSV from your ",
+     "y": 793
+    }
+   ]
+  },
+  "/tracker/insurance": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udfe5",
+     "y": 721
+    },
+    {
+     "band": "bottom",
+     "text": "Health cover is low (\u20b95.0 L)",
+     "y": 731
+    }
+   ]
+  },
+  "/tracker/networth": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "FIRE PROGRESS",
+     "y": 689
+    },
+    {
+     "band": "bottom",
+     "text": "11.7",
+     "y": 745
+    },
+    {
+     "band": "bottom",
+     "text": "%",
+     "y": 745
+    }
+   ]
+  },
+  "/tracker/nps": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "Optional, withdraw any time",
+     "y": 693
+    }
+   ]
+  },
+  "/tracker/passive": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Taxable",
+     "w": 40,
+     "h": 20,
+     "role": "switch"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "The FD and SGB lines were filled in from",
+     "y": 750
+    }
+   ]
+  },
+  "/tracker/ppf": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "These are estimates at the displayed rat",
+     "y": 702
+    }
+   ]
+  },
+  "/tracker/recurring": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\ude95",
+     "y": 710
+    },
+    {
+     "band": "bottom",
+     "text": "Transport",
+     "y": 710
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udecd\ufe0f",
+     "y": 710
+    },
+    {
+     "band": "bottom",
+     "text": "Shopping",
+     "y": 710
+    }
+   ]
+  },
+  "/tracker/subscriptions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "RENEWING IN THE NEXT 30 DAYS",
+     "y": 701
+    }
+   ]
+  },
+  "/tracker/transactions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "Transfer",
+     "y": 699
+    }
+   ]
+  },
+  "/tracker/watchlist": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "\u25b8",
+     "y": 716
+    },
+    {
+     "band": "bottom",
+     "text": "About this list",
+     "y": 716
+    }
+   ]
+  },
+  "/tools/salary": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "HRA FROM EMPLOYER",
+     "y": 702
+    }
+   ]
+  }
+ },
+ "not_loaded": [
+  "/tools/sip",
+  "/tools/emi"
+ ]
+}

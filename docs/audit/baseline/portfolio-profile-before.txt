@@ -1,0 +1,5 @@
+build: {'buildAllMs': 65, 'dom': 13092, 'canvases': 45, 'charts': 24, 'heapMB': 32}
+after: {'dom': 13748, 'canvases': 46, 'charts': 24, 'heapMB': 32, 'longTasks': 1, 'longTaskMs': 67, 'maxLongMs': 67}
+requests_by_host: {'corsproxy.io': 30, 'api.allorigins.win': 29, 'thingproxy.freeboard.io': 29, 'api.codetabs.com': 29, 'backend:8766': 20, 'fonts.gstatic.com': 3, 'cdnjs.cloudflare.com': 2, 'unpkg.com': 1, 'cdn.jsdelivr.net': 1, 'fonts.googleapis.com': 1, 'query1.finance.yahoo.com': 1, 'query2.finance.yahoo.com': 1, 'open.er-api.com': 1}
+injected_failures: {'query1.finance.yahoo.com 429': 1, 'query2.finance.yahoo.com 502': 1, 'corsproxy.io 429': 16, 'api.allorigins.win 502': 15, 'api.allorigins.win 429': 14, 'corsproxy.io 502': 14, 'thingproxy.freeboard.io 502': 15, 'thingproxy.freeboard.io 429': 14, 'api.codetabs.com 502': 14, 'api.codetabs.com 429': 15}
+page_errors: []

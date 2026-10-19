@@ -6,7 +6,7 @@ import { Card, SectionLabel } from '@/components/TrackerUI';
 import { searchFundsLive } from '@/lib/marketDataApi';
 import { clearMarketCache } from '@/lib/marketDataStorage';
 import { cleanTicker, type FundNav } from '@/lib/marketData';
-import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
+import { Colors, Radii, Spacing, Typography, Btn } from '@/constants/theme';
 
 const LINKS: { route: string; icon: string; title: string; sub: string }[] = [
   { route: '/market/news', icon: '📰', title: 'Market news', sub: 'Headlines with the wording of each marked' },
@@ -102,8 +102,8 @@ export default function MarketHub() {
 
 const s = StyleSheet.create({
   input: { backgroundColor: Colors.bg, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.md, color: Colors.textPrimary, paddingHorizontal: 12, paddingVertical: 10 },
-  btn: { backgroundColor: Colors.cyan, borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginTop: Spacing.sm },
-  btnTxt: { color: '#000', fontWeight: '900', fontSize: 14 },
+  btn: { ...Btn.base, backgroundColor: Colors.cyan, marginTop: Spacing.sm },
+  btnTxt: { ...Btn.text, color: '#000' },
   fund: { borderWidth: 1, borderColor: Colors.border, borderRadius: 12, padding: 10, marginTop: 8 },
   fundName: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
   link: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.surface, borderRadius: Radii.md, borderWidth: 1, borderColor: Colors.border, padding: Spacing.md, marginBottom: Spacing.sm },

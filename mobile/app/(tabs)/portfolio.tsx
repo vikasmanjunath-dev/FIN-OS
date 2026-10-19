@@ -113,15 +113,17 @@ export default function PortfolioScreen() {
                 : 'Add your first holding to get started'}
             </Text>
           </View>
-          <TouchableOpacity style={[styles.addBtn, { marginRight: 8 }]} onPress={() => router.push('/tracker/watchlist' as any)} accessibilityRole="button" accessibilityLabel="Open your watchlist">
+          <View style={styles.actions}>
+          <TouchableOpacity style={styles.addBtn} onPress={() => router.push('/tracker/watchlist' as any)} accessibilityRole="button" accessibilityLabel="Open your watchlist">
             <Text style={styles.addBtnTxt}>👁 Watch</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.addBtn, { marginRight: 8 }]} onPress={() => router.push('/tracker/holdings-import')} accessibilityRole="button" accessibilityLabel="Import holdings from a broker file">
+          <TouchableOpacity style={styles.addBtn} onPress={() => router.push('/tracker/holdings-import')} accessibilityRole="button" accessibilityLabel="Import holdings from a broker file">
             <Text style={styles.addBtnTxt}>⇪ Import</Text>
           </TouchableOpacity>
-          <TouchableOpacity accessibilityRole="button" style={styles.addBtn} onPress={() => setAdding(true)}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add a holding" style={styles.addBtn} onPress={() => setAdding(true)}>
             <Text style={styles.addBtnTxt}>＋ Add</Text>
           </TouchableOpacity>
+          </View>
         </View>
 
         {loaded && rows.length === 0 ? (
@@ -258,8 +260,9 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bg },
   content: { paddingBottom: 80 },
   // Wraps on narrow phones so the title never breaks mid-word ("Portfoli/o") beside the three buttons
-  header: { padding: Spacing.lg, paddingTop: Spacing.xxl, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: Spacing.sm },
-  headerTitle: { flex: 1, flexBasis: 150, minWidth: 150 },
+  header: { padding: Spacing.lg, paddingTop: Spacing.md, gap: Spacing.md },
+  headerTitle: { gap: 2 },
+  actions: { flexDirection: 'row', gap: Spacing.sm },   // Watch / Import / Add: one aligned row of equal buttons, not three pills wrapping unevenly
 
   summaryCard: { marginHorizontal: Spacing.lg, borderRadius: Radii.xl, padding: Spacing.lg, borderWidth: 1, borderColor: Colors.border, overflow: 'hidden', marginBottom: Spacing.md },
   summaryBar: { position: 'absolute', top: 0, left: 0, right: 0, height: 2 },
@@ -316,8 +319,8 @@ const styles = StyleSheet.create({
   growthBtnSub: { ...Typography.caption, marginTop: 2 },
   deepDiveBtnText: { fontSize: 13, fontWeight: '700', color: Colors.purpleInk },
 
-  addBtn: { backgroundColor: 'rgba(0,212,255,0.12)', borderWidth: 1, borderColor: 'rgba(0,212,255,0.35)', borderRadius: Radii.full, paddingHorizontal: Spacing.md, paddingVertical: 8 },
-  addBtnTxt: { color: Colors.cyan, fontWeight: '800', fontSize: 13 },
+  addBtn: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,212,255,0.12)', borderWidth: 1, borderColor: 'rgba(0,212,255,0.35)', borderRadius: Radii.full, paddingHorizontal: Spacing.sm },
+  addBtnTxt: { color: Colors.cyan, fontWeight: '800', fontSize: 14 },
   removeTxt: { color: Colors.textDim, fontSize: 10, marginTop: 6 },
   hint: { ...Typography.caption, textAlign: 'center', marginTop: Spacing.xs },
   empty: { marginHorizontal: Spacing.lg, alignItems: 'center', backgroundColor: Colors.surface, borderRadius: Radii.xl, borderWidth: 1, borderColor: Colors.border, padding: Spacing.xl },

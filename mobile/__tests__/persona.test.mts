@@ -55,9 +55,11 @@ test('strip chips open the screen the figure comes from, with a label that says 
   assert.doesNotMatch(f[0].a11y, /worked out on/);
 });
 
-test('preferences: only an explicit true hides the strip; wrong shapes read as the default', () => {
+// Changed with the calm Home redesign: the strip is off by default (it repeated the hero card) and only an explicit choice in Settings shows it.
+test('preferences: only an explicit false shows the strip; wrong shapes read as the default (hidden)', () => {
+  assert.deepEqual(P.normalisePrefs({ stripHidden: false }), { stripHidden: false });
   assert.deepEqual(P.normalisePrefs({ stripHidden: true }), { stripHidden: true });
-  for (const bad of [null, undefined, 'true', 1, [], {}, { stripHidden: 'yes' }, { stripHidden: 1 }]) assert.deepEqual(P.normalisePrefs(bad), { stripHidden: false }, JSON.stringify(bad));
+  for (const bad of [null, undefined, 'false', 0, [], {}, { stripHidden: 'no' }, { stripHidden: 0 }]) assert.deepEqual(P.normalisePrefs(bad), { stripHidden: true }, JSON.stringify(bad));
 });
 
 test('the preference key stays on the phone: not synced, not backed up, listed as device-only', () => {

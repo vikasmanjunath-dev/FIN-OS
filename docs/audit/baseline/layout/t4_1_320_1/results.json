@@ -1,0 +1,1100 @@
+{
+ "text_scale": 1.0,
+ "view_w": 320,
+ "mode": "dark",
+ "populated": true,
+ "results": {
+  "/tools/calc/[id]": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tools/calculators": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tools/calendar": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "1 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "2 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "3 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "4 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "5 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "6 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "7 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "8 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "9 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "10 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "11 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "12 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "13 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "14 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "15 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "16 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "17 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "18 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "19 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "20 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "21 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "22 October, 1 event",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "23 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "24 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "25 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "26 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "27 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "28 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "29 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "30 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "31 October",
+     "w": 34,
+     "h": 46,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "26",
+     "y": 690
+    },
+    {
+     "band": "bottom",
+     "text": "27",
+     "y": 690
+    },
+    {
+     "band": "bottom",
+     "text": "28",
+     "y": 690
+    },
+    {
+     "band": "bottom",
+     "text": "29",
+     "y": 690
+    },
+    {
+     "band": "bottom",
+     "text": "30",
+     "y": 690
+    },
+    {
+     "band": "bottom",
+     "text": "31",
+     "y": 690
+    }
+   ]
+  },
+  "/tools/credit": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tools/debt": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udcb3",
+     "y": 684
+    },
+    {
+     "band": "bottom",
+     "text": "Credit card",
+     "y": 681
+    }
+   ]
+  },
+  "/tools/dna": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tools/goalopt": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "%",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "Worked out from your income and spending",
+     "y": 736
+    }
+   ]
+  },
+  "/tools/homeloan": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "INTEREST RATE",
+     "y": 687
+    }
+   ]
+  },
+  "/tools/itr": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "LTA (A YEAR)",
+     "y": 700
+    }
+   ]
+  },
+  "/tools/leak": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\u2713",
+     "y": 699
+    },
+    {
+     "band": "bottom",
+     "text": "Food & Dining",
+     "y": 699
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b922,253",
+     "y": 699
+    }
+   ]
+  },
+  "/tools/lifecover": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Income replacement (method 2)",
+     "y": 667
+    },
+    {
+     "band": "bottom",
+     "text": "The corpus that pays \u20b945,000 a month at ",
+     "y": 712
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b91,35,00,000",
+     "y": 673
+    }
+   ]
+  },
+  "/tools/offers": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b943,200",
+     "y": 680
+    },
+    {
+     "band": "bottom",
+     "text": "Cash take-home over 5 years",
+     "y": 729
+    }
+   ]
+  },
+  "/tools/prepay": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "NET POSITION OVER TIME (INVESTMENTS \u2212 LO",
+     "y": 721
+    }
+   ]
+  },
+  "/tools/realestate": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9",
+     "y": 704
+    }
+   ]
+  },
+  "/tools/rebalance": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tools/report": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "EPF / provident fund: \u20b98.00 L (38%)",
+     "y": 683
+    },
+    {
+     "band": "bottom",
+     "text": "NPS: \u20b93.00 L (14%)",
+     "y": 705
+    }
+   ]
+  },
+  "/tools/retirement": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "YOUR ASSUMPTIONS",
+     "y": 697
+    }
+   ]
+  },
+  "/tools/salary": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "LTA",
+     "y": 683
+    }
+   ]
+  },
+  "/tools/score": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\u2713 From your income. Edit if it is off.",
+     "y": 685
+    }
+   ]
+  },
+  "/tools/stepup": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "A typical salary increment is 8\u201315%; red",
+     "y": 674
+    },
+    {
+     "band": "bottom",
+     "text": "INVESTMENT HORIZON",
+     "y": 703
+    }
+   ]
+  },
+  "/tools/tax": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9",
+     "y": 692
+    }
+   ]
+  },
+  "/tools/taxplanner": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "New regime saves you \u20b91,46,172 a year.",
+     "y": 677
+    },
+    {
+     "band": "bottom",
+     "text": "Old-regime deductions counted: \u20b964,000 (",
+     "y": 714
+    }
+   ]
+  },
+  "/tools/windfall": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "WHERE \u20b95.00L SHOULD GO, IN ORDER",
+     "y": 702
+    }
+   ]
+  },
+  "/tracker/budget": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Rent, bills, food, EMIs \u2014 everything",
+     "y": 667
+    }
+   ]
+  },
+  "/tracker/crypto": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "QUANTITY HELD",
+     "y": 675
+    }
+   ]
+  },
+  "/tracker/emergency": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "3",
+     "y": 702
+    },
+    {
+     "band": "bottom",
+     "text": "months",
+     "y": 702
+    },
+    {
+     "band": "bottom",
+     "text": "6",
+     "y": 702
+    },
+    {
+     "band": "bottom",
+     "text": "12",
+     "y": 702
+    }
+   ]
+  },
+  "/tracker/epf": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Used for contributions and pension",
+     "y": 686
+    }
+   ]
+  },
+  "/tracker/fixed": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udcdc",
+     "y": 697
+    },
+    {
+     "band": "bottom",
+     "text": "National Savings Certificate",
+     "y": 697
+    }
+   ]
+  },
+  "/tracker/goals": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b91,00,000",
+     "y": 668
+    },
+    {
+     "band": "bottom",
+     "text": "of",
+     "y": 668
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b99,00,000",
+     "y": 668
+    },
+    {
+     "band": "bottom",
+     "text": "\u00b7 save about \u20b947,059/month to get there",
+     "y": 683
+    }
+   ]
+  },
+  "/tracker/gold": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "WEIGHT (GRAMS)",
+     "y": 695
+    }
+   ]
+  },
+  "/tracker/harvest": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "SHORT-TERM GAINS (STCG)",
+     "y": 671
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9",
+     "y": 709
+    }
+   ]
+  },
+  "/tracker/health": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udca1",
+     "y": 670
+    },
+    {
+     "band": "bottom",
+     "text": "80C gap: \u20b91,50,000 \u2014 ELSS/PPF can save t",
+     "y": 687
+    }
+   ]
+  },
+  "/tracker/holdings-import": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tracker/import": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tracker/insurance": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Ideal is about 15\u00d7 annual income (\u20b92.2 C",
+     "y": 707
+    }
+   ]
+  },
+  "/tracker/networth": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tracker/nps": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udc64",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "You pay / month",
+     "y": 709
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9",
+     "y": 701
+    }
+   ]
+  },
+  "/tracker/passive": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udcca",
+     "y": 701
+    },
+    {
+     "band": "bottom",
+     "text": "\u2715",
+     "y": 696
+    }
+   ]
+  },
+  "/tracker/ppf": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "% a year, compounded",
+     "y": 677
+    },
+    {
+     "band": "bottom",
+     "text": "annual",
+     "y": 677
+    },
+    {
+     "band": "bottom",
+     "text": "\u00b7",
+     "y": 677
+    },
+    {
+     "band": "bottom",
+     "text": "15",
+     "y": 677
+    },
+    {
+     "band": "bottom",
+     "text": "-year term \u00b7",
+     "y": 677
+    },
+    {
+     "band": "bottom",
+     "text": "maturity is based on the financial year ",
+     "y": 711
+    }
+   ]
+  },
+  "/tracker/recurring": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83e\ude7a",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "Health",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udfac",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "Entertainment",
+     "y": 703
+    }
+   ]
+  },
+  "/tracker/subscriptions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "NAME",
+     "y": 698
+    }
+   ]
+  },
+  "/tracker/transactions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "WHAT FOR (OPTIONAL)",
+     "y": 708
+    }
+   ]
+  },
+  "/tracker/watchlist": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  }
+ },
+ "not_loaded": []
+}

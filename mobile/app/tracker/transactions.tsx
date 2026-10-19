@@ -197,13 +197,13 @@ export default function TransactionsScreen() {
         )}
 
         <Text style={s.lbl}>DATE</Text>
-        <View style={{ flexDirection: 'row', gap: Spacing.sm, alignItems: 'center' }}>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, alignItems: 'center' }}>
           {[{ l: 'Today', v: today }, { l: 'Yesterday', v: yesterday }].map(x => (
             <TouchableOpacity accessibilityRole="button" key={x.l} style={[s.chip, date === x.v && s.chipOn]} onPress={() => setDate(x.v)}>
               <Text style={[s.chipTxt, date === x.v && s.chipTxtOn]}>{x.l}</Text>
             </TouchableOpacity>
           ))}
-          <TextInput style={[s.input, { flex: 1, paddingVertical: 7 }]} value={date} onChangeText={setDate} placeholder="YYYY-MM-DD"
+          <TextInput style={[s.input, { flexGrow: 1, flexBasis: 140, minWidth: 0 }]} value={date} onChangeText={setDate} placeholder="YYYY-MM-DD"
             placeholderTextColor={Colors.textDim} autoCapitalize="none" accessibilityLabel="Date" />
         </View>
 

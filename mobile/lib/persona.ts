@@ -75,8 +75,9 @@ export function buildStrip(f: StripFacts, now: Date = new Date()): StripItem[] {
 }
 
 export interface PersonaPrefs { stripHidden: boolean }
-export const DEFAULT_PREFS: PersonaPrefs = { stripHidden: false };
-/** A stored value of the wrong shape reads as the default (strip shown). */
+// Off unless asked for: the strip repeats the savings rate and net worth that the Home hero card shows a moment later. Settings turns it on.
+export const DEFAULT_PREFS: PersonaPrefs = { stripHidden: true };
+/** Only an explicit `false` (chosen in Settings) shows the strip; a stored value of the wrong shape reads as the default (hidden). */
 export function normalisePrefs(raw: unknown): PersonaPrefs {
-  return raw !== null && typeof raw === 'object' && !Array.isArray(raw) && (raw as any).stripHidden === true ? { stripHidden: true } : { ...DEFAULT_PREFS };
+  return raw !== null && typeof raw === 'object' && !Array.isArray(raw) && (raw as any).stripHidden === false ? { stripHidden: false } : { ...DEFAULT_PREFS };
 }

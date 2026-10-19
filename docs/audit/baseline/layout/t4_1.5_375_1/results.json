@@ -1,0 +1,1140 @@
+{
+ "text_scale": 1.5,
+ "view_w": 375,
+ "mode": "dark",
+ "populated": true,
+ "results": {
+  "/tools/calc/[id]": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    }
+   ]
+  },
+  "/tools/calculators": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "Salary structure",
+     "y": 672
+    },
+    {
+     "band": "bottom",
+     "text": "CTC to take-home",
+     "y": 693
+    },
+    {
+     "band": "bottom",
+     "text": "\u203a",
+     "y": 690
+    }
+   ]
+  },
+  "/tools/calendar": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "1 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "2 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "3 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "4 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "5 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "6 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "7 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "8 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "9 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "10 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "11 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "12 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "13 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "14 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "15 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "16 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "17 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "18 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "19 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "20 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "21 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "22 October, 1 event",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "23 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "24 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "25 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "26 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "27 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "28 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "29 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "30 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "31 October",
+     "w": 42,
+     "h": 46,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "1",
+     "y": 674
+    },
+    {
+     "band": "bottom",
+     "text": "2",
+     "y": 674
+    },
+    {
+     "band": "bottom",
+     "text": "3",
+     "y": 674
+    },
+    {
+     "band": "bottom",
+     "text": "4",
+     "y": 674
+    },
+    {
+     "band": "bottom",
+     "text": "5",
+     "y": 720
+    },
+    {
+     "band": "bottom",
+     "text": "6",
+     "y": 720
+    },
+    {
+     "band": "bottom",
+     "text": "7",
+     "y": 720
+    },
+    {
+     "band": "bottom",
+     "text": "8",
+     "y": 720
+    },
+    {
+     "band": "bottom",
+     "text": "9",
+     "y": 720
+    },
+    {
+     "band": "bottom",
+     "text": "10",
+     "y": 720
+    },
+    {
+     "band": "bottom",
+     "text": "11",
+     "y": 720
+    }
+   ]
+  },
+  "/tools/credit": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "CREDIT UTILISATION",
+     "y": 684
+    }
+   ]
+  },
+  "/tools/debt": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udc64",
+     "y": 671
+    },
+    {
+     "band": "bottom",
+     "text": "Personal loan",
+     "y": 668
+    }
+   ]
+  },
+  "/tools/dna": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "\u2190 Previous",
+     "y": 704
+    }
+   ]
+  },
+  "/tools/goalopt": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "MONTHLY INCOME",
+     "y": 671
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9",
+     "y": 714
+    }
+   ]
+  },
+  "/tools/homeloan": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "YOUR LOAN",
+     "y": 699
+    }
+   ]
+  },
+  "/tools/itr": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "BASIC SALARY (A YEAR)",
+     "y": 694
+    }
+   ]
+  },
+  "/tools/leak": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "If you redirect 25% of it (\u20b911,455 a mon",
+     "y": 707
+    }
+   ]
+  },
+  "/tools/lifecover": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "Human life value (method 1)",
+     "y": 758
+    }
+   ]
+  },
+  "/tools/offers": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "Tax regime that saves you more",
+     "y": 743
+    }
+   ]
+  },
+  "/tools/prepay": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "Interest paid",
+     "y": 690
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b923.21L",
+     "y": 714
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b954.14L",
+     "y": 690
+    }
+   ]
+  },
+  "/tools/realestate": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "Buying does not catch up with renting an",
+     "y": 721
+    }
+   ]
+  },
+  "/tools/rebalance": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "Add \u20b94.50L through your equity SIP or an",
+     "y": 667
+    }
+   ]
+  },
+  "/tools/report": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "As of 17 October 2026",
+     "y": 679
+    },
+    {
+     "band": "bottom",
+     "text": "NET WORTH",
+     "y": 714
+    }
+   ]
+  },
+  "/tools/retirement": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "Record your age in the assumptions below",
+     "y": 715
+    }
+   ]
+  },
+  "/tools/salary": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "HRA FROM EMPLOYER",
+     "y": 702
+    }
+   ]
+  },
+  "/tools/score": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "TAKE-HOME INCOME",
+     "y": 692
+    }
+   ]
+  },
+  "/tools/stepup": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "MONTHLY SIP (BASE)",
+     "y": 709
+    }
+   ]
+  },
+  "/tools/tax": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "HEALTH INSURANCE ALREADY CLAIMED (80D)",
+     "y": 685
+    }
+   ]
+  },
+  "/tools/taxplanner": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "Slab tax",
+     "y": 686
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b984,750",
+     "y": 707
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b92,25,300",
+     "y": 712
+    }
+   ]
+  },
+  "/tools/windfall": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "\u2728 Other (dividends, refund\u2026)",
+     "y": 697
+    }
+   ]
+  },
+  "/tracker/budget": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "Take-home, after tax",
+     "y": 680
+    }
+   ]
+  },
+  "/tracker/crypto": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "COIN",
+     "y": 680
+    },
+    {
+     "band": "bottom",
+     "text": "BTC",
+     "y": 716
+    },
+    {
+     "band": "bottom",
+     "text": "ETH",
+     "y": 716
+    },
+    {
+     "band": "bottom",
+     "text": "USDT",
+     "y": 716
+    },
+    {
+     "band": "bottom",
+     "text": "BNB",
+     "y": 716
+    }
+   ]
+  },
+  "/tracker/emergency": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udee1\ufe0f",
+     "y": 701
+    },
+    {
+     "band": "bottom",
+     "text": "Emergency fund balance",
+     "y": 679
+    },
+    {
+     "band": "bottom",
+     "text": "Savings + liquid funds + short FDs set a",
+     "y": 765
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9",
+     "y": 698
+    }
+   ]
+  },
+  "/tracker/epf": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "From the EPFO passbook or UMANG app",
+     "y": 710
+    }
+   ]
+  },
+  "/tracker/fixed": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "KIND",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udfe6",
+     "y": 711
+    },
+    {
+     "band": "bottom",
+     "text": "Fixed Deposit",
+     "y": 711
+    }
+   ]
+  },
+  "/tracker/goals": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    }
+   ]
+  },
+  "/tracker/gold": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83e\ude99 Physical",
+     "y": 707
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udcdc SGB",
+     "y": 707
+    }
+   ]
+  },
+  "/tracker/harvest": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "GAINS ALREADY BOOKED THIS YEAR",
+     "y": 685
+    }
+   ]
+  },
+  "/tracker/health": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "Aim for net worth of 5\u00d7 annual income by",
+     "y": 676
+    }
+   ]
+  },
+  "/tracker/holdings-import": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "Zerodha: Console \u2192 Portfolio \u2192 Holdings ",
+     "y": 743
+    }
+   ]
+  },
+  "/tracker/import": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "Download the statement as CSV from your ",
+     "y": 793
+    }
+   ]
+  },
+  "/tracker/insurance": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udfe5",
+     "y": 721
+    },
+    {
+     "band": "bottom",
+     "text": "Health cover is low (\u20b95.0 L)",
+     "y": 731
+    }
+   ]
+  },
+  "/tracker/networth": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "FIRE PROGRESS",
+     "y": 689
+    },
+    {
+     "band": "bottom",
+     "text": "11.7",
+     "y": 745
+    },
+    {
+     "band": "bottom",
+     "text": "%",
+     "y": 745
+    }
+   ]
+  },
+  "/tracker/nps": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "Optional, withdraw any time",
+     "y": 693
+    }
+   ]
+  },
+  "/tracker/passive": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "The FD and SGB lines were filled in from",
+     "y": 750
+    }
+   ]
+  },
+  "/tracker/ppf": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "These are estimates at the displayed rat",
+     "y": 702
+    }
+   ]
+  },
+  "/tracker/recurring": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\ude95",
+     "y": 710
+    },
+    {
+     "band": "bottom",
+     "text": "Transport",
+     "y": 710
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udecd\ufe0f",
+     "y": 710
+    },
+    {
+     "band": "bottom",
+     "text": "Shopping",
+     "y": 710
+    }
+   ]
+  },
+  "/tracker/subscriptions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "RENEWING IN THE NEXT 30 DAYS",
+     "y": 701
+    }
+   ]
+  },
+  "/tracker/transactions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "Transfer",
+     "y": 699
+    }
+   ]
+  },
+  "/tracker/watchlist": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "\u25b8",
+     "y": 716
+    },
+    {
+     "band": "bottom",
+     "text": "About this list",
+     "y": 716
+    }
+   ]
+  }
+ },
+ "not_loaded": []
+}

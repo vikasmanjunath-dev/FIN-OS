@@ -1,0 +1,505 @@
+{
+ "text_scale": 2.0,
+ "view_w": 320,
+ "mode": "dark",
+ "populated": true,
+ "results": {
+  "/tracker/budget": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [
+    {
+     "a": "Income / month",
+     "b": "Spend / month"
+    },
+    {
+     "a": "23 logged this month \u00b7 \u20b945,927 spent",
+     "b": "\u203a"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b91,20,000",
+     "y": 755
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b960,000",
+     "y": 720
+    }
+   ]
+  },
+  "/tracker/crypto": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Tax is 30% + 4% cess (31.2%) on each coi",
+     "y": 887
+    }
+   ]
+  },
+  "/tracker/emergency": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "You have",
+     "y": 706
+    },
+    {
+     "band": "bottom",
+     "text": "Target",
+     "y": 678
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b93,60,000",
+     "y": 785
+    },
+    {
+     "band": "bottom",
+     "text": "Still needed",
+     "y": 706
+    }
+   ]
+  },
+  "/tracker/epf": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b98,00,000",
+     "y": 695
+    }
+   ]
+  },
+  "/tracker/fixed": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [
+    {
+     "a": "Interest earned",
+     "b": "Yield so far"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Invested",
+     "y": 708
+    },
+    {
+     "band": "bottom",
+     "text": "Interest earned",
+     "y": 708
+    },
+    {
+     "band": "bottom",
+     "text": "Yield so far",
+     "y": 708
+    }
+   ]
+  },
+  "/tracker/goals": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [
+    {
+     "a": "17 months left",
+     "b": "11"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b98,00,000",
+     "y": 708
+    },
+    {
+     "band": "bottom",
+     "text": "of",
+     "y": 708
+    }
+   ]
+  },
+  "/tracker/gold": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "TOTAL GOLD VALUE",
+     "y": 710
+    }
+   ]
+  },
+  "/tracker/harvest": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [
+    {
+     "a": "Type today's price: it is not fetched.",
+     "b": "ACQUISITION DATE"
+    },
+    {
+     "a": "The date you bought it. It decides long-",
+     "b": "\uff0b Add holding"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b90",
+     "y": 701
+    }
+   ]
+  },
+  "/tracker/health": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "/100",
+     "y": 705
+    }
+   ]
+  },
+  "/tracker/holdings-import": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    }
+   ]
+  },
+  "/tracker/import": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "1 \u00b7 CHOOSE YOUR STATEMENT",
+     "y": 682
+    }
+   ]
+  },
+  "/tracker/insurance": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [
+    {
+     "a": "\ud83c\udfe5",
+     "b": "Health insurance"
+    },
+    {
+     "a": "\ud83d\udee1\ufe0f",
+     "b": "Term life"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Critical illness",
+     "y": 749
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b90 of \u20b972.00L",
+     "y": 739
+    }
+   ]
+  },
+  "/tracker/networth": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [
+    {
+     "a": "Stocks & mutual funds",
+     "b": "29"
+    },
+    {
+     "a": "\ud83c\udfe7",
+     "b": "Savings / cash"
+    },
+    {
+     "a": "\ud83d\udcb3",
+     "b": "Credit card dues"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "ALLOCATION",
+     "y": 717
+    }
+   ]
+  },
+  "/tracker/nps": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [
+    {
+     "a": "\ud83d\udc64",
+     "b": "You pay / month"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Tier 1 balance",
+     "y": 713
+    }
+   ]
+  },
+  "/tracker/passive": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Taxable",
+     "w": 40,
+     "h": 20,
+     "role": "switch"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Covers 0% of your \u20b960.0K monthly spendin",
+     "y": 729
+    }
+   ]
+  },
+  "/tracker/ppf": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "80C eligible / yr",
+     "y": 733
+    },
+    {
+     "band": "bottom",
+     "text": "Deposits / yr",
+     "y": 705
+    },
+    {
+     "band": "bottom",
+     "text": "Combined projections",
+     "y": 761
+    }
+   ]
+  },
+  "/tracker/recurring": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9",
+     "y": 671
+    }
+   ]
+  },
+  "/tracker/subscriptions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [
+    {
+     "a": "\ud83c\udfcb\ufe0f",
+     "b": "Quarterly"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Active",
+     "y": 705
+    },
+    {
+     "band": "bottom",
+     "text": "Due in 7 days",
+     "y": 733
+    },
+    {
+     "band": "bottom",
+     "text": "Trials",
+     "y": 705
+    }
+   ]
+  },
+  "/tracker/transactions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [
+    {
+     "a": "\ud83d\udcb0",
+     "b": "Salary"
+    },
+    {
+     "a": "\ud83c\udf7d\ufe0f",
+     "b": "Lunch"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udf7d\ufe0f",
+     "y": 671
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9400",
+     "y": 678
+    }
+   ]
+  },
+  "/tracker/watchlist": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "\uff0b Add to watchlist",
+     "y": 740
+    }
+   ]
+  }
+ },
+ "not_loaded": []
+}

@@ -23,11 +23,11 @@ import { confirmPermission } from '@/lib/permissionPrompt';
 function SettingRow({ label, sub, right }: { label: string; sub?: string; right: React.ReactNode }) {
   return (
     <View style={styles.row}>
-      <View style={{ flex: 1 }}>
+      <View style={{ flexGrow: 1, flexShrink: 1, flexBasis: 180 }}>
         <Text style={styles.rowLabel}>{label}</Text>
         {sub && <Text style={styles.rowSub}>{sub}</Text>}
       </View>
-      {right}
+      <View style={{ flexShrink: 0, marginLeft: 'auto' }}>{right}</View>
     </View>
   );
 }
@@ -44,7 +44,7 @@ export default function SettingsScreen() {
   const [rem, setRem]             = useState<ReminderPrefs>({ ...DEFAULT_PREFS });
   const [remMsg, setRemMsg]       = useState('');
 
-  const [stripHidden, setStripHidden] = useState(false);
+  const [stripHidden, setStripHidden] = useState(true);
   React.useEffect(() => { loadPrefs().then(setRem); loadPersonaPrefs().then(p => setStripHidden(p.stripHidden)).catch(() => {}); }, []);
   const toggleStrip = () => { const next = !stripHidden; setStripHidden(next); savePersonaPrefs({ stripHidden: next }); };
 
@@ -105,11 +105,11 @@ export default function SettingsScreen() {
     <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       {/* ── Header ── */}
       <View style={styles.header}>
-        <TouchableOpacity accessibilityRole="button" onPress={() => router.back()} hitSlop={12}>
+        <TouchableOpacity accessibilityRole="button" onPress={() => router.back()} hitSlop={12} style={styles.backSlot}>
           <Text style={styles.backBtn}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Settings</Text>
-        <View style={{ width: 50 }} />
+        <Text accessibilityRole="header" style={styles.headerTitle}>Settings</Text>
+        <View style={styles.backSlot} />
       </View>
 
       {/* ── Language ── */}
@@ -163,7 +163,7 @@ export default function SettingsScreen() {
       <View style={[styles.card, { marginTop: Spacing.md }]}>
         <SettingRow
           label="Facts strip on Home"
-          sub="Savings rate, net worth and Money Score, shown only when you have recorded them. Hide it with the cross on Home, or here."
+          sub="Savings rate, net worth and Money Score, shown only when you have recorded them. Off by default, because the Home card already shows them. Turn it on here, and hide it again with the cross on Home."
           right={
             <TouchableOpacity accessibilityRole="switch" accessibilityState={{ checked: !stripHidden }} accessibilityLabel="Show the facts strip on Home"
               style={[styles.syncBtn, !stripHidden && { backgroundColor: 'rgba(0,212,255,0.18)', borderColor: Colors.cyan }]} onPress={toggleStrip}>
@@ -357,7 +357,7 @@ export default function SettingsScreen() {
       <View style={styles.card}>
         <View style={styles.aboutRow}>
           <Text style={styles.aboutLogo}>⬡</Text>
-          <View>
+          <View style={{ flex: 1, minWidth: 0 }}>
             <Text style={styles.aboutName}>FIN·OS</Text>
             <Text style={styles.aboutSub}>Financial Operating System for India</Text>
             <Text style={styles.aboutVersion}>{`Mobile ${appInfo().appVersion === 'unknown' ? '(version not available)' : 'v' + appInfo().appVersion} · Web finos1.vercel.app`}</Text>
@@ -383,14 +383,16 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bg },
   content: { paddingBottom: 60 },
 
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: Spacing.lg, paddingTop: Spacing.xxl },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.lg, paddingTop: Spacing.sm, paddingBottom: Spacing.md },
+  backSlot: { width: 80, minHeight: 44, justifyContent: 'center' },   // equal slots either side keep the title truly centred
   backBtn: { color: Colors.cyan, fontSize: 14, fontWeight: '600' },
   headerTitle: { ...Typography.h3 },
 
   sectionLabel: { ...Typography.label, marginHorizontal: Spacing.lg, marginBottom: Spacing.sm, marginTop: Spacing.md },
   card: { marginHorizontal: Spacing.lg, backgroundColor: Colors.surface, borderRadius: Radii.lg, borderWidth: 1, borderColor: Colors.border, overflow: 'hidden', marginBottom: Spacing.sm },
 
-  row: { flexDirection: 'row', alignItems: 'center', padding: Spacing.md, borderBottomWidth: 1, borderBottomColor: Colors.border },
+  // The text takes the width it needs and the control(s) move under it instead of squeezing it to a sliver (three theme pills used to leave ~120 px for the words)
+  row: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', columnGap: Spacing.md, rowGap: Spacing.sm, padding: Spacing.md, borderBottomWidth: 1, borderBottomColor: Colors.border },
   rowLabel: { ...Typography.body, fontWeight: '600', marginBottom: 2 },
   rowSub: { ...Typography.caption },
   inputSmall: { backgroundColor: Colors.overlay, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.sm, paddingHorizontal: Spacing.sm, paddingVertical: 6, color: Colors.textPrimary, fontSize: 13, minWidth: 100, textAlign: 'right' },

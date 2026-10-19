@@ -1,0 +1,168 @@
+{
+ "text_scale": 2.0,
+ "view_w": 320,
+ "mode": "dark",
+ "populated": true,
+ "results": {
+  "/tracker/transactions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [
+    {
+     "a": "\ud83d\udcb0",
+     "b": "Salary"
+    },
+    {
+     "a": "\ud83c\udf7d\ufe0f",
+     "b": "Lunch"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udf7d\ufe0f",
+     "y": 671
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9400",
+     "y": 678
+    }
+   ]
+  },
+  "/tracker/budget": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [
+    {
+     "a": "Income / month",
+     "b": "Spend / month"
+    },
+    {
+     "a": "23 logged this month \u00b7 \u20b945,927 spent",
+     "b": "\u203a"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b91,20,000",
+     "y": 755
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b960,000",
+     "y": 720
+    }
+   ]
+  },
+  "/tracker/networth": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [
+    {
+     "a": "Stocks & mutual funds",
+     "b": "29"
+    },
+    {
+     "a": "\ud83c\udfe7",
+     "b": "Savings / cash"
+    },
+    {
+     "a": "\ud83d\udcb3",
+     "b": "Credit card dues"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "ALLOCATION",
+     "y": 717
+    }
+   ]
+  },
+  "/tracker/subscriptions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Usefulness 1 of 5",
+     "w": 34,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Usefulness 2 of 5",
+     "w": 37,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Usefulness 3 of 5",
+     "w": 38,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Usefulness 4 of 5",
+     "w": 38,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Usefulness 5 of 5",
+     "w": 38,
+     "h": 44,
+     "role": "button"
+    }
+   ],
+   "overlap": [
+    {
+     "a": "\ud83c\udfcb\ufe0f",
+     "b": "Quarterly"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Active",
+     "y": 705
+    },
+    {
+     "band": "bottom",
+     "text": "Due in 7 days",
+     "y": 733
+    },
+    {
+     "band": "bottom",
+     "text": "Trials",
+     "y": 705
+    }
+   ]
+  }
+ },
+ "not_loaded": []
+}

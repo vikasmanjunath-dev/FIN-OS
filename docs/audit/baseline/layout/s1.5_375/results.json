@@ -1,0 +1,311 @@
+{
+ "text_scale": 1.5,
+ "view_w": 375,
+ "mode": "dark",
+ "populated": true,
+ "results": {
+  "/tracker/transactions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Expense",
+     "w": 93,
+     "h": 41,
+     "role": "button"
+    },
+    {
+     "label": "Income",
+     "w": 93,
+     "h": 41,
+     "role": "button"
+    },
+    {
+     "label": "Invested",
+     "w": 93,
+     "h": 41,
+     "role": "button"
+    },
+    {
+     "label": "Transfer",
+     "w": 285,
+     "h": 41,
+     "role": "button"
+    },
+    {
+     "label": "Date",
+     "w": 263,
+     "h": 40,
+     "role": "input"
+    },
+    {
+     "label": "\u2610 Repeat every month on the 17th",
+     "w": 293,
+     "h": 34,
+     "role": "switch"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "Transfer",
+     "y": 694
+    }
+   ]
+  },
+  "/tracker/budget": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Monthly income",
+     "w": 99,
+     "h": 42,
+     "role": "input"
+    },
+    {
+     "label": "Monthly spend",
+     "w": 99,
+     "h": 42,
+     "role": "input"
+    },
+    {
+     "label": "Shopping",
+     "w": 99,
+     "h": 42,
+     "role": "input"
+    },
+    {
+     "label": "Food & Dining",
+     "w": 99,
+     "h": 42,
+     "role": "input"
+    },
+    {
+     "label": "Housing",
+     "w": 99,
+     "h": 42,
+     "role": "input"
+    },
+    {
+     "label": "Transport",
+     "w": 99,
+     "h": 42,
+     "role": "input"
+    },
+    {
+     "label": "80C invested this year",
+     "w": 99,
+     "h": 42,
+     "role": "input"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "Take-home, after tax",
+     "y": 680
+    }
+   ]
+  },
+  "/tracker/networth": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Manage holdings in Portfolio \u2192",
+     "w": 293,
+     "h": 37,
+     "role": "button"
+    },
+    {
+     "label": "Open EPF tracker \u2192",
+     "w": 293,
+     "h": 37,
+     "role": "button"
+    },
+    {
+     "label": "Open NPS tracker \u2192",
+     "w": 293,
+     "h": 37,
+     "role": "button"
+    },
+    {
+     "label": "Open PPF tracker \u2192",
+     "w": 293,
+     "h": 37,
+     "role": "button"
+    },
+    {
+     "label": "Fixed income (FD/PPF/NSC)",
+     "w": 99,
+     "h": 42,
+     "role": "input"
+    },
+    {
+     "label": "Open Fixed tracker \u2192",
+     "w": 293,
+     "h": 37,
+     "role": "button"
+    },
+    {
+     "label": "Gold / SGB",
+     "w": 99,
+     "h": 42,
+     "role": "input"
+    },
+    {
+     "label": "Open Gold tracker \u2192",
+     "w": 293,
+     "h": 37,
+     "role": "button"
+    },
+    {
+     "label": "Real estate",
+     "w": 99,
+     "h": 42,
+     "role": "input"
+    },
+    {
+     "label": "Crypto",
+     "w": 99,
+     "h": 42,
+     "role": "input"
+    },
+    {
+     "label": "Open Crypto tracker \u2192",
+     "w": 293,
+     "h": 37,
+     "role": "button"
+    },
+    {
+     "label": "Savings / cash",
+     "w": 99,
+     "h": 42,
+     "role": "input"
+    },
+    {
+     "label": "Other assets",
+     "w": 99,
+     "h": 42,
+     "role": "input"
+    },
+    {
+     "label": "Home loan",
+     "w": 99,
+     "h": 42,
+     "role": "input"
+    },
+    {
+     "label": "Car loan",
+     "w": 99,
+     "h": 42,
+     "role": "input"
+    },
+    {
+     "label": "Personal loan",
+     "w": 99,
+     "h": 42,
+     "role": "input"
+    },
+    {
+     "label": "Credit card dues",
+     "w": 99,
+     "h": 42,
+     "role": "input"
+    },
+    {
+     "label": "Other liabilities",
+     "w": 99,
+     "h": 42,
+     "role": "input"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "FIRE PROGRESS",
+     "y": 689
+    },
+    {
+     "band": "bottom",
+     "text": "11.7",
+     "y": 745
+    },
+    {
+     "band": "bottom",
+     "text": "%",
+     "y": 745
+    }
+   ]
+  },
+  "/tracker/subscriptions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Usefulness 1 of 5",
+     "w": 32,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Usefulness 2 of 5",
+     "w": 34,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Usefulness 3 of 5",
+     "w": 34,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Usefulness 4 of 5",
+     "w": 35,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Usefulness 5 of 5",
+     "w": 34,
+     "h": 44,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "RENEWING IN THE NEXT 30 DAYS",
+     "y": 701
+    }
+   ]
+  }
+ },
+ "not_loaded": []
+}

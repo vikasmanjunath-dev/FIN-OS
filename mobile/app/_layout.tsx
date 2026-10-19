@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Stack, usePathname } from 'expo-router';
+import { Stack, router, usePathname } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { AppState, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,6 +14,8 @@ import { startTrackerSync } from '@/lib/trackerSyncStore';
 import { installLanguagePatch } from '@/lib/i18nPatch';
 import { loadLang } from '@/lib/i18n';
 import { syncReminders } from '@/lib/remindersStorage';
+import { syncReelReminders } from '@/lib/reelRemindersStorage';
+import { startNotificationTaps } from '@/lib/notificationTaps';
 import { installThemePatch, loadTheme, useMode } from '@/lib/theme';
 import { LockGate } from '@/components/LockGate';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -51,9 +53,16 @@ export default function RootLayout() {
     startTrackerSync();
     loadLang();
     syncReminders().catch(() => {});
-    const sub = AppState.addEventListener('change', st => { if (st === 'active') syncReminders().catch(() => {}); });
+    syncReelReminders().catch(() => {});
+    const sub = AppState.addEventListener('change', st => { if (st === 'active') { syncReminders().catch(() => {}); syncReelReminders().catch(() => {}); } });
     Promise.all([loadSavedHost(), loadTheme()]).finally(() => SplashScreen.hideAsync());
-    return () => sub.remove();
+    // Tapping a reminder opens its screen. A tap that launches the app can arrive before the navigator is ready, so opening retries briefly.
+    const stopTaps = startNotificationTaps(route => {
+      let tries = 0;
+      const open = () => { try { router.push(route as never); } catch { if (++tries < 12) setTimeout(open, 250); } };
+      open();
+    });
+    return () => { sub.remove(); stopTaps(); };
   }, []);
 
   return (

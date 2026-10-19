@@ -1,0 +1,1143 @@
+{
+ "text_scale": 2.0,
+ "view_w": 320,
+ "mode": "dark",
+ "populated": false,
+ "results": {
+  "/dashboard": {
+   "hscroll": [
+    {
+     "what": "document wider than screen",
+     "scrollWidth": 333,
+     "width": 320
+    },
+    {
+     "what": "text past the right edge",
+     "text": "Portfolio",
+     "right": 333,
+     "width": 320
+    }
+   ],
+   "clipped": [
+    {
+     "text": "SENSEX",
+     "axis": "x",
+     "text_box": [
+      320,
+      282,
+      401,
+      305
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "74,729.27",
+     "axis": "x",
+     "text_box": [
+      407,
+      280,
+      510,
+      306
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "\u25b2 0.56%",
+     "axis": "x",
+     "text_box": [
+      516,
+      282,
+      599,
+      305
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "BANK",
+     "axis": "x",
+     "text_box": [
+      629,
+      282,
+      686,
+      305
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "55,844",
+     "axis": "x",
+     "text_box": [
+      692,
+      280,
+      768,
+      306
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "\u25b2 0.06%",
+     "axis": "x",
+     "text_box": [
+      774,
+      282,
+      857,
+      305
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "IT",
+     "axis": "x",
+     "text_box": [
+      887,
+      282,
+      906,
+      305
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "31,924.1",
+     "axis": "x",
+     "text_box": [
+      912,
+      280,
+      1000,
+      306
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "\u25b2 3.92%",
+     "axis": "x",
+     "text_box": [
+      1006,
+      282,
+      1088,
+      305
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "Savings Rate",
+     "axis": "y",
+     "text_box": [
+      49,
+      631,
+      183,
+      659
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "\u2014",
+     "axis": "y",
+     "text_box": [
+      49,
+      661,
+      75,
+      696
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "\ud83d\udcc4",
+     "axis": "y",
+     "text_box": [
+      41,
+      968,
+      89,
+      1024
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "Add your first transactions",
+     "axis": "y",
+     "text_box": [
+      105,
+      754,
+      238,
+      886
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "Spending, savings and your health score get real o",
+     "axis": "y",
+     "text_box": [
+      105,
+      890,
+      249,
+      1238
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "\u203a",
+     "axis": "y",
+     "text_box": [
+      264,
+      976,
+      279,
+      1019
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "SPENT THIS MONTH",
+     "axis": "y",
+     "text_box": [
+      41,
+      1290,
+      126,
+      1368
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "\u20b90",
+     "axis": "y",
+     "text_box": [
+      41,
+      1370,
+      102,
+      1422
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "Nothing logged yet",
+     "axis": "y",
+     "text_box": [
+      41,
+      1424,
+      150,
+      1480
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "\uff0b Log",
+     "axis": "y",
+     "text_box": [
+      185,
+      1370,
+      261,
+      1400
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "Your numbers",
+     "axis": "y",
+     "text_box": [
+      24,
+      1513,
+      203,
+      1539
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "\ud83c\udfe5",
+     "axis": "y",
+     "text_box": [
+      41,
+      1665,
+      81,
+      1712
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "Health Score",
+     "axis": "y",
+     "text_box": [
+      97,
+      1556,
+      134,
+      1754
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "record income and spending",
+     "axis": "x",
+     "text_box": [
+      97,
+      1759,
+      141,
+      2059
+     ],
+     "clip_box": [
+      97,
+      1756,
+      137,
+      1824
+     ]
+    },
+    {
+     "text": "record income and spending",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "Not enough data",
+     "axis": "x",
+     "text_box": [
+      167,
+      1660,
+      249,
+      1750
+     ],
+     "clip_box": [
+      153,
+      1660,
+      243,
+      1720
+     ]
+    },
+    {
+     "text": "Not enough data",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "\ud83d\udee1\ufe0f",
+     "axis": "y",
+     "text_box": [
+      41,
+      1900,
+      81,
+      1947
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "Emergency Fund",
+     "axis": "y",
+     "text_box": [
+      97,
+      1841,
+      197,
+      1940
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "add monthly spend",
+     "axis": "y",
+     "text_box": [
+      97,
+      1945,
+      186,
+      2041
+     ],
+     "clip_box": [
+      97,
+      1942,
+      199,
+      2010
+     ]
+    },
+    {
+     "text": "add monthly spend",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "\ud83d\udd25",
+     "axis": "y",
+     "text_box": [
+      41,
+      2119,
+      81,
+      2166
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "FIRE Progress",
+     "axis": "y",
+     "text_box": [
+      97,
+      2027,
+      141,
+      2192
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "of \u20b90 target",
+     "axis": "y",
+     "text_box": [
+      97,
+      2197,
+      137,
+      2327
+     ],
+     "clip_box": [
+      97,
+      2194,
+      147,
+      2262
+     ]
+    },
+    {
+     "text": "of \u20b90 target",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "0.0%",
+     "axis": "y",
+     "text_box": [
+      163,
+      2126,
+      243,
+      2164
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "\ud83c\udfaf",
+     "axis": "y",
+     "text_box": [
+      41,
+      2305,
+      81,
+      2352
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "Goals",
+     "axis": "y",
+     "text_box": [
+      97,
+      2279,
+      172,
+      2312
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "add your first goal",
+     "axis": "y",
+     "text_box": [
+      97,
+      2317,
+      193,
+      2379
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "Explore",
+     "axis": "y",
+     "text_box": [
+      24,
+      2408,
+      126,
+      2434
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "\ud83d\uddd3\ufe0f",
+     "axis": "y",
+     "text_box": [
+      41,
+      2494,
+      81,
+      2541
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "Financial calendar",
+     "axis": "y",
+     "text_box": [
+      97,
+      2451,
+      220,
+      2517
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "SIPs, renewals and tax dates that are due",
+     "axis": "y",
+     "text_box": [
+      97,
+      2522,
+      242,
+      2652
+     ],
+     "clip_box": [
+      97,
+      2519,
+      243,
+      2587
+     ]
+    },
+    {
+     "text": "SIPs, renewals and tax dates that are due",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "\ud83c\udfd6\ufe0f",
+     "axis": "y",
+     "text_box": [
+      41,
+      2647,
+      81,
+      2694
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "Retirement odds",
+     "axis": "y",
+     "text_box": [
+      97,
+      2604,
+      248,
+      2670
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "will what you hold last? a simulation on your own ",
+     "axis": "y",
+     "text_box": [
+      97,
+      2675,
+      239,
+      2839
+     ],
+     "clip_box": [
+      97,
+      2672,
+      243,
+      2740
+     ]
+    },
+    {
+     "text": "will what you hold last? a simulation on your own ",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "\ud83d\udcda",
+     "axis": "y",
+     "text_box": [
+      41,
+      2783,
+      81,
+      2830
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "Learn",
+     "axis": "y",
+     "text_box": [
+      97,
+      2757,
+      171,
+      2790
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "money, markets and insurance, on this phone",
+     "axis": "y",
+     "text_box": [
+      97,
+      2795,
+      239,
+      2925
+     ],
+     "clip_box": [
+      97,
+      2792,
+      243,
+      2860
+     ]
+    },
+    {
+     "text": "money, markets and insurance, on this phone",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "All trackers, calculators and guides",
+     "axis": "y",
+     "text_box": [
+      41,
+      2903,
+      248,
+      3002
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "EPF, NPS, insurance, loans, tax, planning and more",
+     "axis": "y",
+     "text_box": [
+      41,
+      3008,
+      227,
+      3144
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "WORTH A LOOK",
+     "axis": "y",
+     "text_box": [
+      24,
+      3181,
+      190,
+      3204
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "\ud83e\udded",
+     "axis": "y",
+     "text_box": [
+      39,
+      3228,
+      79,
+      3275
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "Get your Money Score in 60 seconds",
+     "axis": "y",
+     "text_box": [
+      87,
+      3225,
+      207,
+      3390
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "One number for your money picture and the three mo",
+     "axis": "y",
+     "text_box": [
+      87,
+      3396,
+      227,
+      3696
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "Get my score",
+     "axis": "y",
+     "text_box": [
+      87,
+      3705,
+      173,
+      3761
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "\u2715",
+     "axis": "y",
+     "text_box": [
+      243,
+      3477,
+      264,
+      3510
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    },
+    {
+     "text": "2 more ideas",
+     "axis": "y",
+     "text_box": [
+      83,
+      3789,
+      237,
+      3819
+     ],
+     "clip_box": [
+      0,
+      0,
+      320,
+      628
+     ]
+    }
+   ],
+   "small": [],
+   "overlap": [
+    {
+     "a": "Savings Rate",
+     "b": "\uf5fb"
+    },
+    {
+     "a": "Savings Rate",
+     "b": "\uf5fc"
+    },
+    {
+     "a": "Savings Rate",
+     "b": "\uf58c"
+    },
+    {
+     "a": "\u2014",
+     "b": "Home"
+    },
+    {
+     "a": "\u2014",
+     "b": "Markets"
+    },
+    {
+     "a": "record income and spending",
+     "b": "Emergency Fund"
+    },
+    {
+     "a": "record income and spending",
+     "b": "add monthly spend"
+    },
+    {
+     "a": "record income and spending",
+     "b": "FIRE Progress"
+    },
+    {
+     "a": "add monthly spend",
+     "b": "FIRE Progress"
+    },
+    {
+     "a": "of \u20b90 target",
+     "b": "Goals"
+    },
+    {
+     "a": "of \u20b90 target",
+     "b": "add your first goal"
+    },
+    {
+     "a": "SIPs, renewals and tax dates that are du",
+     "b": "Retirement odds"
+    },
+    {
+     "a": "will what you hold last? a simulation on",
+     "b": "Learn"
+    },
+    {
+     "a": "will what you hold last? a simulation on",
+     "b": "money, markets and insurance, on this ph"
+    },
+    {
+     "a": "money, markets and insurance, on this ph",
+     "b": "All trackers, calculators and guides"
+    },
+    {
+     "a": "\uf382",
+     "b": "\uf383"
+    },
+    {
+     "a": "Home",
+     "b": "Home"
+    },
+    {
+     "a": "\uf5fb",
+     "b": "\uf5fc"
+    },
+    {
+     "a": "Markets",
+     "b": "Markets"
+    },
+    {
+     "a": "\uf58c",
+     "b": "\uf58c"
+    },
+    {
+     "a": "Arya",
+     "b": "Arya"
+    },
+    {
+     "a": "\uf625",
+     "b": "\uf626"
+    },
+    {
+     "a": "Track",
+     "b": "Track"
+    },
+    {
+     "a": "\uf4b7",
+     "b": "\uf4b8"
+    },
+    {
+     "a": "Portfolio",
+     "b": "Portfolio"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "Good night",
+     "y": 16
+    },
+    {
+     "band": "top",
+     "text": "\ud83d\udd14",
+     "y": 16
+    },
+    {
+     "band": "top",
+     "text": "\ud83d\udd0d",
+     "y": 16
+    },
+    {
+     "band": "top",
+     "text": "\u2699\ufe0f",
+     "y": 16
+    },
+    {
+     "band": "bottom",
+     "text": "\u2014",
+     "y": 696
+    },
+    {
+     "band": "bottom",
+     "text": "Home",
+     "y": 683
+    },
+    {
+     "band": "bottom",
+     "text": "Markets",
+     "y": 683
+    },
+    {
+     "band": "bottom",
+     "text": "Arya",
+     "y": 683
+    },
+    {
+     "band": "bottom",
+     "text": "Track",
+     "y": 683
+    },
+    {
+     "band": "bottom",
+     "text": "Portfolio",
+     "y": 683
+    }
+   ]
+  },
+  "/tools/all": {
+   "hscroll": [],
+   "clipped": [
+    {
+     "text": "Freedom meter \u00b7 dividends, rent, interest, SWP",
+     "axis": "y",
+     "text_box": [
+      97,
+      1481,
+      234,
+      1645
+     ],
+     "clip_box": [
+      97,
+      1478,
+      243,
+      1546
+     ]
+    },
+    {
+     "text": "Freedom meter \u00b7 dividends, rent, interest, SWP",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "Log your trades \u00b7 totals after charges",
+     "axis": "y",
+     "text_box": [
+      97,
+      1634,
+      241,
+      1730
+     ],
+     "clip_box": [
+      97,
+      1631,
+      243,
+      1699
+     ]
+    },
+    {
+     "text": "Log your trades \u00b7 totals after charges",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    }
+   ],
+   "small": [],
+   "overlap": [
+    {
+     "a": "Freedom meter \u00b7 dividends, rent, interes",
+     "b": "Trade journal"
+    },
+    {
+     "a": "Freedom meter \u00b7 dividends, rent, interes",
+     "b": "Log your trades \u00b7 totals after charges"
+    },
+    {
+     "a": "Log your trades \u00b7 totals after charges",
+     "b": "Plan and goals"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 14
+    },
+    {
+     "band": "bottom",
+     "text": "set in Budget",
+     "y": 674
+    },
+    {
+     "band": "bottom",
+     "text": "Monthly Spend",
+     "y": 760
+    }
+   ]
+  }
+ },
+ "not_loaded": []
+}

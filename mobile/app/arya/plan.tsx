@@ -54,7 +54,7 @@ const s = StyleSheet.create({
   k: { color: Colors.textMuted, fontSize: 10, fontWeight: '800', letterSpacing: 1, marginBottom: 4 },
   top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   t: { color: Colors.textPrimary, fontSize: 15, fontWeight: '800', flex: 1 },
-  pill: { fontSize: 11, fontWeight: '800' },
+  pill: { maxWidth: '100%', fontSize: 11, fontWeight: '800' },
   stat: { color: Colors.textPrimary, fontSize: 13, fontWeight: '600', marginVertical: 6 },
   body: { color: Colors.textMuted, fontSize: 12, lineHeight: 18, marginTop: 4 },
   src: { color: Colors.textDim, fontSize: 11, marginTop: 6 },

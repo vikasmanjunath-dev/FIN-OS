@@ -7,7 +7,8 @@ import { collectEvents, isoDate } from '@/lib/calendar';
 import { loadCalendarSources } from '@/lib/calendarStorage';
 import { validateCustom, customToEvents, toIcs, type CustomEvent, type Repeat } from '@/lib/financialCalendar';
 import { loadCustomEvents, addCustomEvent, updateCustomEvent, removeCustomEvent } from '@/lib/financialCalendarStorage';
-import { Colors, Spacing, Typography } from '@/constants/theme';
+import { Colors, Spacing, Typography, Btn } from '@/constants/theme';
+import { LinkButton } from '@/components/LinkButton';
 
 const REPEATS: { id: Repeat; label: string }[] = [{ id: 'none', label: 'Once' }, { id: 'monthly', label: 'Every month' }, { id: 'yearly', label: 'Every year' }];
 const fmtDay = (d: string) => new Date(`${d}T00:00:00`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -93,7 +94,7 @@ export default function MyDatesScreen() {
         <TouchableOpacity style={s.save} onPress={save} accessibilityRole="button" accessibilityLabel={editing ? 'Save changes to this date' : 'Add this date'}>
           <Text style={s.saveTxt}>{editing ? 'Save changes' : 'Add date'}</Text>
         </TouchableOpacity>
-        {editing ? <Text style={[s.link, { marginTop: Spacing.sm }]} accessibilityRole="button" onPress={reset}>Cancel the edit</Text> : null}
+        {editing ? <LinkButton onPress={reset} textStyle={[s.link, { marginTop: Spacing.sm }]}>Cancel the edit</LinkButton> : null}
         {msg ? <Text style={[Typography.caption, { marginTop: Spacing.sm, color: Colors.textPrimary }]}>{msg}</Text> : null}
       </Card>
 
@@ -111,8 +112,8 @@ export default function MyDatesScreen() {
                 </Text>
                 {e.note ? <Text style={Typography.caption}>{e.note}</Text> : null}
               </View>
-              <Text style={s.link} accessibilityRole="button" onPress={() => edit(e)}>Edit</Text>
-              <Text style={s.del} accessibilityRole="button" onPress={() => { removeCustomEvent(e.id).then(reload); if (editing === e.id) reset(); }}>Remove</Text>
+              <LinkButton onPress={() => edit(e)} textStyle={s.link}>Edit</LinkButton>
+              <LinkButton onPress={() => { removeCustomEvent(e.id).then(reload); if (editing === e.id) reset(); }} textStyle={s.del}>Remove</LinkButton>
             </View>
           ))}
         </Card>
@@ -145,7 +146,7 @@ export default function MyDatesScreen() {
         </TouchableOpacity>
         <Text style={[Typography.caption, { marginTop: Spacing.sm, lineHeight: 17 }]}>Tax dates are statutory defaults and are sometimes extended, so check the Income Tax portal. The file is a snapshot: it does not update when your trackers change.</Text>
       </Card>
-      <Text style={s.link} accessibilityRole="button" onPress={() => router.push('/tools/calendar')}>Open the Financial calendar</Text>
+      <LinkButton onPress={() => router.push('/tools/calendar')} textStyle={s.link}>Open the Financial calendar</LinkButton>
 
       <Collapsible title="What is stored, and where">
         <Bullet>Your dates are kept on this phone under their own key and are never sent anywhere by FIN·OS.</Bullet>
@@ -161,8 +162,8 @@ const s = StyleSheet.create({
   chipOn: { borderColor: Colors.cyan, backgroundColor: Colors.surfaceAlt },
   chipTxt: { fontSize: 12, fontWeight: '700', color: Colors.textMuted },
   chipTxtOn: { color: Colors.cyan },
-  save: { marginTop: Spacing.md, backgroundColor: Colors.cyan, borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
-  saveTxt: { color: Colors.bg, fontWeight: '900' },
+  save: { ...Btn.base, backgroundColor: Colors.cyan, marginTop: Spacing.md },
+  saveTxt: { ...Btn.text, color: Colors.bg },
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, paddingVertical: Spacing.sm },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: Colors.border },
   name: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },

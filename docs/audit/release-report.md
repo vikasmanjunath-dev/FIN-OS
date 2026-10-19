@@ -123,6 +123,10 @@ Not done / limits: the Quant page's 12 history downloads still depend on the loc
 
 So the current Expo Go from the store can open it (SDK 53 is too old for it). Now Expo 57.0.30, React Native 0.86.3, React 19.2.3, expo-router 57. The request said "SDK7"; Expo SDK 7 dates from 2018 and cannot run this app, so SDK 57 was assumed (confirm if another number was meant). Changes the upgrade needed: `StatusBar` no longer takes `backgroundColor`; `StyleSheet.absoluteFillObject` -> `absoluteFill`; `Buffer` referenced through `globalThis`; `newArchEnabled` and top-level `splash` removed from `app.json` (the splash plugin already sets it); the Reanimated babel plugin removed (babel-preset-expo adds it); `react-native-worklets` and `@types/react` 19.2 installed; the React Compiler readiness lint rules turned off with a stated reason because the compiler is not enabled. Checks after the upgrade: typecheck clean, lint 0 problems, mobile tests 1,066/1,066, web export (3.94 MB), Android and iOS bundles both compile (`expo export`), the dev server reports `sdkVersion 57.0.0`. Not run: the app on a real phone. Pre-upgrade `package.json`, lockfile and `app.json` are kept in `docs/audit/baseline/sdk-upgrade/` for rollback.
 
+## Mobile UI/UX audit (whole app)
+
+Method: screenshots of the real screens at 390 x 844 (before and after, in `docs/audit/ui-audit/`) plus `mobile/scripts/layout-audit.py` on all 111 routes at 100% / 150% / 200% text. Findings and fixes are TRK-UX-001 and TRK-UX-002. Headline: controls below 44 px 344 -> 0; one consistent tab bar, button set and spacing; tab and sub-screen top gap removed. Not verified on a phone or simulator (screenshots are from the Expo web build, which does not apply real safe-area insets, native keyboard handling or font scaling). Open: large-text pass on market/Arya/journal screens (TRK-UX-002).
+
 ## Not verified / remaining limitations (honest list)
 
 These need things this environment does not have; none is a known failing check.

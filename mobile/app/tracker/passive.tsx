@@ -5,7 +5,7 @@ import { TrackerScreen, Card, SectionLabel, Bar, inr, inrShort } from '@/compone
 import { CalcField, Segmented, CheckRow, Collapsible, Bullet, toNum } from '@/components/CalcUI';
 import { summarize, scenarios, MILESTONES, TYPE_META, TYPES, type Stream, type StreamType } from '@/lib/passive';
 import { loadPassive, savePassive } from '@/lib/passiveStorage';
-import { Colors, Spacing, Typography } from '@/constants/theme';
+import { Colors, Spacing, Typography, Btn } from '@/constants/theme';
 
 export default function PassiveIncomeScreen() {
   const [streams, setStreams] = useState<Stream[] | null>(null);
@@ -157,8 +157,8 @@ const s = StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.sm },
   icon: { fontSize: 22, marginTop: 24 },
   del: { color: Colors.red, fontSize: 18, padding: 6, marginTop: 20, minHeight: 44, minWidth: 44, textAlign: 'center', textAlignVertical: 'center' },
-  add: { minHeight: 44, justifyContent: 'center', borderWidth: 1, borderColor: Colors.teal + '66', borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginBottom: Spacing.md },
-  addTxt: { color: Colors.teal, fontWeight: '800', fontSize: 14 },
+  add: { ...Btn.base, borderWidth: 1, borderColor: Colors.teal + '66', marginBottom: Spacing.md },
+  addTxt: { ...Btn.text, color: Colors.teal },
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, paddingVertical: 7 },
   rowIcon: { fontSize: 18 },
   rowVal: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary },

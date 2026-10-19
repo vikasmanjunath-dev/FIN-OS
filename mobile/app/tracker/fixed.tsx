@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { TrackerScreen, Card, SectionLabel, Stat, inr, inrShort } from '@/components/TrackerUI';
-import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
+import { Colors, Spacing, Radii, Typography, Btn } from '@/constants/theme';
 import { INSTRUMENTS, buildEntry, calcEntry, safeTotals, upcomingMaturities, type FDEntry, type InstrumentId } from '@/lib/fixedIncome';
 import { addFD, loadFD, removeFD } from '@/lib/fixedIncomeStorage';
 
@@ -156,6 +156,6 @@ const s = StyleSheet.create({
   prefix: { color: Colors.textMuted, marginRight: 4 },
   input: { minHeight: 44, flex: 1, color: Colors.textPrimary, paddingVertical: 10, fontSize: 15 },
   err: { color: Colors.red, fontSize: 12, marginTop: Spacing.sm },
-  btn: { minHeight: 44, justifyContent: 'center', marginTop: Spacing.md, backgroundColor: Colors.cyan, borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
-  btnTxt: { color: '#000', fontWeight: '900', fontSize: 14 },
+  btn: { ...Btn.base, backgroundColor: Colors.cyan, marginTop: Spacing.md },
+  btnTxt: { ...Btn.text, color: '#000' },
 });

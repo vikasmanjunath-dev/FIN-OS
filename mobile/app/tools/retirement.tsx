@@ -6,7 +6,7 @@ import { FanChart } from '@/components/FanChart';
 import { simulate, solveContribution } from '@/lib/montecarlo';
 import { computePlan, mcConfig, verdictFor, type Plan } from '@/lib/retirementPlan';
 import { loadRetirementStore, saveRetirementInput, persistRetirementOutputs } from '@/lib/retirementStorage';
-import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
+import { Colors, Spacing, Radii, Typography, Btn } from '@/constants/theme';
 
 const TONE = { good: Colors.teal, warn: Colors.gold, bad: Colors.red } as const;
 
@@ -198,8 +198,8 @@ const s = StyleSheet.create({
   pct: { fontSize: 52, fontWeight: '900', letterSpacing: -1 },
   two: { flexDirection: 'row', gap: Spacing.md, marginTop: Spacing.md },
   row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: Colors.border },
-  secondary: { borderWidth: 1, borderColor: Colors.cyan + '66', borderRadius: Radii.md, paddingVertical: 11, alignItems: 'center', marginTop: Spacing.md },
-  secondaryTxt: { color: Colors.cyan, fontWeight: '800', fontSize: 13 },
+  secondary: { ...Btn.base, borderWidth: 1, borderColor: Colors.cyan + '66', marginTop: Spacing.md },
+  secondaryTxt: { ...Btn.text, color: Colors.cyan },
   chip: { borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.full, paddingHorizontal: 10, paddingVertical: 5 },
   chipOn: { borderColor: Colors.cyan + 'AA', backgroundColor: Colors.cyan + '18' },
   chipTxt: { fontSize: 11, color: Colors.textMuted, fontWeight: '700' },

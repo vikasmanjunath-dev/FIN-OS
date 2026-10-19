@@ -5,7 +5,7 @@ import { useTrackers } from '@/hooks/useTrackers';
 import { POLICY_META, PolicyType, Policy, renewalDays, validDate } from '@/lib/retirement';
 import { parseTrackerMoney } from '@/lib/trackerInput';
 import { TrackerScreen, Card, SectionLabel, Bar, Stat, inr, inrShort } from '@/components/TrackerUI';
-import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
+import { Colors, Spacing, Radii, Typography, Btn } from '@/constants/theme';
 
 const TYPES = Object.keys(POLICY_META) as PolicyType[];
 const SEVERITY = { critical: Colors.red, high: Colors.orange, medium: Colors.gold, low: Colors.textMuted } as const;
@@ -174,8 +174,8 @@ const s = StyleSheet.create({
   lbl: { ...Typography.label, marginTop: Spacing.md, marginBottom: 6 },
   input: { minHeight: 44, backgroundColor: Colors.bg, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.md, paddingHorizontal: Spacing.md, paddingVertical: 10, color: Colors.textPrimary, fontSize: 14 },
   error: { color: Colors.red, fontSize: 12, marginTop: Spacing.md, lineHeight: 17 },
-  addBtn: { minHeight: 44, justifyContent: 'center', backgroundColor: Colors.cyan, borderRadius: Radii.md, paddingVertical: 13, alignItems: 'center', marginTop: Spacing.md },
-  addTxt: { color: Colors.bg, fontWeight: '800', fontSize: 14 },
+  addBtn: { ...Btn.base, backgroundColor: Colors.cyan, marginTop: Spacing.md },
+  addTxt: { ...Btn.text, color: Colors.bg },
   row: { minHeight: 44, flexDirection: 'row', alignItems: 'center' },
   icon: { fontSize: 24, minWidth: 38, flexShrink: 0 },
   name: { ...Typography.body, fontWeight: '700' },

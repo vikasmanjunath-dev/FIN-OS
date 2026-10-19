@@ -6,6 +6,7 @@ import { CalcField, CheckRow, Collapsible, Bullet, toNum } from '@/components/Ca
 import { simulate, scenarios, validateSim, type SimInput } from '@/lib/growthSim';
 import { loadSimSources, saveSimDraft, EMPTY_DRAFT, type SimDraft, type SimSources } from '@/lib/growthSimStorage';
 import { Colors, Spacing, Typography } from '@/constants/theme';
+import { LinkButton } from '@/components/LinkButton';
 
 export default function GrowthScreen() {
   const [src, setSrc] = useState<SimSources | null>(null);
@@ -51,7 +52,7 @@ export default function GrowthScreen() {
               {`Your Portfolio tab holds ${src.holdingsCount} holding${src.holdingsCount === 1 ? '' : 's'} worth ${inr(src.holdingsValue)}${src.holdingsSip > 0 ? `, with SIPs of ${inr(src.holdingsSip)} a month across ${src.sipCount} fund${src.sipCount === 1 ? '' : 's'}` : ', with no SIP recorded'}.`}
             </Text>
             {src.unpriced > 0 ? <Text style={[Typography.caption, { marginTop: 4, lineHeight: 17 }]}>{`${src.unpriced === 1 ? '1 holding has' : `${src.unpriced} holdings have`} no fetched price, so ${src.unpriced === 1 ? 'it is' : 'they are'} valued at what you paid.`}</Text> : null}
-            <Text style={s.link} accessibilityRole="button" onPress={useHoldings}>Use these figures</Text>
+            <LinkButton onPress={useHoldings} textStyle={s.link}>Use these figures</LinkButton>
           </>
         ) : (
           <Text style={Typography.body}>No holdings recorded in the Portfolio tab. Type what you have invested below, or add holdings there and they can be used here.</Text>
@@ -116,7 +117,7 @@ export default function GrowthScreen() {
         <Bullet>It is before tax, fund costs and exit loads, so what you keep will be less. Holdings are valued at the last price fetched on this phone.</Bullet>
         <Bullet>Only equity and mutual-fund holdings from the Portfolio tab are counted. EPF, NPS, PPF, deposits, gold and property are not, unless you add them to "invested today".</Bullet>
       </Collapsible>
-      <Text style={s.link} accessibilityRole="button" onPress={() => router.push('/tools/calc/growth')}>Open the basic Growth Simulator calculator</Text>
+      <LinkButton onPress={() => router.push('/tools/calc/growth')} textStyle={s.link}>Open the basic Growth Simulator calculator</LinkButton>
     </TrackerScreen>
   );
 }

@@ -5,7 +5,8 @@ import { TrackerScreen, Card, SectionLabel, Bar, inr } from '@/components/Tracke
 import { CalcField, Collapsible, Bullet, toNum } from '@/components/CalcUI';
 import { overview, splitShared, goalView, EMPTY_COUPLE, type CoupleState, type Payer, type GoalStatus } from '@/lib/couple';
 import { loadCouple, saveCouple, clearCouple } from '@/lib/coupleStorage';
-import { Colors, Spacing, Typography } from '@/constants/theme';
+import { Colors, Spacing, Typography, Btn } from '@/constants/theme';
+import { LinkButton } from '@/components/LinkButton';
 
 const numOrNull = (t: string): number | null => (t.trim() === '' ? null : Math.max(0, toNum(t)));
 const show = (n: number | null) => (n === null ? '' : String(Math.round(n * 100) / 100));
@@ -54,8 +55,7 @@ export default function CoupleScreen() {
         <CalcField label={`${nameA.toUpperCase()}: SPENDING (BILLS, EMIS, EVERYTHING)`} prefix="₹" value={show(st.a.expense)} onChange={v => upd(s => ({ ...s, a: { ...s.a, expense: numOrNull(v) } }))}
           sub={rec.expense && st.a.expense !== rec.expense ? `Recorded in your Budget: ${inr(rec.expense)}.` : undefined} />
         {(rec.income && st.a.income !== rec.income) || (rec.expense && st.a.expense !== rec.expense) ? (
-          <Text style={s.link} accessibilityRole="button"
-            onPress={() => upd(x => ({ ...x, a: { ...x.a, income: rec.income ?? x.a.income, expense: rec.expense ?? x.a.expense } }))}>Use recorded figures</Text>
+          <LinkButton onPress={() => upd(x => ({ ...x, a: { ...x.a, income: rec.income ?? x.a.income, expense: rec.expense ?? x.a.expense } }))} textStyle={s.link}>Use recorded figures</LinkButton>
         ) : null}
       </Card>
       <Card>
@@ -99,7 +99,7 @@ export default function CoupleScreen() {
               </TouchableOpacity>
             ))}
           </View>
-          <Text style={s.remove} accessibilityRole="button" onPress={() => upd(s => ({ ...s, shared: s.shared.filter(x => x.id !== b.id) }))}>Remove this bill</Text>
+          <LinkButton onPress={() => upd(s => ({ ...s, shared: s.shared.filter(x => x.id !== b.id) }))} textStyle={s.remove}>Remove this bill</LinkButton>
         </Card>
       ))}
       <TouchableOpacity style={s.add} accessibilityRole="button" accessibilityLabel="Add a shared bill"
@@ -160,7 +160,7 @@ export default function CoupleScreen() {
               </Text>
             ) : null}
             {g.target > 0 && g.targetDate && Number.isNaN(Date.parse(g.targetDate)) ? <Text style={[Typography.caption, { color: Colors.red }]}>That date is not valid. Use the form 2028-03-31.</Text> : null}
-            <Text style={s.remove} accessibilityRole="button" onPress={() => upd(s => ({ ...s, goals: s.goals.filter(x => x.id !== g.id) }))}>Remove this goal</Text>
+            <LinkButton onPress={() => upd(s => ({ ...s, goals: s.goals.filter(x => x.id !== g.id) }))} textStyle={s.remove}>Remove this goal</LinkButton>
           </Card>
         );
       })}
@@ -201,8 +201,8 @@ const s = StyleSheet.create({
   chipOn: { borderColor: Colors.cyan, backgroundColor: Colors.surfaceAlt },
   chipTxt: { fontSize: 11, fontWeight: '700', color: Colors.textMuted },
   chipTxtOn: { color: Colors.cyan },
-  add: { borderWidth: 1, borderColor: Colors.borderMed, borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginBottom: Spacing.md },
-  addTxt: { color: Colors.cyan, fontWeight: '800' },
+  add: { ...Btn.base, borderWidth: 1, borderColor: Colors.borderMed, marginBottom: Spacing.md },
+  addTxt: { ...Btn.text, color: Colors.cyan },
   remove: { color: Colors.red, fontWeight: '700', fontSize: 12 },
   link: { color: Colors.cyan, fontWeight: '800', marginTop: 4 },
 });

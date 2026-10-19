@@ -6,7 +6,7 @@ import { CalcField, Segmented, CheckRow, Collapsible, Bullet, toNum } from '@/co
 import { compute, deriveInputs, leverRanges, whatIf, trend as scoreTrend } from '@/lib/moneyScore';
 import { gatherScoreData, loadSavedScore, loadScoreHistory, saveScoreResult } from '@/lib/moneyScoreStorage';
 import { FeedbackPrompt } from '@/components/FeedbackPrompt';
-import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
+import { Colors, Spacing, Radii, Typography, Btn } from '@/constants/theme';
 
 type Form = Record<'age' | 'monthlyIncome' | 'monthlyExpenses' | 'monthlyEmi' | 'monthlyInvesting' | 'liquidSavings' | 'investedTotal' | 'termCover' | 'healthCover', string>;
 const EMPTY: Form = { age: '', monthlyIncome: '', monthlyExpenses: '', monthlyEmi: '', monthlyInvesting: '', liquidSavings: '', investedTotal: '', termCover: '', healthCover: '' };
@@ -276,8 +276,8 @@ const s = StyleSheet.create({
   leverRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: Spacing.sm, borderBottomWidth: 1, borderBottomColor: Colors.border },
   step: { width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: Colors.borderMed, alignItems: 'center', justifyContent: 'center', marginLeft: Spacing.sm, backgroundColor: Colors.bg },
   stepTxt: { color: Colors.cyan, fontSize: 20, fontWeight: '800', lineHeight: 22 },
-  primary: { backgroundColor: Colors.cyan, borderRadius: Radii.md, paddingVertical: 14, alignItems: 'center', marginTop: Spacing.sm },
-  primaryTxt: { color: Colors.bg, fontWeight: '800', fontSize: 14 },
+  primary: { ...Btn.base, backgroundColor: Colors.cyan, marginTop: Spacing.sm },
+  primaryTxt: { ...Btn.text, color: Colors.bg },
   errBox: { borderWidth: 1, borderColor: Colors.red + '55', backgroundColor: Colors.red + '10', borderRadius: Radii.md, padding: Spacing.md, marginBottom: Spacing.sm },
   errTxt: { color: Colors.red, fontSize: 12, lineHeight: 18 },
 });

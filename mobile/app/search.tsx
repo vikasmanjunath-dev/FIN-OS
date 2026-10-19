@@ -55,7 +55,7 @@ function Row({ e, onPress }: { e: Entry; onPress: () => void }) {
   return (
     <TouchableOpacity style={s.row} accessibilityRole="button" accessibilityLabel={`${e.title}. ${e.sub}`} onPress={onPress}>
       <Text style={s.icon}>{e.icon}</Text>
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, minWidth: 0 }}>
         <Text style={s.title}>{e.title}</Text>
         <Text style={Typography.caption} numberOfLines={1}>{`${e.group} · ${e.sub}`}</Text>
       </View>
@@ -66,8 +66,8 @@ function Row({ e, onPress }: { e: Entry; onPress: () => void }) {
 
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bg, paddingTop: 54 },
-  bar: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, padding: Spacing.lg },
-  input: { flex: 1, backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border, borderRadius: Radii.lg, color: Colors.textPrimary, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15 },
+  bar: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, padding: Spacing.lg, paddingTop: Spacing.sm },
+  input: { flex: 1, minWidth: 0, backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.border, borderRadius: Radii.lg, color: Colors.textPrimary, paddingHorizontal: 14, paddingVertical: 12, fontSize: 15 },
   cancel: { color: Colors.cyan, fontWeight: '700', fontSize: 14 },
   label: { ...Typography.label, marginTop: Spacing.lg, marginBottom: Spacing.sm },
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, paddingVertical: 11, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: Colors.border },

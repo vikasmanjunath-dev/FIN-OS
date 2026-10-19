@@ -1,0 +1,239 @@
+{
+ "text_scale": 1.0,
+ "view_w": 320,
+ "mode": "dark",
+ "populated": true,
+ "results": {
+  "/tools/calendar": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "1 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "2 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "3 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "4 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "5 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "6 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "7 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "8 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "9 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "10 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "11 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "12 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "13 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "14 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "15 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "16 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "17 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "18 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "19 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "20 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "21 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "22 October, 1 event",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "23 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "24 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "25 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "26 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "27 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "28 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "29 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "30 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    },
+    {
+     "label": "31 October",
+     "w": 39,
+     "h": 46,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "26",
+     "y": 690
+    },
+    {
+     "band": "bottom",
+     "text": "27",
+     "y": 690
+    },
+    {
+     "band": "bottom",
+     "text": "28",
+     "y": 690
+    },
+    {
+     "band": "bottom",
+     "text": "29",
+     "y": 690
+    },
+    {
+     "band": "bottom",
+     "text": "30",
+     "y": 690
+    },
+    {
+     "band": "bottom",
+     "text": "31",
+     "y": 690
+    }
+   ]
+  }
+ },
+ "not_loaded": []
+}

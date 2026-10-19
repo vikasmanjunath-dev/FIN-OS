@@ -74,7 +74,7 @@ test('.env.example documents every EXPO_PUBLIC variable the code reads, and hold
 });
 
 test('icon, splash, adaptive icon and notification icon files exist and are the ones app.json points at', () => {
-  const refs: string[] = [app.icon, app.splash.image, app.android.adaptiveIcon.foregroundImage, app.android.adaptiveIcon.backgroundImage,
+  const refs: string[] = [app.icon, app.android.adaptiveIcon.foregroundImage, app.android.adaptiveIcon.backgroundImage,
     app.android.adaptiveIcon.monochromeImage, app.web.favicon];
   const plug = (app.plugins as any[]).find(p => pluginName(p) === 'expo-notifications');
   refs.push(plug[1].icon);
@@ -84,8 +84,9 @@ test('icon, splash, adaptive icon and notification icon files exist and are the 
     assert.ok(r && existsSync(path.join(root, r)), `${r} is missing`);
     assert.match(r, /^\.\/assets\//);
   }
-  assert.equal(app.splash.backgroundColor, splashPlug[1].backgroundColor, 'two splash colours would flash on launch');
-  assert.equal(app.android.adaptiveIcon.backgroundColor, app.splash.backgroundColor);
+  // Expo SDK 54+ rejects a top-level `splash`: the expo-splash-screen plugin is the only place it is set, so two splash colours cannot exist.
+  assert.equal((app as any).splash, undefined, 'a top-level splash would be a second, possibly different, splash definition');
+  assert.equal(app.android.adaptiveIcon.backgroundColor, splashPlug[1].backgroundColor, 'the launch screen and the icon background must be the same colour');
   assert.equal(plug[1].color, '#00D4FF');
 });
 

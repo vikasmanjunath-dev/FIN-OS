@@ -5,6 +5,7 @@ import { CalcField, Segmented, Collapsible, Bullet, toNum } from '@/components/C
 import { usePersisted } from '@/hooks/usePersisted';
 import { compare } from '@/lib/offerCompare';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
+import { LinkButton } from '@/components/LinkButton';
 
 interface OfferForm {
   name: string; ctc: string; variable: string; payout: string; basicPct: string;
@@ -159,7 +160,7 @@ export default function OffersScreen() {
           </Card>
         </View>
       ))}
-      <Text onPress={reset} style={{ color: Colors.textMuted, fontSize: 12, fontWeight: '700', marginBottom: Spacing.lg }}>Reset to the example offers</Text>
+      <LinkButton onPress={reset} textStyle={{ color: Colors.textMuted, fontSize: 12, fontWeight: '700', marginBottom: Spacing.lg }}>Reset to the example offers</LinkButton>
 
       <Collapsible title="How this is calculated — and what it leaves out">
         <Bullet>Fixed pay = CTC − variable. Basic is the % of fixed you enter (40% is typical). Employer PF is 12% of basic (or of the ₹15,000/month ceiling, if you pick that), gratuity accrues at 4.81% of basic, and employer NPS is the % of basic you enter. These sit inside the CTC, so they reduce cash pay.</Bullet>

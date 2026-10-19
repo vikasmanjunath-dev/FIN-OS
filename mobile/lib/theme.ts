@@ -80,7 +80,38 @@ function themeProps(props: any): any {
 /** Text grows with the person's system font size up to twice its size (WCAG asks for 200%); beyond that fixed-size cards would clip. */
 export const MAX_FONT_SCALE = 2;
 
-function wrap(component: any, capFont = false) {
+/** Every touchable is at least 44 x 44: Apple's guideline, and 24 dp above WCAG 2.2 AA. The size is set here once instead of on 56 screens, so a
+ *  new button cannot forget it. Overlays (absolute-positioned backdrops), controls the author hid from assistive technology and styles that
+ *  already ask for 44 or more are left alone. */
+const MIN_TARGET = 44;
+function withTouchTarget(props: any): any {
+  if (!props || props.accessible === false || props.importantForAccessibility === 'no' || typeof props.style === 'function') return props;
+  const st: any = StyleSheet.flatten(props.style) ?? {};
+  if (st.position === 'absolute') return props;
+  const extra: any = {};
+  if ((st.minHeight == null || st.minHeight < MIN_TARGET) && (typeof st.height !== 'number' || st.height < MIN_TARGET)) extra.minHeight = MIN_TARGET;
+  if ((st.minWidth == null || st.minWidth < MIN_TARGET) && (typeof st.width !== 'number' || st.width < MIN_TARGET) && st.flex == null && st.flexGrow == null) extra.minWidth = MIN_TARGET;   // icon buttons and short chips; anything that stretches is already wide
+  if (!extra.minHeight && !extra.minWidth) return props;
+  // A small control that is made taller than its content keeps that content in the middle (a column container would put it at the top).
+  // Padded cards and rows (padding >= 12) are laid out by their author and are left exactly as written.
+  const pad = Math.max(Number(st.padding) || 0, Number(st.paddingVertical) || 0, ((Number(st.paddingTop) || 0) + (Number(st.paddingBottom) || 0)) / 2);
+  if (pad < 12) {
+    const row = st.flexDirection === 'row' || st.flexDirection === 'row-reverse';
+    if (!row && st.justifyContent == null) extra.justifyContent = 'center';
+    if (row && st.alignItems == null) extra.alignItems = 'center';
+  }
+  return { ...props, style: [props.style, extra] };
+}
+
+/** Single-line text fields are at least 44 px tall (multi-line ones grow past it anyway). */
+function withInputHeight(props: any): any {
+  if (!props || props.multiline) return props;
+  const st: any = StyleSheet.flatten(props.style) ?? {};
+  if ((st.minHeight != null && st.minHeight >= MIN_TARGET) || (typeof st.height === 'number' && st.height >= MIN_TARGET)) return props;
+  return { ...props, style: [props.style, { minHeight: MIN_TARGET }] };
+}
+
+function wrap(component: any, capFont = false, touch: boolean | 'input' = false) {
   if (!component) return;
   const target = typeof component.render === 'function' ? component : component.type && typeof component.type.render === 'function' ? component.type : null;
   if (!target || target.__finosThemed) return;
@@ -89,6 +120,7 @@ function wrap(component: any, capFont = false) {
     const m = useMode();                                  // every wrapped component redraws when the choice changes: no screen reload
     let p = m === 'light' ? themeProps(props) : props;
     if (capFont && p && p.maxFontSizeMultiplier == null) p = { ...p, maxFontSizeMultiplier: MAX_FONT_SCALE };
+    if (touch === true) p = withTouchTarget(p); else if (touch === 'input') p = withInputHeight(p);
     return orig.call(this, p, ref);
   };
   target.__finosThemed = true;
@@ -97,7 +129,7 @@ function wrap(component: any, capFont = false) {
 export function installThemePatch() {
   if (installed) return;
   installed = true;
-  [[View, false], [Text, true], [TextInput, true], [ScrollView, false], [TouchableOpacity, false], [Pressable, false], [ActivityIndicator, false], [Switch, false], [RefreshControl, false]]
-    .forEach(([c, cap]) => { try { wrap(c, cap as boolean); } catch { /* a component that is not wrappable keeps the dark palette */ } });
+  [[View, false, false], [Text, true, false], [TextInput, true, 'input'], [ScrollView, false, false], [TouchableOpacity, false, true], [Pressable, false, true], [ActivityIndicator, false, false], [Switch, false, false], [RefreshControl, false, false]]
+    .forEach(([c, cap, touch]) => { try { wrap(c, cap as boolean, touch as boolean | 'input'); } catch { /* a component that is not wrappable keeps the dark palette */ } });
 }
 void COLOR_KEYS;

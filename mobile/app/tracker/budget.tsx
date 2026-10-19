@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { useTrackers } from '@/hooks/useTrackers';
 import { TrackerScreen, Card, SectionLabel, Bar, Stat, MoneyField, inr } from '@/components/TrackerUI';
-import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
+import { Colors, Spacing, Radii, Typography, Btn } from '@/constants/theme';
 import { CATEGORIES, suggestLimits } from '@/lib/budget';
 
 const STATE_COLOR = { ok: Colors.teal, warn: Colors.gold, over: Colors.red } as const;
@@ -158,8 +158,8 @@ const st = StyleSheet.create({
   logCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(0,212,255,0.06)', borderWidth: 1, borderColor: 'rgba(0,212,255,0.25)', borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.md },
   logTitle: { ...Typography.body, fontWeight: '700', marginBottom: 2 },
   t30: { fontSize: 26, fontWeight: '900', color: Colors.gold, marginVertical: 4 },
-  useBtn: { minHeight: 44, justifyContent: 'center', marginTop: Spacing.md, borderWidth: 1, borderColor: 'rgba(0,212,255,0.4)', backgroundColor: 'rgba(0,212,255,0.08)', borderRadius: Radii.md, paddingVertical: 11, alignItems: 'center' },
-  useTxt: { color: Colors.cyan, fontWeight: '800', fontSize: 13 },
+  useBtn: { ...Btn.base, backgroundColor: 'rgba(0,212,255,0.08)', borderWidth: 1, borderColor: 'rgba(0,212,255,0.4)', marginTop: Spacing.md },
+  useTxt: { ...Btn.text, color: Colors.cyan },
   addLabel: { ...Typography.label, marginBottom: 8 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   chip: { minHeight: 44, justifyContent: 'center', borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.full, paddingHorizontal: 11, paddingVertical: 6, backgroundColor: Colors.bg },

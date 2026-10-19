@@ -1,0 +1,109 @@
+{
+ "text_scale": 2.0,
+ "view_w": 320,
+ "mode": "dark",
+ "populated": true,
+ "results": {
+  "/tracker/fixed": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [
+    {
+     "a": "Interest earned",
+     "b": "Yield so far"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Invested",
+     "y": 708
+    },
+    {
+     "band": "bottom",
+     "text": "Interest earned",
+     "y": 708
+    },
+    {
+     "band": "bottom",
+     "text": "Yield so far",
+     "y": 708
+    }
+   ]
+  },
+  "/tracker/gold": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "TOTAL GOLD VALUE",
+     "y": 710
+    }
+   ]
+  },
+  "/tracker/health": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Solid foundation \u2014 a few tweaks can make",
+     "y": 698
+    }
+   ]
+  },
+  "/tracker/networth": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [
+    {
+     "a": "Stocks & mutual funds",
+     "b": "29"
+    },
+    {
+     "a": "\ud83c\udfe7",
+     "b": "Savings / cash"
+    },
+    {
+     "a": "\ud83d\udcb3",
+     "b": "Credit card dues"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "ALLOCATION",
+     "y": 717
+    }
+   ]
+  }
+ },
+ "not_loaded": []
+}

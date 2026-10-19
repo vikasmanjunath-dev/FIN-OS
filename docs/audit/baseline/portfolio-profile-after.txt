@@ -1,0 +1,5 @@
+build: {'buildAllMs': 63, 'dom': 13092, 'canvases': 45, 'charts': 24, 'heapMB': 32}
+after: {'dom': 13731, 'canvases': 46, 'charts': 24, 'heapMB': 32, 'longTasks': 1, 'longTaskMs': 65, 'maxLongMs': 65}
+requests_by_host: {'backend:8766': 4, 'fonts.gstatic.com': 3, 'cdnjs.cloudflare.com': 2, 'unpkg.com': 1, 'cdn.jsdelivr.net': 1, 'fonts.googleapis.com': 1, 'query1.finance.yahoo.com': 1, 'query2.finance.yahoo.com': 1, 'corsproxy.io': 1}
+injected_failures: {'query1.finance.yahoo.com 429': 1, 'query2.finance.yahoo.com 502': 1, 'corsproxy.io 429': 1}
+page_errors: []

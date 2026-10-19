@@ -1,0 +1,238 @@
+{
+ "text_scale": 2.0,
+ "view_w": 320,
+ "mode": "dark",
+ "populated": true,
+ "results": {
+  "/tracker/health": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "/100",
+     "y": 705
+    }
+   ]
+  },
+  "/tracker/import": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "1 \u00b7 CHOOSE YOUR STATEMENT",
+     "y": 682
+    }
+   ]
+  },
+  "/tracker/subscriptions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Billed Weekly",
+     "w": 97,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Billed Monthly",
+     "w": 110,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Billed Quarterly",
+     "w": 118,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Billed Half-yearly",
+     "w": 135,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Billed Yearly",
+     "w": 86,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Status active",
+     "w": 91,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Status trial",
+     "w": 66,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Status paused",
+     "w": 98,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Status cancelled",
+     "w": 124,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Usefulness 1 of 5",
+     "w": 34,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Usefulness 2 of 5",
+     "w": 37,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Usefulness 3 of 5",
+     "w": 38,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Usefulness 4 of 5",
+     "w": 38,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Usefulness 5 of 5",
+     "w": 38,
+     "h": 42,
+     "role": "button"
+    },
+    {
+     "label": "Pause",
+     "w": 68,
+     "h": 28,
+     "role": "button"
+    },
+    {
+     "label": "Mark cancelled",
+     "w": 170,
+     "h": 28,
+     "role": "button"
+    },
+    {
+     "label": "Delete",
+     "w": 73,
+     "h": 28,
+     "role": "button"
+    }
+   ],
+   "overlap": [
+    {
+     "a": "\ud83c\udfcb\ufe0f",
+     "b": "Quarterly"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "Active",
+     "y": 705
+    },
+    {
+     "band": "bottom",
+     "text": "Due in 7 days",
+     "y": 733
+    },
+    {
+     "band": "bottom",
+     "text": "Trials",
+     "y": 705
+    }
+   ]
+  },
+  "/tracker/transactions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Today",
+     "w": 87,
+     "h": 40,
+     "role": "button"
+    },
+    {
+     "label": "Yesterday",
+     "w": 124,
+     "h": 40,
+     "role": "button"
+    }
+   ],
+   "overlap": [
+    {
+     "a": "Expense",
+     "b": "Income"
+    },
+    {
+     "a": "Income",
+     "b": "Invested"
+    },
+    {
+     "a": "Invested",
+     "b": "Transfer"
+    },
+    {
+     "a": "\ud83d\udcb0",
+     "b": "Salary"
+    },
+    {
+     "a": "\ud83c\udf7d\ufe0f",
+     "b": "Lunch"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 38
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udf7d\ufe0f",
+     "y": 671
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9400",
+     "y": 678
+    }
+   ]
+  }
+ },
+ "not_loaded": []
+}

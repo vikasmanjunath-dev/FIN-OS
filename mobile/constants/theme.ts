@@ -60,3 +60,12 @@ export const Typography = {
   label: { fontSize: 11, fontWeight: '600' as const, color: Colors.textMuted, letterSpacing: 0.8, textTransform: 'uppercase' as const },
   mono: { fontSize: 13, fontFamily: 'monospace' as const, color: Colors.textPrimary },
 };
+
+/** Shared button geometry. Every button is at least 48 px tall (Apple asks 44 pt, Android 48 dp), uses the same corner radius and the
+ *  same label size, so screens stop inventing their own. Colours stay per screen (the accent of the feature it belongs to). */
+export const Btn = {
+  base: { minHeight: 48, borderRadius: Radii.md, paddingHorizontal: Spacing.md, paddingVertical: 12, alignItems: 'center' as const, justifyContent: 'center' as const, flexDirection: 'row' as const, gap: Spacing.sm },
+  text: { fontSize: 15, fontWeight: '800' as const },
+  small: { minHeight: 44, borderRadius: Radii.full, paddingHorizontal: Spacing.md, paddingVertical: 8, alignItems: 'center' as const, justifyContent: 'center' as const },
+  link: { minHeight: 44, justifyContent: 'center' as const },
+};

@@ -1,0 +1,781 @@
+{
+ "text_scale": 3.0,
+ "view_w": 360,
+ "mode": "dark",
+ "populated": true,
+ "results": {
+  "/tracker/budget": {
+   "hscroll": [
+    {
+     "what": "text past the right edge",
+     "text": "of income \u00b7 target 25%",
+     "right": 400,
+     "width": 360
+    }
+   ],
+   "clipped": [
+    {
+     "text": "of income \u00b7 target 25%",
+     "axis": "x",
+     "text_box": [
+      279,
+      708,
+      400,
+      880
+     ],
+     "clip_box": [
+      24,
+      582,
+      336,
+      1315
+     ]
+    }
+   ],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 32
+    },
+    {
+     "band": "bottom",
+     "text": "50%",
+     "y": 765
+    }
+   ]
+  },
+  "/tracker/crypto": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 32
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b90",
+     "y": 685
+    },
+    {
+     "band": "bottom",
+     "text": "Invested",
+     "y": 783
+    },
+    {
+     "band": "bottom",
+     "text": "Unrealised P&L",
+     "y": 869
+    },
+    {
+     "band": "bottom",
+     "text": "Tax if sold",
+     "y": 783
+    }
+   ]
+  },
+  "/tracker/emergency": {
+   "hscroll": [],
+   "clipped": [
+    {
+     "text": "months covered \u00b7 target",
+     "axis": "x",
+     "text_box": [
+      215,
+      876,
+      345,
+      1005
+     ],
+     "clip_box": [
+      24,
+      729,
+      336,
+      1397
+     ]
+    }
+   ],
+   "small": [],
+   "overlap": [
+    {
+     "a": "months",
+     "b": "months"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 32
+    },
+    {
+     "band": "bottom",
+     "text": "Cash you can reach in a day to cover job",
+     "y": 701
+    }
+   ]
+  },
+  "/tracker/epf": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 32
+    },
+    {
+     "band": "bottom",
+     "text": "Your employee provident fund balance, wh",
+     "y": 701
+    }
+   ]
+  },
+  "/tracker/fixed": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 32
+    },
+    {
+     "band": "bottom",
+     "text": "FD, RD, NSC, SCSS, Sukanya, PPF, governm",
+     "y": 851
+    }
+   ]
+  },
+  "/tracker/goals": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 32
+    },
+    {
+     "band": "bottom",
+     "text": "2",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "goal",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "s",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "\u00b7",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b99.00L",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "saved of",
+     "y": 716
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b959.00L",
+     "y": 716
+    }
+   ]
+  },
+  "/tracker/gold": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 32
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9",
+     "y": 739
+    },
+    {
+     "band": "bottom",
+     "text": "/gm",
+     "y": 739
+    }
+   ]
+  },
+  "/tracker/harvest": {
+   "hscroll": [],
+   "clipped": [
+    {
+     "text": "The date you bought it. It decides long-term or sh",
+     "axis": "y",
+     "text_box": [
+      41,
+      8727,
+      253,
+      8942
+     ],
+     "clip_box": [
+      24,
+      7628,
+      336,
+      8937
+     ]
+    }
+   ],
+   "small": [],
+   "overlap": [
+    {
+     "a": "Type today's price: it is not fetched.",
+     "b": "ACQUISITION DATE"
+    },
+    {
+     "a": "The date you bought it. It decides long-",
+     "b": "\uff0b Add holding"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 32
+    },
+    {
+     "band": "bottom",
+     "text": "Book losses to cut tax on gains, and use",
+     "y": 854
+    }
+   ]
+  },
+  "/tracker/health": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 32
+    },
+    {
+     "band": "bottom",
+     "text": "YOUR SCORE",
+     "y": 674
+    },
+    {
+     "band": "bottom",
+     "text": "63",
+     "y": 1012
+    }
+   ]
+  },
+  "/tracker/holdings-import": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 32
+    },
+    {
+     "band": "bottom",
+     "text": "Bring in the holdings CSV from Zerodha, ",
+     "y": 803
+    }
+   ]
+  },
+  "/tracker/import": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 32
+    },
+    {
+     "band": "bottom",
+     "text": "Bring in your bank's CSV (or Account Agg",
+     "y": 953
+    }
+   ]
+  },
+  "/tracker/insurance": {
+   "hscroll": [],
+   "clipped": [
+    {
+     "text": "Health insurance",
+     "axis": "x",
+     "text_box": [
+      93,
+      3650,
+      360,
+      3689
+     ],
+     "clip_box": [
+      24,
+      3624,
+      336,
+      4965
+     ]
+    }
+   ],
+   "small": [],
+   "overlap": [
+    {
+     "a": "Term life",
+     "b": "\u20b91.00Cr of \u20b92.16Cr"
+    },
+    {
+     "a": "Critical illness",
+     "b": "\u20b90 of \u20b972.00L"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 32
+    },
+    {
+     "band": "bottom",
+     "text": "Your policies, whether your cover is eno",
+     "y": 704
+    }
+   ]
+  },
+  "/tracker/networth": {
+   "hscroll": [
+    {
+     "what": "text past the right edge",
+     "text": "\u20b91.80Cr",
+     "right": 409,
+     "width": 360
+    },
+    {
+     "what": "text past the right edge",
+     "text": "target",
+     "right": 417,
+     "width": 360
+    }
+   ],
+   "clipped": [
+    {
+     "text": "\u20b91.80Cr",
+     "axis": "x",
+     "text_box": [
+      283,
+      1926,
+      409,
+      1969
+     ],
+     "clip_box": [
+      24,
+      1775,
+      336,
+      2359
+     ]
+    },
+    {
+     "text": "target",
+     "axis": "x",
+     "text_box": [
+      283,
+      1926,
+      417,
+      2012
+     ],
+     "clip_box": [
+      24,
+      1775,
+      336,
+      2359
+     ]
+    }
+   ],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 32
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b921,00,000",
+     "y": 1002
+    }
+   ]
+  },
+  "/tracker/nps": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 32
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b90",
+     "y": 751
+    }
+   ]
+  },
+  "/tracker/passive": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Taxable",
+     "w": 40,
+     "h": 20,
+     "role": "switch"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 32
+    },
+    {
+     "band": "bottom",
+     "text": "TOTAL PASSIVE INCOME",
+     "y": 776
+    }
+   ]
+  },
+  "/tracker/ppf": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 32
+    },
+    {
+     "band": "bottom",
+     "text": "PPF, Sukanya, NSC, Senior Citizens and K",
+     "y": 701
+    }
+   ]
+  },
+  "/tracker/recurring": {
+   "hscroll": [],
+   "clipped": [
+    {
+     "text": "Expense",
+     "axis": "x",
+     "text_box": [
+      16,
+      862,
+      162,
+      905
+     ],
+     "clip_box": [
+      24,
+      831,
+      336,
+      2834
+     ]
+    },
+    {
+     "text": "Invested",
+     "axis": "x",
+     "text_box": [
+      201,
+      862,
+      341,
+      905
+     ],
+     "clip_box": [
+      24,
+      831,
+      336,
+      2834
+     ]
+    }
+   ],
+   "small": [],
+   "overlap": [
+    {
+     "a": "Expense",
+     "b": "Income"
+    },
+    {
+     "a": "Income",
+     "b": "Invested"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 32
+    },
+    {
+     "band": "bottom",
+     "text": "Rent, SIPs, subscriptions, salary. FIN\u00b7O",
+     "y": 803
+    }
+   ]
+  },
+  "/tracker/subscriptions": {
+   "hscroll": [
+    {
+     "what": "text past the right edge",
+     "text": "/mo",
+     "right": 388,
+     "width": 360
+    },
+    {
+     "what": "text past the right edge",
+     "text": "Fitness & wellness",
+     "right": 369,
+     "width": 360
+    },
+    {
+     "what": "text past the right edge",
+     "text": "Phone & broadband",
+     "right": 389,
+     "width": 360
+    },
+    {
+     "what": "text past the right edge",
+     "text": "Shopping & delivery",
+     "right": 393,
+     "width": 360
+    }
+   ],
+   "clipped": [
+    {
+     "text": "/mo",
+     "axis": "x",
+     "text_box": [
+      329,
+      1455,
+      388,
+      1498
+     ],
+     "clip_box": [
+      24,
+      732,
+      336,
+      1876
+     ]
+    },
+    {
+     "text": "Streaming / OTT",
+     "axis": "x",
+     "text_box": [
+      93,
+      3327,
+      346,
+      3366
+     ],
+     "clip_box": [
+      24,
+      2325,
+      336,
+      4579
+     ]
+    },
+    {
+     "text": "Apps & software",
+     "axis": "x",
+     "text_box": [
+      93,
+      3457,
+      340,
+      3496
+     ],
+     "clip_box": [
+      24,
+      2325,
+      336,
+      4579
+     ]
+    },
+    {
+     "text": "Fitness & wellness",
+     "axis": "x",
+     "text_box": [
+      93,
+      3652,
+      369,
+      3691
+     ],
+     "clip_box": [
+      24,
+      2325,
+      336,
+      4579
+     ]
+    },
+    {
+     "text": "Phone & broadband",
+     "axis": "x",
+     "text_box": [
+      93,
+      3782,
+      389,
+      3821
+     ],
+     "clip_box": [
+      24,
+      2325,
+      336,
+      4579
+     ]
+    },
+    {
+     "text": "Shopping & delivery",
+     "axis": "x",
+     "text_box": [
+      93,
+      3847,
+      393,
+      3886
+     ],
+     "clip_box": [
+      24,
+      2325,
+      336,
+      4579
+     ]
+    }
+   ],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 32
+    },
+    {
+     "band": "bottom",
+     "text": "Everything that renews on its own \u2014 what",
+     "y": 704
+    }
+   ]
+  },
+  "/tracker/transactions": {
+   "hscroll": [],
+   "clipped": [
+    {
+     "text": "Expense",
+     "axis": "x",
+     "text_box": [
+      16,
+      1552,
+      162,
+      1595
+     ],
+     "clip_box": [
+      24,
+      1521,
+      336,
+      3281
+     ]
+    },
+    {
+     "text": "Invested",
+     "axis": "x",
+     "text_box": [
+      201,
+      1552,
+      341,
+      1595
+     ],
+     "clip_box": [
+      24,
+      1521,
+      336,
+      3281
+     ]
+    }
+   ],
+   "small": [],
+   "overlap": [
+    {
+     "a": "Expense",
+     "b": "Income"
+    },
+    {
+     "a": "Income",
+     "b": "Invested"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 32
+    },
+    {
+     "band": "bottom",
+     "text": "Log what you spend, earn and invest. It ",
+     "y": 704
+    }
+   ]
+  },
+  "/tracker/watchlist": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 32
+    },
+    {
+     "band": "bottom",
+     "text": "ADD",
+     "y": 737
+    }
+   ]
+  }
+ },
+ "not_loaded": []
+}

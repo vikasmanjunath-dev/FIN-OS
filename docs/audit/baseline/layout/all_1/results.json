@@ -1,0 +1,9565 @@
+{
+ "text_scale": 1.0,
+ "view_w": 390,
+ "mode": "dark",
+ "populated": false,
+ "results": {
+  "/alerts": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/arya": {
+   "hscroll": [],
+   "clipped": [
+    {
+     "text": "\ud83d\udcc5",
+     "axis": "x",
+     "text_box": [
+      419,
+      92,
+      435,
+      108
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Cal",
+     "axis": "x",
+     "text_box": [
+      440,
+      92,
+      460,
+      107
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83c\uddee\ud83c\uddf3",
+     "axis": "x",
+     "text_box": [
+      490,
+      92,
+      506,
+      108
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "India",
+     "axis": "x",
+     "text_box": [
+      511,
+      92,
+      540,
+      107
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83e\udd16",
+     "axis": "x",
+     "text_box": [
+      570,
+      92,
+      586,
+      108
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Agent",
+     "axis": "x",
+     "text_box": [
+      591,
+      92,
+      627,
+      107
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    }
+   ],
+   "small": [
+    {
+     "label": "What Arya remembers and what it will be told",
+     "w": 46,
+     "h": 15,
+     "role": "button"
+    },
+    {
+     "label": "Clear the conversation",
+     "w": 30,
+     "h": 15,
+     "role": "button"
+    },
+    {
+     "label": "Arya Chat",
+     "w": 74,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Plan",
+     "w": 71,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Map",
+     "w": 71,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Life",
+     "w": 67,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Pulse",
+     "w": 78,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Cal",
+     "w": 65,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya India",
+     "w": 75,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Agent",
+     "w": 81,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya tools are on. Switch them off",
+     "w": 358,
+     "h": 32,
+     "role": "switch"
+    }
+   ],
+   "overlap": [
+    {
+     "a": "Arya",
+     "b": "Namaste! I'm Arya, your FIN\u00b7OS financial"
+    },
+    {
+     "a": "FIN\u00b7OS Financial AI",
+     "b": "Namaste! I'm Arya, your FIN\u00b7OS financial"
+    },
+    {
+     "a": "Chat",
+     "b": "Namaste! I'm Arya, your FIN\u00b7OS financial"
+    },
+    {
+     "a": "\ud83d\uddfa\ufe0f",
+     "b": "Namaste! I'm Arya, your FIN\u00b7OS financial"
+    },
+    {
+     "a": "Plan",
+     "b": "Namaste! I'm Arya, your FIN\u00b7OS financial"
+    },
+    {
+     "a": "\ud83e\udde0",
+     "b": "Namaste! I'm Arya, your FIN\u00b7OS financial"
+    },
+    {
+     "a": "Map",
+     "b": "Namaste! I'm Arya, your FIN\u00b7OS financial"
+    },
+    {
+     "a": "\uf382",
+     "b": "\uf383"
+    },
+    {
+     "a": "Home",
+     "b": "Home"
+    },
+    {
+     "a": "\uf5fb",
+     "b": "\uf5fc"
+    },
+    {
+     "a": "Markets",
+     "b": "Markets"
+    },
+    {
+     "a": "\uf58c",
+     "b": "\uf58c"
+    },
+    {
+     "a": "Arya",
+     "b": "Arya"
+    },
+    {
+     "a": "\uf625",
+     "b": "\uf626"
+    },
+    {
+     "a": "Track",
+     "b": "Track"
+    },
+    {
+     "a": "\uf4b7",
+     "b": "\uf4b8"
+    },
+    {
+     "a": "Portfolio",
+     "b": "Portfolio"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2726",
+     "y": 26
+    },
+    {
+     "band": "top",
+     "text": "Arya",
+     "y": 20
+    },
+    {
+     "band": "top",
+     "text": "FIN\u00b7OS Financial AI",
+     "y": 38
+    },
+    {
+     "band": "top",
+     "text": "Memory",
+     "y": 29
+    },
+    {
+     "band": "top",
+     "text": "Clear",
+     "y": 29
+    },
+    {
+     "band": "top",
+     "text": "Namaste! I'm Arya, your FIN\u00b7OS financial",
+     "y": 25
+    },
+    {
+     "band": "bottom",
+     "text": "Home",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "Markets",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "Arya",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "Track",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "Portfolio",
+     "y": 676
+    }
+   ]
+  },
+  "/arya/agent": {
+   "hscroll": [],
+   "clipped": [
+    {
+     "text": "Pulse",
+     "axis": "x",
+     "text_box": [
+      364,
+      232,
+      397,
+      247
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "\ud83d\udcc5",
+     "axis": "x",
+     "text_box": [
+      427,
+      232,
+      443,
+      248
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "Cal",
+     "axis": "x",
+     "text_box": [
+      448,
+      232,
+      468,
+      247
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "\ud83c\uddee\ud83c\uddf3",
+     "axis": "x",
+     "text_box": [
+      498,
+      232,
+      514,
+      248
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "India",
+     "axis": "x",
+     "text_box": [
+      519,
+      232,
+      548,
+      247
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "\ud83e\udd16",
+     "axis": "x",
+     "text_box": [
+      578,
+      232,
+      594,
+      248
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "Agent",
+     "axis": "x",
+     "text_box": [
+      599,
+      232,
+      635,
+      247
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    }
+   ],
+   "small": [
+    {
+     "label": "Arya Chat",
+     "w": 74,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Plan",
+     "w": 71,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Map",
+     "w": 71,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Life",
+     "w": 67,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Pulse",
+     "w": 78,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Cal",
+     "w": 65,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya India",
+     "w": 75,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Agent",
+     "w": 81,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Allow Arya to use tools",
+     "w": 308,
+     "h": 17,
+     "role": "switch"
+    },
+    {
+     "label": "Ask a tool question",
+     "w": 308,
+     "h": 36,
+     "role": "input"
+    },
+    {
+     "label": "Run",
+     "w": 55,
+     "h": 34,
+     "role": "button"
+    },
+    {
+     "label": "What Arya remembers and will be told",
+     "w": 184,
+     "h": 34,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "No tool has been called since the app op",
+     "y": 701
+    }
+   ]
+  },
+  "/arya/cal": {
+   "hscroll": [],
+   "clipped": [
+    {
+     "text": "Pulse",
+     "axis": "x",
+     "text_box": [
+      364,
+      198,
+      397,
+      213
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "\ud83d\udcc5",
+     "axis": "x",
+     "text_box": [
+      427,
+      198,
+      443,
+      214
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "Cal",
+     "axis": "x",
+     "text_box": [
+      448,
+      198,
+      468,
+      213
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "\ud83c\uddee\ud83c\uddf3",
+     "axis": "x",
+     "text_box": [
+      498,
+      198,
+      514,
+      214
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "India",
+     "axis": "x",
+     "text_box": [
+      519,
+      198,
+      548,
+      213
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "\ud83e\udd16",
+     "axis": "x",
+     "text_box": [
+      578,
+      198,
+      594,
+      214
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "Agent",
+     "axis": "x",
+     "text_box": [
+      599,
+      198,
+      635,
+      213
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    }
+   ],
+   "small": [
+    {
+     "label": "Arya Chat",
+     "w": 74,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Plan",
+     "w": 71,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Map",
+     "w": 71,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Life",
+     "w": 67,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Pulse",
+     "w": 78,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Cal",
+     "w": 65,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya India",
+     "w": 75,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Agent",
+     "w": 81,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Open the full financial calendar",
+     "w": 118,
+     "h": 34,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "No spending is logged. Log expenses in T",
+     "y": 721
+    }
+   ]
+  },
+  "/arya/india": {
+   "hscroll": [],
+   "clipped": [
+    {
+     "text": "Pulse",
+     "axis": "x",
+     "text_box": [
+      364,
+      215,
+      397,
+      230
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "\ud83d\udcc5",
+     "axis": "x",
+     "text_box": [
+      427,
+      215,
+      443,
+      231
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "Cal",
+     "axis": "x",
+     "text_box": [
+      448,
+      215,
+      468,
+      230
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "\ud83c\uddee\ud83c\uddf3",
+     "axis": "x",
+     "text_box": [
+      498,
+      215,
+      514,
+      231
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "India",
+     "axis": "x",
+     "text_box": [
+      519,
+      215,
+      548,
+      230
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "\ud83e\udd16",
+     "axis": "x",
+     "text_box": [
+      578,
+      215,
+      594,
+      231
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "Agent",
+     "axis": "x",
+     "text_box": [
+      599,
+      215,
+      635,
+      230
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    }
+   ],
+   "small": [
+    {
+     "label": "Arya Chat",
+     "w": 74,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Plan",
+     "w": 71,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Map",
+     "w": 71,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Life",
+     "w": 67,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Pulse",
+     "w": 78,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Cal",
+     "w": 65,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya India",
+     "w": 75,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Agent",
+     "w": 81,
+     "h": 37,
+     "role": "tab"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b90 to \u20b94,00,000: 0%; \u20b94,00,000 to \u20b98,00,",
+     "y": 696
+    }
+   ]
+  },
+  "/arya/life": {
+   "hscroll": [],
+   "clipped": [
+    {
+     "text": "Pulse",
+     "axis": "x",
+     "text_box": [
+      364,
+      215,
+      397,
+      230
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "\ud83d\udcc5",
+     "axis": "x",
+     "text_box": [
+      427,
+      215,
+      443,
+      231
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "Cal",
+     "axis": "x",
+     "text_box": [
+      448,
+      215,
+      468,
+      230
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "\ud83c\uddee\ud83c\uddf3",
+     "axis": "x",
+     "text_box": [
+      498,
+      215,
+      514,
+      231
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "India",
+     "axis": "x",
+     "text_box": [
+      519,
+      215,
+      548,
+      230
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "\ud83e\udd16",
+     "axis": "x",
+     "text_box": [
+      578,
+      215,
+      594,
+      231
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "Agent",
+     "axis": "x",
+     "text_box": [
+      599,
+      215,
+      635,
+      230
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    }
+   ],
+   "small": [
+    {
+     "label": "Arya Chat",
+     "w": 74,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Plan",
+     "w": 71,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Map",
+     "w": 71,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Life",
+     "w": 67,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Pulse",
+     "w": 78,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Cal",
+     "w": 65,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya India",
+     "w": 75,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Agent",
+     "w": 81,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Declare or edit life events",
+     "w": 200,
+     "h": 34,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/arya/map": {
+   "hscroll": [],
+   "clipped": [
+    {
+     "text": "Pulse",
+     "axis": "x",
+     "text_box": [
+      364,
+      215,
+      397,
+      230
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "\ud83d\udcc5",
+     "axis": "x",
+     "text_box": [
+      427,
+      215,
+      443,
+      231
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "Cal",
+     "axis": "x",
+     "text_box": [
+      448,
+      215,
+      468,
+      230
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "\ud83c\uddee\ud83c\uddf3",
+     "axis": "x",
+     "text_box": [
+      498,
+      215,
+      514,
+      231
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "India",
+     "axis": "x",
+     "text_box": [
+      519,
+      215,
+      548,
+      230
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "\ud83e\udd16",
+     "axis": "x",
+     "text_box": [
+      578,
+      215,
+      594,
+      231
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "Agent",
+     "axis": "x",
+     "text_box": [
+      599,
+      215,
+      635,
+      230
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    }
+   ],
+   "small": [
+    {
+     "label": "Arya Chat",
+     "w": 74,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Plan",
+     "w": 71,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Map",
+     "w": 71,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Life",
+     "w": 67,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Pulse",
+     "w": 78,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Cal",
+     "w": 65,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya India",
+     "w": 75,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Agent",
+     "w": 81,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Income: Not recorded",
+     "w": 308,
+     "h": 23,
+     "role": "button"
+    },
+    {
+     "label": "Investing: No SIP recorded",
+     "w": 308,
+     "h": 23,
+     "role": "button"
+    },
+    {
+     "label": "Goals: None recorded",
+     "w": 308,
+     "h": 23,
+     "role": "button"
+    },
+    {
+     "label": "Debt: None recorded",
+     "w": 308,
+     "h": 23,
+     "role": "button"
+    },
+    {
+     "label": "Safety: Not recorded",
+     "w": 308,
+     "h": 23,
+     "role": "button"
+    },
+    {
+     "label": "Insurance: None recorded",
+     "w": 308,
+     "h": 23,
+     "role": "button"
+    },
+    {
+     "label": "Tax: Not recorded",
+     "w": 308,
+     "h": 23,
+     "role": "button"
+    },
+    {
+     "label": "Independence: Not recorded",
+     "w": 308,
+     "h": 23,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/arya/plan": {
+   "hscroll": [],
+   "clipped": [
+    {
+     "text": "Pulse",
+     "axis": "x",
+     "text_box": [
+      364,
+      232,
+      397,
+      247
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "\ud83d\udcc5",
+     "axis": "x",
+     "text_box": [
+      427,
+      232,
+      443,
+      248
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "Cal",
+     "axis": "x",
+     "text_box": [
+      448,
+      232,
+      468,
+      247
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "\ud83c\uddee\ud83c\uddf3",
+     "axis": "x",
+     "text_box": [
+      498,
+      232,
+      514,
+      248
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "India",
+     "axis": "x",
+     "text_box": [
+      519,
+      232,
+      548,
+      247
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "\ud83e\udd16",
+     "axis": "x",
+     "text_box": [
+      578,
+      232,
+      594,
+      248
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "Agent",
+     "axis": "x",
+     "text_box": [
+      599,
+      232,
+      635,
+      247
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    }
+   ],
+   "small": [
+    {
+     "label": "Arya Chat",
+     "w": 74,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Plan",
+     "w": 71,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Map",
+     "w": 71,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Life",
+     "w": 67,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Pulse",
+     "w": 78,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Cal",
+     "w": 65,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya India",
+     "w": 75,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Agent",
+     "w": 81,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Record spending: Emergency fund",
+     "w": 144,
+     "h": 34,
+     "role": "button"
+    },
+    {
+     "label": "Open insurance: Term life cover",
+     "w": 136,
+     "h": 34,
+     "role": "button"
+    },
+    {
+     "label": "Open insurance: Health cover",
+     "w": 136,
+     "h": 34,
+     "role": "button"
+    },
+    {
+     "label": "Open net worth: Debt",
+     "w": 135,
+     "h": 34,
+     "role": "button"
+    },
+    {
+     "label": "Open Tax planner: Tax: 80C",
+     "w": 148,
+     "h": 34,
+     "role": "button"
+    },
+    {
+     "label": "Open budget: Saving and investing",
+     "w": 119,
+     "h": 34,
+     "role": "button"
+    },
+    {
+     "label": "Add a goal: Goals",
+     "w": 103,
+     "h": 34,
+     "role": "button"
+    },
+    {
+     "label": "Open the Retirement planner: Independence and re",
+     "w": 221,
+     "h": 34,
+     "role": "button"
+    },
+    {
+     "label": "Expected yearly return in percent",
+     "w": 168,
+     "h": 34,
+     "role": "input"
+    },
+    {
+     "label": "Yearly rise in cost in percent (optional)",
+     "w": 168,
+     "h": 34,
+     "role": "input"
+    },
+    {
+     "label": "Open the Life goals planner",
+     "w": 149,
+     "h": 34,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "No term policy recorded",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "If anyone depends on your income, the us",
+     "y": 743
+    }
+   ]
+  },
+  "/dashboard": {
+   "hscroll": [],
+   "clipped": [
+    {
+     "text": "BANK",
+     "axis": "x",
+     "text_box": [
+      396,
+      94,
+      428,
+      106
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "55,844",
+     "axis": "x",
+     "text_box": [
+      434,
+      93,
+      474,
+      106
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\u25b2 0.06%",
+     "axis": "x",
+     "text_box": [
+      480,
+      94,
+      525,
+      106
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "IT",
+     "axis": "x",
+     "text_box": [
+      555,
+      94,
+      566,
+      106
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "31,924.1",
+     "axis": "x",
+     "text_box": [
+      572,
+      93,
+      619,
+      106
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\u25b2 3.92%",
+     "axis": "x",
+     "text_box": [
+      625,
+      94,
+      670,
+      106
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Nine questions. It feeds the Behaviour part of you",
+     "axis": "y",
+     "text_box": [
+      69,
+      612,
+      328,
+      644
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Start the quiz",
+     "axis": "y",
+     "text_box": [
+      69,
+      651,
+      153,
+      666
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\u203a",
+     "axis": "y",
+     "text_box": [
+      153,
+      651,
+      161,
+      666
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "SPENT THIS MONTH",
+     "axis": "y",
+     "text_box": [
+      41,
+      720,
+      166,
+      733
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\u20b90",
+     "axis": "y",
+     "text_box": [
+      41,
+      735,
+      71,
+      761
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Nothing logged yet",
+     "axis": "y",
+     "text_box": [
+      41,
+      763,
+      149,
+      778
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\uff0b Log",
+     "axis": "y",
+     "text_box": [
+      291,
+      741,
+      331,
+      757
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83c\udfe5",
+     "axis": "y",
+     "text_box": [
+      41,
+      830,
+      64,
+      856
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Health Score",
+     "axis": "y",
+     "text_box": [
+      41,
+      862,
+      137,
+      875
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Not enough data",
+     "axis": "y",
+     "text_box": [
+      41,
+      877,
+      162,
+      929
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "record income and spending",
+     "axis": "y",
+     "text_box": [
+      41,
+      931,
+      150,
+      961
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83d\udee1\ufe0f",
+     "axis": "y",
+     "text_box": [
+      213,
+      830,
+      236,
+      856
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Emergency Fund",
+     "axis": "y",
+     "text_box": [
+      213,
+      862,
+      329,
+      875
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\u2014",
+     "axis": "y",
+     "text_box": [
+      213,
+      877,
+      232,
+      903
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "add monthly spend",
+     "axis": "y",
+     "text_box": [
+      213,
+      905,
+      322,
+      920
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83d\udcb0",
+     "axis": "y",
+     "text_box": [
+      41,
+      1005,
+      64,
+      1031
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Monthly Income",
+     "axis": "y",
+     "text_box": [
+      41,
+      1037,
+      156,
+      1050
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "set in Budget",
+     "axis": "y",
+     "text_box": [
+      41,
+      1080,
+      116,
+      1095
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83d\udcb3",
+     "axis": "y",
+     "text_box": [
+      213,
+      1005,
+      236,
+      1031
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Monthly Spend",
+     "axis": "y",
+     "text_box": [
+      213,
+      1037,
+      321,
+      1050
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83d\udd25",
+     "axis": "y",
+     "text_box": [
+      41,
+      1139,
+      64,
+      1165
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "FIRE Progress",
+     "axis": "y",
+     "text_box": [
+      41,
+      1171,
+      140,
+      1184
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "0.0%",
+     "axis": "y",
+     "text_box": [
+      41,
+      1186,
+      95,
+      1212
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "of \u20b90 target",
+     "axis": "y",
+     "text_box": [
+      41,
+      1214,
+      108,
+      1229
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83c\udfaf",
+     "axis": "y",
+     "text_box": [
+      213,
+      1139,
+      236,
+      1165
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Goals",
+     "axis": "y",
+     "text_box": [
+      213,
+      1171,
+      256,
+      1184
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "add your first goal",
+     "axis": "y",
+     "text_box": [
+      213,
+      1214,
+      316,
+      1229
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Retirement & Protection",
+     "axis": "y",
+     "text_box": [
+      24,
+      1262,
+      201,
+      1275
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83c\udfe2",
+     "axis": "y",
+     "text_box": [
+      41,
+      1302,
+      64,
+      1328
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "EPF",
+     "axis": "y",
+     "text_box": [
+      41,
+      1334,
+      64,
+      1347
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "tap to set up",
+     "axis": "y",
+     "text_box": [
+      41,
+      1377,
+      113,
+      1392
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83c\udfdb\ufe0f",
+     "axis": "y",
+     "text_box": [
+      213,
+      1302,
+      236,
+      1328
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "NPS",
+     "axis": "y",
+     "text_box": [
+      213,
+      1334,
+      239,
+      1347
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83d\udcee",
+     "axis": "y",
+     "text_box": [
+      41,
+      1436,
+      64,
+      1462
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "PPF & Small Savings",
+     "axis": "y",
+     "text_box": [
+      41,
+      1468,
+      127,
+      1494
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Insurance",
+     "axis": "y",
+     "text_box": [
+      213,
+      1468,
+      287,
+      1481
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "add your policies",
+     "axis": "y",
+     "text_box": [
+      213,
+      1511,
+      309,
+      1526
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Recurring Costs",
+     "axis": "y",
+     "text_box": [
+      24,
+      1572,
+      144,
+      1585
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83d\udd01",
+     "axis": "y",
+     "text_box": [
+      41,
+      1612,
+      64,
+      1638
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Subscriptions",
+     "axis": "y",
+     "text_box": [
+      41,
+      1644,
+      143,
+      1657
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "tap to add your plans",
+     "axis": "y",
+     "text_box": [
+      41,
+      1687,
+      161,
+      1702
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Money Tools",
+     "axis": "y",
+     "text_box": [
+      24,
+      1735,
+      115,
+      1748
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Money Score",
+     "axis": "y",
+     "text_box": [
+      41,
+      1807,
+      133,
+      1820
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "60 seconds",
+     "axis": "y",
+     "text_box": [
+      41,
+      1822,
+      159,
+      1848
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "one number + your next 3 moves",
+     "axis": "y",
+     "text_box": [
+      41,
+      1850,
+      151,
+      1880
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83c\udf05",
+     "axis": "y",
+     "text_box": [
+      213,
+      1775,
+      236,
+      1801
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Retirement odds",
+     "axis": "y",
+     "text_box": [
+      213,
+      1807,
+      332,
+      1820
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Will it last?",
+     "axis": "y",
+     "text_box": [
+      213,
+      1822,
+      321,
+      1848
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Monte Carlo on what you hold",
+     "axis": "y",
+     "text_box": [
+      213,
+      1850,
+      334,
+      1880
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83c\udfe0",
+     "axis": "y",
+     "text_box": [
+      41,
+      1924,
+      64,
+      1950
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Prepay or invest?",
+     "axis": "y",
+     "text_box": [
+      41,
+      1956,
+      167,
+      1969
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Home loan",
+     "axis": "y",
+     "text_box": [
+      41,
+      1971,
+      148,
+      1997
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "which leaves you richer",
+     "axis": "y",
+     "text_box": [
+      41,
+      1999,
+      140,
+      2029
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83d\udcc8",
+     "axis": "y",
+     "text_box": [
+      213,
+      1924,
+      236,
+      1950
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Credit score",
+     "axis": "y",
+     "text_box": [
+      213,
+      1956,
+      306,
+      1969
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "CIBIL",
+     "axis": "y",
+     "text_box": [
+      213,
+      1971,
+      266,
+      1997
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "rate impact and tips",
+     "axis": "y",
+     "text_box": [
+      213,
+      1999,
+      326,
+      2014
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "EMI & prepay",
+     "axis": "y",
+     "text_box": [
+      41,
+      2120,
+      112,
+      2172
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "interest, tax, what prepaying saves",
+     "axis": "y",
+     "text_box": [
+      41,
+      2174,
+      146,
+      2204
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83d\udcc5",
+     "axis": "y",
+     "text_box": [
+      213,
+      2073,
+      236,
+      2099
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Financial calendar",
+     "axis": "y",
+     "text_box": [
+      213,
+      2105,
+      285,
+      2131
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "What is due",
+     "axis": "y",
+     "text_box": [
+      213,
+      2133,
+      331,
+      2159
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "SIPs, renewals, tax dates",
+     "axis": "y",
+     "text_box": [
+      213,
+      2161,
+      322,
+      2191
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83c\udf34",
+     "axis": "y",
+     "text_box": [
+      41,
+      2248,
+      64,
+      2274
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Passive income",
+     "axis": "y",
+     "text_box": [
+      41,
+      2280,
+      148,
+      2293
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Freedom meter",
+     "axis": "y",
+     "text_box": [
+      41,
+      2295,
+      135,
+      2347
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "dividends, rent, interest, SWP",
+     "axis": "y",
+     "text_box": [
+      41,
+      2349,
+      132,
+      2379
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\u2696\ufe0f",
+     "axis": "y",
+     "text_box": [
+      213,
+      2248,
+      236,
+      2274
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Rebalancer",
+     "axis": "y",
+     "text_box": [
+      213,
+      2280,
+      296,
+      2293
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Target mix",
+     "axis": "y",
+     "text_box": [
+      213,
+      2295,
+      318,
+      2321
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "drift and what to add",
+     "axis": "y",
+     "text_box": [
+      213,
+      2323,
+      331,
+      2338
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83d\udcc4",
+     "axis": "y",
+     "text_box": [
+      41,
+      2423,
+      64,
+      2449
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Financial report",
+     "axis": "y",
+     "text_box": [
+      41,
+      2455,
+      163,
+      2468
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "One-page summary",
+     "axis": "y",
+     "text_box": [
+      41,
+      2470,
+      146,
+      2522
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "share with an advisor",
+     "axis": "y",
+     "text_box": [
+      41,
+      2524,
+      161,
+      2539
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Real estate",
+     "axis": "y",
+     "text_box": [
+      213,
+      2455,
+      295,
+      2468
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Buy or rent?",
+     "axis": "y",
+     "text_box": [
+      213,
+      2470,
+      334,
+      2496
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "true cost and rental yield",
+     "axis": "y",
+     "text_box": [
+      213,
+      2498,
+      327,
+      2528
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83e\uddee",
+     "axis": "y",
+     "text_box": [
+      41,
+      2583,
+      64,
+      2609
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Calculators",
+     "axis": "y",
+     "text_box": [
+      41,
+      2615,
+      132,
+      2628
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "SIP, EMI, HRA, FD\u2026",
+     "axis": "y",
+     "text_box": [
+      41,
+      2630,
+      140,
+      2682
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "70+ quick calculators",
+     "axis": "y",
+     "text_box": [
+      41,
+      2684,
+      162,
+      2699
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83e\uddec",
+     "axis": "y",
+     "text_box": [
+      213,
+      2583,
+      236,
+      2609
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Financial DNA",
+     "axis": "y",
+     "text_box": [
+      213,
+      2615,
+      312,
+      2628
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Your money mindset",
+     "axis": "y",
+     "text_box": [
+      213,
+      2630,
+      336,
+      2682
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "9 questions, feeds Health Score",
+     "axis": "y",
+     "text_box": [
+      213,
+      2684,
+      321,
+      2714
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83c\udf42",
+     "axis": "y",
+     "text_box": [
+      41,
+      2758,
+      64,
+      2784
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Tax harvesting",
+     "axis": "y",
+     "text_box": [
+      41,
+      2790,
+      151,
+      2803
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Use losses, free gains",
+     "axis": "y",
+     "text_box": [
+      41,
+      2805,
+      158,
+      2857
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "cut tax before March",
+     "axis": "y",
+     "text_box": [
+      41,
+      2859,
+      158,
+      2874
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83c\udf81",
+     "axis": "y",
+     "text_box": [
+      213,
+      2758,
+      236,
+      2784
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Windfall allocator",
+     "axis": "y",
+     "text_box": [
+      213,
+      2790,
+      288,
+      2816
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Bonus, RSU, sale",
+     "axis": "y",
+     "text_box": [
+      213,
+      2818,
+      338,
+      2870
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "where a lump sum goes first",
+     "axis": "y",
+     "text_box": [
+      213,
+      2872,
+      319,
+      2902
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\u26f0\ufe0f",
+     "axis": "y",
+     "text_box": [
+      41,
+      2946,
+      64,
+      2972
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Debt payoff",
+     "axis": "y",
+     "text_box": [
+      41,
+      2978,
+      125,
+      2991
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Avalanche or snowball",
+     "axis": "y",
+     "text_box": [
+      41,
+      2993,
+      175,
+      3045
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "clear loans cheapest",
+     "axis": "y",
+     "text_box": [
+      41,
+      3047,
+      158,
+      3062
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83d\udca7",
+     "axis": "y",
+     "text_box": [
+      213,
+      2946,
+      236,
+      2972
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Future loss",
+     "axis": "y",
+     "text_box": [
+      213,
+      2978,
+      299,
+      2991
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Your leak",
+     "axis": "y",
+     "text_box": [
+      213,
+      2993,
+      305,
+      3019
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "what small spends become",
+     "axis": "y",
+     "text_box": [
+      213,
+      3021,
+      321,
+      3051
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83d\udcd2",
+     "axis": "y",
+     "text_box": [
+      41,
+      3106,
+      64,
+      3132
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Trade journal",
+     "axis": "y",
+     "text_box": [
+      41,
+      3138,
+      146,
+      3151
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Log your trades",
+     "axis": "y",
+     "text_box": [
+      41,
+      3153,
+      132,
+      3205
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "totals after charges",
+     "axis": "y",
+     "text_box": [
+      41,
+      3207,
+      151,
+      3222
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Portfolio analytics",
+     "axis": "y",
+     "text_box": [
+      213,
+      3138,
+      289,
+      3164
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Sectors and risk",
+     "axis": "y",
+     "text_box": [
+      213,
+      3166,
+      338,
+      3218
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "from real price history",
+     "axis": "y",
+     "text_box": [
+      213,
+      3220,
+      338,
+      3235
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83d\uddfa\ufe0f",
+     "axis": "y",
+     "text_box": [
+      41,
+      3279,
+      64,
+      3305
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Arya money steps",
+     "axis": "y",
+     "text_box": [
+      41,
+      3311,
+      167,
+      3324
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Your plan",
+     "axis": "y",
+     "text_box": [
+      41,
+      3326,
+      135,
+      3352
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "done, open or needs a figure",
+     "axis": "y",
+     "text_box": [
+      41,
+      3354,
+      171,
+      3384
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83e\uddfe",
+     "axis": "y",
+     "text_box": [
+      213,
+      3279,
+      236,
+      3305
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Tax savings",
+     "axis": "y",
+     "text_box": [
+      213,
+      3311,
+      297,
+      3324
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Old vs new",
+     "axis": "y",
+     "text_box": [
+      213,
+      3326,
+      322,
+      3352
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "what deductions could save",
+     "axis": "y",
+     "text_box": [
+      213,
+      3354,
+      345,
+      3384
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "SIP step-up",
+     "axis": "y",
+     "text_box": [
+      41,
+      3460,
+      121,
+      3473
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Raise it yearly",
+     "axis": "y",
+     "text_box": [
+      41,
+      3475,
+      117,
+      3527
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "flat vs stepped-up SIP",
+     "axis": "y",
+     "text_box": [
+      41,
+      3529,
+      167,
+      3544
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Salary structure",
+     "axis": "y",
+     "text_box": [
+      213,
+      3460,
+      342,
+      3473
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Take-home",
+     "axis": "y",
+     "text_box": [
+      213,
+      3475,
+      326,
+      3501
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "HRA, regime and CTC tips",
+     "axis": "y",
+     "text_box": [
+      213,
+      3503,
+      339,
+      3533
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83d\udcbc",
+     "axis": "y",
+     "text_box": [
+      41,
+      3588,
+      64,
+      3614
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Job offer comparer",
+     "axis": "y",
+     "text_box": [
+      41,
+      3620,
+      114,
+      3646
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "CTC vs in-hand",
+     "axis": "y",
+     "text_box": [
+      41,
+      3648,
+      143,
+      3700
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "compare up to 3 offers",
+     "axis": "y",
+     "text_box": [
+      41,
+      3702,
+      170,
+      3717
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Plan, Learn & Research",
+     "axis": "y",
+     "text_box": [
+      24,
+      3750,
+      190,
+      3763
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83d\udcda",
+     "axis": "y",
+     "text_box": [
+      41,
+      3790,
+      64,
+      3816
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Learn",
+     "axis": "y",
+     "text_box": [
+      41,
+      3822,
+      82,
+      3835
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "0 of 27 lessons",
+     "axis": "y",
+     "text_box": [
+      41,
+      3837,
+      118,
+      3889
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "money, markets and insurance, on this phone",
+     "axis": "y",
+     "text_box": [
+      41,
+      3891,
+      158,
+      3936
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83e\udded",
+     "axis": "y",
+     "text_box": [
+      213,
+      3790,
+      236,
+      3816
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "PULSE",
+     "axis": "y",
+     "text_box": [
+      213,
+      3822,
+      254,
+      3835
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "What matters today",
+     "axis": "y",
+     "text_box": [
+      213,
+      3837,
+      297,
+      3915
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "ranked from what you recorded",
+     "axis": "y",
+     "text_box": [
+      213,
+      3917,
+      339,
+      3947
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83d\udd2e",
+     "axis": "y",
+     "text_box": [
+      41,
+      3991,
+      64,
+      4017
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Spending forecast",
+     "axis": "y",
+     "text_box": [
+      41,
+      4023,
+      110,
+      4049
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "This month",
+     "axis": "y",
+     "text_box": [
+      41,
+      4051,
+      154,
+      4077
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "from your own logged spending",
+     "axis": "y",
+     "text_box": [
+      41,
+      4079,
+      168,
+      4109
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Life goals",
+     "axis": "y",
+     "text_box": [
+      213,
+      4023,
+      286,
+      4036
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Roadmap",
+     "axis": "y",
+     "text_box": [
+      213,
+      4038,
+      310,
+      4064
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "the SIP each goal needs",
+     "axis": "y",
+     "text_box": [
+      213,
+      4066,
+      315,
+      4096
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83c\udf31",
+     "axis": "y",
+     "text_box": [
+      41,
+      4153,
+      64,
+      4179
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Growth projection",
+     "axis": "y",
+     "text_box": [
+      41,
+      4185,
+      121,
+      4211
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "At a return you set",
+     "axis": "y",
+     "text_box": [
+      41,
+      4213,
+      150,
+      4265
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "your holdings and SIPs",
+     "axis": "y",
+     "text_box": [
+      41,
+      4267,
+      170,
+      4282
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83d\udc6b",
+     "axis": "y",
+     "text_box": [
+      213,
+      4153,
+      236,
+      4179
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Couple finance",
+     "axis": "y",
+     "text_box": [
+      213,
+      4185,
+      323,
+      4198
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Two incomes",
+     "axis": "y",
+     "text_box": [
+      213,
+      4200,
+      299,
+      4252
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "shared bills, joint goals",
+     "axis": "y",
+     "text_box": [
+      213,
+      4254,
+      343,
+      4269
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83d\udccf",
+     "axis": "y",
+     "text_box": [
+      41,
+      4326,
+      64,
+      4352
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Benchmarks",
+     "axis": "y",
+     "text_box": [
+      41,
+      4358,
+      129,
+      4371
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Rules of thumb",
+     "axis": "y",
+     "text_box": [
+      41,
+      4373,
+      126,
+      4425
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "not a comparison with others",
+     "axis": "y",
+     "text_box": [
+      41,
+      4427,
+      169,
+      4457
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Insurance hub",
+     "axis": "y",
+     "text_box": [
+      213,
+      4358,
+      317,
+      4371
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Cover guide",
+     "axis": "y",
+     "text_box": [
+      213,
+      4373,
+      333,
+      4399
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "what to ask, compare policies",
+     "axis": "y",
+     "text_box": [
+      213,
+      4401,
+      338,
+      4431
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Mutual funds",
+     "axis": "y",
+     "text_box": [
+      41,
+      4533,
+      141,
+      4546
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Search and compare",
+     "axis": "y",
+     "text_box": [
+      41,
+      4548,
+      158,
+      4600
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "NAV, Direct vs Regular",
+     "axis": "y",
+     "text_box": [
+      41,
+      4602,
+      168,
+      4617
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83d\udd2d",
+     "axis": "y",
+     "text_box": [
+      213,
+      4501,
+      236,
+      4527
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Market research",
+     "axis": "y",
+     "text_box": [
+      213,
+      4533,
+      336,
+      4546
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "News and prices",
+     "axis": "y",
+     "text_box": [
+      213,
+      4548,
+      316,
+      4600
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "shares, funds, gold, currency",
+     "axis": "y",
+     "text_box": [
+      213,
+      4602,
+      328,
+      4632
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Quick Actions",
+     "axis": "y",
+     "text_box": [
+      24,
+      4665,
+      124,
+      4678
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\u2726",
+     "axis": "y",
+     "text_box": [
+      55,
+      4703,
+      72,
+      4729
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Ask Arya",
+     "axis": "y",
+     "text_box": [
+      41,
+      4733,
+      87,
+      4745
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83d\udcca",
+     "axis": "y",
+     "text_box": [
+      140,
+      4705,
+      163,
+      4731
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Portfolio",
+     "axis": "y",
+     "text_box": [
+      129,
+      4737,
+      174,
+      4749
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Markets",
+     "axis": "y",
+     "text_box": [
+      218,
+      4737,
+      260,
+      4749
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Track",
+     "axis": "y",
+     "text_box": [
+      312,
+      4737,
+      341,
+      4749
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Add your first transactions",
+     "axis": "y",
+     "text_box": [
+      81,
+      4799,
+      265,
+      4816
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "Spending, savings and your health score get real o",
+     "axis": "y",
+     "text_box": [
+      81,
+      4818,
+      320,
+      4865
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    }
+   ],
+   "small": [
+    {
+     "label": "Alerts",
+     "w": 36,
+     "h": 36,
+     "role": "button"
+    },
+    {
+     "label": "Search",
+     "w": 36,
+     "h": 36,
+     "role": "button"
+    },
+    {
+     "label": "Settings",
+     "w": 36,
+     "h": 36,
+     "role": "button"
+    },
+    {
+     "label": "Hide for a week: Get your Money Score in 60 seco",
+     "w": 19,
+     "h": 92,
+     "role": "button"
+    },
+    {
+     "label": "Hide for a week: Add your age and dependents",
+     "w": 19,
+     "h": 92,
+     "role": "button"
+    },
+    {
+     "label": "Hide for a week: Take the Financial DNA quiz",
+     "w": 19,
+     "h": 75,
+     "role": "button"
+    },
+    {
+     "label": "Log a transaction",
+     "w": 76,
+     "h": 36,
+     "role": "button"
+    }
+   ],
+   "overlap": [
+    {
+     "a": "Nine questions. It feeds the Behaviour p",
+     "b": "\uf5fb"
+    },
+    {
+     "a": "Nine questions. It feeds the Behaviour p",
+     "b": "\uf5fc"
+    },
+    {
+     "a": "Start the quiz",
+     "b": "\uf5fb"
+    },
+    {
+     "a": "Start the quiz",
+     "b": "\uf5fc"
+    },
+    {
+     "a": "\uf382",
+     "b": "\uf383"
+    },
+    {
+     "a": "Home",
+     "b": "Home"
+    },
+    {
+     "a": "\uf5fb",
+     "b": "\uf5fc"
+    },
+    {
+     "a": "Markets",
+     "b": "Markets"
+    },
+    {
+     "a": "\uf58c",
+     "b": "\uf58c"
+    },
+    {
+     "a": "Arya",
+     "b": "Arya"
+    },
+    {
+     "a": "\uf625",
+     "b": "\uf626"
+    },
+    {
+     "a": "Track",
+     "b": "Track"
+    },
+    {
+     "a": "\uf4b7",
+     "b": "\uf4b8"
+    },
+    {
+     "a": "Portfolio",
+     "b": "Portfolio"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "Good night",
+     "y": 19
+    },
+    {
+     "band": "top",
+     "text": "\ud83d\udc4b",
+     "y": 19
+    },
+    {
+     "band": "top",
+     "text": "\ud83d\udd14",
+     "y": 24
+    },
+    {
+     "band": "top",
+     "text": "\ud83d\udd0d",
+     "y": 24
+    },
+    {
+     "band": "top",
+     "text": "\u2699\ufe0f",
+     "y": 24
+    },
+    {
+     "band": "bottom",
+     "text": "Home",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "Markets",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "Arya",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "Track",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "Portfolio",
+     "y": 676
+    }
+   ]
+  },
+  "/diagnostics": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Adds one to a counter for the name of th",
+     "y": 731
+    }
+   ]
+  },
+  "/feedback": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Topic: Money Score",
+     "w": 104,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Topic: Tax",
+     "w": 47,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Topic: Calculators",
+     "w": 95,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Topic: Arya",
+     "w": 54,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Topic: Trackers",
+     "w": 78,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Topic: Design and layout",
+     "w": 134,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Topic: Privacy",
+     "w": 71,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Topic: Something else",
+     "w": 119,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Save feedback",
+     "w": 308,
+     "h": 43,
+     "role": "button"
+    },
+    {
+     "label": "Share my feedback\u2026",
+     "w": 308,
+     "h": 43,
+     "role": "button"
+    },
+    {
+     "label": "Delete all my feedback",
+     "w": 308,
+     "h": 43,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "YOUR SAVED FEEDBACK",
+     "y": 701
+    }
+   ]
+  },
+  "/funds": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Fund data is AMFI's, relayed by your own",
+     "y": 669
+    }
+   ]
+  },
+  "/funds/120503": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Add to compare list",
+     "w": 96,
+     "h": 33,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "NAV \u20b922.9934 \u00b7 2026-10-16",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "\u00b7 code",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "112322",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "Direct and Regular plans hold the same p",
+     "y": 750
+    }
+   ]
+  },
+  "/funds/compare": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Search funds",
+     "w": 308,
+     "h": 16,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/funds/expense": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Enter your monthly SIP, the years, and t",
+     "y": 673
+    }
+   ]
+  },
+  "/insurance": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Open the insurance tracker",
+     "w": 308,
+     "h": 16,
+     "role": "button"
+    },
+    {
+     "label": "Search cover types",
+     "w": 342,
+     "h": 43,
+     "role": "input"
+    },
+    {
+     "label": "All",
+     "w": 41,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Health",
+     "w": 65,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Life and income",
+     "w": 119,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Property and liability",
+     "w": 149,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Recorded by me",
+     "w": 121,
+     "h": 31,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "These use the website's rules of thumb o",
+     "y": 687
+    }
+   ]
+  },
+  "/insurance/compare": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Compare Health insurance",
+     "w": 126,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Compare Critical illness",
+     "w": 109,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Compare Term life insurance",
+     "w": 138,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Compare Personal accident",
+     "w": 131,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Compare ULIP",
+     "w": 54,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Compare Home and property",
+     "w": 140,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Compare Vehicle",
+     "w": 69,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Compare Liability",
+     "w": 73,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Compare Travel",
+     "w": 62,
+     "h": 31,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/insurance/health": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Record a policy in the tracker",
+     "w": 308,
+     "h": 16,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Boosting cover by 50% for every healthy ",
+     "y": 682
+    },
+    {
+     "band": "bottom",
+     "text": "Website:",
+     "y": 701
+    },
+    {
+     "band": "bottom",
+     "text": "html/insurance-directory.html, line 210",
+     "y": 701
+    }
+   ]
+  },
+  "/insurance/term": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Record a policy in the tracker",
+     "w": 308,
+     "h": 16,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Limited Pay",
+     "y": 697
+    }
+   ]
+  },
+  "/journal": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Import or export",
+     "w": 308,
+     "h": 43,
+     "role": "button"
+    },
+    {
+     "label": "Import or export (CSV) Open",
+     "w": 308,
+     "h": 36,
+     "role": "button"
+    },
+    {
+     "label": "Tags Open",
+     "w": 308,
+     "h": 36,
+     "role": "button"
+    },
+    {
+     "label": "Open the Tax planner",
+     "w": 308,
+     "h": 16,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "WHAT IS NOT HERE",
+     "y": 695
+    }
+   ]
+  },
+  "/journal/analytics": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Period: All time",
+     "w": 73,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Period: This financial year",
+     "w": 133,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Period: Last 90 days",
+     "w": 102,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Period: Last 30 days",
+     "w": 101,
+     "h": 33,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/journal/import": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Read the file",
+     "w": 308,
+     "h": 43,
+     "role": "button"
+    },
+    {
+     "label": "Export the journal as CSV",
+     "w": 308,
+     "h": 43,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "EXPORT",
+     "y": 682
+    }
+   ]
+  },
+  "/journal/psychology": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Add a trade",
+     "w": 308,
+     "h": 43,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/journal/tags": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Tag name",
+     "w": 308,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "Type: Market regime",
+     "w": 111,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Type: Setup type",
+     "w": 90,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Type: Market condition",
+     "w": 126,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Type: Custom",
+     "w": 74,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Colour: #00ff88",
+     "w": 78,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Colour: #00d4ff",
+     "w": 75,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Colour: #f7b731",
+     "w": 74,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Colour: #ff4d6d",
+     "w": 74,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Colour: #a29bfe",
+     "w": 76,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Colour: #ff9f43",
+     "w": 72,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Colour: #ff6b9d",
+     "w": 75,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Colour: #26de81",
+     "w": 78,
+     "h": 33,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "No tags yet.",
+     "y": 671
+    }
+   ]
+  },
+  "/journal/trade": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Side: Long",
+     "w": 55,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Side: Short",
+     "w": 59,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Instrument type: Equity / cash",
+     "w": 102,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Instrument type: Futures",
+     "w": 71,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Instrument type: Options CE (call)",
+     "w": 125,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Instrument type: Options PE (put)",
+     "w": 124,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Instrument type: Currency",
+     "w": 80,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Instrument type: Commodity",
+     "w": 94,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Instrument type: ETF / MF",
+     "w": 76,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Instrument type: Crypto",
+     "w": 66,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Suggestions: Momentum Long",
+     "w": 125,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Suggestions: Momentum Short",
+     "w": 128,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Suggestions: ORB (Opening Range Breakout)",
+     "w": 211,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Suggestions: BB Breakout",
+     "w": 99,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Suggestions: RSI Reversal",
+     "w": 99,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Suggestions: Trend Follow",
+     "w": 101,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Suggestions: Scalp",
+     "w": 59,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Suggestions: Gap & Go",
+     "w": 81,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Suggestions: VWAP Bounce",
+     "w": 110,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Suggestions: EMA Crossover",
+     "w": 116,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Suggestions: Support Bounce",
+     "w": 121,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Suggestions: Resistance Rejection",
+     "w": 149,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Suggestions: Breakout Retest",
+     "w": 120,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Suggestions: Inside Bar",
+     "w": 85,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Setup grade: A+ perfect",
+     "w": 89,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Setup grade: A strong",
+     "w": 76,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Setup grade: B good",
+     "w": 67,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Setup grade: C mediocre",
+     "w": 93,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Setup grade: D forced / FOMO",
+     "w": 123,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Market regime: Trending Up",
+     "w": 98,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Market regime: Trending Down",
+     "w": 115,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Market regime: Range Bound",
+     "w": 104,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Market regime: High Volatility",
+     "w": 109,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Market regime: Low Volatility",
+     "w": 105,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Market regime: Breakout",
+     "w": 79,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Market regime: Pre-Expiry",
+     "w": 89,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Market regime: Event Day",
+     "w": 85,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Feeling before the trade: Calm",
+     "w": 56,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Feeling before the trade: Confident",
+     "w": 84,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Feeling before the trade: Anxious",
+     "w": 73,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Feeling before the trade: Greedy",
+     "w": 69,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Feeling before the trade: FOMO",
+     "w": 63,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Feeling before the trade: Focused",
+     "w": 76,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Feeling before the trade: Frustrated",
+     "w": 88,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Feeling before the trade: Tired",
+     "w": 57,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Feeling before the trade: Overconfident",
+     "w": 110,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Feeling during the trade: Calm",
+     "w": 56,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Feeling during the trade: Confident",
+     "w": 84,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Feeling during the trade: Anxious",
+     "w": 73,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Feeling during the trade: Greedy",
+     "w": 69,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Feeling during the trade: FOMO",
+     "w": 63,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Feeling during the trade: Disciplined",
+     "w": 91,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Feeling during the trade: Scared",
+     "w": 67,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Feeling during the trade: Revenge",
+     "w": 77,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Was it a revenge trade?: Yes",
+     "w": 47,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Was it a revenge trade?: No",
+     "w": 42,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Was it an impulsive trade?: Yes",
+     "w": 47,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Was it an impulsive trade?: No",
+     "w": 42,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Your rules: Followed all my rules",
+     "w": 149,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Your rules: Partly followed",
+     "w": 114,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Your rules: Broke my rules",
+     "w": 114,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "The plan: Fully followed the plan",
+     "w": 158,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "The plan: Mostly followed",
+     "w": 119,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "The plan: Changed it mid-trade",
+     "w": 152,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "The plan: Left the plan",
+     "w": 100,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "The plan: Had no plan",
+     "w": 96,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Energy: \ud83d\udd0b 100% \u2014 Fresh",
+     "w": 128,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "Energy: \ud83d\udd0b 75% \u2014 Good",
+     "w": 119,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "Energy: \ud83d\udd0b 50% \u2014 Average",
+     "w": 137,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "Energy: \ud83d\udd0b 25% \u2014 Tired",
+     "w": 119,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "Energy: \ud83d\udc80 Exhausted",
+     "w": 106,
+     "h": 38,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/learn": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/learn/finance101": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Show where each passage comes from",
+     "w": 342,
+     "h": 32,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Module 01",
+     "y": 667
+    }
+   ]
+  },
+  "/login": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "\u2715 Close",
+     "w": 342,
+     "h": 41,
+     "role": "button"
+    },
+    {
+     "label": "New to FIN\u00b7OS? Create an account",
+     "w": 342,
+     "h": 40,
+     "role": "button"
+    },
+    {
+     "label": "Continue as guest",
+     "w": 342,
+     "h": 16,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2715 Close",
+     "y": 32
+    }
+   ]
+  },
+  "/market": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "NSE ticker",
+     "w": 308,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "Mutual fund name",
+     "w": 308,
+     "h": 39,
+     "role": "input"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Gold, silver and oil",
+     "y": 708
+    }
+   ]
+  },
+  "/market/commodities": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "{`Price history for ${c.label}`}",
+     "w": 308,
+     "h": 17,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Price history \u203a",
+     "y": 667
+    }
+   ]
+  },
+  "/market/commodity/gold": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Chart range 1M",
+     "w": 43,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Chart range 3M",
+     "w": 45,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Chart range 6M",
+     "w": 45,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Chart range 1Y",
+     "w": 41,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Chart range 5Y",
+     "w": 42,
+     "h": 29,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "$4,015.90",
+     "y": 694
+    }
+   ]
+  },
+  "/market/crypto": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "{`Price history for ${c.name}`}",
+     "w": 308,
+     "h": 17,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Source updated just now",
+     "y": 682
+    }
+   ]
+  },
+  "/market/crypto/bitcoin": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Chart range 1M",
+     "w": 43,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Chart range 3M",
+     "w": 45,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Chart range 6M",
+     "w": 45,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Chart range 1Y",
+     "w": 41,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Chart range 5Y",
+     "w": 42,
+     "h": 29,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "$62,763.32",
+     "y": 696
+    }
+   ]
+  },
+  "/market/crypto/matic-network": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "The history is in US dollars from Yahoo ",
+     "y": 682
+    }
+   ]
+  },
+  "/market/fund/120503": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/market/fx": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/market/fx/USD_INR": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Chart range 1M",
+     "w": 43,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Chart range 3M",
+     "w": 45,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Chart range 6M",
+     "w": 45,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Chart range 1Y",
+     "w": 41,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Chart range 5Y",
+     "w": 42,
+     "h": 29,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/market/map": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Open the stock screener",
+     "w": 342,
+     "h": 17,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\u22120.06%",
+     "y": 678
+    },
+    {
+     "band": "bottom",
+     "text": "36,190.85",
+     "y": 690
+    },
+    {
+     "band": "bottom",
+     "text": "\u22120.33%",
+     "y": 678
+    },
+    {
+     "band": "bottom",
+     "text": "825.95",
+     "y": 690
+    },
+    {
+     "band": "bottom",
+     "text": "Only the sector indices the data source ",
+     "y": 728
+    }
+   ]
+  },
+  "/market/news": {
+   "hscroll": [],
+   "clipped": [
+    {
+     "text": "Infosys and Colgate-Palmolive (India) are among th",
+     "axis": "x",
+     "text_box": [
+      41,
+      692,
+      352,
+      792
+     ],
+     "clip_box": [
+      41,
+      691,
+      349,
+      742
+     ]
+    },
+    {
+     "text": "Infosys and Colgate-Palmolive (India) are among th",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "Cupid Chairman and MD Aditya Kumar Halwasiya bough",
+     "axis": "x",
+     "text_box": [
+      41,
+      1273,
+      351,
+      1356
+     ],
+     "clip_box": [
+      41,
+      1272,
+      349,
+      1323
+     ]
+    },
+    {
+     "text": "Cupid Chairman and MD Aditya Kumar Halwasiya bough",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "In Q2FY27, ICICI Bank, Axis Bank and Yes Bank post",
+     "axis": "x",
+     "text_box": [
+      41,
+      1666,
+      351,
+      1766
+     ],
+     "clip_box": [
+      41,
+      1665,
+      349,
+      1716
+     ]
+    },
+    {
+     "text": "In Q2FY27, ICICI Bank, Axis Bank and Yes Bank post",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "HDFC Bank's management said it is working to reduc",
+     "axis": "x",
+     "text_box": [
+      41,
+      1871,
+      351,
+      1903
+     ],
+     "clip_box": [
+      41,
+      1870,
+      349,
+      1904
+     ]
+    },
+    {
+     "text": "Outgoing CEO Sashidhar Jagdishan said incoming chi",
+     "axis": "y",
+     "text_box": [
+      41,
+      2210,
+      350,
+      2310
+     ],
+     "clip_box": [
+      41,
+      2209,
+      349,
+      2260
+     ]
+    },
+    {
+     "text": "Outgoing CEO Sashidhar Jagdishan said incoming chi",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "Punjab & Sind Bank Q2 Results: Provisions declined",
+     "axis": "y",
+     "text_box": [
+      41,
+      2768,
+      336,
+      2834
+     ],
+     "clip_box": [
+      41,
+      2767,
+      349,
+      2818
+     ]
+    },
+    {
+     "text": "Punjab & Sind Bank Q2 Results: Provisions declined",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "HDFC Bank expects margins to improve from the Dece",
+     "axis": "y",
+     "text_box": [
+      41,
+      3162,
+      340,
+      3228
+     ],
+     "clip_box": [
+      41,
+      3161,
+      349,
+      3212
+     ]
+    },
+    {
+     "text": "HDFC Bank expects margins to improve from the Dece",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "Hindustan Zinc is expected to report stronger prod",
+     "axis": "y",
+     "text_box": [
+      41,
+      3387,
+      345,
+      3487
+     ],
+     "clip_box": [
+      41,
+      3386,
+      349,
+      3437
+     ]
+    },
+    {
+     "text": "Hindustan Zinc is expected to report stronger prod",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "Central Bank of India reported a 21% rise in Septe",
+     "axis": "y",
+     "text_box": [
+      41,
+      3595,
+      350,
+      3695
+     ],
+     "clip_box": [
+      41,
+      3594,
+      349,
+      3645
+     ]
+    },
+    {
+     "text": "Central Bank of India reported a 21% rise in Septe",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "Indian equities rebounded this week, with the Nift",
+     "axis": "y",
+     "text_box": [
+      41,
+      3800,
+      335,
+      3900
+     ],
+     "clip_box": [
+      41,
+      3799,
+      349,
+      3850
+     ]
+    },
+    {
+     "text": "Indian equities rebounded this week, with the Nift",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "As the financial markets grapple with emerging pre",
+     "axis": "y",
+     "text_box": [
+      41,
+      4254,
+      349,
+      4388
+     ],
+     "clip_box": [
+      41,
+      4253,
+      349,
+      4304
+     ]
+    },
+    {
+     "text": "As the financial markets grapple with emerging pre",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "According to Morgan Stanley's latest analysis, the",
+     "axis": "y",
+     "text_box": [
+      41,
+      4482,
+      339,
+      4616
+     ],
+     "clip_box": [
+      41,
+      4481,
+      349,
+      4532
+     ]
+    },
+    {
+     "text": "According to Morgan Stanley's latest analysis, the",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "Ixigo reported a remarkable turnaround with a cons",
+     "axis": "y",
+     "text_box": [
+      41,
+      4690,
+      342,
+      4790
+     ],
+     "clip_box": [
+      41,
+      4689,
+      349,
+      4740
+     ]
+    },
+    {
+     "text": "Ixigo reported a remarkable turnaround with a cons",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "Reliance Jio Platforms plans a \u20b930,213 crore IPO, ",
+     "axis": "y",
+     "text_box": [
+      41,
+      4915,
+      336,
+      5015
+     ],
+     "clip_box": [
+      41,
+      4914,
+      349,
+      4965
+     ]
+    },
+    {
+     "text": "Reliance Jio Platforms plans a \u20b930,213 crore IPO, ",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "ICICI Bank Q2 Results: Private lender ICICI Bank r",
+     "axis": "y",
+     "text_box": [
+      41,
+      5164,
+      346,
+      5247
+     ],
+     "clip_box": [
+      41,
+      5163,
+      349,
+      5214
+     ]
+    },
+    {
+     "text": "ICICI Bank Q2 Results: Private lender ICICI Bank r",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "IDBI Bank reported a 39% year-on-year profit decli",
+     "axis": "y",
+     "text_box": [
+      41,
+      5392,
+      346,
+      5492
+     ],
+     "clip_box": [
+      41,
+      5391,
+      349,
+      5442
+     ]
+    },
+    {
+     "text": "IDBI Bank reported a 39% year-on-year profit decli",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "Indian equity markets rebounded 2.78%, with the Ni",
+     "axis": "x",
+     "text_box": [
+      41,
+      5600,
+      352,
+      5734
+     ],
+     "clip_box": [
+      41,
+      5599,
+      349,
+      5650
+     ]
+    },
+    {
+     "text": "Indian equity markets rebounded 2.78%, with the Ni",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "Railway PSU stocks have fallen sharply after valua",
+     "axis": "y",
+     "text_box": [
+      41,
+      5826,
+      330,
+      5926
+     ],
+     "clip_box": [
+      41,
+      5825,
+      349,
+      5876
+     ]
+    },
+    {
+     "text": "Railway PSU stocks have fallen sharply after valua",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "BEL Q2 results 2026: Kotak Securities has predicte",
+     "axis": "y",
+     "text_box": [
+      41,
+      6051,
+      344,
+      6117
+     ],
+     "clip_box": [
+      41,
+      6050,
+      349,
+      6101
+     ]
+    },
+    {
+     "text": "BEL Q2 results 2026: Kotak Securities has predicte",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "HDFC Bank reported an around 5% year-on-year rise ",
+     "axis": "y",
+     "text_box": [
+      41,
+      6276,
+      346,
+      6359
+     ],
+     "clip_box": [
+      41,
+      6275,
+      349,
+      6326
+     ]
+    },
+    {
+     "text": "HDFC Bank reported an around 5% year-on-year rise ",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "Despite a nearly 4% decline in the Nifty 50 over t",
+     "axis": "y",
+     "text_box": [
+      41,
+      6484,
+      347,
+      6567
+     ],
+     "clip_box": [
+      41,
+      6483,
+      349,
+      6534
+     ]
+    },
+    {
+     "text": "Despite a nearly 4% decline in the Nifty 50 over t",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "HDFC Bank Q2 Results: India\u2019s largest private lend",
+     "axis": "y",
+     "text_box": [
+      41,
+      6713,
+      344,
+      6796
+     ],
+     "clip_box": [
+      41,
+      6712,
+      349,
+      6763
+     ]
+    },
+    {
+     "text": "HDFC Bank Q2 Results: India\u2019s largest private lend",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "Despite a decline in crypto trading activities, th",
+     "axis": "x",
+     "text_box": [
+      41,
+      6921,
+      352,
+      7055
+     ],
+     "clip_box": [
+      41,
+      6920,
+      349,
+      6971
+     ]
+    },
+    {
+     "text": "Despite a decline in crypto trading activities, th",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "Jio Platforms plans a roughly $3.2 billion IPO, po",
+     "axis": "y",
+     "text_box": [
+      41,
+      7146,
+      328,
+      7246
+     ],
+     "clip_box": [
+      41,
+      7145,
+      349,
+      7196
+     ]
+    },
+    {
+     "text": "Jio Platforms plans a roughly $3.2 billion IPO, po",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "Jio Platforms' IPO has reserved quotas for eligibl",
+     "axis": "x",
+     "text_box": [
+      41,
+      7392,
+      352,
+      7492
+     ],
+     "clip_box": [
+      41,
+      7391,
+      349,
+      7442
+     ]
+    },
+    {
+     "text": "Jio Platforms' IPO has reserved quotas for eligibl",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "Axis Bank reported a 38% year-on-year rise in Q2 F",
+     "axis": "y",
+     "text_box": [
+      41,
+      7618,
+      339,
+      7701
+     ],
+     "clip_box": [
+      41,
+      7617,
+      349,
+      7668
+     ]
+    },
+    {
+     "text": "Axis Bank reported a 38% year-on-year rise in Q2 F",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "Axis Bank Q2 Results: Private lender Axis Bank on ",
+     "axis": "y",
+     "text_box": [
+      41,
+      7826,
+      336,
+      7909
+     ],
+     "clip_box": [
+      41,
+      7825,
+      349,
+      7876
+     ]
+    },
+    {
+     "text": "Axis Bank Q2 Results: Private lender Axis Bank on ",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "SBI Securities\u2019 Sudeep Shah sees scope for Nifty\u2019s",
+     "axis": "y",
+     "text_box": [
+      41,
+      8259,
+      350,
+      8359
+     ],
+     "clip_box": [
+      41,
+      8258,
+      349,
+      8309
+     ]
+    },
+    {
+     "text": "SBI Securities\u2019 Sudeep Shah sees scope for Nifty\u2019s",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "PL Capital remains cautious after the Nifty\u2019s eigh",
+     "axis": "y",
+     "text_box": [
+      41,
+      8508,
+      346,
+      8608
+     ],
+     "clip_box": [
+      41,
+      8507,
+      349,
+      8558
+     ]
+    },
+    {
+     "text": "PL Capital remains cautious after the Nifty\u2019s eigh",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "Nicholas Sleep\u2019s investment philosophy emphasises ",
+     "axis": "y",
+     "text_box": [
+      41,
+      8757,
+      344,
+      8908
+     ],
+     "clip_box": [
+      41,
+      8756,
+      349,
+      8807
+     ]
+    },
+    {
+     "text": "Nicholas Sleep\u2019s investment philosophy emphasises ",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "Nomura initiated coverage of Paytm with a Buy rati",
+     "axis": "y",
+     "text_box": [
+      41,
+      8962,
+      347,
+      9062
+     ],
+     "clip_box": [
+      41,
+      8961,
+      349,
+      9012
+     ]
+    },
+    {
+     "text": "Nomura initiated coverage of Paytm with a Buy rati",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    }
+   ],
+   "small": [
+    {
+     "label": "Show all news",
+     "w": 42,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Filter by NIFTY",
+     "w": 74,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Filter by IPO",
+     "w": 58,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Filter by FII",
+     "w": 50,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Filter by OIL",
+     "w": 56,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Filter by RBI",
+     "w": 56,
+     "h": 29,
+     "role": "button"
+    }
+   ],
+   "overlap": [
+    {
+     "a": "Infosys and Colgate-Palmolive (India) ar",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "Cupid Chairman and MD Aditya Kumar Halwa",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "In Q2FY27, ICICI Bank, Axis Bank and Yes",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "Outgoing CEO Sashidhar Jagdishan said in",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "Punjab & Sind Bank Q2 Results: Provision",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "HDFC Bank expects margins to improve fro",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "Hindustan Zinc is expected to report str",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "Central Bank of India reported a 21% ris",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "Indian equities rebounded this week, wit",
+     "b": "#NIFTY #OIL"
+    },
+    {
+     "a": "Indian equities rebounded this week, wit",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "As the financial markets grapple with em",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "As the financial markets grapple with em",
+     "b": "Negative wording"
+    },
+    {
+     "a": "According to Morgan Stanley's latest ana",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "According to Morgan Stanley's latest ana",
+     "b": "Positive wording"
+    },
+    {
+     "a": "Ixigo reported a remarkable turnaround w",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "Reliance Jio Platforms plans a \u20b930,213 c",
+     "b": "#IPO"
+    },
+    {
+     "a": "Reliance Jio Platforms plans a \u20b930,213 c",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "ICICI Bank Q2 Results: Private lender IC",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "IDBI Bank reported a 39% year-on-year pr",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "Indian equity markets rebounded 2.78%, w",
+     "b": "#NIFTY"
+    },
+    {
+     "a": "Indian equity markets rebounded 2.78%, w",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "Railway PSU stocks have fallen sharply a",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "BEL Q2 results 2026: Kotak Securities ha",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "HDFC Bank reported an around 5% year-on-",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "Despite a nearly 4% decline in the Nifty",
+     "b": "#NIFTY"
+    },
+    {
+     "a": "Despite a nearly 4% decline in the Nifty",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "HDFC Bank Q2 Results: India\u2019s largest pr",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "Despite a decline in crypto trading acti",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "Despite a decline in crypto trading acti",
+     "b": "Positive wording"
+    },
+    {
+     "a": "Despite a decline in crypto trading acti",
+     "b": "Mint Markets \u00b7 8 h ago"
+    },
+    {
+     "a": "Jio Platforms plans a roughly $3.2 billi",
+     "b": "#IPO"
+    },
+    {
+     "a": "Jio Platforms plans a roughly $3.2 billi",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "Jio Platforms' IPO has reserved quotas f",
+     "b": "#IPO"
+    },
+    {
+     "a": "Jio Platforms' IPO has reserved quotas f",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "Axis Bank reported a 38% year-on-year ri",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "Axis Bank Q2 Results: Private lender Axi",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "SBI Securities\u2019 Sudeep Shah sees scope f",
+     "b": "#NIFTY #FII"
+    },
+    {
+     "a": "SBI Securities\u2019 Sudeep Shah sees scope f",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "PL Capital remains cautious after the Ni",
+     "b": "#NIFTY"
+    },
+    {
+     "a": "PL Capital remains cautious after the Ni",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "Nicholas Sleep\u2019s investment philosophy e",
+     "b": "Read the article \u2197"
+    },
+    {
+     "a": "Nicholas Sleep\u2019s investment philosophy e",
+     "b": "Positive wording"
+    },
+    {
+     "a": "Nicholas Sleep\u2019s investment philosophy e",
+     "b": "Mint Markets \u00b7 10 h ago"
+    },
+    {
+     "a": "Nicholas Sleep\u2019s investment philosophy e",
+     "b": "Paytm shares rally 50% in 6 months, but "
+    },
+    {
+     "a": "Nomura initiated coverage of Paytm with ",
+     "b": "Read the article \u2197"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Dividend rush next week! Infosys, Nippon",
+     "y": 686
+    },
+    {
+     "band": "bottom",
+     "text": "Infosys and Colgate-Palmolive (India) ar",
+     "y": 792
+    }
+   ]
+  },
+  "/market/options": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Use the Nifty level as the spot price",
+     "w": 129,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Use India VIX as the volatility",
+     "w": 146,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Call option",
+     "w": 49,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Put option",
+     "w": 47,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Strategy: Buy a call",
+     "w": 84,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Strategy: Buy a put",
+     "w": 83,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Strategy: Covered call",
+     "w": 100,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Strategy: Bull call spread",
+     "w": 118,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Strategy: Iron condor",
+     "w": 95,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Strategy: Long straddle",
+     "w": 109,
+     "h": 29,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "PRICE AND GREEKS",
+     "y": 671
+    },
+    {
+     "band": "bottom",
+     "text": "Spot price",
+     "y": 709
+    },
+    {
+     "band": "bottom",
+     "text": "Strike price",
+     "y": 709
+    }
+   ]
+  },
+  "/market/screener": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Screen the list of 50 large companies",
+     "w": 129,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Screen my watchlist and holdings",
+     "w": 205,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Filter the list by ticker",
+     "w": 342,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "All",
+     "w": 42,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Up today",
+     "w": 80,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Down today",
+     "w": 97,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Near 52-week high",
+     "w": 140,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Near 52-week low",
+     "w": 135,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Load valuation data for these shares",
+     "w": 308,
+     "h": 17,
+     "role": "button"
+    },
+    {
+     "label": "Sort by Name",
+     "w": 61,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Sort by Day change",
+     "w": 96,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Sort by From 52w high",
+     "w": 115,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Sort by From 52w low",
+     "w": 110,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Sort by Volume",
+     "w": 71,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Reverse the sort order",
+     "w": 95,
+     "h": 29,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\"Near high\" means within 5% of the 52-we",
+     "y": 688
+    }
+   ]
+  },
+  "/market/stock/RELIANCE": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Chart range 1M",
+     "w": 43,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Chart range 3M",
+     "w": 45,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Chart range 6M",
+     "w": 45,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Chart range 1Y",
+     "w": 41,
+     "h": 29,
+     "role": "button"
+    },
+    {
+     "label": "Add RELIANCE to your watchlist",
+     "w": 342,
+     "h": 41,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Source: yfinance. Prices can be delayed ",
+     "y": 701
+    }
+   ]
+  },
+  "/markets": {
+   "hscroll": [],
+   "clipped": [
+    {
+     "text": "\u2699\ufe0f",
+     "axis": "y",
+     "text_box": [
+      43,
+      618,
+      63,
+      636
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "METAL",
+     "axis": "y",
+     "text_box": [
+      73,
+      619,
+      114,
+      634
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "+",
+     "axis": "y",
+     "text_box": [
+      305,
+      620,
+      312,
+      633
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "0.95",
+     "axis": "y",
+     "text_box": [
+      312,
+      620,
+      338,
+      633
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "%",
+     "axis": "y",
+     "text_box": [
+      338,
+      620,
+      349,
+      633
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\u26a1",
+     "axis": "y",
+     "text_box": [
+      43,
+      652,
+      63,
+      670
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "ENERGY",
+     "axis": "y",
+     "text_box": [
+      73,
+      653,
+      123,
+      668
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "-0.06",
+     "axis": "y",
+     "text_box": [
+      307,
+      654,
+      338,
+      667
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83c\udfe2",
+     "axis": "y",
+     "text_box": [
+      43,
+      686,
+      63,
+      704
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "REALTY",
+     "axis": "y",
+     "text_box": [
+      73,
+      687,
+      120,
+      702
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "-0.33",
+     "axis": "y",
+     "text_box": [
+      307,
+      688,
+      338,
+      701
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\ud83d\udd34",
+     "axis": "y",
+     "text_box": [
+      41,
+      773,
+      56,
+      788
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "NSE is currently",
+     "axis": "y",
+     "text_box": [
+      64,
+      765,
+      158,
+      780
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "CLOSED",
+     "axis": "y",
+     "text_box": [
+      158,
+      765,
+      207,
+      780
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    },
+    {
+     "text": "\u2014 opens Mon\u2013Fri 9:15 AM IST",
+     "axis": "y",
+     "text_box": [
+      64,
+      765,
+      340,
+      795
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      628
+     ]
+    }
+   ],
+   "small": [],
+   "overlap": [
+    {
+     "a": "%",
+     "b": "\uf4b7"
+    },
+    {
+     "a": "%",
+     "b": "Portfolio"
+    },
+    {
+     "a": "%",
+     "b": "\uf4b8"
+    },
+    {
+     "a": "\uf382",
+     "b": "\uf383"
+    },
+    {
+     "a": "Home",
+     "b": "Home"
+    },
+    {
+     "a": "\uf5fb",
+     "b": "\uf5fc"
+    },
+    {
+     "a": "Markets",
+     "b": "Markets"
+    },
+    {
+     "a": "\uf58c",
+     "b": "\uf58c"
+    },
+    {
+     "a": "Arya",
+     "b": "Arya"
+    },
+    {
+     "a": "\uf625",
+     "b": "\uf626"
+    },
+    {
+     "a": "Track",
+     "b": "Track"
+    },
+    {
+     "a": "\uf4b7",
+     "b": "\uf4b8"
+    },
+    {
+     "a": "Portfolio",
+     "b": "Portfolio"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "Markets",
+     "y": 16
+    },
+    {
+     "band": "top",
+     "text": "Updated 10:52 pm",
+     "y": 27
+    },
+    {
+     "band": "bottom",
+     "text": "\u26a1",
+     "y": 670
+    },
+    {
+     "band": "bottom",
+     "text": "ENERGY",
+     "y": 668
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udfe2",
+     "y": 704
+    },
+    {
+     "band": "bottom",
+     "text": "REALTY",
+     "y": 702
+    },
+    {
+     "band": "bottom",
+     "text": "-0.33",
+     "y": 701
+    },
+    {
+     "band": "bottom",
+     "text": "%",
+     "y": 701
+    },
+    {
+     "band": "bottom",
+     "text": "Home",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "Markets",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "Arya",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "Track",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "Portfolio",
+     "y": 676
+    }
+   ]
+  },
+  "/onboarding/welcome": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Skip the welcome for now",
+     "w": 80,
+     "h": 17,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "Skip for now",
+     "y": 32
+    },
+    {
+     "band": "bottom",
+     "text": "\u2022 Prices and rules can be out of date. C",
+     "y": 671
+    }
+   ]
+  },
+  "/plan/benchmark": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Open the Money Score for ranked next steps",
+     "w": 342,
+     "h": 17,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "EMIs as a share of income",
+     "y": 691
+    },
+    {
+     "band": "bottom",
+     "text": "Not recorded",
+     "y": 688
+    }
+   ]
+  },
+  "/plan/couple": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Delete all couple data from this phone",
+     "w": 342,
+     "h": 39,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "PARTNER'S NAME (OPTIONAL)",
+     "y": 679
+    }
+   ]
+  },
+  "/plan/forecast": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Log or import expenses",
+     "w": 308,
+     "h": 17,
+     "role": "button"
+    },
+    {
+     "label": "History to use: last 3 months",
+     "w": 112,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "History to use: last 6 months",
+     "w": 112,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "History to use: last 12 months",
+     "w": 117,
+     "h": 33,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/plan/growth": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Open the basic Growth Simulator calculator",
+     "w": 342,
+     "h": 17,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "FOR HOW MANY YEARS",
+     "y": 691
+    }
+   ]
+  },
+  "/plan/lifegoals": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Start again from what is recorded",
+     "w": 342,
+     "h": 39,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "OTHER SAVINGS TO PUT TOWARD GOALS",
+     "y": 678
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9",
+     "y": 716
+    }
+   ]
+  },
+  "/plan/mydates": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Repeats: Once",
+     "w": 57,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Repeats: Every month",
+     "w": 102,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Repeats: Every year",
+     "w": 89,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Open the Financial calendar",
+     "w": 342,
+     "h": 15,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/portfolio": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Add a holding",
+     "w": 160,
+     "h": 41,
+     "role": "button"
+    },
+    {
+     "label": "Or ask Arya how to start \u2192",
+     "w": 160,
+     "h": 31,
+     "role": "button"
+    }
+   ],
+   "overlap": [
+    {
+     "a": "\uf382",
+     "b": "\uf383"
+    },
+    {
+     "a": "Home",
+     "b": "Home"
+    },
+    {
+     "a": "\uf5fb",
+     "b": "\uf5fc"
+    },
+    {
+     "a": "Markets",
+     "b": "Markets"
+    },
+    {
+     "a": "\uf58c",
+     "b": "\uf58c"
+    },
+    {
+     "a": "Arya",
+     "b": "Arya"
+    },
+    {
+     "a": "\uf625",
+     "b": "\uf626"
+    },
+    {
+     "a": "Track",
+     "b": "Track"
+    },
+    {
+     "a": "\uf4b7",
+     "b": "\uf4b8"
+    },
+    {
+     "a": "Portfolio",
+     "b": "Portfolio"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "Portfolio",
+     "y": 16
+    },
+    {
+     "band": "top",
+     "text": "Add your first holding to get started",
+     "y": 44
+    },
+    {
+     "band": "bottom",
+     "text": "Home",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "Markets",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "Arya",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "Track",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "Portfolio",
+     "y": 676
+    }
+   ]
+  },
+  "/portfolio/analytics": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Go to Portfolio",
+     "w": 308,
+     "h": 17,
+     "role": "button"
+    }
+   ],
+   "overlap": [
+    {
+     "a": "Filter large companies by price moves, P",
+     "b": "\u203a"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Headlines that mention your shares, P/E ",
+     "y": 669
+    }
+   ]
+  },
+  "/portfolio/research": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Go to Portfolio",
+     "w": 308,
+     "h": 17,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/portfolio/risk": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Go to Portfolio",
+     "w": 308,
+     "h": 17,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/portfolio/sectors": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Go to Portfolio",
+     "w": 308,
+     "h": 17,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/portfolio/simulate": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Go to Portfolio",
+     "w": 308,
+     "h": 17,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/privacy": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Export my data",
+     "w": 308,
+     "h": 43,
+     "role": "button"
+    },
+    {
+     "label": "Delete everything on this phone",
+     "w": 308,
+     "h": 43,
+     "role": "button"
+    },
+    {
+     "label": "Read the terms of use \u2192",
+     "w": 308,
+     "h": 16,
+     "role": "button"
+    },
+    {
+     "label": "Diagnostics and screen counts \u2192",
+     "w": 308,
+     "h": 16,
+     "role": "button"
+    },
+    {
+     "label": "Give feedback \u2192",
+     "w": 308,
+     "h": 16,
+     "role": "button"
+    }
+   ],
+   "overlap": [
+    {
+     "a": "Last saved market answers, including the",
+     "b": "saved"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "When you last opened each lesson (syncs ",
+     "y": 717
+    },
+    {
+     "band": "bottom",
+     "text": "saved",
+     "y": 683
+    }
+   ]
+  },
+  "/profile": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Save profile",
+     "w": 308,
+     "h": 41,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Money Score: whether term cover is expec",
+     "y": 676
+    }
+   ]
+  },
+  "/pulse": {
+   "hscroll": [],
+   "clipped": [
+    {
+     "text": "Pulse",
+     "axis": "x",
+     "text_box": [
+      364,
+      215,
+      397,
+      230
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "\ud83d\udcc5",
+     "axis": "x",
+     "text_box": [
+      427,
+      215,
+      443,
+      231
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "Cal",
+     "axis": "x",
+     "text_box": [
+      448,
+      215,
+      468,
+      230
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "\ud83c\uddee\ud83c\uddf3",
+     "axis": "x",
+     "text_box": [
+      498,
+      215,
+      514,
+      231
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "India",
+     "axis": "x",
+     "text_box": [
+      519,
+      215,
+      548,
+      230
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "\ud83e\udd16",
+     "axis": "x",
+     "text_box": [
+      578,
+      215,
+      594,
+      231
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    },
+    {
+     "text": "Agent",
+     "axis": "x",
+     "text_box": [
+      599,
+      215,
+      635,
+      230
+     ],
+     "clip_box": [
+      0,
+      0,
+      390,
+      700
+     ]
+    }
+   ],
+   "small": [
+    {
+     "label": "Arya Chat",
+     "w": 74,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Plan",
+     "w": 71,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Map",
+     "w": 71,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Life",
+     "w": 67,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Pulse",
+     "w": 78,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Cal",
+     "w": 65,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya India",
+     "w": 75,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Arya Agent",
+     "w": 81,
+     "h": 37,
+     "role": "tab"
+    },
+    {
+     "label": "Get my score: Worth acting on",
+     "w": 120,
+     "h": 34,
+     "role": "button"
+    },
+    {
+     "label": "Take it now: Money Score",
+     "w": 107,
+     "h": 34,
+     "role": "button"
+    },
+    {
+     "label": "Net worth tracker: Your money today",
+     "w": 149,
+     "h": 34,
+     "role": "button"
+    },
+    {
+     "label": "Open Tax planner: Income tax",
+     "w": 148,
+     "h": 34,
+     "role": "button"
+    },
+    {
+     "label": "Open Tax planner: 80C room",
+     "w": 148,
+     "h": 34,
+     "role": "button"
+    },
+    {
+     "label": "Open budget: Savings rate",
+     "w": 119,
+     "h": 34,
+     "role": "button"
+    },
+    {
+     "label": "Open the Retirement planner: Will your money las",
+     "w": 221,
+     "h": 34,
+     "role": "button"
+    },
+    {
+     "label": "Add a goal: Goals",
+     "w": 103,
+     "h": 34,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "You have not checked your Money Score ye",
+     "y": 673
+    }
+   ]
+  },
+  "/pulse/life": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Date of the event",
+     "w": 308,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "Save the life event",
+     "w": 99,
+     "h": 34,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Save event",
+     "y": 684
+    }
+   ]
+  },
+  "/pulse/memory": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "A sample question to preview",
+     "w": 308,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "Save the note on this phone",
+     "w": 92,
+     "h": 34,
+     "role": "button"
+    },
+    {
+     "label": "Open life events",
+     "w": 106,
+     "h": 34,
+     "role": "button"
+    },
+    {
+     "label": "Forget everything Arya remembers",
+     "w": 141,
+     "h": 34,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Not recorded, so not sent",
+     "y": 675
+    },
+    {
+     "band": "bottom",
+     "text": "Not sent",
+     "y": 708
+    },
+    {
+     "band": "bottom",
+     "text": "Monthly SIPs",
+     "y": 706
+    }
+   ]
+  },
+  "/search": {
+   "hscroll": [
+    {
+     "what": "text past the right edge",
+     "text": "Investment & wealth \u00b7 What a monthly inv",
+     "right": 402,
+     "width": 390
+    }
+   ],
+   "clipped": [
+    {
+     "text": "Investment & wealth \u00b7 What a monthly investment gr",
+     "axis": "x",
+     "text_box": [
+      68,
+      388,
+      402,
+      403
+     ],
+     "clip_box": [
+      68,
+      388,
+      341,
+      403
+     ]
+    },
+    {
+     "text": "Investment & wealth \u00b7 What a monthly investment gr",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "Loans, debt & EMI \u00b7 Your monthly loan repayment.",
+     "axis": "x",
+     "text_box": [
+      68,
+      444,
+      349,
+      459
+     ],
+     "clip_box": [
+      68,
+      444,
+      341,
+      459
+     ]
+    },
+    {
+     "text": "Loans, debt & EMI \u00b7 Your monthly loan repayment.",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    }
+   ],
+   "small": [
+    {
+     "label": "Close search",
+     "w": 47,
+     "h": 17,
+     "role": "button"
+    }
+   ],
+   "overlap": [
+    {
+     "a": "Investment & wealth \u00b7 What a monthly inv",
+     "b": "\u203a"
+    }
+   ],
+   "safe": []
+  },
+  "/security": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Turn on app lock",
+     "w": 308,
+     "h": 43,
+     "role": "button"
+    },
+    {
+     "label": "PASSPHRASE (AT LEAST 8 CHARACTERS)",
+     "w": 308,
+     "h": 42,
+     "role": "input"
+    },
+    {
+     "label": "REPEAT THE PASSPHRASE",
+     "w": 308,
+     "h": 42,
+     "role": "input"
+    },
+    {
+     "label": "Make encrypted backup",
+     "w": 308,
+     "h": 43,
+     "role": "button"
+    },
+    {
+     "label": "Choose a backup file",
+     "w": 308,
+     "h": 43,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/settings": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "English",
+     "w": 74,
+     "h": 34,
+     "role": "button"
+    },
+    {
+     "label": "\u0939\u093f\u0928\u094d\u0926\u0940",
+     "w": 55,
+     "h": 34,
+     "role": "button"
+    },
+    {
+     "label": "Open",
+     "w": 62,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Theme: Auto",
+     "w": 58,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Theme: Dark",
+     "w": 58,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Theme: Light",
+     "w": 61,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Show the facts strip on Home",
+     "w": 47,
+     "h": 31,
+     "role": "switch"
+    },
+    {
+     "label": "Reminders",
+     "w": 49,
+     "h": 31,
+     "role": "switch"
+    },
+    {
+     "label": "Sign in",
+     "w": 71,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Edit",
+     "w": 54,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Backend host address",
+     "w": 140,
+     "h": 30,
+     "role": "input"
+    },
+    {
+     "label": "Read",
+     "w": 60,
+     "h": 31,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 22
+    },
+    {
+     "band": "top",
+     "text": "Settings",
+     "y": 20
+    },
+    {
+     "band": "bottom",
+     "text": "REMINDERS",
+     "y": 688
+    }
+   ]
+  },
+  "/terms": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "It is an educational tool. It helps you ",
+     "y": 683
+    },
+    {
+     "band": "bottom",
+     "text": "It is not advice. FIN\u00b7OS is not SEBI reg",
+     "y": 817
+    }
+   ]
+  },
+  "/tools/calc/hra": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\u25b8",
+     "y": 697
+    },
+    {
+     "band": "bottom",
+     "text": "What this assumes",
+     "y": 697
+    }
+   ]
+  },
+  "/tools/calc/optionspayoff": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Break Even: 24200",
+     "y": 703
+    }
+   ]
+  },
+  "/tools/calc/sip": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Estimates for planning, not advice. Your",
+     "y": 716
+    }
+   ]
+  },
+  "/tools/calculators": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udcc8 INVESTMENT & WEALTH",
+     "y": 706
+    }
+   ]
+  },
+  "/tools/calendar": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "26",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "27",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "28",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "29",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "30",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "31",
+     "y": 673
+    }
+   ]
+  },
+  "/tools/credit": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "0 means all on time",
+     "y": 670
+    },
+    {
+     "band": "bottom",
+     "text": "HARD INQUIRIES IN THE LAST 12 MONTHS",
+     "y": 699
+    }
+   ]
+  },
+  "/tools/debt": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tools/dna": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tools/goalopt": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Open Goals",
+     "w": 308,
+     "h": 17,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tools/homeloan": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "% p.a.",
+     "y": 687
+    }
+   ]
+  },
+  "/tools/itr": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Everything taxable that is not basic, HR",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "RENT PAID (A YEAR)",
+     "y": 705
+    }
+   ]
+  },
+  "/tools/leak": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tools/lifecover": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "About 75% of today's monthly spending is",
+     "y": 678
+    },
+    {
+     "band": "bottom",
+     "text": "YEARS THE FAMILY NEEDS IT",
+     "y": 707
+    }
+   ]
+  },
+  "/tools/offers": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "cash + PF + NPS + gratuity",
+     "y": 676
+    }
+   ]
+  },
+  "/tools/prepay": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tools/realestate": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "DOWN PAYMENT",
+     "y": 680
+    }
+   ]
+  },
+  "/tools/rebalance": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83e\udd47 GOLD",
+     "y": 670
+    },
+    {
+     "band": "bottom",
+     "text": "%",
+     "y": 710
+    }
+   ]
+  },
+  "/tools/report": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Emergency fund: Not recorded (add monthl",
+     "y": 687
+    },
+    {
+     "band": "bottom",
+     "text": "Insurance: no policies recorded",
+     "y": 709
+    }
+   ]
+  },
+  "/tools/retirement": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tools/salary": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "LTA",
+     "y": 668
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9",
+     "y": 706
+    }
+   ]
+  },
+  "/tools/score": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Required \u2014 not counting EMIs",
+     "y": 686
+    }
+   ]
+  },
+  "/tools/stepup": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "years",
+     "y": 675
+    }
+   ]
+  },
+  "/tools/tax": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Reset",
+     "y": 690
+    }
+   ]
+  },
+  "/tools/taxplanner": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "CITY",
+     "y": 706
+    }
+   ]
+  },
+  "/tools/windfall": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/track": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [
+    {
+     "a": "\uf382",
+     "b": "\uf383"
+    },
+    {
+     "a": "Home",
+     "b": "Home"
+    },
+    {
+     "a": "\uf5fb",
+     "b": "\uf5fc"
+    },
+    {
+     "a": "Markets",
+     "b": "Markets"
+    },
+    {
+     "a": "\uf58c",
+     "b": "\uf58c"
+    },
+    {
+     "a": "Arya",
+     "b": "Arya"
+    },
+    {
+     "a": "\uf625",
+     "b": "\uf626"
+    },
+    {
+     "a": "Track",
+     "b": "Track"
+    },
+    {
+     "a": "\uf4b7",
+     "b": "\uf4b8"
+    },
+    {
+     "a": "Portfolio",
+     "b": "Portfolio"
+    }
+   ],
+   "safe": [
+    {
+     "band": "top",
+     "text": "Track Finances",
+     "y": 16
+    },
+    {
+     "band": "top",
+     "text": "October 2026",
+     "y": 42
+    },
+    {
+     "band": "bottom",
+     "text": "Home",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "Markets",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "Arya",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "Track",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "Portfolio",
+     "y": 676
+    }
+   ]
+  },
+  "/tracker/budget": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Spending forecast",
+     "y": 697
+    },
+    {
+     "band": "bottom",
+     "text": "What this month is likely to cost, categ",
+     "y": 729
+    },
+    {
+     "band": "bottom",
+     "text": "\u203a",
+     "y": 716
+    }
+   ]
+  },
+  "/tracker/crypto": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tracker/emergency": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "6 months suits most salaried people; cho",
+     "y": 705
+    }
+   ]
+  },
+  "/tracker/epf": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udf82",
+     "y": 677
+    },
+    {
+     "band": "bottom",
+     "text": "Used to calculate your retirement date; ",
+     "y": 698
+    }
+   ]
+  },
+  "/tracker/fixed": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udc67",
+     "y": 684
+    },
+    {
+     "band": "bottom",
+     "text": "Sukanya Samriddhi Yojana",
+     "y": 684
+    }
+   ]
+  },
+  "/tracker/goals": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Plan your life goals \u2192",
+     "y": 712
+    }
+   ]
+  },
+  "/tracker/gold": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "WEIGHT (GRAMS)",
+     "y": 695
+    }
+   ]
+  },
+  "/tracker/harvest": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Held 12 months or less, already sold thi",
+     "y": 697
+    }
+   ]
+  },
+  "/tracker/health": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Not recorded: add your monthly spend and",
+     "y": 718
+    }
+   ]
+  },
+  "/tracker/holdings-import": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tracker/import": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tracker/insurance": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udee1\ufe0f",
+     "y": 668
+    },
+    {
+     "band": "bottom",
+     "text": "If others depend on your income, term co",
+     "y": 710
+    }
+   ]
+  },
+  "/tracker/networth": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "From your EPF tracker",
+     "y": 668
+    }
+   ]
+  },
+  "/tracker/nps": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udfe2",
+     "y": 677
+    },
+    {
+     "band": "bottom",
+     "text": "Employer pays / month",
+     "y": 674
+    },
+    {
+     "band": "bottom",
+     "text": "Corporate NPS, if any",
+     "y": 691
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9",
+     "y": 674
+    }
+   ]
+  },
+  "/tracker/passive": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tracker/ppf": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "NICKNAME (OPTIONAL)",
+     "y": 673
+    }
+   ]
+  },
+  "/tracker/recurring": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83e\ude7a",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "Health",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udfac",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "Entertainment",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udf93",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "Education",
+     "y": 703
+    }
+   ]
+  },
+  "/tracker/subscriptions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Half-yearly",
+     "y": 693
+    },
+    {
+     "band": "bottom",
+     "text": "Yearly",
+     "y": 693
+    }
+   ]
+  },
+  "/tracker/transactions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83e\ude7a",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "Health",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udfac",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "Entertainment",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udf93",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "Education",
+     "y": 703
+    }
+   ]
+  },
+  "/tracker/watchlist": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  }
+ },
+ "not_loaded": []
+}

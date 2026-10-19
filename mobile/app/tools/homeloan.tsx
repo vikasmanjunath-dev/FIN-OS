@@ -5,7 +5,7 @@ import { TrackerScreen, Card, SectionLabel, Bar, inr, inrShort } from '@/compone
 import { CalcField, Collapsible, Bullet } from '@/components/CalcUI';
 import { compute, prepayScenarios, sanitise, ymText, HL_DEFAULTS } from '@/lib/homeLoan';
 import { loadHomeLoanFields, saveHomeLoanField, saveAsMyHomeLoan, type HomeLoanFields } from '@/lib/homeLoanStorage';
-import { Colors, Spacing, Typography } from '@/constants/theme';
+import { Colors, Spacing, Typography, Btn } from '@/constants/theme';
 
 const num = (s: string) => { const v = parseFloat(s.replace(/,/g, '')); return Number.isFinite(v) ? v : undefined; };
 
@@ -140,7 +140,7 @@ const s = StyleSheet.create({
   miniVal: { fontSize: 18, fontWeight: '900', marginVertical: 2 },
   legend: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
   save: { borderWidth: 1, borderColor: Colors.cyan, borderRadius: 12, padding: Spacing.md, minHeight: 44 },
-  saveTxt: { color: Colors.textPrimary, fontSize: 13, fontWeight: '800', marginBottom: 2 },
+  saveTxt: { ...Btn.text, color: Colors.textPrimary },
   row: { flexDirection: 'row', flexWrap: 'wrap', paddingVertical: 5, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: Colors.border },
   cell: { flexGrow: 1, flexBasis: '22%', fontSize: 12, color: Colors.textPrimary },   // wraps to two lines of cells when text is large
   head: { color: Colors.textMuted, fontWeight: '800', fontSize: 10 },

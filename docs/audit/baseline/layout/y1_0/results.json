@@ -1,0 +1,1080 @@
+{
+ "text_scale": 1.0,
+ "view_w": 320,
+ "mode": "dark",
+ "populated": false,
+ "results": {
+  "/tracker/budget": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tracker/crypto": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "BTC",
+     "w": 51,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "ETH",
+     "w": 51,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "USDT",
+     "w": 60,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "BNB",
+     "w": 52,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "SOL",
+     "w": 51,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "XRP",
+     "w": 52,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "ADA",
+     "w": 53,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "DOGE",
+     "w": 61,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "OTHER",
+     "w": 69,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "QUANTITY HELD",
+     "w": 238,
+     "h": 40,
+     "role": "input"
+    },
+    {
+     "label": "AVERAGE BUY PRICE (\u20b9)",
+     "w": 238,
+     "h": 40,
+     "role": "input"
+    },
+    {
+     "label": "CURRENT PRICE (\u20b9, OPTIONAL)",
+     "w": 238,
+     "h": 40,
+     "role": "input"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "AVERAGE BUY PRICE (\u20b9)",
+     "y": 707
+    }
+   ]
+  },
+  "/tracker/emergency": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "3 months",
+     "w": 76,
+     "h": 35,
+     "role": "button"
+    },
+    {
+     "label": "6 months",
+     "w": 78,
+     "h": 35,
+     "role": "button"
+    },
+    {
+     "label": "12 months",
+     "w": 76,
+     "h": 35,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Target cover",
+     "y": 688
+    }
+   ]
+  },
+  "/tracker/epf": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Used for contributions and pension",
+     "y": 686
+    }
+   ]
+  },
+  "/tracker/fixed": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "\ud83c\udfe6 Fixed Deposit",
+     "w": 122,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "\ud83d\udcc5 Recurring Deposit",
+     "w": 149,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "\ud83c\udfdb\ufe0f Public Provident Fund",
+     "w": 172,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "\ud83d\udcdc National Savings Certificate",
+     "w": 208,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "\ud83d\udc74 Senior Citizens Savings Scheme",
+     "w": 233,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "\ud83d\udc67 Sukanya Samriddhi Yojana",
+     "w": 199,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "\ud83d\udcca Government Bond / SGB",
+     "w": 184,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "\u2709\ufe0f Post Office Time Deposit",
+     "w": 190,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "NAME (OPTIONAL)",
+     "w": 216,
+     "h": 38,
+     "role": "input"
+    },
+    {
+     "label": "BANK OR POST OFFICE (OPTIONAL)",
+     "w": 216,
+     "h": 38,
+     "role": "input"
+    },
+    {
+     "label": "AMOUNT INVESTED",
+     "w": 203,
+     "h": 38,
+     "role": "input"
+    },
+    {
+     "label": "INTEREST RATE (% A YEAR)",
+     "w": 216,
+     "h": 38,
+     "role": "input"
+    },
+    {
+     "label": "START DATE (YYYY-MM-DD)",
+     "w": 216,
+     "h": 38,
+     "role": "input"
+    },
+    {
+     "label": "TERM (MONTHS)",
+     "w": 216,
+     "h": 38,
+     "role": "input"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udcdc",
+     "y": 676
+    },
+    {
+     "band": "bottom",
+     "text": "National Savings Certificate",
+     "y": 676
+    }
+   ]
+  },
+  "/tracker/goals": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Goal name",
+     "w": 238,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "Target amount",
+     "w": 115,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "Saved so far",
+     "w": 115,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "Target month",
+     "w": 238,
+     "h": 39,
+     "role": "input"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Plan your life goals \u2192",
+     "y": 708
+    }
+   ]
+  },
+  "/tracker/gold": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Gold price per gram",
+     "w": 183,
+     "h": 41,
+     "role": "input"
+    },
+    {
+     "label": "\ud83e\ude99 Physical",
+     "w": 95,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "\ud83d\udcdc SGB",
+     "w": 70,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "\ud83d\udcc8 Gold ETF",
+     "w": 98,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "\ud83d\udcb0 Gold MF",
+     "w": 93,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "DESCRIPTION (OPTIONAL)",
+     "w": 238,
+     "h": 40,
+     "role": "input"
+    },
+    {
+     "label": "WEIGHT (GRAMS)",
+     "w": 238,
+     "h": 40,
+     "role": "input"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "WEIGHT (GRAMS)",
+     "y": 676
+    }
+   ]
+  },
+  "/tracker/harvest": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "SHORT-TERM GAINS (STCG)",
+     "y": 671
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9",
+     "y": 709
+    }
+   ]
+  },
+  "/tracker/health": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Take the 9-question Financial DNA quiz \u2192",
+     "w": 238,
+     "h": 32,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tracker/holdings-import": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Read holdings",
+     "w": 238,
+     "h": 43,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tracker/import": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Read statement",
+     "w": 238,
+     "h": 43,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tracker/insurance": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Insurance company",
+     "w": 238,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "Sum assured",
+     "w": 115,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "Annual premium",
+     "w": 115,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "Renewal date",
+     "w": 238,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "Policy number",
+     "w": 238,
+     "h": 39,
+     "role": "input"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udee1\ufe0f",
+     "y": 681
+    },
+    {
+     "band": "bottom",
+     "text": "No term life insurance",
+     "y": 671
+    },
+    {
+     "band": "bottom",
+     "text": "If others depend on your income, term co",
+     "y": 740
+    }
+   ]
+  },
+  "/tracker/networth": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udfe2",
+     "y": 679
+    },
+    {
+     "band": "bottom",
+     "text": "EPF / provident fund",
+     "y": 668
+    },
+    {
+     "band": "bottom",
+     "text": "From your EPF tracker",
+     "y": 685
+    },
+    {
+     "band": "bottom",
+     "text": "\u2014",
+     "y": 677
+    }
+   ]
+  },
+  "/tracker/nps": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "0%",
+     "w": 50,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "5%",
+     "w": 50,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "10%",
+     "w": 56,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "15%",
+     "w": 56,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "20%",
+     "w": 58,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "25%",
+     "w": 57,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "30%",
+     "w": 59,
+     "h": 31,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udc64",
+     "y": 703
+    },
+    {
+     "band": "bottom",
+     "text": "You pay / month",
+     "y": 709
+    },
+    {
+     "band": "bottom",
+     "text": "\u20b9",
+     "y": 701
+    }
+   ]
+  },
+  "/tracker/passive": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "TYPE: \ud83d\udcca Dividends",
+     "w": 105,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "TYPE: \ud83c\udfe6 FD / debt",
+     "w": 98,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "TYPE: \ud83c\udfe0 Rental",
+     "w": 82,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "TYPE: \ud83d\udcc8 SWP",
+     "w": 72,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "TYPE: \ud83e\udd47 SGB",
+     "w": 69,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "TYPE: \ud83d\udca1 Other",
+     "w": 78,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "Taxable",
+     "w": 40,
+     "h": 20,
+     "role": "switch"
+    },
+    {
+     "label": "TYPE: \ud83d\udcca Dividends",
+     "w": 103,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "TYPE: \ud83c\udfe6 FD / debt",
+     "w": 99,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "TYPE: \ud83c\udfe0 Rental",
+     "w": 83,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "TYPE: \ud83d\udcc8 SWP",
+     "w": 73,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "TYPE: \ud83e\udd47 SGB",
+     "w": 70,
+     "h": 38,
+     "role": "button"
+    },
+    {
+     "label": "TYPE: \ud83d\udca1 Other",
+     "w": 79,
+     "h": 38,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "The FD and SGB lines were filled in from",
+     "y": 690
+    }
+   ]
+  },
+  "/tracker/ppf": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "PPF",
+     "w": 58,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "SSY",
+     "w": 58,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "NSC",
+     "w": 60,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "SCSS",
+     "w": 67,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "KVP",
+     "w": 59,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Account nickname",
+     "w": 238,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "Current balance",
+     "w": 115,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "Deposited this financial year",
+     "w": 115,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "Account opening date",
+     "w": 238,
+     "h": 39,
+     "role": "input"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "maturity is based on the financial year ",
+     "y": 689
+    }
+   ]
+  },
+  "/tracker/recurring": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Expense",
+     "w": 75,
+     "h": 35,
+     "role": "button"
+    },
+    {
+     "label": "Income",
+     "w": 75,
+     "h": 35,
+     "role": "button"
+    },
+    {
+     "label": "Invested",
+     "w": 75,
+     "h": 35,
+     "role": "button"
+    },
+    {
+     "label": "Description",
+     "w": 238,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "\ud83c\udf7d\ufe0f Food & Dining",
+     "w": 117,
+     "h": 32,
+     "role": "button"
+    },
+    {
+     "label": "\ud83d\uded2 Groceries",
+     "w": 94,
+     "h": 32,
+     "role": "button"
+    },
+    {
+     "label": "\ud83d\ude95 Transport",
+     "w": 95,
+     "h": 32,
+     "role": "button"
+    },
+    {
+     "label": "\ud83d\udecd\ufe0f Shopping",
+     "w": 93,
+     "h": 32,
+     "role": "button"
+    },
+    {
+     "label": "\ud83d\udca1 Bills & Utilities",
+     "w": 120,
+     "h": 32,
+     "role": "button"
+    },
+    {
+     "label": "\ud83c\udfe0 Housing",
+     "w": 86,
+     "h": 32,
+     "role": "button"
+    },
+    {
+     "label": "\ud83c\udfe6 EMI & Loans",
+     "w": 108,
+     "h": 32,
+     "role": "button"
+    },
+    {
+     "label": "\ud83d\udcfa Subscriptions",
+     "w": 117,
+     "h": 32,
+     "role": "button"
+    },
+    {
+     "label": "\ud83e\ude7a Health",
+     "w": 77,
+     "h": 32,
+     "role": "button"
+    },
+    {
+     "label": "\ud83c\udfac Entertainment",
+     "w": 119,
+     "h": 32,
+     "role": "button"
+    },
+    {
+     "label": "\ud83c\udf93 Education",
+     "w": 96,
+     "h": 32,
+     "role": "button"
+    },
+    {
+     "label": "\u2708\ufe0f Travel",
+     "w": 74,
+     "h": 32,
+     "role": "button"
+    },
+    {
+     "label": "\ud83d\udce6 Other",
+     "w": 73,
+     "h": 32,
+     "role": "button"
+    },
+    {
+     "label": "Day of the month",
+     "w": 80,
+     "h": 39,
+     "role": "input"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udf93",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "Education",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "\u2708\ufe0f",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "Travel",
+     "y": 673
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udce6",
+     "y": 711
+    },
+    {
+     "band": "bottom",
+     "text": "Other",
+     "y": 711
+    }
+   ]
+  },
+  "/tracker/subscriptions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Subscription name",
+     "w": 238,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "Amount per cycle",
+     "w": 115,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "People sharing the plan",
+     "w": 115,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "Next renewal date",
+     "w": 238,
+     "h": 39,
+     "role": "input"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "Half-yearly",
+     "y": 696
+    },
+    {
+     "band": "bottom",
+     "text": "Yearly",
+     "y": 696
+    }
+   ]
+  },
+  "/tracker/transactions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Description",
+     "w": 238,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "Date",
+     "w": 188,
+     "h": 33,
+     "role": "input"
+    },
+    {
+     "label": "\u2610 Repeat every month on the 17th",
+     "w": 238,
+     "h": 23,
+     "role": "switch"
+    },
+    {
+     "label": "Previous month",
+     "w": 44,
+     "h": 35,
+     "role": "div"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83c\udfe6",
+     "y": 695
+    },
+    {
+     "band": "bottom",
+     "text": "EMI & Loans",
+     "y": 695
+    },
+    {
+     "band": "bottom",
+     "text": "\ud83d\udcfa",
+     "y": 695
+    },
+    {
+     "band": "bottom",
+     "text": "Subscriptions",
+     "y": 695
+    }
+   ]
+  },
+  "/tracker/watchlist": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "ADD: Stock",
+     "w": 62,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "ADD: Mutual fund",
+     "w": 97,
+     "h": 33,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  }
+ },
+ "not_loaded": []
+}

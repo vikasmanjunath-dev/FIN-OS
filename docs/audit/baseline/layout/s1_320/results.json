@@ -1,0 +1,369 @@
+{
+ "text_scale": 1.0,
+ "view_w": 320,
+ "mode": "dark",
+ "populated": true,
+ "results": {
+  "/tracker/transactions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Expense",
+     "w": 75,
+     "h": 35,
+     "role": "button"
+    },
+    {
+     "label": "Income",
+     "w": 75,
+     "h": 35,
+     "role": "button"
+    },
+    {
+     "label": "Invested",
+     "w": 75,
+     "h": 35,
+     "role": "button"
+    },
+    {
+     "label": "Transfer",
+     "w": 230,
+     "h": 35,
+     "role": "button"
+    },
+    {
+     "label": "Description",
+     "w": 238,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "Date",
+     "w": 188,
+     "h": 33,
+     "role": "input"
+    },
+    {
+     "label": "\u2610 Repeat every month on the 17th",
+     "w": 238,
+     "h": 23,
+     "role": "switch"
+    },
+    {
+     "label": "Previous month",
+     "w": 44,
+     "h": 35,
+     "role": "div"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "WHAT FOR (OPTIONAL)",
+     "y": 690
+    }
+   ]
+  },
+  "/tracker/budget": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Monthly income",
+     "w": 103,
+     "h": 35,
+     "role": "input"
+    },
+    {
+     "label": "Monthly spend",
+     "w": 103,
+     "h": 35,
+     "role": "input"
+    },
+    {
+     "label": "Use \u20b971,595 as my monthly spend",
+     "w": 238,
+     "h": 40,
+     "role": "button"
+    },
+    {
+     "label": "Shopping",
+     "w": 103,
+     "h": 35,
+     "role": "input"
+    },
+    {
+     "label": "Food & Dining",
+     "w": 103,
+     "h": 35,
+     "role": "input"
+    },
+    {
+     "label": "Housing",
+     "w": 103,
+     "h": 35,
+     "role": "input"
+    },
+    {
+     "label": "Transport",
+     "w": 103,
+     "h": 35,
+     "role": "input"
+    },
+    {
+     "label": "Suggest limits for 4 categories",
+     "w": 238,
+     "h": 40,
+     "role": "button"
+    },
+    {
+     "label": "80C invested this year",
+     "w": 103,
+     "h": 35,
+     "role": "input"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tracker/networth": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Manage holdings in Portfolio \u2192",
+     "w": 238,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Open EPF tracker \u2192",
+     "w": 238,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Open NPS tracker \u2192",
+     "w": 238,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Open PPF tracker \u2192",
+     "w": 238,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Fixed income (FD/PPF/NSC)",
+     "w": 103,
+     "h": 35,
+     "role": "input"
+    },
+    {
+     "label": "Open Fixed tracker \u2192",
+     "w": 238,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Gold / SGB",
+     "w": 103,
+     "h": 35,
+     "role": "input"
+    },
+    {
+     "label": "Open Gold tracker \u2192",
+     "w": 238,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Real estate",
+     "w": 103,
+     "h": 35,
+     "role": "input"
+    },
+    {
+     "label": "Crypto",
+     "w": 103,
+     "h": 35,
+     "role": "input"
+    },
+    {
+     "label": "Open Crypto tracker \u2192",
+     "w": 238,
+     "h": 31,
+     "role": "button"
+    },
+    {
+     "label": "Savings / cash",
+     "w": 103,
+     "h": 35,
+     "role": "input"
+    },
+    {
+     "label": "Other assets",
+     "w": 103,
+     "h": 35,
+     "role": "input"
+    },
+    {
+     "label": "Home loan",
+     "w": 103,
+     "h": 35,
+     "role": "input"
+    },
+    {
+     "label": "Car loan",
+     "w": 103,
+     "h": 35,
+     "role": "input"
+    },
+    {
+     "label": "Personal loan",
+     "w": 103,
+     "h": 35,
+     "role": "input"
+    },
+    {
+     "label": "Credit card dues",
+     "w": 103,
+     "h": 35,
+     "role": "input"
+    },
+    {
+     "label": "Other liabilities",
+     "w": 103,
+     "h": 35,
+     "role": "input"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    }
+   ]
+  },
+  "/tracker/subscriptions": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [
+    {
+     "label": "Subscription name",
+     "w": 238,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "Amount per cycle",
+     "w": 115,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "People sharing the plan",
+     "w": 115,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "Next renewal date",
+     "w": 238,
+     "h": 39,
+     "role": "input"
+    },
+    {
+     "label": "Usefulness 1 of 5",
+     "w": 30,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Usefulness 2 of 5",
+     "w": 31,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Usefulness 3 of 5",
+     "w": 31,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Usefulness 4 of 5",
+     "w": 31,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Usefulness 5 of 5",
+     "w": 31,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Add subscription",
+     "w": 238,
+     "h": 43,
+     "role": "button"
+    },
+    {
+     "label": "Netflix, active. Tap to edit",
+     "w": 238,
+     "h": 33,
+     "role": "button"
+    },
+    {
+     "label": "Pause",
+     "w": 36,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Delete",
+     "w": 39,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Gym, active. Tap to edit",
+     "w": 238,
+     "h": 33,
+     "role": "button"
+    }
+   ],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 46
+    },
+    {
+     "band": "bottom",
+     "text": "NAME",
+     "y": 683
+    }
+   ]
+  }
+ },
+ "not_loaded": []
+}

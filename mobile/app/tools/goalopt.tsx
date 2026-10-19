@@ -6,6 +6,7 @@ import { CalcField, Collapsible, Bullet, toNum } from '@/components/CalcUI';
 import { compute, badge, type GoalIn } from '@/lib/goalOptimizer';
 import { loadGoalInputs, saveGoalPlan } from '@/lib/goalOptimizerStorage';
 import { Colors, Spacing, Typography } from '@/constants/theme';
+import { LinkButton } from '@/components/LinkButton';
 
 export default function GoalOptimizerScreen() {
   const [goals, setGoals] = useState<GoalIn[] | null>(null);
@@ -33,7 +34,7 @@ export default function GoalOptimizerScreen() {
     return (
       <TrackerScreen title="Goal optimizer" subtitle="Which goal first, and what each needs every month.">
         <Card><Text style={Typography.body}>You have no goals yet. Add a few in Goals, each with a target amount and a target month, and this works out the monthly SIP each one needs and which to fund first.</Text>
-          <Text style={s.link} onPress={() => router.push('/tracker/goals')} accessibilityRole="button">Open Goals</Text></Card>
+          <LinkButton onPress={() => router.push('/tracker/goals')} textStyle={s.link}>Open Goals</LinkButton></Card>
       </TrackerScreen>
     );
   }

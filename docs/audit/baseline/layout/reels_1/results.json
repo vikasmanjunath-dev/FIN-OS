@@ -1,0 +1,70 @@
+{
+ "text_scale": 1.0,
+ "view_w": 390,
+ "mode": "dark",
+ "populated": false,
+ "results": {
+  "/learn": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 22
+    },
+    {
+     "band": "bottom",
+     "text": "Foundation Matrix",
+     "y": 669
+    },
+    {
+     "band": "bottom",
+     "text": "A menu page on the website",
+     "y": 684
+    },
+    {
+     "band": "bottom",
+     "text": "\u203a",
+     "y": 681
+    }
+   ]
+  },
+  "/learn/reels": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "bottom",
+     "text": "Tap to pause \u00b7 swipe up for the next one",
+     "y": 680
+    },
+    {
+     "band": "top",
+     "text": "\u2715",
+     "y": 16
+    },
+    {
+     "band": "top",
+     "text": "Money reels",
+     "y": 10
+    },
+    {
+     "band": "top",
+     "text": "1 / 5",
+     "y": 29
+    },
+    {
+     "band": "top",
+     "text": "\ud83d\udd07",
+     "y": 16
+    }
+   ]
+  }
+ },
+ "not_loaded": []
+}

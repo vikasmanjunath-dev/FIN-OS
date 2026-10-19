@@ -1,0 +1,240 @@
+{
+ "text_scale": 2.0,
+ "view_w": 320,
+ "mode": "dark",
+ "populated": false,
+ "results": {
+  "/learn": {
+   "hscroll": [],
+   "clipped": [],
+   "small": [],
+   "overlap": [],
+   "safe": [
+    {
+     "band": "top",
+     "text": "\u2190 Back",
+     "y": 14
+    },
+    {
+     "band": "bottom",
+     "text": "YOUR PROGRESS",
+     "y": 704
+    }
+   ]
+  },
+  "/learn/reels": {
+   "hscroll": [
+    {
+     "what": "text past the right edge",
+     "text": "Starting early beats starting big",
+     "right": 390,
+     "width": 320
+    },
+    {
+     "what": "text past the right edge",
+     "text": "\u20b95,000 a month",
+     "right": 550,
+     "width": 320
+    },
+    {
+     "what": "text past the right edge",
+     "text": "Your \u20b9100 is quietly shrinking",
+     "right": 366,
+     "width": 320
+    }
+   ],
+   "clipped": [
+    {
+     "text": "Starting early beats starting big",
+     "axis": "x",
+     "text_box": [
+      24,
+      114,
+      390,
+      142
+     ],
+     "clip_box": [
+      24,
+      114,
+      296,
+      142
+     ]
+    },
+    {
+     "text": "Starting early beats starting big",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "\u20b95,000 a month",
+     "axis": "x",
+     "text_box": [
+      24,
+      150,
+      550,
+      230
+     ],
+     "clip_box": [
+      24,
+      150,
+      296,
+      230
+     ]
+    },
+    {
+     "text": "\u20b95,000 a month",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    },
+    {
+     "text": "Your \u20b9100 is quietly shrinking",
+     "axis": "x",
+     "text_box": [
+      24,
+      814,
+      366,
+      842
+     ],
+     "clip_box": [
+      24,
+      814,
+      296,
+      842
+     ]
+    },
+    {
+     "text": "Your \u20b9100 is quietly shrinking",
+     "axis": "ellipsis",
+     "note": "text shortened with ... (numberOfLines): content hidden at this size"
+    }
+   ],
+   "small": [
+    {
+     "label": "Go to scene 1",
+     "w": 35,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 2",
+     "w": 35,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 3",
+     "w": 35,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 4",
+     "w": 35,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 5",
+     "w": 35,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 6",
+     "w": 35,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 7",
+     "w": 35,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 1",
+     "w": 42,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 2",
+     "w": 42,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 3",
+     "w": 42,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 4",
+     "w": 42,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 5",
+     "w": 42,
+     "h": 44,
+     "role": "button"
+    },
+    {
+     "label": "Go to scene 6",
+     "w": 42,
+     "h": 44,
+     "role": "button"
+    }
+   ],
+   "overlap": [
+    {
+     "a": "Same \u20b95,000 every month. Very different ",
+     "b": "Tap to pause \u00b7 swipe up for the next one"
+    },
+    {
+     "a": "Same \u20b95,000 every month. Very different ",
+     "b": "\u20b9100"
+    },
+    {
+     "a": "Your \u20b9100 is quietly shrinking.",
+     "b": "Tap to pause \u00b7 swipe up for the next one"
+    }
+   ],
+   "safe": [
+    {
+     "band": "bottom",
+     "text": "Same \u20b95,000 every month. Very different ",
+     "y": 951
+    },
+    {
+     "band": "bottom",
+     "text": "Tap to pause \u00b7 swipe up for the next one",
+     "y": 744
+    },
+    {
+     "band": "top",
+     "text": "\u2715",
+     "y": 14
+    },
+    {
+     "band": "top",
+     "text": "Money reels",
+     "y": 4
+    },
+    {
+     "band": "top",
+     "text": "1 / 5",
+     "y": 40
+    },
+    {
+     "band": "top",
+     "text": "\ud83d\udd07",
+     "y": 13
+    }
+   ]
+  }
+ },
+ "not_loaded": []
+}

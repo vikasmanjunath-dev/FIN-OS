@@ -12,28 +12,16 @@ import { useFinosContext } from '@/hooks/useFinosContext';
 import { useMarketData } from '@/hooks/useMarketData';
 import { useTrackers } from '@/hooks/useTrackers';
 import { nextBestStep } from '@/lib/trackers';
-import { inrShort, tierColor } from '@/components/TrackerUI';
+import { inrShort, tierColor, NavCard } from '@/components/TrackerUI';
 import { useQuickLog } from '@/hooks/useQuickLog';
-import { useSubscriptions } from '@/hooks/useSubscriptions';
 import { useMoneyScore } from '@/hooks/useMoneyScore';
+import { useReelsJourney } from '@/hooks/useReelsJourney';
 import { QuickLogChips } from '@/components/QuickLogChips';
-import { MANIFEST } from '@/lib/learnContent';
-import { overallProgress } from '@/lib/learn';
-import { loadLearned } from '@/lib/learnStorage';
-import { MetricCard } from '@/components/MetricCard';
+import { ToolRow, StatRow } from '@/components/ToolRow';
 import { PersonaStrip } from '@/components/PersonaStrip';
 import { GREETING, buildStrip, dayPart, firstName, streakLine, type PersonaPrefs } from '@/lib/persona';
 import { loadPersonaPrefs, savePersonaPrefs } from '@/lib/personaStorage';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
-
-function formatINR(n: number, compact = false): string {
-  if (compact) {
-    if (n >= 10_000_000) return `₹${(n / 10_000_000).toFixed(1)}Cr`;
-    if (n >= 100_000)    return `₹${(n / 100_000).toFixed(1)}L`;
-    if (n >= 1000)       return `₹${(n / 1000).toFixed(1)}K`;
-  }
-  return '₹' + n.toLocaleString('en-IN');
-}
 
 function IndexPill({ symbol, price, changePct }: { symbol: string; price: number; changePct: number | null }) {
   const known = changePct != null;
@@ -54,20 +42,12 @@ export default function DashboardScreen() {
   const { refresh } = useFinosContext();
   const { data: td, computed: tc, reload: reloadTrackers } = useTrackers();
   const quick = useQuickLog(3);
-  const { summary: subs } = useSubscriptions();
   const { saved: moneyScore } = useMoneyScore();
+  const rj = useReelsJourney();
   const { data: market } = useMarketData();
   const [refreshing, setRefreshing] = React.useState(false);
-  // Learn tile: lessons marked learned on this phone (a count from the bundled lesson list; nothing is fetched)
-  const [learnSub, setLearnSub] = React.useState<string | null>(null);
-  useFocusEffect(useCallback(() => {
-    let live = true;
-    loadLearned().then(l => { const p = overallProgress(MANIFEST, l); if (live) setLearnSub(`${p.done} of ${p.total} lessons`); }).catch(() => {});
-    return () => { live = false; };
-  }, []));
-
   // Greeting and status strip: recorded facts only (lib/persona.ts). Hiding the strip is remembered on this phone; Settings brings it back.
-  const [persona, setPersona] = React.useState<PersonaPrefs>({ stripHidden: false });
+  const [persona, setPersona] = React.useState<PersonaPrefs>({ stripHidden: true });
   useFocusEffect(useCallback(() => { let live = true; loadPersonaPrefs().then(p => { if (live) setPersona(p); }).catch(() => {}); return () => { live = false; }; }, []));
   const hideStrip = () => { const next = { stripHidden: true }; setPersona(next); savePersonaPrefs(next); };
 
@@ -79,10 +59,7 @@ export default function DashboardScreen() {
 
   const health = tc.health;
   const step = nextBestStep(health);
-  const hasBudget = tc.budget.income > 0;
   const sp = tc.spending;
-  const rt = tc.retirement;
-  const urgentGaps = rt.coverage.gaps.filter(g => g.severity === 'critical' || g.severity === 'high').length;
   const atRisk = sp.budget.rows.filter(r => r.limit > 0 && r.state !== 'ok').sort((a, b) => (b.pct ?? 0) - (a.pct ?? 0))[0];
   const myName = firstName(td.name);
   const streak = streakLine(td.streak);
@@ -157,8 +134,22 @@ export default function DashboardScreen() {
         </LinearGradient>
       </TouchableOpacity>
 
-      {/* ── Next best step ── */}
-      {step && (
+      {/* ── The one thing to do next ── */}
+      {td.transactions.length === 0 && (
+        <TouchableOpacity accessibilityRole="button"
+          style={styles.nudge}
+          onPress={() => { Haptics.selectionAsync(); open('/tracker/import'); }}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.nudgeIcon}>📄</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.nudgeTitle}>Add your first transactions</Text>
+            <Text style={styles.nudgeSub}>Spending, savings and your health score get real once you add what you spend. Or import your bank statement in one go.</Text>
+          </View>
+          <Text style={{ color: Colors.cyan, fontSize: 18 }}>›</Text>
+        </TouchableOpacity>
+      )}
+      {td.transactions.length > 0 && step && (
         <TouchableOpacity style={styles.step} activeOpacity={0.8} onPress={() => open(step.route)} accessibilityRole="button">
           <Text style={styles.stepIcon}>💡</Text>
           <View style={{ flex: 1 }}>
@@ -168,10 +159,6 @@ export default function DashboardScreen() {
           <Text style={{ color: Colors.cyan, fontSize: 18 }}>›</Text>
         </TouchableOpacity>
       )}
-
-      <Nudges incomeMonthly={tc.budget.income} savingsRate={tc.budget.known ? tc.budget.savingsRate : null}
-        topCategory={(() => { const r = [...sp.budget.rows].sort((a, b) => b.spent - a.spent)[0]; return r && r.spent > 0 ? { name: r.category, spent: r.spent } : null; })()}
-        spentThisMonth={sp.totals.spent} monthlySip={td.monthlySip} />
 
       {/* ── Spending this month ── */}
       <View style={styles.spendCard}>
@@ -206,478 +193,76 @@ export default function DashboardScreen() {
       )}
 
       {/* ── Metric Grid (each card opens its tracker) ── */}
-      <View style={styles.grid}>
-        <MetricCard
+      <Text style={styles.sectionTitle}>Your numbers</Text>
+      <View style={styles.exploreCard}>
+        <StatRow
           label="Health Score"
           value={health.total == null || !health.tier ? 'Not enough data' : `${health.total}/100`}
           sub={health.total == null || !health.tier ? 'record income and spending' : `${health.tierEmoji} ${health.tier[0] + health.tier.slice(1).toLowerCase()} · ${health.measured.length} of 7 areas`}
           accent={health.tier ? tierColor(health.tier) : Colors.cyan}
           icon="🏥"
-          style={styles.gridHalf}
           onPress={() => open('/tracker/health')}
         />
-        <MetricCard
+        <StatRow
           label="Emergency Fund"
           value={tc.emergency.monthlyExpense > 0 ? `${tc.emergency.covered.toFixed(1)} mo` : '—'}
           sub={tc.emergency.monthlyExpense > 0 ? `of ${tc.emergency.target} months · ${tc.emergency.status.label.toLowerCase()}` : 'add monthly spend'}
           accent={tc.emergency.status.level === 'full' ? Colors.teal : tc.emergency.status.level === 'critical' ? Colors.red : Colors.gold}
           icon="🛡️"
-          style={styles.gridHalf}
           onPress={() => open('/tracker/emergency')}
         />
-        <MetricCard
-          label="Monthly Income"
-          value={hasBudget ? inrShort(tc.budget.income) : '—'}
-          sub={td.aaIncome > 0 && !td.income ? 'from imported data' : hasBudget ? 'tap to edit' : 'set in Budget'}
-          accent={Colors.teal}
-          icon="💰"
-          style={styles.gridHalf}
-          onPress={() => open('/tracker/budget')}
-        />
-        <MetricCard
-          label="Monthly Spend"
-          value={tc.budget.expense > 0 ? inrShort(tc.budget.expense) : '—'}
-          sub={tc.budget.known ? (tc.budget.saving >= 0 ? `saving ${tc.budget.savingsRate}%` : 'spending more than you earn') : 'set in Budget'}
-          accent={Colors.gold}
-          icon="💳"
-          style={styles.gridHalf}
-          onPress={() => open('/tracker/budget')}
-        />
-        <MetricCard
+        <StatRow
           label="FIRE Progress"
           value={`${tc.netWorth.firePercent.toFixed(tc.netWorth.firePercent >= 10 ? 0 : 1)}%`}
           sub={`of ${inrShort(tc.netWorth.fireCorpus)} target`}
           accent={Colors.purple}
           icon="🔥"
-          style={styles.gridHalf}
           onPress={() => open('/tracker/networth')}
         />
-        <MetricCard
+        <StatRow
           label="Goals"
           value={tc.goals.items.length ? `${Math.round(tc.goals.avgProgress)}%` : '—'}
           sub={tc.goals.items.length ? `${tc.goals.items.length} goal${tc.goals.items.length === 1 ? '' : 's'} on track` : 'add your first goal'}
           accent={Colors.cyan}
           icon="🎯"
-          style={styles.gridHalf}
           onPress={() => open('/tracker/goals')}
         />
       </View>
 
-      {/* ── Retirement & protection ── */}
-      <Text style={styles.sectionTitle}>Retirement & Protection</Text>
-      <View style={styles.grid}>
-        <MetricCard
-          label="EPF"
-          value={td.epf > 0 ? inrShort(td.epf) : '—'}
-          sub={rt.epf.complete ? `→ ${inrShort(rt.epf.projected)} at retirement` : 'tap to set up'}
-          accent={Colors.teal}
-          icon="🏢"
-          style={styles.gridHalf}
-          onPress={() => open('/tracker/epf')}
-        />
-        <MetricCard
-          label="NPS"
-          value={rt.nps.total > 0 ? inrShort(rt.nps.total) : '—'}
-          sub={rt.nps.total <= 0 ? 'tap to set up' : rt.nps.ageNow > 0 ? `→ ${inrShort(rt.nps.projected)} at 60` : 'add date of birth for projection'}
-          accent={Colors.cyan}
-          icon="🏛️"
-          style={styles.gridHalf}
-          onPress={() => open('/tracker/nps')}
-        />
-        <MetricCard
-          label="PPF & Small Savings"
-          value={rt.savings.total > 0 ? inrShort(rt.savings.total) : '—'}
-          sub={td.ppfAccounts.length ? `${td.ppfAccounts.length} account${td.ppfAccounts.length === 1 ? '' : 's'} · ${inrShort(Math.min(rt.savings.c80c, 150000))} 80C` : 'tap to set up'}
-          accent={Colors.gold}
-          icon="📮"
-          style={styles.gridHalf}
-          onPress={() => open('/tracker/ppf')}
-        />
-        <MetricCard
-          label="Insurance"
-          value={td.policies.length ? `${td.policies.length} polic${td.policies.length === 1 ? 'y' : 'ies'}` : '—'}
-          sub={td.policies.length ? (urgentGaps > 0 ? `${urgentGaps} gap${urgentGaps === 1 ? '' : 's'} to fix` : 'cover looks solid') : 'add your policies'}
-          accent={urgentGaps > 0 || !td.policies.length ? Colors.orange : Colors.teal}
-          icon="🛡️"
-          style={styles.gridHalf}
-          onPress={() => open('/tracker/insurance')}
-        />
-      </View>
-
-      {/* ── Recurring costs ── */}
-      <Text style={styles.sectionTitle}>Recurring Costs</Text>
-      <View style={styles.grid}>
-      <MetricCard
-        label="Subscriptions"
-        value={subs.activeCount ? `${formatINR(Math.round(subs.monthly))}/mo` : '—'}
-        sub={
-          subs.activeCount
-            ? subs.review.length
-              ? `${subs.review.length} worth a second look · save up to ${inrShort(subs.reviewSavings)}/yr`
-              : subs.upcoming[0]
-                ? `next: ${subs.upcoming[0].name} ${subs.upcoming[0].daysAway === 0 ? 'today' : `in ${subs.upcoming[0].daysAway}d`}`
-                : `${inrShort(subs.annual)} a year`
-            : 'tap to add your plans'
-        }
-        accent={subs.review.length ? Colors.orange : Colors.purple}
-        icon="🔁"
-        style={{ width: '100%' }}
-        onPress={() => open('/tracker/subscriptions')}
-      />
-      </View>
-
-      {/* ── Money tools ── */}
-      <Text style={styles.sectionTitle}>Money Tools</Text>
-      <View style={styles.grid}>
-        <MetricCard
+      {/* ── Explore: a few things worth opening, then the rest in one place ── */}
+      <Text style={styles.sectionTitle}>Explore</Text>
+      <View style={styles.exploreCard}>
+        {moneyScore ? (
+          <ToolRow
           label="Money Score"
           value={moneyScore ? `${moneyScore.score}/100` : '60 seconds'}
-          sub={moneyScore ? (moneyScore.top ? `next: ${moneyScore.top.title}` : 'your whole picture, scored') : 'one number + your next 3 moves'}
-          accent={Colors.teal}
-          icon="🎯"
-          style={styles.gridHalf}
-          onPress={() => open('/tools/score')}
+          sub={moneyScore ? (moneyScore.top ? `next: ${moneyScore.top.title}` : 'your whole picture, scored') : 'one number and your next 3 moves'}
+          accent={Colors.teal} icon="🎯" onPress={() => open('/tools/score')}
         />
-        <MetricCard
-          label="Retirement odds"
-          value="Will it last?"
-          sub="Monte Carlo on what you hold"
-          accent={Colors.purple}
-          icon="🌅"
-          style={styles.gridHalf}
-          onPress={() => open('/tools/retirement')}
-        />
-        <MetricCard
-          label="Prepay or invest?"
-          value="Home loan"
-          sub="which leaves you richer"
-          accent={Colors.cyan}
-          icon="🏠"
-          style={styles.gridHalf}
-          onPress={() => open('/tools/prepay')}
-        />
-        <MetricCard
-          label="Credit score"
-          value="CIBIL"
-          sub="rate impact and tips"
-          accent={Colors.purple}
-          icon="📈"
-          style={styles.gridHalf}
-          onPress={() => open('/tools/credit')}
-        />
-        <MetricCard
-          label="Home loan"
-          value="EMI & prepay"
-          sub="interest, tax, what prepaying saves"
-          accent={Colors.cyan}
-          icon="🏠"
-          style={styles.gridHalf}
-          onPress={() => open('/tools/homeloan')}
-        />
-        <MetricCard
-          label="Financial calendar"
-          value="What is due"
-          sub="SIPs, renewals, tax dates"
-          accent={Colors.gold}
-          icon="📅"
-          style={styles.gridHalf}
-          onPress={() => open('/tools/calendar')}
-        />
-        <MetricCard
-          label="Passive income"
-          value="Freedom meter"
-          sub="dividends, rent, interest, SWP"
-          accent={Colors.teal}
-          icon="🌴"
-          style={styles.gridHalf}
-          onPress={() => open('/tracker/passive')}
-        />
-        <MetricCard
-          label="Rebalancer"
-          value="Target mix"
-          sub="drift and what to add"
-          accent={Colors.cyan}
-          icon="⚖️"
-          style={styles.gridHalf}
-          onPress={() => open('/tools/rebalance')}
-        />
-        <MetricCard
-          label="Financial report"
-          value="One-page summary"
-          sub="share with an advisor"
-          accent={Colors.cyan}
-          icon="📄"
-          style={styles.gridHalf}
-          onPress={() => open('/tools/report')}
-        />
-        <MetricCard
-          label="Real estate"
-          value="Buy or rent?"
-          sub="true cost and rental yield"
-          accent={Colors.gold}
-          icon="🏠"
-          style={styles.gridHalf}
-          onPress={() => open('/tools/realestate')}
-        />
-        <MetricCard
-          label="Calculators"
-          value="SIP, EMI, HRA, FD…"
-          sub="70+ quick calculators"
-          accent={Colors.cyan}
-          icon="🧮"
-          style={styles.gridHalf}
-          onPress={() => open('/tools/calculators')}
-        />
-        <MetricCard
-          label="Financial DNA"
-          value="Your money mindset"
-          sub="9 questions, feeds Health Score"
-          accent={Colors.purple}
-          icon="🧬"
-          style={styles.gridHalf}
-          onPress={() => open('/tools/dna')}
-        />
-        <MetricCard
-          label="Tax harvesting"
-          value="Use losses, free gains"
-          sub="cut tax before March"
-          accent={Colors.gold}
-          icon="🍂"
-          style={styles.gridHalf}
-          onPress={() => open('/tracker/harvest')}
-        />
-        <MetricCard
-          label="Windfall allocator"
-          value="Bonus, RSU, sale"
-          sub="where a lump sum goes first"
-          accent={Colors.teal}
-          icon="🎁"
-          style={styles.gridHalf}
-          onPress={() => open('/tools/windfall')}
-        />
-        <MetricCard
-          label="Debt payoff"
-          value="Avalanche or snowball"
-          sub="clear loans cheapest"
-          accent={Colors.orange}
-          icon="⛰️"
-          style={styles.gridHalf}
-          onPress={() => open('/tools/debt')}
-        />
-        <MetricCard
-          label="Future loss"
-          value="Your leak"
-          sub="what small spends become"
-          accent={Colors.red}
-          icon="💧"
-          style={styles.gridHalf}
-          onPress={() => open('/tools/leak')}
-        />
-        <MetricCard
-          label="Trade journal"
-          value="Log your trades"
-          sub="totals after charges"
-          accent={Colors.cyan}
-          icon="📒"
-          style={styles.gridHalf}
-          onPress={() => open('/journal')}
-        />
-        <MetricCard
-          label="Portfolio analytics"
-          value="Sectors and risk"
-          sub="from real price history"
-          accent={Colors.purple}
-          icon="🧮"
-          style={styles.gridHalf}
-          onPress={() => open('/portfolio/analytics')}
-        />
-        <MetricCard
-          label="Arya money steps"
-          value="Your plan"
-          sub="done, open or needs a figure"
-          accent={Colors.teal}
-          icon="🗺️"
-          style={styles.gridHalf}
-          onPress={() => open('/arya/plan')}
-        />
-        <MetricCard
-          label="Tax savings"
-          value="Old vs new"
-          sub="what deductions could save"
-          accent={Colors.teal}
-          icon="🧾"
-          style={styles.gridHalf}
-          onPress={() => open('/tools/tax')}
-        />
-        <MetricCard
-          label="SIP step-up"
-          value="Raise it yearly"
-          sub="flat vs stepped-up SIP"
-          accent={Colors.teal}
-          icon="📈"
-          style={styles.gridHalf}
-          onPress={() => open('/tools/stepup')}
-        />
-        <MetricCard
-          label="Salary structure"
-          value="Take-home"
-          sub="HRA, regime and CTC tips"
-          accent={Colors.purple}
-          icon="🧮"
-          style={styles.gridHalf}
-          onPress={() => open('/tools/salary')}
-        />
-        <MetricCard
-          label="Job offer comparer"
-          value="CTC vs in-hand"
-          sub="compare up to 3 offers"
-          accent={Colors.gold}
-          icon="💼"
-          style={styles.gridHalf}
-          onPress={() => open('/tools/offers')}
-        />
+        ) : null}
+        <ToolRow label="Financial calendar" sub="SIPs, renewals and tax dates that are due" accent={Colors.gold} icon="🗓️" onPress={() => open('/tools/calendar')} />
+        <ToolRow label="Retirement odds" sub="will what you hold last? a simulation on your own numbers" accent={Colors.purple} icon="🏖️" onPress={() => open('/tools/retirement')} />
+        <ToolRow label={rj.doneToday ? 'Money reels' : "Today's reel"} value={rj.streak > 0 ? `🔥 ${rj.streak}` : undefined}
+          sub={rj.doneToday ? 'done for today, come back tomorrow' : rj.todays ? rj.todays.reel.title.en : '30-second animated lessons with Mitra the owl'}
+          accent={Colors.purple} icon="🎬" onPress={() => open('/learn/reels')} />
+        <ToolRow label="Learn" sub="money, markets and insurance, on this phone" accent={Colors.cyan} icon="📚" onPress={() => open('/learn')} />
       </View>
+      <NavCard style={styles.allToolsCard} title="All trackers, calculators and guides" sub="EPF, NPS, insurance, loans, tax, planning and more, in one place" onPress={() => open('/tools/all')} />
 
-      {/* ── Plan, learn and research ── */}
-      <Text style={styles.sectionTitle}>Plan, Learn & Research</Text>
-      <View style={styles.grid}>
-        <MetricCard
-          label="Learn"
-          value={learnSub ?? 'Lessons'}
-          sub="money, markets and insurance, on this phone"
-          accent={Colors.cyan}
-          icon="📚"
-          style={styles.gridHalf}
-          onPress={() => open('/learn')}
-        />
-        <MetricCard
-          label="PULSE"
-          value="What matters today"
-          sub="ranked from what you recorded"
-          accent={Colors.purple}
-          icon="🧭"
-          style={styles.gridHalf}
-          onPress={() => open('/pulse')}
-        />
-        <MetricCard
-          label="Spending forecast"
-          value="This month"
-          sub="from your own logged spending"
-          accent={Colors.gold}
-          icon="🔮"
-          style={styles.gridHalf}
-          onPress={() => open('/plan/forecast')}
-        />
-        <MetricCard
-          label="Life goals"
-          value="Roadmap"
-          sub="the SIP each goal needs"
-          accent={Colors.teal}
-          icon="🗺️"
-          style={styles.gridHalf}
-          onPress={() => open('/plan/lifegoals')}
-        />
-        <MetricCard
-          label="Growth projection"
-          value="At a return you set"
-          sub="your holdings and SIPs"
-          accent={Colors.teal}
-          icon="🌱"
-          style={styles.gridHalf}
-          onPress={() => open('/plan/growth')}
-        />
-        <MetricCard
-          label="Couple finance"
-          value="Two incomes"
-          sub="shared bills, joint goals"
-          accent={Colors.purple}
-          icon="👫"
-          style={styles.gridHalf}
-          onPress={() => open('/plan/couple')}
-        />
-        <MetricCard
-          label="Benchmarks"
-          value="Rules of thumb"
-          sub="not a comparison with others"
-          accent={Colors.cyan}
-          icon="📏"
-          style={styles.gridHalf}
-          onPress={() => open('/plan/benchmark')}
-        />
-        <MetricCard
-          label="Insurance hub"
-          value="Cover guide"
-          sub="what to ask, compare policies"
-          accent={Colors.orange}
-          icon="🛡️"
-          style={styles.gridHalf}
-          onPress={() => open('/insurance')}
-        />
-        <MetricCard
-          label="Mutual funds"
-          value="Search and compare"
-          sub="NAV, Direct vs Regular"
-          accent={Colors.gold}
-          icon="📈"
-          style={styles.gridHalf}
-          onPress={() => open('/funds')}
-        />
-        <MetricCard
-          label="Market research"
-          value="News and prices"
-          sub="shares, funds, gold, currency"
-          accent={Colors.cyan}
-          icon="🔭"
-          style={styles.gridHalf}
-          onPress={() => open('/market')}
-        />
-      </View>
-
-      {/* ── Quick Actions ── */}
-      <Text style={styles.sectionTitle}>Quick Actions</Text>
-      <View style={styles.actionRow}>
-        {[
-          { icon: '✦', label: 'Ask Arya', color: Colors.purpleInk, onPress: () => router.navigate('/(tabs)/arya') },
-          { icon: '📊', label: 'Portfolio', color: Colors.cyan,   onPress: () => router.navigate('/(tabs)/portfolio') },
-          { icon: '📈', label: 'Markets',   color: Colors.teal,   onPress: () => router.navigate('/(tabs)/markets') },
-          { icon: '🧾', label: 'Track',     color: Colors.gold,   onPress: () => router.navigate('/(tabs)/track') },
-        ].map(a => (
-          <TouchableOpacity accessibilityRole="button"
-            key={a.label}
-            style={[styles.actionBtn, { borderColor: a.color + '40' }]}
-            onPress={() => { Haptics.selectionAsync(); a.onPress(); }}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.actionIcon, { color: a.color }]}>{a.icon}</Text>
-            <Text style={styles.actionLabel}>{a.label}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* ── Nudge: nothing logged yet ── */}
-      {td.transactions.length === 0 && (
-        <TouchableOpacity accessibilityRole="button"
-          style={styles.nudge}
-          onPress={() => { Haptics.selectionAsync(); open('/tracker/import'); }}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.nudgeIcon}>📄</Text>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.nudgeTitle}>Add your first transactions</Text>
-            <Text style={styles.nudgeSub}>Spending, savings and your health score get real once you add what you spend. Or import your bank statement in one go.</Text>
-          </View>
-          <Text style={{ color: Colors.cyan, fontSize: 18 }}>›</Text>
-        </TouchableOpacity>
-      )}
+      <Nudges incomeMonthly={tc.budget.income} savingsRate={tc.budget.known ? tc.budget.savingsRate : null}
+        topCategory={(() => { const r = [...sp.budget.rows].sort((a, b) => b.spent - a.spent)[0]; return r && r.spent > 0 ? { name: r.category, spent: r.spent } : null; })()}
+        spentThisMonth={sp.totals.spent} monthlySip={td.monthlySip} />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  exploreCard: { marginHorizontal: Spacing.lg, backgroundColor: Colors.surface, borderRadius: Radii.lg, borderWidth: 1, borderColor: Colors.border, overflow: 'hidden', marginBottom: Spacing.md },
+  allToolsCard: { marginHorizontal: Spacing.lg },
   root: { flex: 1, backgroundColor: Colors.bg },
   content: { paddingBottom: Spacing.xxl },
 
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', padding: Spacing.lg, paddingTop: Spacing.xxl },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', padding: Spacing.lg, paddingTop: Spacing.md },
   greeting: { ...Typography.h2, fontSize: 20 },
   date: { ...Typography.caption, marginTop: 2 },
   streak: { color: Colors.gold, fontSize: 12, fontWeight: '700', marginTop: 4 },
@@ -694,7 +279,7 @@ const styles = StyleSheet.create({
   heroTopBar: { position: 'absolute', top: 0, left: 0, right: 0, height: 2, opacity: 0.8 },
   heroLabel: { ...Typography.label, marginBottom: Spacing.xs },
   heroValue: { fontSize: 36, fontWeight: '900', color: Colors.textPrimary, letterSpacing: -1, marginBottom: Spacing.md },
-  heroRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  heroRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', columnGap: Spacing.md, rowGap: Spacing.sm },   // three figures drop to a second line at large text instead of running off the card
   heroSub: { ...Typography.caption, marginBottom: 2 },
   heroSubValue: { fontSize: 15, fontWeight: '700' },
 
@@ -724,7 +309,7 @@ const styles = StyleSheet.create({
   stepLabel: { ...Typography.label, color: Colors.gold, marginBottom: 2 },
   stepText: { ...Typography.body, lineHeight: 19 },
 
-  nudge: { marginHorizontal: Spacing.lg, flexDirection: 'row', alignItems: 'center', gap: Spacing.md, backgroundColor: 'rgba(0,212,255,0.05)', borderWidth: 1, borderColor: 'rgba(0,212,255,0.2)', borderRadius: Radii.lg, padding: Spacing.md },
+  nudge: { marginHorizontal: Spacing.lg, marginBottom: Spacing.md, flexDirection: 'row', alignItems: 'center', gap: Spacing.md, backgroundColor: 'rgba(0,212,255,0.05)', borderWidth: 1, borderColor: 'rgba(0,212,255,0.2)', borderRadius: Radii.lg, padding: Spacing.md },
   nudgeIcon: { fontSize: 24 },
   nudgeTitle: { ...Typography.body, fontWeight: '700', color: Colors.textPrimary, marginBottom: 2 },
   nudgeSub: { ...Typography.caption, lineHeight: 16 },

@@ -91,7 +91,7 @@ export default function MarketsScreen() {
 
       {/* ── Research: news, screener, prices, lookups ── */}
       <TouchableOpacity accessibilityRole="button" accessibilityLabel="Open market research: news, screener, prices, funds" style={styles.researchBtn} onPress={() => router.push('/market' as any)}>
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, minWidth: 0 }}>
           <Text style={styles.researchTitle}>Market research</Text>
           <Text style={Typography.caption}>News, share and fund look-up, screener, gold, currency, crypto</Text>
         </View>
@@ -150,15 +150,15 @@ function isMarketOpen(): boolean {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bg },
   content: { paddingBottom: 80 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', padding: Spacing.lg, paddingTop: Spacing.xxl },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', padding: Spacing.lg, paddingTop: Spacing.md },
   updated: { ...Typography.caption },
 
-  indexGrid: { flexDirection: 'row', paddingHorizontal: Spacing.lg, gap: Spacing.sm, marginBottom: Spacing.md },
-  indexCard: { flex: 1, borderRadius: Radii.lg, padding: Spacing.md, borderWidth: 1, overflow: 'hidden' },
+  indexGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: Spacing.lg, gap: Spacing.sm, marginBottom: Spacing.md },
+  indexCard: { flexGrow: 1, flexBasis: 140, borderRadius: Radii.lg, padding: Spacing.md, borderWidth: 1, overflow: 'hidden' },
   indexBar: { position: 'absolute', top: 0, left: 0, right: 0, height: 2 },
   indexName: { ...Typography.label, marginBottom: Spacing.xs },
   indexPrice: { fontSize: 20, fontWeight: '800', letterSpacing: -0.5, marginBottom: 4 },
-  indexChangeRow: { flexDirection: 'row', gap: 6, alignItems: 'center' },
+  indexChangeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, alignItems: 'center' },
   indexChange: { fontSize: 12, fontWeight: '700' },
   indexChangePct: { fontSize: 12, fontWeight: '700' },
   indexMeta: { ...Typography.caption, marginTop: 4 },
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
   sectorCard: { marginHorizontal: Spacing.lg, backgroundColor: Colors.surface, borderRadius: Radii.lg, borderWidth: 1, borderColor: Colors.border, padding: Spacing.md, marginBottom: Spacing.lg, gap: Spacing.sm },
   sectorRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   sectorEmoji: { fontSize: 16, width: 24, textAlign: 'center' },
-  sectorName: { ...Typography.caption, width: 50, fontWeight: '700', color: Colors.textPrimary },
+  sectorName: { ...Typography.caption, minWidth: 68, flexShrink: 0, fontWeight: '700', color: Colors.textPrimary },
   sectorBarBg: { flex: 1, height: 4, backgroundColor: Colors.border, borderRadius: 2, overflow: 'hidden' },
   sectorBar: { height: '100%', borderRadius: 2 },
   sectorPct: { width: 52, fontSize: 11, fontWeight: '700', textAlign: 'right' },

@@ -34,7 +34,7 @@ export function TrackerScreen({ title, subtitle, children, scrollRef }: { title:
   useEffect(() => subscribeTrackerStorageStatus(setIssue), []);
   const insets = useSafeAreaInsets();       // the top inset is applied once by the root layout; the bottom one (home indicator) here
   return (
-    <ScrollView ref={scrollRef} style={ui.root} contentContainerStyle={[ui.content, { paddingBottom: 80 + insets.bottom }]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+    <ScrollView ref={scrollRef} style={ui.root} contentContainerStyle={[ui.content, { paddingBottom: 80 + insets.bottom }]} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="on-drag" showsVerticalScrollIndicator={false}>
       <View style={ui.header}>
         <TouchableOpacity accessibilityRole="button" style={ui.backBtn} onPress={() => (router.canGoBack() ? router.back() : router.replace('/dashboard'))} hitSlop={12}>
           <Text style={ui.back}>← Back</Text>
@@ -46,6 +46,20 @@ export function TrackerScreen({ title, subtitle, children, scrollRef }: { title:
       {issue && <TrackerStorageNotice />}
       {canRenderLoadedTrackerData(issue) && children}
     </ScrollView>
+  );
+}
+
+/** A card that goes somewhere: title, one line of explanation and a chevron, so it reads as tappable (not as another static note). */
+export function NavCard({ title, sub, onPress, accent = Colors.cyan, style }: { title: string; sub?: string; onPress: () => void; accent?: string; style?: ViewStyle }) {
+  return (
+    <TouchableOpacity activeOpacity={0.8} onPress={onPress} accessibilityRole="button" accessibilityLabel={sub ? `${title}. ${sub}` : title}
+      style={[ui.navCard, { borderColor: accent + '44' }, style]}>
+      <View style={{ flex: 1 }}>
+        <Text style={ui.navTitle}>{title}</Text>
+        {sub ? <Text style={ui.navSub}>{sub}</Text> : null}
+      </View>
+      <Text style={[ui.navChevron, { color: accent }]} accessibilityElementsHidden importantForAccessibility="no">›</Text>
+    </TouchableOpacity>
   );
 }
 
@@ -145,11 +159,15 @@ export function MoneyField({
 
 export const ui = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bg },
-  content: { padding: Spacing.lg, paddingTop: Spacing.xl, paddingBottom: 80 },
-  header: { marginBottom: Spacing.md },
+  content: { padding: Spacing.lg, paddingTop: Spacing.sm, paddingBottom: 80 },   // the notch inset is applied once by the root layout
+  header: { marginBottom: Spacing.xs },
   back: { color: Colors.cyan, fontSize: 14, fontWeight: '600' },
   backBtn: { minHeight: 44, justifyContent: 'center', alignSelf: 'flex-start' },
   card: { backgroundColor: Colors.surface, borderRadius: Radii.lg, borderWidth: 1, borderColor: Colors.border, padding: Spacing.md, marginBottom: Spacing.md, overflow: 'hidden' },
+  navCard: { minHeight: 72, flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, backgroundColor: Colors.surface, borderRadius: Radii.lg, borderWidth: 1, paddingVertical: Spacing.md, paddingHorizontal: Spacing.md, marginBottom: Spacing.md },
+  navTitle: { ...Typography.body, fontWeight: '700', marginBottom: 2 },
+  navSub: { ...Typography.caption, lineHeight: 18 },
+  navChevron: { fontSize: 28, lineHeight: 30, fontWeight: '300' },
   cardBar: { position: 'absolute', top: 0, left: 0, right: 0, height: 2 },
   sectionLabel: { ...Typography.label, marginTop: Spacing.sm, marginBottom: Spacing.sm },
   barTrack: { backgroundColor: 'rgba(255,255,255,0.07)', borderRadius: 4, overflow: 'hidden' },

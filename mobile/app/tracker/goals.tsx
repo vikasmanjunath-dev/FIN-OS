@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import { useTrackers } from '@/hooks/useTrackers';
 import { Goal } from '@/lib/trackers';
 import { TrackerScreen, Card, SectionLabel, Bar, MoneyField, inr, inrShort } from '@/components/TrackerUI';
-import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
+import { Colors, Spacing, Radii, Typography, Btn } from '@/constants/theme';
 import { MAX_TRACKER_RUPEES, parseTrackerMoney } from '@/lib/trackerInput';
 
 const GOAL_ICONS: [RegExp, string][] = [
@@ -137,6 +137,6 @@ const s = StyleSheet.create({
   lbl: { ...Typography.label, marginTop: Spacing.md, marginBottom: 6 },
   input: { minHeight: 44, backgroundColor: Colors.bg, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.md, paddingHorizontal: Spacing.md, paddingVertical: 10, color: Colors.textPrimary, fontSize: 14 },
   error: { color: Colors.gold, fontSize: 12, marginTop: Spacing.sm },
-  addBtn: { minHeight: 44, justifyContent: 'center', backgroundColor: Colors.cyan, borderRadius: Radii.md, paddingVertical: 13, alignItems: 'center', marginTop: Spacing.md },
-  addTxt: { color: Colors.bg, fontWeight: '800', fontSize: 14 },
+  addBtn: { ...Btn.base, backgroundColor: Colors.cyan, marginTop: Spacing.md },
+  addTxt: { ...Btn.text, color: Colors.bg },
 });

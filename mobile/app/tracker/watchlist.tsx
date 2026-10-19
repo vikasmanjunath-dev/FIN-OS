@@ -6,7 +6,7 @@ import { CalcField, Segmented, Collapsible, Bullet } from '@/components/CalcUI';
 import { add, remove, view, type WatchItem, type WatchType } from '@/lib/watchlist';
 import { loadWatchlist, refreshWatchlist, saveWatchlist } from '@/lib/watchlistStorage';
 import { lookupStock, searchFunds, type FundResult } from '@/hooks/useHoldings';
-import { Colors, Spacing, Typography } from '@/constants/theme';
+import { Colors, Spacing, Typography, Btn } from '@/constants/theme';
 
 const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
@@ -113,8 +113,8 @@ export default function WatchlistScreen() {
 }
 
 const s = StyleSheet.create({
-  btn: { minHeight: 44, justifyContent: 'center', backgroundColor: Colors.cyan, borderRadius: 12, paddingVertical: 12, alignItems: 'center', marginTop: Spacing.xs },
-  btnTxt: { color: '#000', fontWeight: '900', fontSize: 14 },
+  btn: { ...Btn.base, backgroundColor: Colors.cyan, marginTop: Spacing.xs },
+  btnTxt: { ...Btn.text, color: '#000' },
   fund: { minHeight: 44, borderWidth: 1, borderColor: Colors.border, borderRadius: 12, padding: 10, marginTop: 8 },
   top: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   open: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
