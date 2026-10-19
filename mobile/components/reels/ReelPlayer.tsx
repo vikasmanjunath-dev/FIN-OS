@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, PixelRatio, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AccessibilityInfo, AppState, PixelRatio, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Svg from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from '@/components/Gradient';
@@ -9,9 +9,11 @@ import { AREA, Scenery } from '@/components/reels/Scenery';
 import { Poke } from '@/components/reels/Poke';
 import { AskSheet } from '@/components/reels/AskSheet';
 import { TrustSheet } from '@/components/reels/TrustSheet';
-import { pokeStart } from '@/lib/reels/beats';
+import { BeatBoundary } from '@/components/reels/BeatBoundary';
+import { isBeatUsable, pokeStart } from '@/lib/reels/beats';
 import { momentAt, sceneStarts, totalMs } from '@/lib/reels/engine';
 import { trustFor } from '@/lib/reels/trust';
+import { quizText, quizVerdictText } from '@/lib/reels/narration';
 import { speak, stopSpeaking } from '@/lib/reels/speech';
 import type { Reel, Topic } from '@/lib/reels/types';
 import type { Lang } from '@/lib/i18nCore';
@@ -37,13 +39,16 @@ export function ReelPlayer({ reel, active, lang, sound, width, height, topInset 
   const insets = useSafeAreaInsets();
   const [calm, setCalm] = useState(false);                                // the phone asks for less motion
   const last = useRef(0);
+  const segW = useRef(1);
   const total = totalMs(reel);
   const m = momentAt(reel, t);
   const done = m.done;
-  const pokeAt = pokeStart(reel);
+  const pokeAt = useMemo(() => (isBeatUsable(reel) ? pokeStart(reel) : null), [reel]);        // a broken beat is skipped, not shown
   const trust = trustFor(reel.id, !!reel.mine);
 
   useEffect(() => { AccessibilityInfo.isReduceMotionEnabled().then(setCalm).catch(() => {}); }, []);
+  // Leaving the app pauses the reel and silences the voice; coming back, the person taps to play on.
+  useEffect(() => { const sub = AppState.addEventListener('change', st => { if (st !== 'active') { setPlaying(false); stopSpeaking(); } }); return () => sub.remove(); }, []);
 
   // Each time the reel comes on screen it starts again from the beginning.
   useEffect(() => { if (active) { setT(0); setPlaying(true); setPicked(null); setPoking(false); setPokeDone(false); setTrustOpen(false); setAskOpen(false); setSteered(null); last.current = Date.now(); } else stopSpeaking(); }, [active]);
@@ -69,6 +74,12 @@ export function ReelPlayer({ reel, active, lang, sound, width, height, topInset 
     return () => stopSpeaking();
   }, [active, sound, playing, done, poking, sheetOpen, idx, lang, reel]);
   useEffect(() => stopSpeaking, []);
+  // On the question screen the voice reads the question and its options, then, once answered, whether it was right and why.
+  useEffect(() => {
+    if (!active || !sound || !done || sheetOpen) return;
+    const id = setTimeout(() => speak(picked === null ? quizText(reel, lang) : quizVerdictText(reel, picked, lang), lang), 250);
+    return () => { clearTimeout(id); stopSpeaking(); };
+  }, [active, sound, done, picked, sheetOpen, lang, reel]);
 
   const jump = useCallback((i: number) => { setT(sceneStarts(reel)[i]); setPlaying(true); setPicked(null); setPoking(false); setPokeDone(reel.poke ? i > reel.poke.after : false); }, [reel]);
   const finishPoke = useCallback((r: { engaged: boolean }) => { onPoke?.(reel.id, r.engaged); setPoking(false); setPokeDone(true); setT(t0 => t0 + 1); setPlaying(true); }, [onPoke, reel.id]);
@@ -85,18 +96,24 @@ export function ReelPlayer({ reel, active, lang, sound, width, height, topInset 
 
   return (
     <View style={[s.page, { width, paddingTop: topInset }]}>
-      <View style={s.segments} accessibilityRole="progressbar" accessibilityLabel={`Scene ${idx + 1} of ${reel.scenes.length}`}>
+      {/* One tall, full-width control instead of a button per segment: a tap jumps to the scene under the finger, and a screen reader steps scenes with
+          increment and decrement. A reel with seven scenes would otherwise have buttons too narrow to hit. */}
+      <Pressable
+        style={s.segments} accessibilityRole="adjustable" accessibilityLabel={lang === 'hi' ? 'दृश्य' : 'Scene'} accessibilityValue={{ text: lang === 'hi' ? `${reel.scenes.length} में से ${idx + 1}` : `${idx + 1} of ${reel.scenes.length}` }}
+        accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
+        onAccessibilityAction={e => jump(Math.min(reel.scenes.length - 1, Math.max(0, idx + (e.nativeEvent.actionName === 'increment' ? 1 : -1))))}
+        onLayout={e => { segW.current = e.nativeEvent.layout.width; }}
+        onPress={e => { const i = Math.floor((e.nativeEvent.locationX / Math.max(1, segW.current)) * reel.scenes.length); jump(Math.min(reel.scenes.length - 1, Math.max(0, i))); }}>
         {reel.scenes.map((x, i) => (
-          <Pressable key={i} onPress={() => jump(i)} accessibilityRole="button" accessibilityLabel={`Go to scene ${i + 1}`} style={s.segHit}>
-            <View style={s.seg}><View style={[s.segFill, { width: `${i < idx || done ? 100 : i === idx ? m.p * 100 : 0}%` }]} /></View>
-          </Pressable>
+          <View key={i} style={s.seg} pointerEvents="none"><View style={[s.segFill, { width: `${i < idx || done ? 100 : i === idx ? m.p * 100 : 0}%` }]} /></View>
         ))}
-      </View>
-      <Text style={s.title} maxFontSizeMultiplier={1.3}>{reel.title[lang]}</Text>
-      {reason && !done ? <Text style={s.reason} numberOfLines={3} maxFontSizeMultiplier={1.2}>{`✨ ${reason}`}</Text> : null}
+      </Pressable>
+      {/* while a beat is on, the reel's title is hidden: the beat needs the room, most of all at large text */}
+      {poking ? null : <Text style={s.title} maxFontSizeMultiplier={1.3}>{reel.title[lang]}</Text>}
+      {reason && !done && !poking ? <Text style={s.reason} numberOfLines={3} maxFontSizeMultiplier={1.2}>{`✨ ${reason}`}</Text> : null}
 
       {poking && reel.poke ? (
-        <Poke beat={reel.poke.beat} lang={lang} onDone={finishPoke} />
+        <BeatBoundary onFail={() => finishPoke({ engaged: false })}><Poke beat={reel.poke.beat} lang={lang} sound={sound} onDone={finishPoke} /></BeatBoundary>
       ) : !done ? (
         <>
         <Pressable onPress={() => setPlaying(p => !p)} style={s.body} accessibilityRole="button" accessibilityLabel={playing ? 'Pause' : 'Play'}>
@@ -181,9 +198,8 @@ function PillRow({ lang, onTrust, onAsk }: { lang: Lang; onTrust: (() => void) |
 
 const s = StyleSheet.create({
   page: { flex: 1, paddingHorizontal: Spacing.lg, overflow: 'hidden' },
-  segments: { flexDirection: 'row', gap: 4, marginBottom: 2 },
-  segHit: { flex: 1, minHeight: 20, justifyContent: 'center' },
-  seg: { height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.18)', overflow: 'hidden' },
+  segments: { flexDirection: 'row', alignItems: 'center', gap: 4, minHeight: 44 },
+  seg: { flex: 1, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.18)', overflow: 'hidden' },
   segFill: { height: 4, backgroundColor: '#fff' },
   title: { color: Colors.textMuted, fontSize: 12, fontWeight: '700', letterSpacing: 0.4, marginTop: 4, marginBottom: Spacing.sm },
   reason: { color: '#C4B5FD', fontSize: 12, fontWeight: '700', marginBottom: Spacing.xs },
@@ -201,7 +217,7 @@ const s = StyleSheet.create({
   pauseGlyph: { color: '#fff', fontSize: 54 },
   caption: { color: '#fff', fontSize: 22, lineHeight: 31, fontWeight: '800', textAlign: 'center', marginTop: Spacing.md, minHeight: 66 },
   hint: { color: Colors.textDim, fontSize: 12, textAlign: 'center', marginTop: Spacing.sm },
-  quizScroll: { flex: 1 },
+  quizScroll: { flex: 1, minHeight: 0 },
   quiz: { flexGrow: 1, justifyContent: 'center', paddingBottom: 40 },
   quizTag: { color: Colors.cyan, fontSize: 11, fontWeight: '800', letterSpacing: 1, marginBottom: Spacing.sm },
   quizQ: { color: '#fff', fontSize: 22, lineHeight: 30, fontWeight: '800', marginBottom: Spacing.lg },

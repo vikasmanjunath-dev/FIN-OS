@@ -14,16 +14,18 @@ export interface DayStats {
   /** receipts earned (a figure really improved) */ receipts: number;
   /** Ask Mitra questions */ asks: number;
   /** milliseconds with the reels on screen */ ms: number;
+  /** today's episodes opened (a visit to the For you tab with reels in it) */ eps: number;
+  /** of those, finished: every reel in the episode answered */ epfin: number;
 }
 export type StatField = keyof DayStats;
-export const FIELDS: StatField[] = ['fin', 'right', 'poke', 'engaged', 'know', 'less', 'moves', 'receipts', 'asks', 'ms'];
+export const FIELDS: StatField[] = ['fin', 'right', 'poke', 'engaged', 'know', 'less', 'moves', 'receipts', 'asks', 'ms', 'eps', 'epfin'];
 export interface StatsState { v: 1; days: Record<string, DayStats> }
 export const EMPTY_STATS: StatsState = { v: 1, days: {} };
 
 export const KEEP_DAYS = 90;
 const DAY_KEY = /^\d{4}-\d{2}-\d{2}$/;
-const CAP: Record<StatField, number> = { fin: 500, right: 500, poke: 500, engaged: 500, know: 500, less: 500, moves: 500, receipts: 500, asks: 500, ms: 24 * 3_600_000 };
-const blank = (): DayStats => ({ fin: 0, right: 0, poke: 0, engaged: 0, know: 0, less: 0, moves: 0, receipts: 0, asks: 0, ms: 0 });
+const CAP: Record<StatField, number> = { fin: 500, right: 500, poke: 500, engaged: 500, know: 500, less: 500, moves: 500, receipts: 500, asks: 500, ms: 24 * 3_600_000, eps: 500, epfin: 500 };
+const blank = (): DayStats => ({ fin: 0, right: 0, poke: 0, engaged: 0, know: 0, less: 0, moves: 0, receipts: 0, asks: 0, ms: 0, eps: 0, epfin: 0 });
 const clean = (n: unknown, cap: number): number => (typeof n === 'number' && Number.isFinite(n) && n > 0 ? Math.min(cap, Math.floor(n)) : 0);
 
 export function parseStats(raw: string | null | undefined): StatsState {
@@ -35,7 +37,7 @@ export function parseStats(raw: string | null | undefined): StatsState {
     const d = blank();
     for (const f of FIELDS) d[f] = clean((v as Record<string, unknown>)[f], CAP[f]);
     // a count of "right" or "engaged" can never exceed what it is a part of
-    d.right = Math.min(d.right, d.fin); d.engaged = Math.min(d.engaged, d.poke);
+    d.right = Math.min(d.right, d.fin); d.engaged = Math.min(d.engaged, d.poke); d.epfin = Math.min(d.epfin, d.eps);
     days[k] = d;
   }
   return { v: 1, days: trim(days) };
@@ -51,7 +53,7 @@ export function bump(state: StatsState, day: string, field: StatField, n = 1): S
   if (!DAY_KEY.test(day) || !(n > 0) || !FIELDS.includes(field)) return state;
   const d = { ...(state.days[day] ?? blank()) };
   d[field] = clean(d[field] + n, CAP[field]);
-  d.right = Math.min(d.right, d.fin); d.engaged = Math.min(d.engaged, d.poke);
+  d.right = Math.min(d.right, d.fin); d.engaged = Math.min(d.engaged, d.poke); d.epfin = Math.min(d.epfin, d.eps);
   return { v: 1, days: trim({ ...state.days, [day]: d }) };
 }
 
@@ -72,6 +74,8 @@ export interface Health {
   /** The median minutes with the reels on screen, over days they were used. */
   medianMinutes: number | null;
   asks: number;
+  /** Share of episodes opened that were finished, or null when none were opened. */
+  episodeFinish: number | null;
 }
 
 const day = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -93,11 +97,13 @@ export function healthOf(state: StatsState, now: Date, windowDays = 28): Health 
     steeringPer100: fin ? ((sum('know') + sum('less')) / fin) * 100 : null,
     medianMinutes: median,
     asks: sum('asks'),
+    episodeFinish: sum('eps') ? sum('epfin') / sum('eps') : null,
   };
 }
 
 /** The blueprint's starting hypotheses, to be reset after a baseline. `ok` says whether a value is on the right side of its line. */
 export const HYPOTHESES = {
+  episodeFinish: { en: '70% or more', hi: '70% या ज़्यादा', ok: (v: number) => v >= 0.7 },
   activeDays: { en: '8 or more in 28', hi: '28 में 8 या ज़्यादा', ok: (v: number) => v >= 8 },
   movesPer100: { en: '15 or more per 100 reels', hi: '100 रीलों पर 15 या ज़्यादा', ok: (v: number) => v >= 15 },
   steeringPer100: { en: 'under 8 per 100 reels', hi: '100 रीलों पर 8 से कम', ok: (v: number) => v < 8 },

@@ -11,6 +11,12 @@ export const IDLE_MS = 8000;
 /** After an automatic reveal the reel plays on by itself once this much reading time has passed. */
 export const AUTO_CONTINUE_MS = 6000;
 
+/** Whether a reel's beat is sound enough to show: it passes the same rules the tests hold every beat to. A reel whose beat fails them simply plays without it. */
+export function isBeatUsable(r: Reel): boolean {
+  if (!r.poke) return false;
+  try { return pokeStart(r) !== null && validateBeat(r.poke.beat).length === 0; } catch { return false; }
+}
+
 /** The moment on the reel's clock at which the beat takes over, just before the next scene begins; null for a reel with no beat. */
 export function pokeStart(r: Reel): number | null {
   if (!r.poke) return null;
@@ -105,7 +111,8 @@ const yearsText = (n: number, lang: 'en' | 'hi'): string => { const v = n >= FOR
 export function sliderLine(b: Extract<Beat, { kind: 'slider' }>, x: number): L {
   const f = evalModel(b.model, x);
   const fmt = (n: number): L => (f.years ? { en: yearsText(n, 'en'), hi: yearsText(n, 'hi') } : money(n));
-  const vals: Record<string, L> = { x: { en: xText(b, x, 'en'), hi: xText(b, x, 'hi') }, value: fmt(f.value), put: money(f.put), base: fmt(f.base), lost: money(Math.abs(f.lost)), diff: fmt(f.diff) };
+  const xs = (lang: 'en' | 'hi'): string => (b.xFormat === 'inr' ? money(x)[lang] : b.unit[lang].startsWith('%') ? `${x}%` : String(x));      // a plain number, so a template can write "{x} years late"; rupees and percentages carry their sign
+  const vals: Record<string, L> = { x: { en: xs('en'), hi: xs('hi') }, xu: { en: xText(b, x, 'en'), hi: xText(b, x, 'hi') }, value: fmt(f.value), put: money(f.put), base: fmt(f.base), lost: money(Math.abs(f.lost)), diff: fmt(f.diff) };
   const run = (s: string, lang: 'en' | 'hi') => s.replace(/\{(\w+)\}/g, (_, k) => vals[k]?.[lang] ?? '');
   return { en: run(b.takeaway.en, 'en'), hi: run(b.takeaway.hi, 'hi') };
 }
@@ -183,7 +190,7 @@ export function scoreOrder(chosen: number[], total: number): { right: number; to
 
 // ── rules ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const SLIDER_KEYS = new Set(['x', 'value', 'put', 'base', 'lost', 'diff']);
+const SLIDER_KEYS = new Set(['x', 'xu', 'value', 'put', 'base', 'lost', 'diff']);
 
 /** Every text in a beat, for the same language, wording and fit checks the scenes get. */
 export function beatTexts(b: Beat): L[] {

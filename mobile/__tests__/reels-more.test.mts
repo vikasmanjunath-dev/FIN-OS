@@ -10,12 +10,13 @@ import { blindSpot, rankReelsV2 } from '../lib/reels/ranker.ts';
 import { composeEpisode } from '../lib/reels/episode.ts';
 import { deriveSignals } from '../lib/reels/signals.ts';
 import { PLAY_REELS } from '../lib/reels/content-play.ts';
+import { askText, cardText, quizText, quizVerdictText, revealText, speakable } from '../lib/reels/narration.ts';
 import { EMPTY_STATS, FIELDS, HYPOTHESES, KEEP_DAYS, bump, healthOf, parseStats } from '../lib/reels/stats.ts';
 import * as privacy from '../lib/privacy.ts';
 import fs from 'node:fs';
 import nodePath from 'node:path';
 import { CHALLENGES, EMPTY_CHALLENGES, STALE_DAYS, challengeById, completeToday, isFinished, parseChallenges, pruneStale, runOf, startChallenge, todayOf } from '../lib/reels/challenges.ts';
-import { FOREVER_YEARS, evalModel, orderDeck, scoreOrder, scoreSort, scoreSpot, sliderBars, sliderLine, spotMessage, validateBeat, xText } from '../lib/reels/beats.ts';
+import { FOREVER_YEARS, evalModel, isBeatUsable, orderDeck, scoreOrder, scoreSort, scoreSpot, sliderBars, sliderLine, spotMessage, validateBeat, xText } from '../lib/reels/beats.ts';
 import { CAST_IDS } from '../lib/reels/cast.ts';
 import type { SliderModel } from '../lib/reels/types.ts';
 import { monthsToDeplete, sipFutureValue as sipFV, sipNeeded, stepUpSipFutureValue, unpaidBalance } from '../lib/reels/figures.ts';
@@ -224,14 +225,14 @@ test('health counters: bumping adds, bounds, ignores bad input and never lets a 
   assert.equal(bump(EMPTY_STATS, '2026-10-19', 'ms', 1e12).days['2026-10-19'].ms, 24 * 3_600_000, 'a day cannot hold more than 24 hours');
   let many = EMPTY_STATS; for (let i = 0; i < KEEP_DAYS + 30; i++) many = bump(many, dk(2026, 1 + Math.floor(i / 28), 1 + (i % 28)), 'fin');
   assert.equal(Object.keys(many.days).length, KEEP_DAYS, 'only the last 90 days are kept');
-  assert.ok(FIELDS.length === 10);
+  assert.ok(FIELDS.length === 12);
 });
 
 test('health counters: stored values are cleaned on the way in', () => {
   assert.deepEqual(parseStats('garbage'), EMPTY_STATS); assert.deepEqual(parseStats(null), EMPTY_STATS);
   const p = parseStats(JSON.stringify({ days: { '2026-10-19': { fin: 3, right: 9, poke: 2, engaged: 1, ms: -5, asks: 'x', extra: 1 }, bad: { fin: 1 }, '2026-10-20': 'no' } }));
   assert.deepEqual(Object.keys(p.days), ['2026-10-19']);
-  assert.deepEqual(p.days['2026-10-19'], { fin: 3, right: 3, poke: 2, engaged: 1, know: 0, less: 0, moves: 0, receipts: 0, asks: 0, ms: 0 });
+  assert.deepEqual(p.days['2026-10-19'], { fin: 3, right: 3, poke: 2, engaged: 1, know: 0, less: 0, moves: 0, receipts: 0, asks: 0, ms: 0, eps: 0, epfin: 0 });
 });
 
 test('health: the 28-day figures, with known answers, and null where nothing was counted', () => {
@@ -248,10 +249,14 @@ test('health: the 28-day figures, with known answers, and null where nothing was
   assert.equal(h.rightRate, 0.6); assert.equal(h.pokeRate, 0.5);
   assert.equal(h.movesPer100, 20); assert.equal(h.steeringPer100, 20); assert.equal(h.receipts, 1); assert.equal(h.asks, 3);
   assert.equal(h.medianMinutes, 4, 'median of 2, 4 and 10 minutes');
+  assert.equal(h.episodeFinish, null, 'no episodes were opened');
+  const e = healthOf(bump(bump(bump(s, '2026-10-19', 'eps', 4), '2026-10-19', 'epfin', 3), '2026-10-18', 'epfin', 5), new Date(2026, 9, 19));
+  assert.equal(e.episodeFinish, 0.75, 'epfin cannot exceed eps on a day: 3 of 4 on the 19th, and a stray finish on a day with none opened is dropped');
   assert.equal(healthOf(s, new Date(2026, 9, 19), 90).finished, 60, 'a longer window includes older days');
 });
 
 test('health: the starting hypotheses say which side of the line a value is on', () => {
+  assert.equal(HYPOTHESES.episodeFinish.ok(0.7), true); assert.equal(HYPOTHESES.episodeFinish.ok(0.69), false);
   assert.equal(HYPOTHESES.activeDays.ok(8), true); assert.equal(HYPOTHESES.activeDays.ok(7), false);
   assert.equal(HYPOTHESES.movesPer100.ok(15), true); assert.equal(HYPOTHESES.movesPer100.ok(14.9), false);
   assert.equal(HYPOTHESES.steeringPer100.ok(7.9), true); assert.equal(HYPOTHESES.steeringPer100.ok(8), false);
@@ -424,4 +429,87 @@ test('cast members: a scene may name one, the player knows the six, and the new 
   assert.ok(r.scenes.some(sc => sc.who === 'aarav')); assert.deepEqual(validateReel(r), []);
   const bad = { ...r, scenes: r.scenes.map((sc, i) => (i === 0 ? { ...sc, who: 'nobody' as never } : sc)) };
   assert.ok(validateReel(bad).some(m => /cast member/.test(m)));
+});
+
+test('slider takeaways read cleanly at every position of every slider in the library (no doubled words, {x} is a plain number)', () => {
+  let checked = 0;
+  for (const r of LIBRARY) {
+    const b = r.poke?.beat;
+    if (!b || b.kind !== 'slider') continue;
+    for (let x = b.min; x <= b.max + 1e-9; x += b.step) {
+      const l = sliderLine(b, x);
+      for (const lang of ['en', 'hi'] as const) {
+        assert.ok(!/(?:^|\s)(\S{3,})\s+\1(?=[\s.,:;]|$)/.test(l[lang]), `${r.id} at ${x}: a doubled word in "${l[lang]}"`);
+        assert.ok(!/NaN|undefined|Infinity|\{\w+\}/.test(l[lang]), `${r.id} at ${x}: ${l[lang]}`);
+      }
+    }
+    checked++;
+  }
+  assert.ok(checked >= 8, `only ${checked} sliders checked`);
+  const delay = play('delay-cost').poke!.beat as Extract<Beat, { kind: 'slider' }>;
+  assert.match(sliderLine(delay, 5).en, /^Start 5 years late:/);
+  const goal = play('goal-sip-slide').poke!.beat as Extract<Beat, { kind: 'slider' }>;
+  assert.match(sliderLine(goal, 7).en, /in 7 years, you would save/);
+});
+
+// ── the voice ────────────────────────────────────────────────────────────────────────────────────────────────
+
+test('speakable: amounts are said as rupees, in either language, and symbols a voice would spell out are dropped', () => {
+  assert.equal(speakable('About ₹1.75 crore. You put in ₹18 lakh and ₹5,000 a month.'), 'About 1.75 crore rupees. You put in 18 lakh rupees and 5,000 rupees a month.');
+  assert.equal(speakable('लगभग ₹1.75 करोड़। आपने ₹18 लाख लगाए।'), 'लगभग 1.75 करोड़ रुपये। आपने 18 लाख रुपये लगाए।');
+  assert.equal(speakable('⚑ A threat and a deadline.'), 'A threat and a deadline.');
+  assert.equal(speakable('  many   spaces  '), 'many spaces');
+});
+
+test('narration: every beat in the library can be read aloud, in both languages, with nothing unspeakable left in it', () => {
+  let beats = 0;
+  for (const r of LIBRARY) {
+    const b = r.poke?.beat;
+    if (!b) continue;
+    beats++;
+    for (const lang of ['en', 'hi'] as const) {
+      const texts = [askText(b, lang), revealText(b, lang)];
+      if (b.kind === 'myth' || b.kind === 'sort') for (let i = 0; i < b.cards.length; i++) { texts.push(cardText(b, i, lang)); texts.push(revealText(b, lang, { card: i, picked: b.kind === 'myth' ? true : 0 })); texts.push(revealText(b, lang, { card: i, picked: null })); }
+      if (b.kind === 'path') for (let i = 0; i < b.options.length; i++) texts.push(revealText(b, lang, { picked: i }));
+      if (b.kind === 'slider') for (let x = b.min; x <= b.max + 1e-9; x += b.step * 4) texts.push(revealText(b, lang, { x }));
+      for (const t of texts) {
+        assert.ok(t.length > 5, `${r.id} (${lang}) has an empty line`);
+        assert.ok(!/[₹⚑]|\{\w+\}|NaN|undefined|Infinity/.test(t), `${r.id} (${lang}): "${t}"`);
+        if (lang === 'hi') assert.ok(/[ऀ-ॿ]/.test(t), `${r.id}: Hindi narration has no Devanagari: "${t}"`);
+      }
+    }
+  }
+  assert.ok(beats >= 20, `only ${beats} beats checked`);
+});
+
+test('narration: what is said for specific beats, and for the quiz', () => {
+  const spot = play('spot-kyc-sms').poke!.beat;
+  assert.match(askText(spot, 'en'), /Dear customer, your KYC needs an update\. Do it right now/);
+  assert.match(revealText(spot, 'en'), /A threat and a deadline\..*OTP.*Do not click, reply or share the OTP/);
+  assert.doesNotMatch(revealText(spot, 'en'), /Dear customer/, 'the reveal reads the reasons, not the whole message again');
+  const myth = play('myths-money').poke!.beat;
+  assert.match(askText(myth, 'en'), /^Myth or fact\? A higher salary/);
+  assert.match(revealText(myth, 'en', { card: 0, picked: true }), /^Not quite\. It is a myth\./);
+  assert.match(revealText(myth, 'en', { card: 1, picked: true }), /^Right\. It is a fact\./);
+  assert.match(revealText(myth, 'en', { card: 1, picked: null }), /^It is a fact\./, 'a reveal nobody answered does not say right or wrong');
+  const path = play('choose-bonus').poke!.beat;
+  assert.match(askText(path, 'en'), /Option 1\. Prepay the car loan\..*Option 4\./);
+  assert.match(revealText(path, 'en', { picked: 1 }), /^At an assumed 12% a year, 2 lakh rupees could grow.*no single winner/);
+  const r = play('guess-sip');
+  assert.match(quizText(r, 'en'), /^How much of the final amount was growth.*Option 1\. About 10%\. Option 2\. About half\. Option 3\. About 90%\./);
+  assert.match(quizVerdictText(r, 2, 'en'), /^Right! Deposits were/);
+  assert.match(quizVerdictText(r, 0, 'en'), /^Not quite\. Deposits were/);
+  assert.match(quizVerdictText(r, 0, 'hi'), /^लगभग!/);
+  for (const reel of LIBRARY) { const t = quizText(reel, 'hi'); assert.ok(/विकल्प 1/.test(t) && !/[₹]/.test(t), reel.id); }
+});
+
+test('a reel whose beat is broken plays without it instead of showing it', () => {
+  assert.equal(isBeatUsable({ ...play('guess-sip'), poke: undefined }), false);
+  for (const r of LIBRARY) if (r.poke) assert.equal(isBeatUsable(r), true, `${r.id} has a beat that would be skipped`);
+  const g = play('guess-sip'), beat = g.poke!.beat as Extract<Beat, { kind: 'guess' }>;
+  assert.equal(isBeatUsable({ ...g, poke: { ...g.poke!, beat: { ...beat, answer: beat.max * 3 } } }), false, 'an answer outside the scale');
+  assert.equal(isBeatUsable({ ...g, poke: { ...g.poke!, after: 99 } }), false, 'a pause point past the end');
+  const sl = play('delay-cost'), sb = sl.poke!.beat as Extract<Beat, { kind: 'slider' }>;
+  assert.equal(isBeatUsable({ ...sl, poke: { ...sl.poke!, beat: { ...sb, model: { kind: 'emi-rate', principal: NaN, years: 20, rate0: 8 } } } }), false, 'a model that gives broken figures');
+  assert.equal(isBeatUsable({ ...sl, poke: { ...sl.poke!, beat: { ...sb, model: null as never } } }), false, 'a beat that makes the checker itself throw');
 });

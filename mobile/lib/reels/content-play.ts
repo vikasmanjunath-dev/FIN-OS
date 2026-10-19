@@ -390,7 +390,7 @@ const goalSipSlide: Reel = {
     after: 1,
     beat: { kind: 'slider', q: t('Drag the years to see the monthly amount.', 'साल खिसकाकर देखें कि महीने की रकम कितनी बनती है।'), label: t('Years until the goal', 'लक्ष्य तक के साल'), unit: t('years', 'साल'), min: 3, max: 15, step: 1, start: 7,
       model: { kind: 'goal-sip', target: GS.target, rate: GS.rate },
-      takeaway: t('To reach {base} in {x}, you would save about {value} a month, putting in {put}. The rest is assumed growth.', '{x} में {base} पाने के लिए आपको लगभग {value} महीना बचाना होगा, यानी {put} आप लगाते हैं। बाक़ी अनुमानित बढ़त है।') },
+      takeaway: t('To reach {base} in {x} years, you would save about {value} a month, putting in {put}. The rest is assumed growth.', '{x} साल में {base} पाने के लिए आपको लगभग {value} महीना बचाना होगा, यानी {put} आप लगाते हैं। बाक़ी अनुमानित बढ़त है।') },
   },
   quiz: { q: t('Why does a longer time make the monthly amount smaller?', 'ज़्यादा समय से मासिक रकम छोटी क्यों हो जाती है?'),
     options: [t('Growth has longer to do the work', 'बढ़त को काम करने का ज़्यादा समय मिलता है'), t('The goal gets smaller', 'लक्ष्य छोटा हो जाता है'), t('Banks lower the price', 'बैंक क़ीमत घटा देते हैं')], answer: 0,

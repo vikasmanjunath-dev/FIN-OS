@@ -20,6 +20,7 @@ export default function ReelsHealth() {
   const rows: { label: string; value: string; target?: { en: string; hi: string }; ok?: boolean }[] = [
     { label: hi ? 'रील वाले दिन (28 में)' : 'Days with a reel (of 28)', value: String(h.activeDays), target: HYPOTHESES.activeDays, ok: HYPOTHESES.activeDays.ok(h.activeDays) },
     { label: hi ? 'पूरी की गई रीलें' : 'Reels finished', value: String(h.finished) },
+    { label: hi ? 'पूरे किए गए एपिसोड' : 'Episodes finished', value: pct(h.episodeFinish), target: HYPOTHESES.episodeFinish, ok: h.episodeFinish === null ? undefined : HYPOTHESES.episodeFinish.ok(h.episodeFinish) },
     { label: hi ? 'पहली बार में सही जवाब' : 'Right first time', value: pct(h.rightRate) },
     { label: hi ? 'इंटरैक्टिव हिस्से में भागीदारी' : 'Played with the interactive part', value: pct(h.pokeRate) },
     { label: hi ? 'हर 100 रीलों पर शुरू किए काम' : 'Moves started per 100 reels', value: num(h.movesPer100), target: HYPOTHESES.movesPer100, ok: h.movesPer100 === null ? undefined : HYPOTHESES.movesPer100.ok(h.movesPer100) },

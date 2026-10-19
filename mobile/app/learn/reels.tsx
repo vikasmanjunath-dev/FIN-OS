@@ -48,7 +48,7 @@ export default function ReelsScreen() {
   const markBlind = j.markBlind;
   const [order, setOrder] = useState<Ranked[] | null>(null);               // the personalised order is fixed for this visit, so a finished reel never jumps
   const [episode, setEpisode] = useState<Episode | null>(null);          // today's episode is fixed for this visit too
-  useEffect(() => { if (j.loaded && !order) { setOrder(j.ranked); const now = new Date(); const ep = composeEpisode(j.ranked, Math.max(0, EPISODE_SIZE - finishedToday(j.watched, now)), blindSpot(j.ranked, j.signals, j.profile, now)); setEpisode(ep); if (ep.blind) markBlind(weekKey(now)); } }, [j.loaded, j.ranked, j.watched, j.signals, j.profile, markBlind, order]);
+  useEffect(() => { if (j.loaded && !order) { setOrder(j.ranked); const now = new Date(); const ep = composeEpisode(j.ranked, Math.max(0, EPISODE_SIZE - finishedToday(j.watched, now)), blindSpot(j.ranked, j.signals, j.profile, now)); setEpisode(ep); if (ep.picks.length > 0) recordStat('eps'); if (ep.blind) markBlind(weekKey(now)); } }, [j.loaded, j.ranked, j.watched, j.signals, j.profile, markBlind, order]);
   const [topic, setTopic] = useState<Tab>(id ? 'all' : 'foryou');
   const library = useMemo(() => { const by = Object.fromEntries((order ?? []).map(o => [o.reel.id, o.reel])); return LIBRARY.map(r => by[r.id] ?? r); }, [order]);   // fixed with the order, so nothing changes under the person's thumb
   const reels: Item[] = useMemo(() => (topic === 'foryou' ? [...(episode?.picks ?? []).map(r => r.reel), END] : topic === 'all' ? library : library.filter(r => r.topic === topic)), [topic, episode, library]);
@@ -77,7 +77,14 @@ export default function ReelsScreen() {
     if (v && typeof v.index === 'number') setActive(v.index);
   }).current;
 
-  const answered = useCallback((rid: string, correct: boolean) => { Haptics.notificationAsync(correct ? Haptics.NotificationFeedbackType.Success : Haptics.NotificationFeedbackType.Warning).catch(() => {}); recordStat('fin'); if (correct) recordStat('right'); recordWatched(rid, correct).then(() => reloadJourney()); }, [reloadJourney]);
+  // An episode counts as finished once every reel in it has been answered in this visit.
+  const answeredIds = useRef(new Set<string>());
+  const episodeDone = useRef(false);
+  const noteEpisodeProgress = useCallback((rid: string) => {
+    answeredIds.current.add(rid);
+    if (!episodeDone.current && episode && episode.picks.length > 0 && episode.picks.every(p => answeredIds.current.has(p.reel.id))) { episodeDone.current = true; recordStat('epfin'); }
+  }, [episode]);
+  const answered = useCallback((rid: string, correct: boolean) => { Haptics.notificationAsync(correct ? Haptics.NotificationFeedbackType.Success : Haptics.NotificationFeedbackType.Warning).catch(() => {}); recordStat('fin'); if (correct) recordStat('right'); noteEpisodeProgress(rid); recordWatched(rid, correct).then(() => reloadJourney()); }, [reloadJourney, noteEpisodeProgress]);
   const next = useCallback(() => { if (active < reels.length - 1) list.current?.scrollToIndex({ index: active + 1, animated: true }); else router.back(); }, [active, reels.length]);
   const pick = useCallback((k: Tab) => { stopSpeaking(); startDone.current = true; setTopic(k); setActive(0); list.current?.scrollToOffset({ offset: 0, animated: false }); }, []);
   const actFor = (rid: string) => { const a = ACT_ALL[rid]; return a ? { label: a.label[lang], onPress: () => { j.beginMove(rid); router.push(a.href as any); } } : null; };

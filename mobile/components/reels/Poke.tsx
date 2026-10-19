@@ -3,6 +3,8 @@ import { PanResponder, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity
 import * as Haptics from 'expo-haptics';
 import { AUTO_CONTINUE_MS, IDLE_MS, orderDeck, posToValue, scoreGuess, scoreMyth, scoreOrder, scoreSort, scoreSpot, sliderBars, sliderLine, valueToPos, xText } from '@/lib/reels/beats';
 import { money } from '@/lib/reels/figures';
+import { askText, cardText, revealText } from '@/lib/reels/narration';
+import { speak, stopSpeaking } from '@/lib/reels/speech';
 import type { Beat } from '@/lib/reels/types';
 import type { Lang } from '@/lib/i18nCore';
 import { Colors, Radii, Spacing } from '@/constants/theme';
@@ -15,11 +17,13 @@ const ok = (good: boolean) => { Haptics.notificationAsync(good ? Haptics.Notific
 const hi = (lang: Lang, en: string, h: string) => (lang === 'hi' ? h : en);
 
 /** The beat in the middle of a reel. It replaces the picture while it is on screen, and calls `onDone` when the reel should play on. */
-export function Poke({ beat, lang, onDone }: { beat: Beat; lang: Lang; onDone: (r: PokeResult) => void }) {
+export function Poke({ beat, lang, sound = false, onDone }: { beat: Beat; lang: Lang; sound?: boolean; onDone: (r: PokeResult) => void }) {
+  const scroll = useRef<ScrollView>(null);
+  const box = useRef(0);          // when the content outgrows the screen (a reveal), keep the end, and its Continue button, in view
   return (
-    <ScrollView style={s.scroll} contentContainerStyle={s.wrap} nestedScrollEnabled showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+    <ScrollView ref={scroll} style={s.scroll} contentContainerStyle={s.wrap} onLayout={e => { box.current = e.nativeEvent.layout.height; }} onContentSizeChange={(_, h) => { if (h > box.current + 4 && box.current > 0) scroll.current?.scrollToEnd({ animated: true }); }} nestedScrollEnabled showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
       <Text style={s.tag}>{hi(lang, 'YOUR TURN', 'आपकी बारी')}</Text>
-      {beat.kind === 'guess' ? <GuessBeat beat={beat} lang={lang} onDone={onDone} /> : beat.kind === 'slider' ? <SliderBeat beat={beat} lang={lang} onDone={onDone} /> : beat.kind === 'spot' ? <SpotBeat beat={beat} lang={lang} onDone={onDone} /> : beat.kind === 'path' ? <PathBeat beat={beat} lang={lang} onDone={onDone} /> : beat.kind === 'sort' ? <SortBeat beat={beat} lang={lang} onDone={onDone} /> : beat.kind === 'order' ? <OrderBeat beat={beat} lang={lang} onDone={onDone} /> : <MythBeat beat={beat} lang={lang} onDone={onDone} />}
+      {beat.kind === 'guess' ? <GuessBeat beat={beat} lang={lang} sound={sound} onDone={onDone} /> : beat.kind === 'slider' ? <SliderBeat beat={beat} lang={lang} sound={sound} onDone={onDone} /> : beat.kind === 'spot' ? <SpotBeat beat={beat} lang={lang} sound={sound} onDone={onDone} /> : beat.kind === 'path' ? <PathBeat beat={beat} lang={lang} sound={sound} onDone={onDone} /> : beat.kind === 'sort' ? <SortBeat beat={beat} lang={lang} sound={sound} onDone={onDone} /> : beat.kind === 'order' ? <OrderBeat beat={beat} lang={lang} sound={sound} onDone={onDone} /> : <MythBeat beat={beat} lang={lang} sound={sound} onDone={onDone} />}
     </ScrollView>
   );
 }
@@ -58,6 +62,15 @@ function TrackSlider({ pos, onPos, marks, label, valueText, stepBy = 0.02, locke
   );
 }
 
+/** Reads `text` aloud when sound is on, after a short beat (so the reel's own voice has stopped), and stops it when the text changes or the beat goes. */
+function useVoice(sound: boolean, lang: Lang, text: string | null) {
+  useEffect(() => {
+    if (!sound || !text) return;
+    const id = setTimeout(() => speak(text, lang), 250);
+    return () => { clearTimeout(id); stopSpeaking(); };
+  }, [sound, lang, text]);
+}
+
 /** Calls `fire` once after `ms` with no change to `dep`; the way a beat reveals itself when nobody touches it. */
 function useIdle(ms: number, active: boolean, dep: unknown, fire: () => void) {
   const f = useRef(fire); f.current = fire;
@@ -66,7 +79,7 @@ function useIdle(ms: number, active: boolean, dep: unknown, fire: () => void) {
 
 // ── guess first ──────────────────────────────────────────────────────────────────────────────────────────────
 
-function GuessBeat({ beat, lang, onDone }: { beat: Extract<Beat, { kind: 'guess' }>; lang: Lang; onDone: (r: PokeResult) => void }) {
+function GuessBeat({ beat, lang, sound, onDone }: { sound: boolean; beat: Extract<Beat, { kind: 'guess' }>; lang: Lang; onDone: (r: PokeResult) => void }) {
   const [pos, setPos] = useState(0.3);
   const [touched, setTouched] = useState(false);
   const [shown, setShown] = useState<null | { guess: number | null }>(null);
@@ -74,6 +87,7 @@ function GuessBeat({ beat, lang, onDone }: { beat: Extract<Beat, { kind: 'guess'
   const result = shown && shown.guess !== null ? scoreGuess(shown.guess, beat.answer) : null;
   const reveal = useCallback((g: number | null) => { setShown({ guess: g }); if (g !== null) ok(scoreGuess(g, beat.answer).verdict !== 'far'); }, [beat.answer]);
 
+  useVoice(sound, lang, shown ? revealText(beat, lang) : askText(beat, lang));
   useIdle(IDLE_MS, !shown, pos, () => reveal(null));                                       // nobody touched it: show the answer
   useIdle(AUTO_CONTINUE_MS, !!shown && !touched, shown, () => onDone({ engaged: false }));   // and play on after the viewer has had time to read
   const onPos = (p: number) => { setPos(p); setTouched(true); };
@@ -111,13 +125,14 @@ function GuessBeat({ beat, lang, onDone }: { beat: Extract<Beat, { kind: 'guess'
 
 // ── what-if slider ───────────────────────────────────────────────────────────────────────────────────────────
 
-function SliderBeat({ beat, lang, onDone }: { beat: Extract<Beat, { kind: 'slider' }>; lang: Lang; onDone: (r: PokeResult) => void }) {
+function SliderBeat({ beat, lang, sound, onDone }: { sound: boolean; beat: Extract<Beat, { kind: 'slider' }>; lang: Lang; onDone: (r: PokeResult) => void }) {
   const span = beat.max - beat.min;
   const snap = (p: number) => Math.min(beat.max, Math.max(beat.min, Math.round((beat.min + p * span) / beat.step) * beat.step));
   const [x, setX] = useState(beat.start);
   const [touched, setTouched] = useState(false);
   const bars = sliderBars(beat, x);
   const onPos = (p: number) => { const nx = snap(p); if (nx !== x) tick(); setX(nx); setTouched(true); };
+  useVoice(sound, lang, touched ? null : askText(beat, lang));
   useIdle(IDLE_MS, !touched, x, () => onDone({ engaged: false }));                            // untouched: the takeaway has been on screen, play on
   const line = sliderLine(beat, x)[lang];
 
@@ -144,7 +159,7 @@ function SliderBeat({ beat, lang, onDone }: { beat: Extract<Beat, { kind: 'slide
 
 // ── myth or fact ─────────────────────────────────────────────────────────────────────────────────────────────
 
-function MythBeat({ beat, lang, onDone }: { beat: Extract<Beat, { kind: 'myth' }>; lang: Lang; onDone: (r: PokeResult) => void }) {
+function MythBeat({ beat, lang, sound, onDone }: { sound: boolean; beat: Extract<Beat, { kind: 'myth' }>; lang: Lang; onDone: (r: PokeResult) => void }) {
   const [i, setI] = useState(0);
   const [answers, setAnswers] = useState<(boolean | null)[]>([]);
   const [shown, setShown] = useState(false);          // the card's reason is on screen
@@ -153,6 +168,7 @@ function MythBeat({ beat, lang, onDone }: { beat: Extract<Beat, { kind: 'myth' }
   const mine = answers[i];
   const answer = (said: boolean | null) => { setAnswers(a => { const n = [...a]; n[i] = said; return n; }); setShown(true); if (said !== null) { setTouched(true); ok(said === card.fact); } };
 
+  useVoice(sound, lang, shown ? revealText(beat, lang, { card: i, picked: answers[i] ?? null }) : i === 0 ? askText(beat, lang) : cardText(beat, i, lang));
   useIdle(IDLE_MS, !shown, i, () => answer(null));                                        // nobody answered: show the reason
   useIdle(AUTO_CONTINUE_MS, shown && !touched, i, () => onDone({ engaged: false }));       // and, for a passive viewer, play on rather than sit through every card
   const score = scoreMyth(beat.cards, answers);
@@ -184,12 +200,13 @@ function MythBeat({ beat, lang, onDone }: { beat: Extract<Beat, { kind: 'myth' }
 
 // ── spot the scam ────────────────────────────────────────────────────────────────────────────────────────────
 
-function SpotBeat({ beat, lang, onDone }: { beat: Extract<Beat, { kind: 'spot' }>; lang: Lang; onDone: (r: PokeResult) => void }) {
+function SpotBeat({ beat, lang, sound, onDone }: { sound: boolean; beat: Extract<Beat, { kind: 'spot' }>; lang: Lang; onDone: (r: PokeResult) => void }) {
   const [picked, setPicked] = useState<boolean[]>(() => beat.parts.map(() => false));
   const [shown, setShown] = useState(false);
   const [touched, setTouched] = useState(false);
   const toggle = (i: number) => { if (shown) return; tick(); setTouched(true); setPicked(p => p.map((v, k) => (k === i ? !v : v))); };
   const check = useCallback(() => { setShown(true); ok(true); }, []);
+  useVoice(sound, lang, shown ? revealText(beat, lang) : askText(beat, lang));
   useIdle(IDLE_MS, !shown, picked, check);                                                  // nobody touched it: show every red flag
   useIdle(AUTO_CONTINUE_MS, shown && !touched, shown, () => onDone({ engaged: false }));
   const r = scoreSpot(beat.parts, shown && !touched ? beat.parts.map(p => !!p.flag) : picked);
@@ -233,10 +250,11 @@ function SpotBeat({ beat, lang, onDone }: { beat: Extract<Beat, { kind: 'spot' }
 
 // ── choose your path ─────────────────────────────────────────────────────────────────────────────────────────
 
-function PathBeat({ beat, lang, onDone }: { beat: Extract<Beat, { kind: 'path' }>; lang: Lang; onDone: (r: PokeResult) => void }) {
+function PathBeat({ beat, lang, sound, onDone }: { sound: boolean; beat: Extract<Beat, { kind: 'path' }>; lang: Lang; onDone: (r: PokeResult) => void }) {
   const [pick, setPick] = useState<number | null>(null);
   const [all, setAll] = useState(false);                // every path is on screen (after a pick, or after waiting)
   const [touched, setTouched] = useState(false);
+  useVoice(sound, lang, all ? revealText(beat, lang, { picked: pick }) : askText(beat, lang));
   useIdle(IDLE_MS, !all, pick, () => setAll(true));
   useIdle(AUTO_CONTINUE_MS, all && !touched, all, () => onDone({ engaged: false }));
   const choose = (i: number) => { tick(Haptics.ImpactFeedbackStyle.Medium); setPick(i); setAll(true); setTouched(true); };
@@ -268,13 +286,14 @@ function PathBeat({ beat, lang, onDone }: { beat: Extract<Beat, { kind: 'path' }
 
 // ── sort it ──────────────────────────────────────────────────────────────────────────────────────────────────
 
-function SortBeat({ beat, lang, onDone }: { beat: Extract<Beat, { kind: 'sort' }>; lang: Lang; onDone: (r: PokeResult) => void }) {
+function SortBeat({ beat, lang, sound, onDone }: { sound: boolean; beat: Extract<Beat, { kind: 'sort' }>; lang: Lang; onDone: (r: PokeResult) => void }) {
   const [i, setI] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>([]);
   const [shown, setShown] = useState(false);
   const [touched, setTouched] = useState(false);
   const card = beat.cards[i], last = i === beat.cards.length - 1, mine = answers[i];
   const answer = (bin: number | null) => { setAnswers(a => { const n = [...a]; n[i] = bin; return n; }); setShown(true); if (bin !== null) { setTouched(true); ok(bin === card.bin); } };
+  useVoice(sound, lang, shown ? revealText(beat, lang, { card: i, picked: answers[i] ?? null }) : i === 0 ? askText(beat, lang) : cardText(beat, i, lang));
   useIdle(IDLE_MS, !shown, i, () => answer(null));
   useIdle(AUTO_CONTINUE_MS, shown && !touched, i, () => onDone({ engaged: false }));
   const score = scoreSort(beat.cards, answers);
@@ -306,7 +325,7 @@ function SortBeat({ beat, lang, onDone }: { beat: Extract<Beat, { kind: 'sort' }
 
 // ── put it in order ──────────────────────────────────────────────────────────────────────────────────────────
 
-function OrderBeat({ beat, lang, onDone }: { beat: Extract<Beat, { kind: 'order' }>; lang: Lang; onDone: (r: PokeResult) => void }) {
+function OrderBeat({ beat, lang, sound, onDone }: { sound: boolean; beat: Extract<Beat, { kind: 'order' }>; lang: Lang; onDone: (r: PokeResult) => void }) {
   const deck = useMemo(() => orderDeck(beat.items.length), [beat.items.length]);
   const [chosen, setChosen] = useState<number[]>([]);
   const [shown, setShown] = useState(false);
@@ -315,6 +334,7 @@ function OrderBeat({ beat, lang, onDone }: { beat: Extract<Beat, { kind: 'order'
   const pickItem = (idx: number) => { if (shown || chosen.includes(idx)) return; tick(); setTouched(true); setChosen(c => [...c, idx]); };
   const reveal = useCallback(() => { setShown(true); ok(true); }, []);
   useEffect(() => { if (full && !shown) reveal(); }, [full, shown, reveal]);
+  useVoice(sound, lang, shown ? revealText(beat, lang) : askText(beat, lang));
   useIdle(IDLE_MS, !shown, chosen.length, reveal);
   useIdle(AUTO_CONTINUE_MS, shown && !touched, shown, () => onDone({ engaged: false }));
   const score = scoreOrder(chosen, beat.items.length);
@@ -362,8 +382,8 @@ function SkipLink({ lang, onPress }: { lang: Lang; onPress: () => void }) {
 const THUMB = 28;
 const HOLD = 'rgba(251,191,36,0.28)';
 const s = StyleSheet.create({
-  scroll: { flex: 1 },
-  wrap: { flexGrow: 1, justifyContent: 'center', paddingBottom: 40 },
+  scroll: { flex: 1, minHeight: 0 },                // minHeight 0 lets it shrink to the screen on the web preview; without it a tall reveal pushed the page up under the top bar
+  wrap: { flexGrow: 1, justifyContent: 'center', paddingBottom: 16 },
   tag: { color: Colors.cyan, fontSize: 11, fontWeight: '800', letterSpacing: 1, marginBottom: Spacing.sm },
   q: { color: '#fff', fontSize: 22, lineHeight: 30, fontWeight: '800', marginBottom: Spacing.md },
   readout: { color: '#fff', fontSize: 40, fontWeight: '900', textAlign: 'center', marginBottom: Spacing.xs },
@@ -389,10 +409,10 @@ const s = StyleSheet.create({
   sliderX: { color: '#fff', fontSize: 18, fontWeight: '900' },
   bars: { gap: Spacing.xs, marginTop: Spacing.xs },
   barRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
-  barLabel: { width: 96, color: Colors.textMuted, fontSize: 12, fontWeight: '700' },
+  barLabel: { flexBasis: 88, flexShrink: 1, flexGrow: 0, color: Colors.textMuted, fontSize: 12, fontWeight: '700' },
   barBack: { flex: 1, height: 14, borderRadius: 7, backgroundColor: 'rgba(255,255,255,0.08)', overflow: 'hidden' },
   barFill: { height: 14, borderRadius: 7 },
-  barVal: { width: 84, color: '#fff', fontSize: 12, fontWeight: '800', textAlign: 'right' },
+  barVal: { minWidth: 84, flexShrink: 0, color: '#fff', fontSize: 12, fontWeight: '800', textAlign: 'right' },
   cardCount: { color: Colors.textDim, fontSize: 12, fontWeight: '700', marginBottom: Spacing.xs },
   card: { minHeight: 120, borderRadius: Radii.xl, padding: Spacing.lg, backgroundColor: 'rgba(255,255,255,0.07)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)', justifyContent: 'center' },
   cardTxt: { color: '#fff', fontSize: 20, lineHeight: 28, fontWeight: '800' },
