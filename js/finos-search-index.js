@@ -218,6 +218,7 @@ window.FinosSearchIndex = [
     { title:"Money AI — Arya", desc:"Arya, your Money AI — ask anything about tax, SIPs, or markets and get a straight, Indian-context answer.", url:"../html/money-ai.html", cat:"Pages", tags:["money","arya"] },
     { title:"Options Intelligence", desc:"Options Intelligence — FIN-OS page", url:"../html/options-intelligence.html", cat:"Pages", tags:["options","intelligence"] },
     { title:"QuantEdge Terminal", desc:"Market regime detection — mean reversion vs momentum, with the quant signals behind the call.", url:"../html/quantedge.html", cat:"Pages", tags:["quantedge","terminal"] },
+    { title:"Money Reels", desc:"Money Reels — three short animated money lessons a day in English and Hindi, with a quick try-it moment and a…", url:"../html/reels.html", cat:"Pages", tags:["money","reels"] },
     { title:"What-If Scenarios", desc:"What-If Scenarios — FIN-OS page", url:"../html/scenarios.html", cat:"Pages", tags:["what","scenarios"] },
     { title:"Simulator Guide", desc:"New to the simulator? Every button, chart and module explained before you trade a single candle.", url:"../html/simulator-guide.html", cat:"Pages", tags:["simulator","guide"] },
     { title:"Financial Timeline", desc:"Your financial life on one chronological line — past milestones and the ones still ahead.", url:"../html/timeline.html", cat:"Pages", tags:["financial","timeline"] },

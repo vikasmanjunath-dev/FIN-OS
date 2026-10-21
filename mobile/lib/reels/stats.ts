@@ -16,16 +16,19 @@ export interface DayStats {
   /** milliseconds with the reels on screen */ ms: number;
   /** today's episodes opened (a visit to the For you tab with reels in it) */ eps: number;
   /** of those, finished: every reel in the episode answered */ epfin: number;
+  /** reels kept for later */ saves: number;
+  /** "I'll do this" taps (a move put on My moves) */ pledges: number;
+  /** Money date rounds played together */ together: number;
 }
 export type StatField = keyof DayStats;
-export const FIELDS: StatField[] = ['fin', 'right', 'poke', 'engaged', 'know', 'less', 'moves', 'receipts', 'asks', 'ms', 'eps', 'epfin'];
+export const FIELDS: StatField[] = ['fin', 'right', 'poke', 'engaged', 'know', 'less', 'moves', 'receipts', 'asks', 'ms', 'eps', 'epfin', 'saves', 'pledges', 'together'];
 export interface StatsState { v: 1; days: Record<string, DayStats> }
 export const EMPTY_STATS: StatsState = { v: 1, days: {} };
 
 export const KEEP_DAYS = 90;
 const DAY_KEY = /^\d{4}-\d{2}-\d{2}$/;
-const CAP: Record<StatField, number> = { fin: 500, right: 500, poke: 500, engaged: 500, know: 500, less: 500, moves: 500, receipts: 500, asks: 500, ms: 24 * 3_600_000, eps: 500, epfin: 500 };
-const blank = (): DayStats => ({ fin: 0, right: 0, poke: 0, engaged: 0, know: 0, less: 0, moves: 0, receipts: 0, asks: 0, ms: 0, eps: 0, epfin: 0 });
+const CAP: Record<StatField, number> = { fin: 500, right: 500, poke: 500, engaged: 500, know: 500, less: 500, moves: 500, receipts: 500, asks: 500, ms: 24 * 3_600_000, eps: 500, epfin: 500, saves: 500, pledges: 500, together: 500 };
+const blank = (): DayStats => ({ fin: 0, right: 0, poke: 0, engaged: 0, know: 0, less: 0, moves: 0, receipts: 0, asks: 0, ms: 0, eps: 0, epfin: 0, saves: 0, pledges: 0, together: 0 });
 const clean = (n: unknown, cap: number): number => (typeof n === 'number' && Number.isFinite(n) && n > 0 ? Math.min(cap, Math.floor(n)) : 0);
 
 export function parseStats(raw: string | null | undefined): StatsState {
@@ -68,6 +71,8 @@ export interface Health {
   pokeRate: number | null;
   /** Moves started per 100 reels finished. */
   movesPer100: number | null;
+  /** "I'll do this" pledges per 100 reels finished. */
+  pledgesPer100: number | null;
   receipts: number;
   /** "I know this" plus "less of this" taps per 100 reels finished (lower is better). */
   steeringPer100: number | null;
@@ -93,6 +98,7 @@ export function healthOf(state: StatsState, now: Date, windowDays = 28): Health 
     rightRate: fin ? sum('right') / fin : null,
     pokeRate: poke ? sum('engaged') / poke : null,
     movesPer100: fin ? (sum('moves') / fin) * 100 : null,
+    pledgesPer100: fin ? (sum('pledges') / fin) * 100 : null,
     receipts: sum('receipts'),
     steeringPer100: fin ? ((sum('know') + sum('less')) / fin) * 100 : null,
     medianMinutes: median,

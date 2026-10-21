@@ -1,0 +1,30 @@
+{
+ "generated_by": "sml/data/router_data.py",
+ "seed": 7,
+ "intents": [
+  "personal_spend_query",
+  "personal_money_summary",
+  "goal_status",
+  "calculator_request",
+  "regulation_question",
+  "concept_explainer",
+  "document_help",
+  "market_data",
+  "app_help",
+  "advice_seeking",
+  "evasion_request",
+  "smalltalk",
+  "out_of_scope"
+ ],
+ "counts": {
+  "train": 610,
+  "valid_template_heldout": 185,
+  "natural_test": 130
+ },
+ "sha256": {
+  "train.jsonl": "b1e47f1103feeba5506a536aefc8d761b3bd629e78590bcbd5355ab6fa5a8b8c",
+  "valid.jsonl": "688e0511c4deb60c960a6f880b82d4cee66f9e1b89d39652fad3c64ee97cb9e9",
+  "natural_test.jsonl": "149d86ddddad56e349cfc719ea30ef6d18db5e4f20e62c6c5afee796a776527b"
+ },
+ "notes": "valid holds out whole templates; natural_test is hand-written and must never be used for training or threshold tuning. Synthetic text only; no personal data."
+}

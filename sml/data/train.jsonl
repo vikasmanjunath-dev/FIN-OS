@@ -1,0 +1,610 @@
+{"text": "How many transactions did I make on subscriptions in August?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "How many transactions did I make on {cat} in {month}?"}
+{"text": "How many transactions did I make on food in September?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "How many transactions did I make on {cat} in {month}?"}
+{"text": "How many transactions did I make on entertainment in last month?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "How many transactions did I make on {cat} in {month}?"}
+{"text": "How many transactions did I make on Food & Dining in August?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "How many transactions did I make on {cat} in {month}?"}
+{"text": "How many transactions did I make on Food & Dining in this month?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "How many transactions did I make on {cat} in {month}?"}
+{"text": "How many transactions did I make on entertainment in September?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "How many transactions did I make on {cat} in {month}?"}
+{"text": "What are my biggest expenses in October?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "What are my biggest expenses in {month}?"}
+{"text": "What are my biggest expenses in this month?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "What are my biggest expenses in {month}?"}
+{"text": "What are my biggest expenses in September?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "What are my biggest expenses in {month}?"}
+{"text": "What are my biggest expenses in August?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "What are my biggest expenses in {month}?"}
+{"text": "What are my biggest expenses in June 2026?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "What are my biggest expenses in {month}?"}
+{"text": "Which category did I spend the most on in this month?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "Which category did I spend the most on in {month}?"}
+{"text": "Which category did I spend the most on in September?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "Which category did I spend the most on in {month}?"}
+{"text": "Which category did I spend the most on in last month?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "Which category did I spend the most on in {month}?"}
+{"text": "Compare my transport spend this month with last month", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "Compare my {cat} spend this month with last month"}
+{"text": "Compare my food spend this month with last month", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "Compare my {cat} spend this month with last month"}
+{"text": "Compare my subscriptions spend this month with last month", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "Compare my {cat} spend this month with last month"}
+{"text": "Compare my education spend this month with last month", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "Compare my {cat} spend this month with last month"}
+{"text": "Compare my groceries spend this month with last month", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "Compare my {cat} spend this month with last month"}
+{"text": "Compare my shopping spend this month with last month", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "Compare my {cat} spend this month with last month"}
+{"text": "What was my entertainment spending in August?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "What was my {cat} spending in {month}?"}
+{"text": "What was my subscriptions spending in September?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "What was my {cat} spending in {month}?"}
+{"text": "What was my EMI spending in July?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "What was my {cat} spending in {month}?"}
+{"text": "What was my subscriptions spending in October?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "What was my {cat} spending in {month}?"}
+{"text": "What was my travel spending in August?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "What was my {cat} spending in {month}?"}
+{"text": "What was my Food & Dining spending in this month?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "What was my {cat} spending in {month}?"}
+{"text": "How much did I spend on EMI in June 2026?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "How much did I spend on {cat} in {month}?"}
+{"text": "How much did I spend on transport in July?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "How much did I spend on {cat} in {month}?"}
+{"text": "How much did I spend on Food & Dining in this month?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "How much did I spend on {cat} in {month}?"}
+{"text": "How much did I spend on utility bills in September?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "How much did I spend on {cat} in {month}?"}
+{"text": "How much did I spend on EMI in September?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "How much did I spend on {cat} in {month}?"}
+{"text": "How much did I spend on EMI in August?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "How much did I spend on {cat} in {month}?"}
+{"text": "Did my health spending go up in June 2026?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "Did my {cat} spending go up in {month}?"}
+{"text": "Did my subscriptions spending go up in last month?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "Did my {cat} spending go up in {month}?"}
+{"text": "Did my fuel spending go up in July?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "Did my {cat} spending go up in {month}?"}
+{"text": "Did my health spending go up in this month?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "Did my {cat} spending go up in {month}?"}
+{"text": "Did my health spending go up in July?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "Did my {cat} spending go up in {month}?"}
+{"text": "Did my shopping spending go up in August?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "Did my {cat} spending go up in {month}?"}
+{"text": "Show my fuel expenses for August", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "Show my {cat} expenses for {month}"}
+{"text": "Show my utility bills expenses for October", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "Show my {cat} expenses for {month}"}
+{"text": "Show my transport expenses for September", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "Show my {cat} expenses for {month}"}
+{"text": "Show my EMI expenses for July", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "Show my {cat} expenses for {month}"}
+{"text": "Show my subscriptions expenses for last month", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "Show my {cat} expenses for {month}"}
+{"text": "Show my rent expenses for June 2026", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "Show my {cat} expenses for {month}"}
+{"text": "How much did health cost me July?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "How much did {cat} cost me {month}?"}
+{"text": "How much did EMI cost me September?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "How much did {cat} cost me {month}?"}
+{"text": "How much did Food & Dining cost me this month?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "How much did {cat} cost me {month}?"}
+{"text": "How much did entertainment cost me August?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "How much did {cat} cost me {month}?"}
+{"text": "How much did fuel cost me July?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "How much did {cat} cost me {month}?"}
+{"text": "How much did groceries cost me last month?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "How much did {cat} cost me {month}?"}
+{"text": "pichhle mahine se is mahine bijli ka bill ka kharch kaisa raha?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "pichhle mahine se is mahine {cat} ka kharch kaisa raha?"}
+{"text": "pichhle mahine se is mahine entertainment ka kharch kaisa raha?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "pichhle mahine se is mahine {cat} ka kharch kaisa raha?"}
+{"text": "pichhle mahine se is mahine khana ka kharch kaisa raha?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "pichhle mahine se is mahine {cat} ka kharch kaisa raha?"}
+{"text": "pichhle mahine se is mahine subscriptions ka kharch kaisa raha?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "pichhle mahine se is mahine {cat} ka kharch kaisa raha?"}
+{"text": "pichhle mahine se is mahine grocery ka kharch kaisa raha?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "pichhle mahine se is mahine {cat} ka kharch kaisa raha?"}
+{"text": "is mahine ke sare kharche dikhao", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "{month} ke sare kharche dikhao"}
+{"text": "september ke sare kharche dikhao", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "{month} ke sare kharche dikhao"}
+{"text": "pichhle mahine ke sare kharche dikhao", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "{month} ke sare kharche dikhao"}
+{"text": "august ke sare kharche dikhao", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "{month} ke sare kharche dikhao"}
+{"text": "october ke sare kharche dikhao", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "{month} ke sare kharche dikhao"}
+{"text": "shopping pe is mahine kitna gaya?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "{cat} pe is mahine kitna gaya?"}
+{"text": "grocery pe is mahine kitna gaya?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "{cat} pe is mahine kitna gaya?"}
+{"text": "petrol pe is mahine kitna gaya?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "{cat} pe is mahine kitna gaya?"}
+{"text": "transport pe is mahine kitna gaya?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "{cat} pe is mahine kitna gaya?"}
+{"text": "dawai pe is mahine kitna gaya?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "{cat} pe is mahine kitna gaya?"}
+{"text": "kya mera subscriptions ka kharch badh gaya?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "kya mera {cat} ka kharch badh gaya?"}
+{"text": "kya mera kiraya ka kharch badh gaya?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "kya mera {cat} ka kharch badh gaya?"}
+{"text": "kya mera grocery ka kharch badh gaya?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "kya mera {cat} ka kharch badh gaya?"}
+{"text": "kya mera dawai ka kharch badh gaya?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "kya mera {cat} ka kharch badh gaya?"}
+{"text": "kya mera EMI ka kharch badh gaya?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "kya mera {cat} ka kharch badh gaya?"}
+{"text": "august mein shopping pe kitna kharch hua?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "{month} mein {cat} pe kitna kharch hua?"}
+{"text": "october mein dawai pe kitna kharch hua?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "{month} mein {cat} pe kitna kharch hua?"}
+{"text": "july mein EMI pe kitna kharch hua?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "{month} mein {cat} pe kitna kharch hua?"}
+{"text": "pichhle mahine mein petrol pe kitna kharch hua?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "{month} mein {cat} pe kitna kharch hua?"}
+{"text": "june mein entertainment pe kitna kharch hua?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "{month} mein {cat} pe kitna kharch hua?"}
+{"text": "august mein dawai pe kitna kharch hua?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "{month} mein {cat} pe kitna kharch hua?"}
+{"text": "mera grocery ka kharcha september mein kitna tha?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "mera {cat} ka kharcha {month} mein kitna tha?"}
+{"text": "mera grocery ka kharcha august mein kitna tha?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "mera {cat} ka kharcha {month} mein kitna tha?"}
+{"text": "mera transport ka kharcha june mein kitna tha?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "mera {cat} ka kharcha {month} mein kitna tha?"}
+{"text": "mera transport ka kharcha september mein kitna tha?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "mera {cat} ka kharcha {month} mein kitna tha?"}
+{"text": "mera subscriptions ka kharcha october mein kitna tha?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "mera {cat} ka kharcha {month} mein kitna tha?"}
+{"text": "mera travel ka kharcha august mein kitna tha?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "mera {cat} ka kharcha {month} mein kitna tha?"}
+{"text": "पिछले महीने के सारे खर्चे दिखाओ", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "{month} के सारे खर्चे दिखाओ"}
+{"text": "सितंबर के सारे खर्चे दिखाओ", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "{month} के सारे खर्चे दिखाओ"}
+{"text": "मेरा खाने का खर्च अगस्त में कितना था?", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "मेरा {cat} का खर्च {month} में कितना था?"}
+{"text": "मेरा किराए का खर्च अगस्त में कितना था?", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "मेरा {cat} का खर्च {month} में कितना था?"}
+{"text": "मेरा बिजली बिल का खर्च अगस्त में कितना था?", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "मेरा {cat} का खर्च {month} में कितना था?"}
+{"text": "मेरा किराए का खर्च जुलाई में कितना था?", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "मेरा {cat} का खर्च {month} में कितना था?"}
+{"text": "मेरा खाने का खर्च सितंबर में कितना था?", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "मेरा {cat} का खर्च {month} में कितना था?"}
+{"text": "मेरा खाने का खर्च इस महीने में कितना था?", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "मेरा {cat} का खर्च {month} में कितना था?"}
+{"text": "इस महीने में किराने पर कितना खर्च हुआ?", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "{month} में {cat} पर कितना खर्च हुआ?"}
+{"text": "जुलाई में किराए पर कितना खर्च हुआ?", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "{month} में {cat} पर कितना खर्च हुआ?"}
+{"text": "सितंबर में खाने पर कितना खर्च हुआ?", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "{month} में {cat} पर कितना खर्च हुआ?"}
+{"text": "इस महीने में यात्रा पर कितना खर्च हुआ?", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "{month} में {cat} पर कितना खर्च हुआ?"}
+{"text": "अगस्त में दवाइयों पर कितना खर्च हुआ?", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "{month} में {cat} पर कितना खर्च हुआ?"}
+{"text": "जुलाई में शॉपिंग पर कितना खर्च हुआ?", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "{month} में {cat} पर कितना खर्च हुआ?"}
+{"text": "How much money is left after expenses in September?", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "How much money is left after expenses in {month}?"}
+{"text": "How much money is left after expenses in August?", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "How much money is left after expenses in {month}?"}
+{"text": "How much money is left after expenses in June 2026?", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "How much money is left after expenses in {month}?"}
+{"text": "How much money is left after expenses in July?", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "How much money is left after expenses in {month}?"}
+{"text": "What changed in my money between August and September?", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "What changed in my money between August and September?"}
+{"text": "What is my net worth?", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "What is my net worth?"}
+{"text": "Am I saving enough?", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "Am I saving enough?"}
+{"text": "Give me a summary of my finances", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "Give me a summary of my finances"}
+{"text": "What was my income in July?", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "What was my income in {month}?"}
+{"text": "What was my income in last month?", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "What was my income in {month}?"}
+{"text": "What was my income in October?", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "What was my income in {month}?"}
+{"text": "What was my income in June 2026?", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "What was my income in {month}?"}
+{"text": "What was my income in August?", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "What was my income in {month}?"}
+{"text": "What was my income in this month?", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "What was my income in {month}?"}
+{"text": "What is my monthly income?", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "What is my monthly income?"}
+{"text": "What's my Money Score?", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "What's my Money Score?"}
+{"text": "How is my financial health?", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "How is my financial health?"}
+{"text": "mai har mahine kitna bacha raha hu?", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "mai har mahine kitna bacha raha hu?"}
+{"text": "is saal maine kitna invest kiya?", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "is saal maine kitna invest kiya?"}
+{"text": "mera Money Score kya hai?", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "mera Money Score kya hai?"}
+{"text": "mere paise ka summary do", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "mere paise ka summary do"}
+{"text": "june mein meri income kitni thi?", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "{month} mein meri income kitni thi?"}
+{"text": "october mein meri income kitni thi?", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "{month} mein meri income kitni thi?"}
+{"text": "september mein meri income kitni thi?", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "{month} mein meri income kitni thi?"}
+{"text": "july mein meri income kitni thi?", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "{month} mein meri income kitni thi?"}
+{"text": "kya mai kaafi bachat kar raha hu?", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "kya mai kaafi bachat kar raha hu?"}
+{"text": "meri net worth kitni hai?", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "meri net worth kitni hai?"}
+{"text": "mera savings rate kitna hai?", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "mera savings rate kitna hai?"}
+{"text": "अगस्त में मेरी आमदनी कितनी थी?", "intent": "personal_money_summary", "lang": "hi", "risk": "low", "template": "{month} में मेरी आमदनी कितनी थी?"}
+{"text": "इस महीने में मेरी आमदनी कितनी थी?", "intent": "personal_money_summary", "lang": "hi", "risk": "low", "template": "{month} में मेरी आमदनी कितनी थी?"}
+{"text": "जुलाई में मेरी आमदनी कितनी थी?", "intent": "personal_money_summary", "lang": "hi", "risk": "low", "template": "{month} में मेरी आमदनी कितनी थी?"}
+{"text": "मेरी बचत दर कितनी है?", "intent": "personal_money_summary", "lang": "hi", "risk": "low", "template": "मेरी बचत दर कितनी है?"}
+{"text": "मेरी कुल संपत्ति कितनी है?", "intent": "personal_money_summary", "lang": "hi", "risk": "low", "template": "मेरी कुल संपत्ति कितनी है?"}
+{"text": "How much have I saved for my education fund?", "intent": "goal_status", "lang": "en", "risk": "low", "template": "How much have I saved for {goal}?"}
+{"text": "How much have I saved for my down payment?", "intent": "goal_status", "lang": "en", "risk": "low", "template": "How much have I saved for {goal}?"}
+{"text": "How much have I saved for my house goal?", "intent": "goal_status", "lang": "en", "risk": "low", "template": "How much have I saved for {goal}?"}
+{"text": "How much have I saved for my emergency fund?", "intent": "goal_status", "lang": "en", "risk": "low", "template": "How much have I saved for {goal}?"}
+{"text": "When will I reach my education fund?", "intent": "goal_status", "lang": "en", "risk": "low", "template": "When will I reach {goal}?"}
+{"text": "When will I reach my retirement goal?", "intent": "goal_status", "lang": "en", "risk": "low", "template": "When will I reach {goal}?"}
+{"text": "When will I reach my down payment?", "intent": "goal_status", "lang": "en", "risk": "low", "template": "When will I reach {goal}?"}
+{"text": "When will I reach the car goal?", "intent": "goal_status", "lang": "en", "risk": "low", "template": "When will I reach {goal}?"}
+{"text": "When will I reach my emergency fund?", "intent": "goal_status", "lang": "en", "risk": "low", "template": "When will I reach {goal}?"}
+{"text": "Am I on track for my down payment?", "intent": "goal_status", "lang": "en", "risk": "low", "template": "Am I on track for {goal}?"}
+{"text": "Am I on track for my education fund?", "intent": "goal_status", "lang": "en", "risk": "low", "template": "Am I on track for {goal}?"}
+{"text": "Am I on track for my house goal?", "intent": "goal_status", "lang": "en", "risk": "low", "template": "Am I on track for {goal}?"}
+{"text": "Am I on track for my retirement goal?", "intent": "goal_status", "lang": "en", "risk": "low", "template": "Am I on track for {goal}?"}
+{"text": "Show progress on my retirement goal", "intent": "goal_status", "lang": "en", "risk": "low", "template": "Show progress on {goal}"}
+{"text": "Show progress on my emergency fund", "intent": "goal_status", "lang": "en", "risk": "low", "template": "Show progress on {goal}"}
+{"text": "Show progress on my education fund", "intent": "goal_status", "lang": "en", "risk": "low", "template": "Show progress on {goal}"}
+{"text": "Add a new goal of ₹50,000", "intent": "goal_status", "lang": "en", "risk": "low", "template": "Add a new goal of {amt}"}
+{"text": "Add a new goal of 3 lakh", "intent": "goal_status", "lang": "en", "risk": "low", "template": "Add a new goal of {amt}"}
+{"text": "Add a new goal of 1 crore", "intent": "goal_status", "lang": "en", "risk": "low", "template": "Add a new goal of {amt}"}
+{"text": "Add a new goal of 2 lakh", "intent": "goal_status", "lang": "en", "risk": "low", "template": "Add a new goal of {amt}"}
+{"text": "Add a new goal of ₹5,000", "intent": "goal_status", "lang": "en", "risk": "low", "template": "Add a new goal of {amt}"}
+{"text": "How much should I put aside monthly for my down payment?", "intent": "goal_status", "lang": "en", "risk": "low", "template": "How much should I put aside monthly for {goal}?"}
+{"text": "How much should I put aside monthly for my retirement goal?", "intent": "goal_status", "lang": "en", "risk": "low", "template": "How much should I put aside monthly for {goal}?"}
+{"text": "How much should I put aside monthly for my emergency fund?", "intent": "goal_status", "lang": "en", "risk": "low", "template": "How much should I put aside monthly for {goal}?"}
+{"text": "How much more do I need for my education fund?", "intent": "goal_status", "lang": "en", "risk": "low", "template": "How much more do I need for {goal}?"}
+{"text": "How much more do I need for my house goal?", "intent": "goal_status", "lang": "en", "risk": "low", "template": "How much more do I need for {goal}?"}
+{"text": "How much more do I need for my down payment?", "intent": "goal_status", "lang": "en", "risk": "low", "template": "How much more do I need for {goal}?"}
+{"text": "How much more do I need for my emergency fund?", "intent": "goal_status", "lang": "en", "risk": "low", "template": "How much more do I need for {goal}?"}
+{"text": "gaadi ka goal ke liye kitna bacha liya?", "intent": "goal_status", "lang": "hi_en", "risk": "low", "template": "{goal} ke liye kitna bacha liya?"}
+{"text": "emergency fund ke liye kitna bacha liya?", "intent": "goal_status", "lang": "hi_en", "risk": "low", "template": "{goal} ke liye kitna bacha liya?"}
+{"text": "down payment ke liye kitna bacha liya?", "intent": "goal_status", "lang": "hi_en", "risk": "low", "template": "{goal} ke liye kitna bacha liya?"}
+{"text": "bachche ki padhai ka fund ke liye kitna bacha liya?", "intent": "goal_status", "lang": "hi_en", "risk": "low", "template": "{goal} ke liye kitna bacha liya?"}
+{"text": "retirement goal ke liye kitna bacha liya?", "intent": "goal_status", "lang": "hi_en", "risk": "low", "template": "{goal} ke liye kitna bacha liya?"}
+{"text": "gaadi ka goal ke liye aur kitna chahiye?", "intent": "goal_status", "lang": "hi_en", "risk": "low", "template": "{goal} ke liye aur kitna chahiye?"}
+{"text": "retirement goal ke liye aur kitna chahiye?", "intent": "goal_status", "lang": "hi_en", "risk": "low", "template": "{goal} ke liye aur kitna chahiye?"}
+{"text": "mera ghar ka goal ke liye aur kitna chahiye?", "intent": "goal_status", "lang": "hi_en", "risk": "low", "template": "{goal} ke liye aur kitna chahiye?"}
+{"text": "down payment ke liye aur kitna chahiye?", "intent": "goal_status", "lang": "hi_en", "risk": "low", "template": "{goal} ke liye aur kitna chahiye?"}
+{"text": "down payment kab tak poora hoga?", "intent": "goal_status", "lang": "hi_en", "risk": "low", "template": "{goal} kab tak poora hoga?"}
+{"text": "mera ghar ka goal kab tak poora hoga?", "intent": "goal_status", "lang": "hi_en", "risk": "low", "template": "{goal} kab tak poora hoga?"}
+{"text": "gaadi ka goal kab tak poora hoga?", "intent": "goal_status", "lang": "hi_en", "risk": "low", "template": "{goal} kab tak poora hoga?"}
+{"text": "retirement goal kab tak poora hoga?", "intent": "goal_status", "lang": "hi_en", "risk": "low", "template": "{goal} kab tak poora hoga?"}
+{"text": "emergency fund kab tak poora hoga?", "intent": "goal_status", "lang": "hi_en", "risk": "low", "template": "{goal} kab tak poora hoga?"}
+{"text": "kya mai retirement goal ke liye track pe hu?", "intent": "goal_status", "lang": "hi_en", "risk": "low", "template": "kya mai {goal} ke liye track pe hu?"}
+{"text": "kya mai mera ghar ka goal ke liye track pe hu?", "intent": "goal_status", "lang": "hi_en", "risk": "low", "template": "kya mai {goal} ke liye track pe hu?"}
+{"text": "kya mai bachche ki padhai ka fund ke liye track pe hu?", "intent": "goal_status", "lang": "hi_en", "risk": "low", "template": "kya mai {goal} ke liye track pe hu?"}
+{"text": "gaadi ka goal kaisa chal raha hai?", "intent": "goal_status", "lang": "hi_en", "risk": "low", "template": "{goal} kaisa chal raha hai?"}
+{"text": "retirement goal kaisa chal raha hai?", "intent": "goal_status", "lang": "hi_en", "risk": "low", "template": "{goal} kaisa chal raha hai?"}
+{"text": "bachche ki padhai ka fund kaisa chal raha hai?", "intent": "goal_status", "lang": "hi_en", "risk": "low", "template": "{goal} kaisa chal raha hai?"}
+{"text": "बच्चे की पढ़ाई का फंड कैसा चल रहा है?", "intent": "goal_status", "lang": "hi", "risk": "low", "template": "{goal} कैसा चल रहा है?"}
+{"text": "घर का लक्ष्य कैसा चल रहा है?", "intent": "goal_status", "lang": "hi", "risk": "low", "template": "{goal} कैसा चल रहा है?"}
+{"text": "रिटायरमेंट का लक्ष्य कैसा चल रहा है?", "intent": "goal_status", "lang": "hi", "risk": "low", "template": "{goal} कैसा चल रहा है?"}
+{"text": "घर का लक्ष्य के लिए और कितना चाहिए?", "intent": "goal_status", "lang": "hi", "risk": "low", "template": "{goal} के लिए और कितना चाहिए?"}
+{"text": "बच्चे की पढ़ाई का फंड के लिए और कितना चाहिए?", "intent": "goal_status", "lang": "hi", "risk": "low", "template": "{goal} के लिए और कितना चाहिए?"}
+{"text": "Run the step-up SIP calculator", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "Run the {calc} calculator"}
+{"text": "Run the SIP calculator", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "Run the {calc} calculator"}
+{"text": "Run the EMI calculator", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "Run the {calc} calculator"}
+{"text": "Run the FD maturity calculator", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "Run the {calc} calculator"}
+{"text": "How early can I retire if I save 3 lakh a month?", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "How early can I retire if I save {amt} a month?"}
+{"text": "How early can I retire if I save 1 crore a month?", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "How early can I retire if I save {amt} a month?"}
+{"text": "How early can I retire if I save 10 lakh a month?", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "How early can I retire if I save {amt} a month?"}
+{"text": "How early can I retire if I save ₹25,000 a month a month?", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "How early can I retire if I save {amt} a month?"}
+{"text": "How much will 10 lakh grow to in 10 years at 12%?", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "How much will {amt} grow to in 10 years at 12%?"}
+{"text": "How much will ₹25,000 a month grow to in 10 years at 12%?", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "How much will {amt} grow to in 10 years at 12%?"}
+{"text": "How much will 3 lakh grow to in 10 years at 12%?", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "How much will {amt} grow to in 10 years at 12%?"}
+{"text": "How much will ₹1.5 lakh grow to in 10 years at 12%?", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "How much will {amt} grow to in 10 years at 12%?"}
+{"text": "How much will ₹5,000 grow to in 10 years at 12%?", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "How much will {amt} grow to in 10 years at 12%?"}
+{"text": "Calculate retirement corpus for 2 lakh", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "Calculate {calc} for {amt}"}
+{"text": "Calculate home loan prepayment for 3 lakh", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "Calculate {calc} for {amt}"}
+{"text": "Calculate tax for 2 lakh", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "Calculate {calc} for {amt}"}
+{"text": "Calculate EMI for ₹5,000", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "Calculate {calc} for {amt}"}
+{"text": "Calculate step-up SIP for 10 lakh", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "Calculate {calc} for {amt}"}
+{"text": "Calculate FIRE number for 2 lakh", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "Calculate {calc} for {amt}"}
+{"text": "Compute my home loan prepayment", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "Compute my {calc}"}
+{"text": "Compute my FIRE number", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "Compute my {calc}"}
+{"text": "Compute my step-up SIP", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "Compute my {calc}"}
+{"text": "Compute my FD maturity", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "Compute my {calc}"}
+{"text": "Compute my tax", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "Compute my {calc}"}
+{"text": "If I invest 2 lakh a month, what will I have in 20 years?", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "If I invest {amt} a month, what will I have in 20 years?"}
+{"text": "If I invest ₹5,000 a month, what will I have in 20 years?", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "If I invest {amt} a month, what will I have in 20 years?"}
+{"text": "If I invest 3 lakh a month, what will I have in 20 years?", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "If I invest {amt} a month, what will I have in 20 years?"}
+{"text": "If I invest ₹1.5 lakh a month, what will I have in 20 years?", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "If I invest {amt} a month, what will I have in 20 years?"}
+{"text": "If I invest 10 lakh a month, what will I have in 20 years?", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "If I invest {amt} a month, what will I have in 20 years?"}
+{"text": "What is the maturity of ₹5,000 in an FD at 7%?", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "What is the maturity of {amt} in an FD at 7%?"}
+{"text": "What is the maturity of 1 crore in an FD at 7%?", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "What is the maturity of {amt} in an FD at 7%?"}
+{"text": "What is the maturity of 10 lakh in an FD at 7%?", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "What is the maturity of {amt} in an FD at 7%?"}
+{"text": "Which tax regime is better for an income of 1 crore?", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "Which tax regime is better for an income of {amt}?"}
+{"text": "Which tax regime is better for an income of 2 lakh?", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "Which tax regime is better for an income of {amt}?"}
+{"text": "Which tax regime is better for an income of ₹50,000?", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "Which tax regime is better for an income of {amt}?"}
+{"text": "Which tax regime is better for an income of 3 lakh?", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "Which tax regime is better for an income of {amt}?"}
+{"text": "retirement corpus calculator chalao", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{calc} calculator chalao"}
+{"text": "FIRE number calculator chalao", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{calc} calculator chalao"}
+{"text": "FD maturity calculator chalao", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{calc} calculator chalao"}
+{"text": "home loan prepayment calculator chalao", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{calc} calculator chalao"}
+{"text": "EMI calculator chalao", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{calc} calculator chalao"}
+{"text": "step-up SIP calculator chalao", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{calc} calculator chalao"}
+{"text": "50,000 income pe kaunsa tax regime better hai?", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{amt} income pe kaunsa tax regime better hai?"}
+{"text": "dedh lakh income pe kaunsa tax regime better hai?", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{amt} income pe kaunsa tax regime better hai?"}
+{"text": "5000 income pe kaunsa tax regime better hai?", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{amt} income pe kaunsa tax regime better hai?"}
+{"text": "2 lakh income pe kaunsa tax regime better hai?", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{amt} income pe kaunsa tax regime better hai?"}
+{"text": "25 hazaar income pe kaunsa tax regime better hai?", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{amt} income pe kaunsa tax regime better hai?"}
+{"text": "2 lakh ke loan ka EMI kitna hoga 20 saal ke liye?", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{amt} ke loan ka EMI kitna hoga 20 saal ke liye?"}
+{"text": "25 hazaar ke loan ka EMI kitna hoga 20 saal ke liye?", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{amt} ke loan ka EMI kitna hoga 20 saal ke liye?"}
+{"text": "10 lakh ke loan ka EMI kitna hoga 20 saal ke liye?", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{amt} ke loan ka EMI kitna hoga 20 saal ke liye?"}
+{"text": "2 lakh banane ke liye kitna SIP chahiye 15 saal mein?", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{amt} banane ke liye kitna SIP chahiye 15 saal mein?"}
+{"text": "dhai lakh banane ke liye kitna SIP chahiye 15 saal mein?", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{amt} banane ke liye kitna SIP chahiye 15 saal mein?"}
+{"text": "50,000 banane ke liye kitna SIP chahiye 15 saal mein?", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{amt} banane ke liye kitna SIP chahiye 15 saal mein?"}
+{"text": "1 crore banane ke liye kitna SIP chahiye 15 saal mein?", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{amt} banane ke liye kitna SIP chahiye 15 saal mein?"}
+{"text": "5000 banane ke liye kitna SIP chahiye 15 saal mein?", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{amt} banane ke liye kitna SIP chahiye 15 saal mein?"}
+{"text": "25 hazaar banane ke liye kitna SIP chahiye 15 saal mein?", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{amt} banane ke liye kitna SIP chahiye 15 saal mein?"}
+{"text": "mera FIRE number nikalo", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "mera {calc} nikalo"}
+{"text": "mera SIP nikalo", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "mera {calc} nikalo"}
+{"text": "mera tax nikalo", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "mera {calc} nikalo"}
+{"text": "mera EMI nikalo", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "mera {calc} nikalo"}
+{"text": "mera step-up SIP nikalo", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "mera {calc} nikalo"}
+{"text": "FIRE number calculate karo 50,000 ke liye", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{calc} calculate karo {amt} ke liye"}
+{"text": "step-up SIP calculate karo 10 lakh ke liye", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{calc} calculate karo {amt} ke liye"}
+{"text": "tax calculate karo 25 hazaar ke liye", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{calc} calculate karo {amt} ke liye"}
+{"text": "FD maturity calculate karo 25 hazaar ke liye", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{calc} calculate karo {amt} ke liye"}
+{"text": "step-up SIP calculate karo dedh lakh ke liye", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{calc} calculate karo {amt} ke liye"}
+{"text": "SIP calculate karo 1 crore ke liye", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "{calc} calculate karo {amt} ke liye"}
+{"text": "2 लाख बनाने के लिए कितनी SIP चाहिए?", "intent": "calculator_request", "lang": "hi", "risk": "low", "template": "{amt} बनाने के लिए कितनी SIP चाहिए?"}
+{"text": "डेढ़ लाख बनाने के लिए कितनी SIP चाहिए?", "intent": "calculator_request", "lang": "hi", "risk": "low", "template": "{amt} बनाने के लिए कितनी SIP चाहिए?"}
+{"text": "10 लाख बनाने के लिए कितनी SIP चाहिए?", "intent": "calculator_request", "lang": "hi", "risk": "low", "template": "{amt} बनाने के लिए कितनी SIP चाहिए?"}
+{"text": "डेढ़ लाख के लोन की EMI कितनी होगी?", "intent": "calculator_request", "lang": "hi", "risk": "low", "template": "{amt} के लोन की EMI कितनी होगी?"}
+{"text": "50,000 के लोन की EMI कितनी होगी?", "intent": "calculator_request", "lang": "hi", "risk": "low", "template": "{amt} के लोन की EMI कितनी होगी?"}
+{"text": "2 लाख के लोन की EMI कितनी होगी?", "intent": "calculator_request", "lang": "hi", "risk": "low", "template": "{amt} के लोन की EMI कितनी होगी?"}
+{"text": "Has IRDAI changed anything recently?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "Has {reg} changed anything recently?"}
+{"text": "Has RBI changed anything recently?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "Has {reg} changed anything recently?"}
+{"text": "Has SEBI changed anything recently?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "Has {reg} changed anything recently?"}
+{"text": "What is the deduction limit for the 44ADA scheme?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "What is the deduction limit for {section}?"}
+{"text": "What is the deduction limit for Section 80D?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "What is the deduction limit for {section}?"}
+{"text": "What is the deduction limit for HRA exemption?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "What is the deduction limit for {section}?"}
+{"text": "What is the deduction limit for Section 80E?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "What is the deduction limit for {section}?"}
+{"text": "What is the deduction limit for LTCG tax?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "What is the deduction limit for {section}?"}
+{"text": "What is the deduction limit for Section 24(b)?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "What is the deduction limit for {section}?"}
+{"text": "Which RBI circular covers mutual fund disclosures?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "Which {reg} circular covers mutual fund disclosures?"}
+{"text": "Which SEBI circular covers mutual fund disclosures?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "Which {reg} circular covers mutual fund disclosures?"}
+{"text": "Which IRDAI circular covers mutual fund disclosures?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "Which {reg} circular covers mutual fund disclosures?"}
+{"text": "Who can claim the 44ADA scheme?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "Who can claim {section}?"}
+{"text": "Who can claim Section 80C?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "Who can claim {section}?"}
+{"text": "Who can claim Section 80E?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "Who can claim {section}?"}
+{"text": "What does Section 24(b) say?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "What does {section} say?"}
+{"text": "What does Section 80D say?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "What does {section} say?"}
+{"text": "What does LTCG tax say?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "What does {section} say?"}
+{"text": "What does 80CCD(1B) say?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "What does {section} say?"}
+{"text": "What does the 44ADA scheme say?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "What does {section} say?"}
+{"text": "What does Section 54 say?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "What does {section} say?"}
+{"text": "What are the PFRDA norms for investor protection?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "What are the {reg} norms for investor protection?"}
+{"text": "What are the RBI norms for investor protection?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "What are the {reg} norms for investor protection?"}
+{"text": "What are the IRDAI norms for investor protection?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "What are the {reg} norms for investor protection?"}
+{"text": "What are the SEBI norms for investor protection?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "What are the {reg} norms for investor protection?"}
+{"text": "Is LTCG tax available in the new tax regime?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "Is {section} available in the new tax regime?"}
+{"text": "Is 80CCD(1B) available in the new tax regime?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "Is {section} available in the new tax regime?"}
+{"text": "Is Section 80C available in the new tax regime?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "Is {section} available in the new tax regime?"}
+{"text": "Is Section 24(b) available in the new tax regime?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "Is {section} available in the new tax regime?"}
+{"text": "What did SEBI say in its latest circular?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "What did {reg} say in its latest circular?"}
+{"text": "What did RBI say in its latest circular?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "What did {reg} say in its latest circular?"}
+{"text": "What did IRDAI say in its latest circular?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "What did {reg} say in its latest circular?"}
+{"text": "80D ka deduction limit kitna hai?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "{section} ka deduction limit kitna hai?"}
+{"text": "HRA ka deduction limit kitna hai?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "{section} ka deduction limit kitna hai?"}
+{"text": "24(b) ka deduction limit kitna hai?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "{section} ka deduction limit kitna hai?"}
+{"text": "LTCG ka deduction limit kitna hai?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "{section} ka deduction limit kitna hai?"}
+{"text": "PFRDA ne apne latest circular mein kya kaha?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "{reg} ne apne latest circular mein kya kaha?"}
+{"text": "SEBI ne apne latest circular mein kya kaha?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "{reg} ne apne latest circular mein kya kaha?"}
+{"text": "IRDAI ne apne latest circular mein kya kaha?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "{reg} ne apne latest circular mein kya kaha?"}
+{"text": "RBI ne apne latest circular mein kya kaha?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "{reg} ne apne latest circular mein kya kaha?"}
+{"text": "80C kaun claim kar sakta hai?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "{section} kaun claim kar sakta hai?"}
+{"text": "80E kaun claim kar sakta hai?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "{section} kaun claim kar sakta hai?"}
+{"text": "80D kaun claim kar sakta hai?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "{section} kaun claim kar sakta hai?"}
+{"text": "80CCD(1B) kaun claim kar sakta hai?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "{section} kaun claim kar sakta hai?"}
+{"text": "HRA kaun claim kar sakta hai?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "{section} kaun claim kar sakta hai?"}
+{"text": "HRA mein kya limit hai?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "{section} mein kya limit hai?"}
+{"text": "80CCD(1B) mein kya limit hai?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "{section} mein kya limit hai?"}
+{"text": "80E mein kya limit hai?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "{section} mein kya limit hai?"}
+{"text": "80D mein kya limit hai?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "{section} mein kya limit hai?"}
+{"text": "SEBI ke naye nomination rules kya hain?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "{reg} ke naye nomination rules kya hain?"}
+{"text": "PFRDA ke naye nomination rules kya hain?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "{reg} ke naye nomination rules kya hain?"}
+{"text": "IRDAI ke naye nomination rules kya hain?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "{reg} ke naye nomination rules kya hain?"}
+{"text": "LTCG की सीमा क्या है?", "intent": "regulation_question", "lang": "hi", "risk": "low", "template": "{section} की सीमा क्या है?"}
+{"text": "80C की सीमा क्या है?", "intent": "regulation_question", "lang": "hi", "risk": "low", "template": "{section} की सीमा क्या है?"}
+{"text": "HRA की सीमा क्या है?", "intent": "regulation_question", "lang": "hi", "risk": "low", "template": "{section} की सीमा क्या है?"}
+{"text": "IRDAI ने अपने ताज़ा सर्कुलर में क्या कहा?", "intent": "regulation_question", "lang": "hi", "risk": "low", "template": "{reg} ने अपने ताज़ा सर्कुलर में क्या कहा?"}
+{"text": "PFRDA ने अपने ताज़ा सर्कुलर में क्या कहा?", "intent": "regulation_question", "lang": "hi", "risk": "low", "template": "{reg} ने अपने ताज़ा सर्कुलर में क्या कहा?"}
+{"text": "RBI ने अपने ताज़ा सर्कुलर में क्या कहा?", "intent": "regulation_question", "lang": "hi", "risk": "low", "template": "{reg} ने अपने ताज़ा सर्कुलर में क्या कहा?"}
+{"text": "SEBI ने अपने ताज़ा सर्कुलर में क्या कहा?", "intent": "regulation_question", "lang": "hi", "risk": "low", "template": "{reg} ने अपने ताज़ा सर्कुलर में क्या कहा?"}
+{"text": "Difference between a bond yield and a fixed deposit?", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Difference between {concept} and a fixed deposit?"}
+{"text": "Difference between a mutual fund NAV and a fixed deposit?", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Difference between {concept} and a fixed deposit?"}
+{"text": "Difference between inflation and a fixed deposit?", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Difference between {concept} and a fixed deposit?"}
+{"text": "Difference between compound interest and a fixed deposit?", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Difference between {concept} and a fixed deposit?"}
+{"text": "Difference between NPS Tier 1 and a fixed deposit?", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Difference between {concept} and a fixed deposit?"}
+{"text": "Difference between the PPF and a fixed deposit?", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Difference between {concept} and a fixed deposit?"}
+{"text": "Explain inflation to a beginner", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Explain {concept} to a beginner"}
+{"text": "Explain an emergency fund to a beginner", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Explain {concept} to a beginner"}
+{"text": "Explain an ELSS fund to a beginner", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Explain {concept} to a beginner"}
+{"text": "Explain rebalancing to a beginner", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Explain {concept} to a beginner"}
+{"text": "What is an emergency fund?", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "What is {concept}?"}
+{"text": "What is a SIP?", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "What is {concept}?"}
+{"text": "What is a credit score?", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "What is {concept}?"}
+{"text": "What is rebalancing?", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "What is {concept}?"}
+{"text": "Is inflation risky?", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Is {concept} risky?"}
+{"text": "Is an ELSS fund risky?", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Is {concept} risky?"}
+{"text": "Is expense ratio risky?", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Is {concept} risky?"}
+{"text": "Is an index fund risky?", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Is {concept} risky?"}
+{"text": "Is NPS Tier 1 risky?", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Is {concept} risky?"}
+{"text": "Is a SIP risky?", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Is {concept} risky?"}
+{"text": "ELI5 expense ratio", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "ELI5 {concept}"}
+{"text": "ELI5 NPS Tier 1", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "ELI5 {concept}"}
+{"text": "ELI5 compound interest", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "ELI5 {concept}"}
+{"text": "ELI5 an emergency fund", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "ELI5 {concept}"}
+{"text": "ELI5 an ELSS fund", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "ELI5 {concept}"}
+{"text": "Give me a simple example of inflation", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Give me a simple example of {concept}"}
+{"text": "Give me a simple example of rebalancing", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Give me a simple example of {concept}"}
+{"text": "Give me a simple example of the Sharpe ratio", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Give me a simple example of {concept}"}
+{"text": "Give me a simple example of an ELSS fund", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Give me a simple example of {concept}"}
+{"text": "Give me a simple example of an emergency fund", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Give me a simple example of {concept}"}
+{"text": "Teach me about expense ratio", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Teach me about {concept}"}
+{"text": "Teach me about inflation", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Teach me about {concept}"}
+{"text": "Teach me about a credit score", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Teach me about {concept}"}
+{"text": "Teach me about compound interest", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Teach me about {concept}"}
+{"text": "Teach me about rebalancing", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Teach me about {concept}"}
+{"text": "Teach me about a SIP", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Teach me about {concept}"}
+{"text": "Why do people invest in compound interest?", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Why do people invest in {concept}?"}
+{"text": "Why do people invest in an ELSS fund?", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Why do people invest in {concept}?"}
+{"text": "Why do people invest in a SIP?", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Why do people invest in {concept}?"}
+{"text": "Why do people invest in rebalancing?", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Why do people invest in {concept}?"}
+{"text": "Why do people invest in a bond yield?", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "Why do people invest in {concept}?"}
+{"text": "SIP kaise kaam karta hai?", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "{concept} kaise kaam karta hai?"}
+{"text": "expense ratio kaise kaam karta hai?", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "{concept} kaise kaam karta hai?"}
+{"text": "inflation kaise kaam karta hai?", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "{concept} kaise kaam karta hai?"}
+{"text": "mutual fund NAV kaise kaam karta hai?", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "{concept} kaise kaam karta hai?"}
+{"text": "NPS kaise kaam karta hai?", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "{concept} kaise kaam karta hai?"}
+{"text": "PPF kaise kaam karta hai?", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "{concept} kaise kaam karta hai?"}
+{"text": "credit score ko beginner ki tarah samjhao", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "{concept} ko beginner ki tarah samjhao"}
+{"text": "compound interest ko beginner ki tarah samjhao", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "{concept} ko beginner ki tarah samjhao"}
+{"text": "mutual fund NAV ko beginner ki tarah samjhao", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "{concept} ko beginner ki tarah samjhao"}
+{"text": "SIP ko beginner ki tarah samjhao", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "{concept} ko beginner ki tarah samjhao"}
+{"text": "term insurance ko beginner ki tarah samjhao", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "{concept} ko beginner ki tarah samjhao"}
+{"text": "PPF ko beginner ki tarah samjhao", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "{concept} ko beginner ki tarah samjhao"}
+{"text": "PPF aur FD mein kya fark hai?", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "{concept} aur FD mein kya fark hai?"}
+{"text": "mutual fund NAV aur FD mein kya fark hai?", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "{concept} aur FD mein kya fark hai?"}
+{"text": "inflation aur FD mein kya fark hai?", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "{concept} aur FD mein kya fark hai?"}
+{"text": "emergency fund aur FD mein kya fark hai?", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "{concept} aur FD mein kya fark hai?"}
+{"text": "compound interest aur FD mein kya fark hai?", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "{concept} aur FD mein kya fark hai?"}
+{"text": "compound interest kya hota hai?", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "{concept} kya hota hai?"}
+{"text": "expense ratio kya hota hai?", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "{concept} kya hota hai?"}
+{"text": "credit score kya hota hai?", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "{concept} kya hota hai?"}
+{"text": "inflation kya hota hai?", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "{concept} kya hota hai?"}
+{"text": "mujhe credit score ke baare mein sikhao", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "mujhe {concept} ke baare mein sikhao"}
+{"text": "mujhe index fund ke baare mein sikhao", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "mujhe {concept} ke baare mein sikhao"}
+{"text": "mujhe compound interest ke baare mein sikhao", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "mujhe {concept} ke baare mein sikhao"}
+{"text": "mujhe mutual fund NAV ke baare mein sikhao", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "mujhe {concept} ke baare mein sikhao"}
+{"text": "mujhe term insurance ke baare mein sikhao", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "mujhe {concept} ke baare mein sikhao"}
+{"text": "इंडेक्स फंड कैसे काम करता है?", "intent": "concept_explainer", "lang": "hi", "risk": "low", "template": "{concept} कैसे काम करता है?"}
+{"text": "म्यूचुअल फंड कैसे काम करता है?", "intent": "concept_explainer", "lang": "hi", "risk": "low", "template": "{concept} कैसे काम करता है?"}
+{"text": "महंगाई कैसे काम करता है?", "intent": "concept_explainer", "lang": "hi", "risk": "low", "template": "{concept} कैसे काम करता है?"}
+{"text": "एसआईपी कैसे काम करता है?", "intent": "concept_explainer", "lang": "hi", "risk": "low", "template": "{concept} कैसे काम करता है?"}
+{"text": "म्यूचुअल फंड को आसान भाषा में समझाओ", "intent": "concept_explainer", "lang": "hi", "risk": "low", "template": "{concept} को आसान भाषा में समझाओ"}
+{"text": "पीपीएफ को आसान भाषा में समझाओ", "intent": "concept_explainer", "lang": "hi", "risk": "low", "template": "{concept} को आसान भाषा में समझाओ"}
+{"text": "महंगाई को आसान भाषा में समझाओ", "intent": "concept_explainer", "lang": "hi", "risk": "low", "template": "{concept} को आसान भाषा में समझाओ"}
+{"text": "एसआईपी को आसान भाषा में समझाओ", "intent": "concept_explainer", "lang": "hi", "risk": "low", "template": "{concept} को आसान भाषा में समझाओ"}
+{"text": "Why is there a deduction in my CAS statement?", "intent": "document_help", "lang": "en", "risk": "low", "template": "Why is there a deduction in {doc}?"}
+{"text": "Why is there a deduction in my Form 16?", "intent": "document_help", "lang": "en", "risk": "low", "template": "Why is there a deduction in {doc}?"}
+{"text": "Why is there a deduction in my salary slip?", "intent": "document_help", "lang": "en", "risk": "low", "template": "Why is there a deduction in {doc}?"}
+{"text": "Why is there a deduction in this PDF?", "intent": "document_help", "lang": "en", "risk": "low", "template": "Why is there a deduction in {doc}?"}
+{"text": "Upload this bank statement", "intent": "document_help", "lang": "en", "risk": "low", "template": "Upload {doc}"}
+{"text": "Upload my ITR", "intent": "document_help", "lang": "en", "risk": "low", "template": "Upload {doc}"}
+{"text": "Upload this PDF", "intent": "document_help", "lang": "en", "risk": "low", "template": "Upload {doc}"}
+{"text": "Import my Form 16 into the app", "intent": "document_help", "lang": "en", "risk": "low", "template": "Import {doc} into the app"}
+{"text": "Import my CAS statement into the app", "intent": "document_help", "lang": "en", "risk": "low", "template": "Import {doc} into the app"}
+{"text": "Import this bank statement into the app", "intent": "document_help", "lang": "en", "risk": "low", "template": "Import {doc} into the app"}
+{"text": "Import my salary slip into the app", "intent": "document_help", "lang": "en", "risk": "low", "template": "Import {doc} into the app"}
+{"text": "Import my ITR into the app", "intent": "document_help", "lang": "en", "risk": "low", "template": "Import {doc} into the app"}
+{"text": "Can you check my salary slip for mistakes?", "intent": "document_help", "lang": "en", "risk": "low", "template": "Can you check {doc} for mistakes?"}
+{"text": "Can you check my CAS statement for mistakes?", "intent": "document_help", "lang": "en", "risk": "low", "template": "Can you check {doc} for mistakes?"}
+{"text": "Can you check my Form 16 for mistakes?", "intent": "document_help", "lang": "en", "risk": "low", "template": "Can you check {doc} for mistakes?"}
+{"text": "Can you check this bank statement for mistakes?", "intent": "document_help", "lang": "en", "risk": "low", "template": "Can you check {doc} for mistakes?"}
+{"text": "Summarise my salary slip", "intent": "document_help", "lang": "en", "risk": "low", "template": "Summarise {doc}"}
+{"text": "Summarise my ITR", "intent": "document_help", "lang": "en", "risk": "low", "template": "Summarise {doc}"}
+{"text": "Summarise this PDF", "intent": "document_help", "lang": "en", "risk": "low", "template": "Summarise {doc}"}
+{"text": "Summarise my Form 16", "intent": "document_help", "lang": "en", "risk": "low", "template": "Summarise {doc}"}
+{"text": "Read my Form 16 and tell me my total tax paid", "intent": "document_help", "lang": "en", "risk": "low", "template": "Read {doc} and tell me my total tax paid"}
+{"text": "Read my salary slip and tell me my total tax paid", "intent": "document_help", "lang": "en", "risk": "low", "template": "Read {doc} and tell me my total tax paid"}
+{"text": "Read this PDF and tell me my total tax paid", "intent": "document_help", "lang": "en", "risk": "low", "template": "Read {doc} and tell me my total tax paid"}
+{"text": "Read this bank statement and tell me my total tax paid", "intent": "document_help", "lang": "en", "risk": "low", "template": "Read {doc} and tell me my total tax paid"}
+{"text": "ye PDF ka summary do", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "{doc} ka summary do"}
+{"text": "mera Form 16 ka summary do", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "{doc} ka summary do"}
+{"text": "mera ITR ka summary do", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "{doc} ka summary do"}
+{"text": "mera CAS ka summary do", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "{doc} ka summary do"}
+{"text": "ye bank statement ka summary do", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "{doc} ka summary do"}
+{"text": "mera ITR mein total tax kitna kata?", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "{doc} mein total tax kitna kata?"}
+{"text": "mera CAS mein total tax kitna kata?", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "{doc} mein total tax kitna kata?"}
+{"text": "ye PDF mein total tax kitna kata?", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "{doc} mein total tax kitna kata?"}
+{"text": "salary slip mein total tax kitna kata?", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "{doc} mein total tax kitna kata?"}
+{"text": "mera Form 16 samjhao", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "{doc} samjhao"}
+{"text": "mera CAS samjhao", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "{doc} samjhao"}
+{"text": "ye PDF samjhao", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "{doc} samjhao"}
+{"text": "ye bank statement app mein import karo", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "{doc} app mein import karo"}
+{"text": "salary slip app mein import karo", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "{doc} app mein import karo"}
+{"text": "mera CAS app mein import karo", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "{doc} app mein import karo"}
+{"text": "ye PDF app mein import karo", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "{doc} app mein import karo"}
+{"text": "mera Form 16 app mein import karo", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "{doc} app mein import karo"}
+{"text": "यह बैंक स्टेटमेंट का सारांश दो", "intent": "document_help", "lang": "hi", "risk": "low", "template": "{doc} का सारांश दो"}
+{"text": "मेरी सैलरी स्लिप का सारांश दो", "intent": "document_help", "lang": "hi", "risk": "low", "template": "{doc} का सारांश दो"}
+{"text": "मेरा फॉर्म 16 का सारांश दो", "intent": "document_help", "lang": "hi", "risk": "low", "template": "{doc} का सारांश दो"}
+{"text": "मेरा फॉर्म 16 समझाओ", "intent": "document_help", "lang": "hi", "risk": "low", "template": "{doc} समझाओ"}
+{"text": "यह बैंक स्टेटमेंट समझाओ", "intent": "document_help", "lang": "hi", "risk": "low", "template": "{doc} समझाओ"}
+{"text": "मेरी सैलरी स्लिप समझाओ", "intent": "document_help", "lang": "hi", "risk": "low", "template": "{doc} समझाओ"}
+{"text": "NAV of an SBI Bluechip fund", "intent": "market_data", "lang": "en", "risk": "low", "template": "NAV of an SBI Bluechip fund"}
+{"text": "Show me Tata Motors chart", "intent": "market_data", "lang": "en", "risk": "low", "template": "Show me {co} chart"}
+{"text": "Show me Reliance chart", "intent": "market_data", "lang": "en", "risk": "low", "template": "Show me {co} chart"}
+{"text": "Show me Nifty 50 chart", "intent": "market_data", "lang": "en", "risk": "low", "template": "Show me {co} chart"}
+{"text": "Show me HDFC Bank chart", "intent": "market_data", "lang": "en", "risk": "low", "template": "Show me {co} chart"}
+{"text": "Show me ITC chart", "intent": "market_data", "lang": "en", "risk": "low", "template": "Show me {co} chart"}
+{"text": "Is the market up or down today?", "intent": "market_data", "lang": "en", "risk": "low", "template": "Is the market up or down today?"}
+{"text": "How is Tata Motors doing?", "intent": "market_data", "lang": "en", "risk": "low", "template": "How is {co} doing?"}
+{"text": "How is Nifty 50 doing?", "intent": "market_data", "lang": "en", "risk": "low", "template": "How is {co} doing?"}
+{"text": "How is ITC doing?", "intent": "market_data", "lang": "en", "risk": "low", "template": "How is {co} doing?"}
+{"text": "What is the current Nifty level?", "intent": "market_data", "lang": "en", "risk": "low", "template": "What is the current Nifty level?"}
+{"text": "What is the price of Nifty 50 today?", "intent": "market_data", "lang": "en", "risk": "low", "template": "What is the price of {co} today?"}
+{"text": "What is the price of HDFC Bank today?", "intent": "market_data", "lang": "en", "risk": "low", "template": "What is the price of {co} today?"}
+{"text": "What is the price of ITC today?", "intent": "market_data", "lang": "en", "risk": "low", "template": "What is the price of {co} today?"}
+{"text": "What is the price of Infosys today?", "intent": "market_data", "lang": "en", "risk": "low", "template": "What is the price of {co} today?"}
+{"text": "What is the price of Tata Motors today?", "intent": "market_data", "lang": "en", "risk": "low", "template": "What is the price of {co} today?"}
+{"text": "What is the gold rate today?", "intent": "market_data", "lang": "en", "risk": "low", "template": "What is the gold rate today?"}
+{"text": "sona ka chart dikhao", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "{co} ka chart dikhao"}
+{"text": "Tata Motors ka chart dikhao", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "{co} ka chart dikhao"}
+{"text": "Infosys ka chart dikhao", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "{co} ka chart dikhao"}
+{"text": "ITC ka chart dikhao", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "{co} ka chart dikhao"}
+{"text": "Reliance ka chart dikhao", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "{co} ka chart dikhao"}
+{"text": "Nifty ka chart dikhao", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "{co} ka chart dikhao"}
+{"text": "Bitcoin ka price aaj kitna hai?", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "{co} ka price aaj kitna hai?"}
+{"text": "sona ka price aaj kitna hai?", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "{co} ka price aaj kitna hai?"}
+{"text": "ITC ka price aaj kitna hai?", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "{co} ka price aaj kitna hai?"}
+{"text": "Infosys ka price aaj kitna hai?", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "{co} ka price aaj kitna hai?"}
+{"text": "HDFC Bank ka price aaj kitna hai?", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "{co} ka price aaj kitna hai?"}
+{"text": "Reliance ki latest khabar", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "{co} ki latest khabar"}
+{"text": "HDFC Bank ki latest khabar", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "{co} ki latest khabar"}
+{"text": "Nifty ki latest khabar", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "{co} ki latest khabar"}
+{"text": "sona ki latest khabar", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "{co} ki latest khabar"}
+{"text": "Bitcoin ki latest khabar", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "{co} ki latest khabar"}
+{"text": "aaj sone ka rate kya hai?", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "aaj sone ka rate kya hai?"}
+{"text": "aaj market upar hai ya neeche?", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "aaj market upar hai ya neeche?"}
+{"text": "HDFC Bank kaisa chal raha hai?", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "{co} kaisa chal raha hai?"}
+{"text": "Tata Motors kaisa chal raha hai?", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "{co} kaisa chal raha hai?"}
+{"text": "Bitcoin kaisa chal raha hai?", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "{co} kaisa chal raha hai?"}
+{"text": "sona kaisa chal raha hai?", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "{co} kaisa chal raha hai?"}
+{"text": "Nifty kaisa chal raha hai?", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "{co} kaisa chal raha hai?"}
+{"text": "आज बाज़ार ऊपर है या नीचे?", "intent": "market_data", "lang": "hi", "risk": "low", "template": "आज बाज़ार ऊपर है या नीचे?"}
+{"text": "निफ्टी का भाव आज क्या है?", "intent": "market_data", "lang": "hi", "risk": "low", "template": "{co} का भाव आज क्या है?"}
+{"text": "सोने का भाव आज क्या है?", "intent": "market_data", "lang": "hi", "risk": "low", "template": "{co} का भाव आज क्या है?"}
+{"text": "रिलायंस का भाव आज क्या है?", "intent": "market_data", "lang": "hi", "risk": "low", "template": "{co} का भाव आज क्या है?"}
+{"text": "HDFC बैंक का भाव आज क्या है?", "intent": "market_data", "lang": "hi", "risk": "low", "template": "{co} का भाव आज क्या है?"}
+{"text": "Where can I see my subscriptions?", "intent": "app_help", "lang": "en", "risk": "low", "template": "Where can I see my subscriptions?"}
+{"text": "How do I set a reminder?", "intent": "app_help", "lang": "en", "risk": "low", "template": "How do I set a reminder?"}
+{"text": "Turn on dark mode", "intent": "app_help", "lang": "en", "risk": "low", "template": "Turn on dark mode"}
+{"text": "How do I export my data?", "intent": "app_help", "lang": "en", "risk": "low", "template": "How do I export my data?"}
+{"text": "Open the tax calculator", "intent": "app_help", "lang": "en", "risk": "low", "template": "Open the tax calculator"}
+{"text": "How do I change the language to Hindi?", "intent": "app_help", "lang": "en", "risk": "low", "template": "How do I change the language to Hindi?"}
+{"text": "Where is the budget page?", "intent": "app_help", "lang": "en", "risk": "low", "template": "Where is the budget page?"}
+{"text": "How do I delete my data?", "intent": "app_help", "lang": "en", "risk": "low", "template": "How do I delete my data?"}
+{"text": "budget page kahan hai?", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "budget page kahan hai?"}
+{"text": "bank statement import kaise karu?", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "bank statement import kaise karu?"}
+{"text": "subscriptions kahan dikhenge?", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "subscriptions kahan dikhenge?"}
+{"text": "expense kahan add karu?", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "expense kahan add karu?"}
+{"text": "apna data export kaise karu?", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "apna data export kaise karu?"}
+{"text": "tax calculator kholo", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "tax calculator kholo"}
+{"text": "dark mode on karo", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "dark mode on karo"}
+{"text": "mera data delete kaise karu?", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "mera data delete kaise karu?"}
+{"text": "भाषा हिंदी कैसे करूँ?", "intent": "app_help", "lang": "hi", "risk": "low", "template": "भाषा हिंदी कैसे करूँ?"}
+{"text": "खर्च कहाँ जोड़ूँ?", "intent": "app_help", "lang": "hi", "risk": "low", "template": "खर्च कहाँ जोड़ूँ?"}
+{"text": "Give me a stock tip for tomorrow", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Give me a stock tip for tomorrow"}
+{"text": "Which stock will double this year?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Which stock will double this year?"}
+{"text": "Is Nifty 50 a good buy right now?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Is {co} a good buy right now?"}
+{"text": "Is Infosys a good buy right now?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Is {co} a good buy right now?"}
+{"text": "Is Tata Motors a good buy right now?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Is {co} a good buy right now?"}
+{"text": "Is gold a good buy right now?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Is {co} a good buy right now?"}
+{"text": "Is ITC a good buy right now?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Is {co} a good buy right now?"}
+{"text": "Should I exit gold?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Should I exit {co}?"}
+{"text": "Should I exit HDFC Bank?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Should I exit {co}?"}
+{"text": "Should I exit Tata Motors?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Should I exit {co}?"}
+{"text": "Should I exit Bitcoin?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Should I exit {co}?"}
+{"text": "Should I exit Infosys?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Should I exit {co}?"}
+{"text": "Which crypto will make me rich?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Which crypto will make me rich?"}
+{"text": "Should I sell Bitcoin now?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Should I sell {co} now?"}
+{"text": "Should I sell HDFC Bank now?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Should I sell {co} now?"}
+{"text": "Should I sell Reliance now?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Should I sell {co} now?"}
+{"text": "Should I sell ITC now?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Should I sell {co} now?"}
+{"text": "Should I sell gold now?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Should I sell {co} now?"}
+{"text": "Should I sell Infosys now?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Should I sell {co} now?"}
+{"text": "Which is the best fund to put ₹5,000 in?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Which is the best fund to put {amt} in?"}
+{"text": "Which is the best fund to put 2 lakh in?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Which is the best fund to put {amt} in?"}
+{"text": "Which is the best fund to put ₹25,000 a month in?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Which is the best fund to put {amt} in?"}
+{"text": "Which is the best fund to put 10 lakh in?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Which is the best fund to put {amt} in?"}
+{"text": "Will HDFC Bank go up next week?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Will {co} go up next week?"}
+{"text": "Will Bitcoin go up next week?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Will {co} go up next week?"}
+{"text": "Will ITC go up next week?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Will {co} go up next week?"}
+{"text": "Will Infosys go up next week?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Will {co} go up next week?"}
+{"text": "Will Tata Motors go up next week?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "Will {co} go up next week?"}
+{"text": "1 crore se kya kharidu?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "{amt} se kya kharidu?"}
+{"text": "2 lakh se kya kharidu?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "{amt} se kya kharidu?"}
+{"text": "5000 se kya kharidu?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "{amt} se kya kharidu?"}
+{"text": "25 hazaar se kya kharidu?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "{amt} se kya kharidu?"}
+{"text": "10 lakh se kya kharidu?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "{amt} se kya kharidu?"}
+{"text": "kya HDFC Bank bech doon?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "kya {co} bech doon?"}
+{"text": "kya ITC bech doon?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "kya {co} bech doon?"}
+{"text": "kya Reliance bech doon?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "kya {co} bech doon?"}
+{"text": "kal ke liye koi stock tip do", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "kal ke liye koi stock tip do"}
+{"text": "10 lakh kahan lagau sabse accha?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "{amt} kahan lagau sabse accha?"}
+{"text": "dhai lakh kahan lagau sabse accha?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "{amt} kahan lagau sabse accha?"}
+{"text": "1 crore kahan lagau sabse accha?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "{amt} kahan lagau sabse accha?"}
+{"text": "50,000 kahan lagau sabse accha?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "{amt} kahan lagau sabse accha?"}
+{"text": "25 hazaar kahan lagau sabse accha?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "{amt} kahan lagau sabse accha?"}
+{"text": "kaunsa stock is saal double hoga?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "kaunsa stock is saal double hoga?"}
+{"text": "kaunsa crypto ameer bana dega?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "kaunsa crypto ameer bana dega?"}
+{"text": "kya HDFC Bank agle hafte upar jayega?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "kya {co} agle hafte upar jayega?"}
+{"text": "kya Reliance agle hafte upar jayega?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "kya {co} agle hafte upar jayega?"}
+{"text": "kya Tata Motors agle hafte upar jayega?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "kya {co} agle hafte upar jayega?"}
+{"text": "kya sona agle hafte upar jayega?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "kya {co} agle hafte upar jayega?"}
+{"text": "Infosys abhi kharidne layak hai kya?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "{co} abhi kharidne layak hai kya?"}
+{"text": "ITC abhi kharidne layak hai kya?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "{co} abhi kharidne layak hai kya?"}
+{"text": "Nifty abhi kharidne layak hai kya?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "{co} abhi kharidne layak hai kya?"}
+{"text": "Reliance abhi kharidne layak hai kya?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "{co} abhi kharidne layak hai kya?"}
+{"text": "HDFC Bank abhi kharidne layak hai kya?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "{co} abhi kharidne layak hai kya?"}
+{"text": "sona abhi kharidne layak hai kya?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "{co} abhi kharidne layak hai kya?"}
+{"text": "कौनसा शेयर डबल होगा?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "कौनसा शेयर डबल होगा?"}
+{"text": "क्या मुझे रिलायंस खरीदना चाहिए?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "क्या मुझे {co} खरीदना चाहिए?"}
+{"text": "क्या मुझे HDFC बैंक खरीदना चाहिए?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "क्या मुझे {co} खरीदना चाहिए?"}
+{"text": "क्या मुझे निफ्टी खरीदना चाहिए?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "क्या मुझे {co} खरीदना चाहिए?"}
+{"text": "क्या मुझे सोने खरीदना चाहिए?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "क्या मुझे {co} खरीदना चाहिए?"}
+{"text": "How do I show black money as white?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "How do I show black money as white?"}
+{"text": "Make a fake 80C investment proof for me", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "Make a fake 80C investment proof for me"}
+{"text": "How can I launder money through my business?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "How can I launder money through my business?"}
+{"text": "Can I backdate an invoice to save tax?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "Can I backdate an invoice to save tax?"}
+{"text": "How can I avoid paying tax by hiding income?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "How can I avoid paying tax by hiding income?"}
+{"text": "Generate fake bills to claim deductions", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "Generate fake bills to claim deductions"}
+{"text": "Ways to evade capital gains tax without declaring", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "Ways to evade capital gains tax without declaring"}
+{"text": "capital gains tax bina bataye kaise bachau?", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "capital gains tax bina bataye kaise bachau?"}
+{"text": "kala dhan safed kaise karu?", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "kala dhan safed kaise karu?"}
+{"text": "tax bachane ke liye invoice backdate kar sakta hu?", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "tax bachane ke liye invoice backdate kar sakta hu?"}
+{"text": "deductions ke liye fake bills banao", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "deductions ke liye fake bills banao"}
+{"text": "fake 80C proof bana do", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "fake 80C proof bana do"}
+{"text": "HRA ke liye fake rent receipt bana do", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "HRA ke liye fake rent receipt bana do"}
+{"text": "HRA के लिए नकली किराया रसीद बना दो", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "HRA के लिए नकली किराया रसीद बना दो"}
+{"text": "काला धन सफेद कैसे करूँ?", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "काला धन सफेद कैसे करूँ?"}
+{"text": "Thanks!", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "Thanks!"}
+{"text": "You're helpful", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "You're helpful"}
+{"text": "Hey there", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "Hey there"}
+{"text": "Good morning", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "Good morning"}
+{"text": "Who are you?", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "Who are you?"}
+{"text": "How are you?", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "How are you?"}
+{"text": "Hi", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "Hi"}
+{"text": "What can you do?", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "What can you do?"}
+{"text": "theek hai", "intent": "smalltalk", "lang": "hi_en", "risk": "low", "template": "theek hai"}
+{"text": "tum kya kya kar sakte ho?", "intent": "smalltalk", "lang": "hi_en", "risk": "low", "template": "tum kya kya kar sakte ho?"}
+{"text": "namaste", "intent": "smalltalk", "lang": "hi_en", "risk": "low", "template": "namaste"}
+{"text": "alvida", "intent": "smalltalk", "lang": "hi_en", "risk": "low", "template": "alvida"}
+{"text": "Hi Arya", "intent": "smalltalk", "lang": "hi_en", "risk": "low", "template": "Hi Arya"}
+{"text": "good morning, kaise ho?", "intent": "smalltalk", "lang": "hi_en", "risk": "low", "template": "good morning, kaise ho?"}
+{"text": "kaise ho aap?", "intent": "smalltalk", "lang": "hi_en", "risk": "low", "template": "kaise ho aap?"}
+{"text": "shukriya", "intent": "smalltalk", "lang": "hi_en", "risk": "low", "template": "shukriya"}
+{"text": "धन्यवाद", "intent": "smalltalk", "lang": "hi", "risk": "low", "template": "धन्यवाद"}
+{"text": "आप कौन हैं?", "intent": "smalltalk", "lang": "hi", "risk": "low", "template": "आप कौन हैं?"}
+{"text": "आप क्या कर सकते हैं?", "intent": "smalltalk", "lang": "hi", "risk": "low", "template": "आप क्या कर सकते हैं?"}
+{"text": "Tell me a joke", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "Tell me a joke"}
+{"text": "Who won the cricket match?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "Who won the cricket match?"}
+{"text": "How do I cook biryani?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "How do I cook biryani?"}
+{"text": "How tall is Mount Everest?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "How tall is Mount Everest?"}
+{"text": "What's the weather in Mumbai?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "What's the weather in Mumbai?"}
+{"text": "Fix my Python code", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "Fix my Python code"}
+{"text": "Write me a poem", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "Write me a poem"}
+{"text": "Help me write a cover letter", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "Help me write a cover letter"}
+{"text": "biryani kaise banate hain?", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "biryani kaise banate hain?"}
+{"text": "ek movie suggest karo", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "ek movie suggest karo"}
+{"text": "France ki capital kya hai?", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "France ki capital kya hai?"}
+{"text": "mera Python code theek karo", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "mera Python code theek karo"}
+{"text": "cricket match kisne jeeta?", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "cricket match kisne jeeta?"}
+{"text": "ek kavita likho", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "ek kavita likho"}
+{"text": "Everest kitna ooncha hai?", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "Everest kitna ooncha hai?"}
+{"text": "क्रिकेट मैच कौन जीता?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "क्रिकेट मैच कौन जीता?"}
+{"text": "एक चुटकुला सुनाओ", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "एक चुटकुला सुनाओ"}
+{"text": "मुंबई में मौसम कैसा है?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "मुंबई में मौसम कैसा है?"}

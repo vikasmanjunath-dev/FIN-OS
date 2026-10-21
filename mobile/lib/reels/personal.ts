@@ -3,6 +3,7 @@
 // A reel with no usable figures keeps its example. The quiz and the "why" never contain a personal figure, so a shared lesson is the same for everyone.
 import { fill, money, sipFutureValue } from '@/lib/reels/figures';
 import type { Mine } from '@/lib/reels/mine';
+import type { PersonalCtx } from '@/lib/reels/personal-more';
 import type { L, Reel, Scene } from '@/lib/reels/types';
 
 const t = (en: string, hi: string): L => ({ en, hi });
@@ -62,10 +63,14 @@ function emergencyFor(base: Reel, spend: number, fund?: number): Reel {
   return { ...base, mine: true, scenes };
 }
 
-/** The library with each personalisable reel rebuilt from `mine` when the figures for it are there. Order and ids are unchanged. */
-export function personaliseReels(base: Reel[], mine: Mine): Reel[] {
+/**
+ * The library with each personalisable reel rebuilt from `mine` when the figures for it are there. Order and ids are unchanged.
+ * `ctx` is optional (the signals fit it): with `strain` set, start-early, which talks of growth, keeps its example.
+ * The eleven wave-2 reels are rebuilt by personalisePlay (lib/reels/personal-play.ts), which the feed already calls after this one.
+ */
+export function personaliseReels(base: Reel[], mine: Mine, ctx?: PersonalCtx): Reel[] {
   return base.map(r => {
-    if (r.id === 'start-early' && mine.sip) return startEarlyFor(r, mine.sip);
+    if (r.id === 'start-early' && mine.sip && !ctx?.strain) return startEarlyFor(r, mine.sip);
     if (r.id === 'emi-trap' && mine.loan) return emiTrapFor(r, mine.loan);
     if (r.id === 'emergency-fund' && mine.spend) return emergencyFor(r, mine.spend, mine.fund);
     return r;

@@ -34,12 +34,14 @@ const PRECACHE_ASSETS = [
   './html/tax.html',
   './html/markets.html',
   './html/dna.html',
+  './html/reels.html',
   // ── Core CSS ─────────────────────────────────────────────────────
   './css/base.css',
   './css/layout.css',
   './css/components.css',
   './css/animations.css',
   './css/theme.css',
+  './css/reels.css',
   // ── Core JS ──────────────────────────────────────────────────────
   './js/ui.js',
   './js/mobile-nav.js',
@@ -58,6 +60,10 @@ const PRECACHE_ASSETS = [
   './js/finos-vault.js',
   './js/finos-format.js',
   './js/finos-taxdates.js',
+  // Money Reels page. The 150 KB (gzipped) data file is not precached for everyone: it is cached after the first visit (stale-while-revalidate for .json below).
+  './js/reels.js',
+  './js/reels-eval.js',
+  './js/finos-taxcore.js',
   './js/finos-context.js',
   './js/arya-ai.js',
   './js/arya-lazy.js',

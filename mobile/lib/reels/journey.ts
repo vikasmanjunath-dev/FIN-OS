@@ -90,7 +90,7 @@ export function streakOf(days: string[], today: string): { streak: number; doneT
 
 // ── which reel next ────────────────────────────────────────────────────────────────────────────────────────────────
 
-export interface Ranked { reel: Reel; reason: L | null; why: 'review' | 'timely' | 'gentle' | 'blind' | 'pillar' | 'new' | 'refresh' | 'done' }
+export interface Ranked { reel: Reel; reason: L | null; why: 'review' | 'timely' | 'gentle' | 'blind' | 'pillar' | 'new' | 'refresh' | 'pledge' | 'done' }
 export interface RankInput { watched: Watched; weakest: PillarId | null; now: Date }
 
 /**

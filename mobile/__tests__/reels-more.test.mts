@@ -2,7 +2,7 @@
 // beats, the Reels health counters and the seven-day challenges. Pure functions, checked with known answers.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { forgivingStreak } from '../lib/reels/streak.ts';
+import { forgivingStreak, reelsTabState } from '../lib/reels/streak.ts';
 import { streakOf } from '../lib/reels/journey.ts';
 import { LIBRARY } from '../lib/reels/library.ts';
 import { metaOf } from '../lib/reels/meta.ts';
@@ -225,14 +225,14 @@ test('health counters: bumping adds, bounds, ignores bad input and never lets a 
   assert.equal(bump(EMPTY_STATS, '2026-10-19', 'ms', 1e12).days['2026-10-19'].ms, 24 * 3_600_000, 'a day cannot hold more than 24 hours');
   let many = EMPTY_STATS; for (let i = 0; i < KEEP_DAYS + 30; i++) many = bump(many, dk(2026, 1 + Math.floor(i / 28), 1 + (i % 28)), 'fin');
   assert.equal(Object.keys(many.days).length, KEEP_DAYS, 'only the last 90 days are kept');
-  assert.ok(FIELDS.length === 12);
+  assert.ok(FIELDS.length === 15);
 });
 
 test('health counters: stored values are cleaned on the way in', () => {
   assert.deepEqual(parseStats('garbage'), EMPTY_STATS); assert.deepEqual(parseStats(null), EMPTY_STATS);
   const p = parseStats(JSON.stringify({ days: { '2026-10-19': { fin: 3, right: 9, poke: 2, engaged: 1, ms: -5, asks: 'x', extra: 1 }, bad: { fin: 1 }, '2026-10-20': 'no' } }));
   assert.deepEqual(Object.keys(p.days), ['2026-10-19']);
-  assert.deepEqual(p.days['2026-10-19'], { fin: 3, right: 3, poke: 2, engaged: 1, know: 0, less: 0, moves: 0, receipts: 0, asks: 0, ms: 0, eps: 0, epfin: 0 });
+  assert.deepEqual(p.days['2026-10-19'], { fin: 3, right: 3, poke: 2, engaged: 1, know: 0, less: 0, moves: 0, receipts: 0, asks: 0, ms: 0, eps: 0, epfin: 0, saves: 0, pledges: 0, together: 0 });
 });
 
 test('health: the 28-day figures, with known answers, and null where nothing was counted', () => {
@@ -512,4 +512,29 @@ test('a reel whose beat is broken plays without it instead of showing it', () =>
   const sl = play('delay-cost'), sb = sl.poke!.beat as Extract<Beat, { kind: 'slider' }>;
   assert.equal(isBeatUsable({ ...sl, poke: { ...sl.poke!, beat: { ...sb, model: { kind: 'emi-rate', principal: NaN, years: 20, rate0: 8 } } } }), false, 'a model that gives broken figures');
   assert.equal(isBeatUsable({ ...sl, poke: { ...sl.poke!, beat: { ...sb, model: null as never } } }), false, 'a beat that makes the checker itself throw');
+});
+
+// ── the Reels tab ────────────────────────────────────────────────────────────────────────────────────────────
+
+test('the Reels tab badge: a check when done, the streak while today waits, a dot when there is nothing yet, and no alarm ever', () => {
+  const done = reelsTabState(days(3, 4, 5), D(5));
+  assert.deepEqual([done.badge, done.streak], ['check', 3]); assert.equal(done.label, 'Reels, done for today, 3-day streak');
+  const waiting = reelsTabState(days(3, 4, 5), D(6));
+  assert.deepEqual([waiting.badge, waiting.streak], ['streak', 3]); assert.equal(waiting.label, "Reels, today's reel is ready, 3-day streak");
+  const fresh = reelsTabState([], D(6));
+  assert.deepEqual([fresh.badge, fresh.streak], ['dot', 0]); assert.equal(fresh.label, "Reels, today's reel is ready");
+  const rest = reelsTabState(days(1, 2, 3, 5), D(6)); assert.deepEqual([rest.badge, rest.streak], ['streak', 4], 'a rest day (the 4th) does not break the run');
+  const lapsed = reelsTabState(days(1, 2), D(9)); assert.deepEqual([lapsed.badge, lapsed.streak], ['dot', 0], 'a lapsed run is a dot, not a warning');
+  for (const st of [done, waiting, fresh, rest, lapsed]) assert.ok(!/miss|lost|behind|broke|hurry/i.test(st.label), st.label);
+});
+
+test('the Reels tab exists, sits second, opens the full-screen feed and has a fallback screen', () => {
+  const layout = fs.readFileSync(nodePath.join(import.meta.dirname, '..', 'app/(tabs)/_layout.tsx'), 'utf8');
+  const names = [...layout.matchAll(/<Tabs\.Screen[\s\S]*?name="(\w+)"/g)].map(m => m[1]);
+  assert.deepEqual(names, ['dashboard', 'reels', 'markets', 'arya', 'track', 'portfolio']);
+  assert.match(layout, /name="reels"[\s\S]*?tabPress[\s\S]*?preventDefault\(\)[\s\S]*?router\.push\('\/learn\/reels'/);
+  assert.ok(fs.existsSync(nodePath.join(import.meta.dirname, '..', 'app/(tabs)/reels.tsx')));
+  assert.ok(fs.existsSync(nodePath.join(import.meta.dirname, '..', 'app/learn/reels.tsx')));
+  const screen = fs.readFileSync(nodePath.join(import.meta.dirname, '..', 'app/(tabs)/reels.tsx'), 'utf8');
+  assert.match(screen, /Redirect href=\{'\/learn\/reels'/);
 });

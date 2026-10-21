@@ -9,6 +9,7 @@
     "web": "expo start --web",
     "lint": "eslint app components hooks lib constants scripts __tests__ --max-warnings 0",
     "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./__tests__/register-aliases.mjs --test __tests__/*.test.mts",
+    "reels:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./__tests__/register-aliases.mjs scripts/reel-check.mts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -49,6 +50,7 @@
     "react-native-screens": "~4.26.0",
     "react-native-svg": "15.15.4",
     "react-native-url-polyfill": "^2.0.0",
+    "react-native-view-shot": "5.1.0",
     "react-native-web": "^0.21.2",
     "react-native-webview": "13.16.1",
     "react-native-worklets": "0.10.1"

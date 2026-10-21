@@ -24,6 +24,7 @@ export default function ReelsHealth() {
     { label: hi ? 'पहली बार में सही जवाब' : 'Right first time', value: pct(h.rightRate) },
     { label: hi ? 'इंटरैक्टिव हिस्से में भागीदारी' : 'Played with the interactive part', value: pct(h.pokeRate) },
     { label: hi ? 'हर 100 रीलों पर शुरू किए काम' : 'Moves started per 100 reels', value: num(h.movesPer100), target: HYPOTHESES.movesPer100, ok: h.movesPer100 === null ? undefined : HYPOTHESES.movesPer100.ok(h.movesPer100) },
+    { label: hi ? 'हर 100 रीलों पर “मैं यह करूँगा”' : '“I’ll do this” per 100 reels', value: num(h.pledgesPer100) },
     { label: hi ? 'नतीजे की रसीदें' : 'Receipts earned', value: String(h.receipts) },
     { label: hi ? '“पता है” / “कम” हर 100 पर' : '“I know this” and “less” per 100 reels', value: num(h.steeringPer100), target: HYPOTHESES.steeringPer100, ok: h.steeringPer100 === null ? undefined : HYPOTHESES.steeringPer100.ok(h.steeringPer100) },
     { label: hi ? 'रोज़ के मिनट (मध्यिका)' : 'Minutes a day (median)', value: num(h.medianMinutes, 1), target: HYPOTHESES.medianMinutes, ok: h.medianMinutes === null ? undefined : HYPOTHESES.medianMinutes.ok(h.medianMinutes) },

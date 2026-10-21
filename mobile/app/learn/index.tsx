@@ -56,7 +56,9 @@ export default function LearnHome() {
     <TrackerScreen title="Learn" subtitle="Short lessons from FIN·OS, on your phone. For education, not advice; check rates and rules against official sources.">
       <NavCard title="🎬 Money reels" sub="Short animated lessons with Mitra the owl: SIP, inflation, EMI and more. 30 seconds each, with a quick question." accent={Colors.purple} onPress={() => router.push('/learn/reels' as any)} />
       <NavCard title="🗺️ Money Map" sub="Nine topics by four rungs: myth, concept, decision, action. See where you are strong and what to watch next." accent={Colors.teal} onPress={() => router.push('/learn/map' as any)} />
+      <NavCard title="📌 My moves" sub="What you said you would do after a reel, how each one stands, and the reels you kept for later. All on this phone." accent={Colors.gold} onPress={() => router.push('/learn/moves' as any)} />
       <NavCard title="✅ 7-day challenges" sub="One small task a day: find your money leak, or scam-proof your phone. You tick each one; a missed day costs nothing." accent={Colors.cyan} onPress={() => router.push('/learn/challenges' as any)} />
+      <NavCard title="🔊 Reel voice" sub="Pick a voice, speed and style for the reels, and hear a sample with the words lighting up in time." accent={Colors.cyan} onPress={() => router.push('/learn/voice' as any)} />
       <NavCard title="📖 Story series" sub="Six short runs of reels, each following one person to one real move: first salary, a safety net, scams, tax, a home loan, retirement." accent={Colors.gold} onPress={() => router.push('/learn/series' as any)} />
 
       <Card accent={Colors.teal}>

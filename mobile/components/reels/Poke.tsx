@@ -30,8 +30,8 @@ export function Poke({ beat, lang, sound = false, onDone }: { beat: Beat; lang: 
 
 // ── a draggable track, with steppers for anyone who prefers taps, keys or a screen reader ─────────────────────────
 
-function TrackSlider({ pos, onPos, marks, label, valueText, stepBy = 0.02, locked }: {
-  pos: number; onPos: (p: number) => void; marks?: { pos: number; color: string; label: string }[]; label: string; valueText: string; stepBy?: number; locked?: boolean;
+export function TrackSlider({ pos, onPos, marks, label, valueText, stepBy = 0.02, locked, lang = 'en' }: {
+  pos: number; onPos: (p: number) => void; marks?: { pos: number; color: string; label: string }[]; label: string; valueText: string; stepBy?: number; locked?: boolean; lang?: Lang;
 }) {
   const w = useRef(1);
   const [, force] = useState(0);
@@ -48,16 +48,16 @@ function TrackSlider({ pos, onPos, marks, label, valueText, stepBy = 0.02, locke
   const nudge = (d: number) => { if (!locked) onPos(Math.min(1, Math.max(0, pos + d))); };
   return (
     <View style={s.trackRow}>
-      <TouchableOpacity accessibilityRole="button" accessibilityLabel={`${label}: less`} disabled={locked} onPress={() => nudge(-stepBy)} style={s.step}><Text style={s.stepTxt}>−</Text></TouchableOpacity>
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel={`${label}: ${hi(lang, 'less', 'कम')}`} disabled={locked} accessibilityElementsHidden={!!locked} importantForAccessibility={locked ? 'no-hide-descendants' : 'auto'} onPress={() => nudge(-stepBy)} style={s.step}><Text style={s.stepTxt}>−</Text></TouchableOpacity>
       <View
-        style={s.trackHit} {...pan.panHandlers} accessible accessibilityRole="adjustable" accessibilityLabel={label} accessibilityValue={{ text: valueText }}
-        accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]} onAccessibilityAction={e => nudge(e.nativeEvent.actionName === 'increment' ? stepBy : -stepBy)}
+        style={s.trackHit} {...pan.panHandlers} accessible accessibilityRole={locked ? 'image' : 'adjustable'} accessibilityLabel={label} accessibilityValue={{ text: valueText }} aria-valuetext={valueText}
+        accessibilityActions={locked ? undefined : [{ name: 'increment' }, { name: 'decrement' }]} onAccessibilityAction={e => nudge(e.nativeEvent.actionName === 'increment' ? stepBy : -stepBy)}
         onLayout={e => { w.current = e.nativeEvent.layout.width; force(n => n + 1); }}>
         <View style={s.track} pointerEvents="none"><View style={[s.fill, { width: `${pos * 100}%` }]} /></View>
         {marks?.map((m, i) => <View key={i} pointerEvents="none" style={[s.mark, { left: `${m.pos * 100}%`, backgroundColor: m.color }]} />)}
         <View pointerEvents="none" style={[s.thumb, { left: `${pos * 100}%` }]} />
       </View>
-      <TouchableOpacity accessibilityRole="button" accessibilityLabel={`${label}: more`} disabled={locked} onPress={() => nudge(stepBy)} style={s.step}><Text style={s.stepTxt}>+</Text></TouchableOpacity>
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel={`${label}: ${hi(lang, 'more', 'ज़्यादा')}`} disabled={locked} accessibilityElementsHidden={!!locked} importantForAccessibility={locked ? 'no-hide-descendants' : 'auto'} onPress={() => nudge(stepBy)} style={s.step}><Text style={s.stepTxt}>+</Text></TouchableOpacity>
     </View>
   );
 }
@@ -100,21 +100,23 @@ function GuessBeat({ beat, lang, sound, onDone }: { sound: boolean; beat: Extrac
       <Text style={s.q} maxFontSizeMultiplier={1.3}>{beat.q[lang]}</Text>
       {!shown ? (
         <>
-          <Text style={s.readout} accessibilityLiveRegion="polite" maxFontSizeMultiplier={1.2}>{money(guess)[lang]}</Text>
-          <TrackSlider pos={pos} onPos={onPos} label={hi(lang, 'Your guess', 'आपका अंदाज़ा')} valueText={money(guess)[lang]} />
+          <Text style={s.readout} maxFontSizeMultiplier={1.2}>{money(guess)[lang]}</Text>
+          <TrackSlider pos={pos} onPos={onPos} label={hi(lang, 'Your guess', 'आपका अंदाज़ा')} valueText={money(guess)[lang]} lang={lang} />
           <View style={s.ends}><Text style={s.endTxt}>{money(beat.min)[lang]}</Text><Text style={s.endTxt}>{money(beat.max)[lang]}</Text></View>
           <TouchableOpacity accessibilityRole="button" style={s.primary} onPress={() => { tick(Haptics.ImpactFeedbackStyle.Medium); reveal(guess); setTouched(true); }}><Text style={s.primaryTxt}>{hi(lang, 'Lock in my guess', 'मेरा अंदाज़ा पक्का करें')}</Text></TouchableOpacity>
         </>
       ) : (
-        <View accessibilityLiveRegion="polite">
-          <TrackSlider pos={shown.guess !== null ? valueToPos(shown.guess, beat.min, beat.max) : answerPos} onPos={() => {}} locked label={hi(lang, 'Guess and answer', 'अंदाज़ा और जवाब')} valueText={money(beat.answer)[lang]}
+        <View>
+          <TrackSlider pos={shown.guess !== null ? valueToPos(shown.guess, beat.min, beat.max) : answerPos} onPos={() => {}} locked lang={lang} label={hi(lang, 'Guess and answer', 'अंदाज़ा और जवाब')} valueText={money(beat.answer)[lang]}
             marks={[...(shown.guess !== null ? [{ pos: valueToPos(shown.guess, beat.min, beat.max), color: Colors.gold, label: 'guess' }] : []), { pos: answerPos, color: Colors.teal, label: 'answer' }]} />
+          <View accessibilityLiveRegion="polite">
           <View style={s.legend}>
             {shown.guess !== null ? <Text style={[s.legendTxt, { color: Colors.gold }]}>{`● ${hi(lang, 'You', 'आप')}: ${money(shown.guess)[lang]}`}</Text> : null}
             <Text style={[s.legendTxt, { color: Colors.teal }]}>{`● ${hi(lang, 'Answer', 'जवाब')}: ${money(beat.answer)[lang]}`}</Text>
           </View>
           {verdict ? <Text style={s.verdict}>{verdict}</Text> : null}
           <Text style={s.why} maxFontSizeMultiplier={1.3}>{beat.reveal[lang]}</Text>
+          </View>
           <TouchableOpacity accessibilityRole="button" style={s.primary} onPress={() => onDone({ engaged: touched })}><Text style={s.primaryTxt}>{hi(lang, 'Continue', 'आगे बढ़ें')}</Text></TouchableOpacity>
         </View>
       )}
@@ -140,7 +142,7 @@ function SliderBeat({ beat, lang, sound, onDone }: { sound: boolean; beat: Extra
     <View>
       <Text style={s.q} maxFontSizeMultiplier={1.3}>{beat.q[lang]}</Text>
       <Text style={s.sliderLabel}>{`${beat.label[lang]}: `}<Text style={s.sliderX}>{xText(beat, x, lang)}</Text></Text>
-      <TrackSlider pos={(x - beat.min) / span} onPos={onPos} stepBy={beat.step / span} label={beat.label[lang]} valueText={xText(beat, x, lang)} />
+      <TrackSlider pos={(x - beat.min) / span} onPos={onPos} stepBy={beat.step / span} label={beat.label[lang]} valueText={xText(beat, x, lang)} lang={lang} />
       <View style={s.ends}><Text style={s.endTxt}>{xText(beat, beat.min, lang)}</Text><Text style={s.endTxt}>{xText(beat, beat.max, lang)}</Text></View>
       <View style={s.bars} accessible accessibilityLabel={bars.map(b => `${b.label[lang]}: ${b.text[lang]}`).join('. ')}>
         {bars.map((b, i) => (
@@ -184,10 +186,12 @@ function MythBeat({ beat, lang, sound, onDone }: { sound: boolean; beat: Extract
           <TouchableOpacity accessibilityRole="button" style={[s.pick, s.pickFact]} onPress={() => answer(true)}><Text style={s.pickTxt}>{hi(lang, 'Fact', 'सच')}</Text></TouchableOpacity>
         </View>
       ) : (
-        <View accessibilityLiveRegion="polite">
+        <View>
+          <View accessibilityLiveRegion="polite">
           <Text style={[s.verdict, mine === card.fact && { color: Colors.teal }]}>{`${verdict ? verdict + ' ' : ''}${card.fact ? hi(lang, 'It is a fact.', 'यह सच है।') : hi(lang, 'It is a myth.', 'यह मिथक है।')}`}</Text>
           <Text style={s.why} maxFontSizeMultiplier={1.3}>{card.why[lang]}</Text>
           {last ? <Text style={s.score}>{hi(lang, `You got ${score.right} of ${score.total}`, `आपके ${score.total} में से ${score.right} सही`)}</Text> : null}
+          </View>
           <TouchableOpacity accessibilityRole="button" style={s.primary} onPress={() => { if (last) onDone({ engaged: touched }); else { setI(i + 1); setShown(false); } }}>
             <Text style={s.primaryTxt}>{last ? hi(lang, 'Continue', 'आगे बढ़ें') : hi(lang, 'Next card', 'अगली बात')}</Text>
           </TouchableOpacity>
@@ -236,11 +240,13 @@ function SpotBeat({ beat, lang, sound, onDone }: { sound: boolean; beat: Extract
           <SkipLink lang={lang} onPress={() => onDone({ engaged: false })} />
         </>
       ) : (
-        <View accessibilityLiveRegion="polite">
+        <View>
+          <View accessibilityLiveRegion="polite">
           <Text style={s.verdict}>{touched ? (hi(lang, `You spotted ${r.found} of ${r.flags} red flags`, `आपने ${r.found} में से ${r.flags} लाल झंडे पकड़े`)) : hi(lang, `There were ${r.flags} red flags`, `इसमें ${r.flags} लाल झंडे थे`)}</Text>
           {touched ? <Text style={s.hint}>{hi(lang, 'Green: caught · Red: missed · Struck through: normal part', 'हरा: पकड़ा · लाल: छूटा · कटा हुआ: सामान्य हिस्सा')}</Text> : null}
           {flagged.map(x => <Text key={x.i} style={s.flagLine} maxFontSizeMultiplier={1.3}>{`⚑ ${x.p.flag![lang]}`}</Text>)}
           <Text style={s.why} maxFontSizeMultiplier={1.3}>{beat.todo[lang]}</Text>
+          </View>
           <TouchableOpacity accessibilityRole="button" style={s.primary} onPress={() => onDone({ engaged: touched })}><Text style={s.primaryTxt}>{hi(lang, 'Continue', 'आगे बढ़ें')}</Text></TouchableOpacity>
         </View>
       )}
@@ -269,7 +275,8 @@ function PathBeat({ beat, lang, sound, onDone }: { sound: boolean; beat: Extract
           <SkipLink lang={lang} onPress={() => onDone({ engaged: false })} />
         </>
       ) : (
-        <View accessibilityLiveRegion="polite">
+        <View>
+          <View accessibilityLiveRegion="polite">
           {beat.options.map((o, i) => (
             <View key={i} style={[s.pathCard, pick === i && s.pathCardOn]}>
               <Text style={s.pathHead}>{`${pick === i ? '▶ ' : ''}${o.label[lang]}`}</Text>
@@ -277,6 +284,7 @@ function PathBeat({ beat, lang, sound, onDone }: { sound: boolean; beat: Extract
             </View>
           ))}
           <Text style={s.verdict} maxFontSizeMultiplier={1.3}>{beat.verdict[lang]}</Text>
+          </View>
           <TouchableOpacity accessibilityRole="button" style={s.primary} onPress={() => onDone({ engaged: touched })}><Text style={s.primaryTxt}>{hi(lang, 'Continue', 'आगे बढ़ें')}</Text></TouchableOpacity>
         </View>
       )}
@@ -312,10 +320,12 @@ function SortBeat({ beat, lang, sound, onDone }: { sound: boolean; beat: Extract
           <SkipLink lang={lang} onPress={() => onDone({ engaged: touched })} />
         </>
       ) : (
-        <View accessibilityLiveRegion="polite">
+        <View>
+          <View accessibilityLiveRegion="polite">
           <Text style={[s.verdict, mine === card.bin && { color: Colors.teal }]}>{`${verdict ? verdict + ' ' : ''}${hi(lang, 'It belongs in: ', 'यह यहाँ आता है: ')}${beat.bins[card.bin][lang]}`}</Text>
           <Text style={s.why} maxFontSizeMultiplier={1.3}>{card.why[lang]}</Text>
           {last ? <Text style={s.score}>{hi(lang, `You got ${score.right} of ${score.total}`, `आपके ${score.total} में से ${score.right} सही`)}</Text> : null}
+          </View>
           <TouchableOpacity accessibilityRole="button" style={s.primary} onPress={() => { if (last) onDone({ engaged: touched }); else { setI(i + 1); setShown(false); } }}><Text style={s.primaryTxt}>{last ? hi(lang, 'Continue', 'आगे बढ़ें') : hi(lang, 'Next card', 'अगला कार्ड')}</Text></TouchableOpacity>
         </View>
       )}
@@ -360,7 +370,8 @@ function OrderBeat({ beat, lang, sound, onDone }: { sound: boolean; beat: Extrac
           <SkipLink lang={lang} onPress={() => onDone({ engaged: touched })} />
         </>
       ) : (
-        <View accessibilityLiveRegion="polite">
+        <View>
+          <View accessibilityLiveRegion="polite">
           {touched ? <Text style={s.verdict}>{hi(lang, `${score.right} of ${score.total} in the right place`, `${score.total} में से ${score.right} सही जगह पर`)}</Text> : null}
           {beat.items.map((it, k) => (
             <View key={k} style={s.pathCard}>
@@ -368,6 +379,7 @@ function OrderBeat({ beat, lang, sound, onDone }: { sound: boolean; beat: Extrac
               <Text style={s.pathRes} maxFontSizeMultiplier={1.3}>{it.why[lang]}</Text>
             </View>
           ))}
+          </View>
           <TouchableOpacity accessibilityRole="button" style={s.primary} onPress={() => onDone({ engaged: touched })}><Text style={s.primaryTxt}>{hi(lang, 'Continue', 'आगे बढ़ें')}</Text></TouchableOpacity>
         </View>
       )}
@@ -424,7 +436,7 @@ const s = StyleSheet.create({
   bubble: { borderRadius: Radii.xl, padding: Spacing.md, backgroundColor: 'rgba(255,255,255,0.07)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)' },
   from: { color: Colors.textMuted, fontSize: 12, fontWeight: '800', marginBottom: Spacing.xs },
   msg: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  part: { maxWidth: '100%', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 6, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)' },
+  part: { maxWidth: '100%', minHeight: 44, justifyContent: 'center', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 6, borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)' },
   partTxt: { color: '#fff', fontSize: 16, lineHeight: 22, fontWeight: '600' },
   partOn: { backgroundColor: HOLD, borderColor: '#FBBF24' },
   partGood: { backgroundColor: 'rgba(34,211,166,0.3)' },

@@ -1,8 +1,10 @@
 // Moments that make a reel timely: the calendar, a life event the person declared, or a state of their own figures. A reel lists the
 // triggers it answers in meta.ts; the ranker lifts it while one is active and shows the note as the reason. Pure and tested.
 import { DEFS } from '@/lib/lifeEvents';
+import { seasonOf, type SeasonId } from '@/lib/reels/seasons';
 import type { Signals } from '@/lib/reels/signals';
-import type { L } from '@/lib/reels/types';
+import type { L, Reel } from '@/lib/reels/types';
+import type { Meta } from '@/lib/reels/meta';
 
 const l = (en: string, hi: string): L => ({ en, hi });
 
@@ -46,3 +48,33 @@ export const KNOWN_TRIGGERS: string[] = [
   ...Object.keys(TRIGGER_NOTES),
   ...Object.keys(DEFS).map(k => `event:${k}`),
 ];
+
+// ── seasons ──────────────────────────────────────────────────────────────────────────────────────────────────
+// Diwali week, Budget week and March year-end (seasons.ts) give a small lift to the reels people look for then. It is a nudge, smaller than a
+// real trigger, and it works only on reels the ranker already offers: the distress guard removes "put in more" reels before any lift is counted.
+
+/** Reels about festive spending, budgets and scam messages, which Diwali week lifts (besides every reel on the scams topic). */
+export const DIWALI_REELS: string[] = [
+  'sort-needs-wants', 'needs-wants-wealth', 'cash-flow', 'pay-yourself-first', 'lifestyle-creep', 'myths-saving', 'path-first-raise', 'sinking-funds',
+  'card-interest-trap', 'bnpl-late-fees', 'no-cost-emi', 'slide-card-wait', 'guess-card-dues', 'path-card-bill', 'credit-utilisation',
+];
+
+export const SEASON_NOTES: Record<SeasonId, L> = {
+  diwali: l('Diwali week often means bigger spends and more scam messages.', 'दिवाली के हफ़्ते में अक्सर ख़र्च बढ़ता है और ठगी के संदेश भी।'),
+  budget: l('It is Budget week: tax rules are in the news.', 'यह बजट का हफ़्ता है: टैक्स के नियम चर्चा में हैं।'),
+  yearend: l('The financial year ends this month: tax-saving dates are close.', 'इस महीने वित्त वर्ष ख़त्म होता है: टैक्स बचाने की तारीख़ें पास हैं।'),
+};
+
+/** How much a season adds to the weighted sum of a reel's score (that sum is out of 1, so 0.12 is about seven points). */
+export const SEASON_LIFT = 0.12;
+
+/** The season (if any) that makes this reel more worth seeing today, with the sentence that explains it. Pure; `now` decides the season. */
+export function seasonLiftFor(reel: Reel, meta: Meta, now: Date): { lift: number; note: L } | null {
+  const season = seasonOf(now);
+  if (!season) return null;
+  const tags = meta.triggers ?? [];
+  const hit = season.id === 'diwali' ? reel.topic === 'safety' || DIWALI_REELS.includes(reel.id)
+    : season.id === 'budget' ? reel.topic === 'tax'
+    : tags.includes('cal:tax-season');
+  return hit ? { lift: SEASON_LIFT, note: SEASON_NOTES[season.id] } : null;
+}

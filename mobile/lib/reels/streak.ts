@@ -39,3 +39,20 @@ export function forgivingStreak(days: string[], today: string): Streak {
   for (const d of active) best = Math.max(best, runBack(active, d));
   return { streak, doneToday, best: Math.max(best, streak), resting: streak > 0 && !active.has(start) };
 }
+
+/** What the Reels tab shows beside its icon, decided from the days a reel was finished. Calm on purpose: never a red alarm, never a count of what was missed. */
+export interface TabState {
+  /** `check`: today's reel is done. `streak`: a run is alive and today's is waiting. `dot`: today's reel is ready. */
+  badge: 'check' | 'streak' | 'dot';
+  streak: number;
+  /** The tab's accessibility label. */
+  label: string;
+}
+
+export function reelsTabState(days: string[], today: string): TabState {
+  const s = forgivingStreak(days, today);
+  const run = s.streak > 0 ? `, ${s.streak}-day streak` : '';
+  if (s.doneToday) return { badge: 'check', streak: s.streak, label: `Reels, done for today${run}` };
+  if (s.streak > 0) return { badge: 'streak', streak: s.streak, label: `Reels, today's reel is ready${run}` };
+  return { badge: 'dot', streak: 0, label: "Reels, today's reel is ready" };
+}

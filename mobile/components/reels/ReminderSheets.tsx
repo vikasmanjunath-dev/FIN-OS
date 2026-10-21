@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Modal, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { announce } from '@/components/reels/announce';
 import { getPermission, requestPermission } from '@/lib/remindersNative';
 import { loadNudge, saveNudge, syncReelReminders } from '@/lib/reelRemindersStorage';
 import { DEFAULT_NUDGE, NUDGE_HOURS, type NudgePrefs, type WhenOption } from '@/lib/reels/reminders';
@@ -13,19 +14,20 @@ const hourLabel = (h: number, lang: Lang) => (lang === 'hi' ? `${h > 12 ? h - 12
 /** "When will you do it?": a handful of moments, one tap, one reminder. Asking when, not whether. */
 export function WhenSheet({ lang, visible, options, status, onPick, onClose }: { lang: Lang; visible: boolean; options: WhenOption[]; status: WhenStatus; onPick: (o: WhenOption) => void; onClose: () => void }) {
   const hi = lang === 'hi';
+  useEffect(() => { if (status === 'denied') announce(hi ? 'फ़ोन की सेटिंग में नोटिफ़िकेशन बंद हैं।' : 'Notifications are off in your phone settings.'); else if (status === 'unsupported') announce(hi ? 'रिमाइंडर फ़ोन ऐप में चलते हैं।' : 'Reminders work in the phone app.'); else if (status && typeof status === 'object') announce((hi ? 'ठीक है। याद दिलाएँगे: ' : 'Done. We will remind you: ') + status.done); }, [status, hi]);
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={s.back}>
         <View style={s.card} accessibilityViewIsModal>
-          <Text style={s.title}>{hi ? 'यह आप कब करेंगे?' : 'When will you do it?'}</Text>
+          <Text style={s.title} accessibilityRole="header">{hi ? 'यह आप कब करेंगे?' : 'When will you do it?'}</Text>
           <Text style={s.sub}>{hi ? 'एक समय चुनें। हम उसी वक़्त एक बार याद दिलाएँगे। रकम या ब्योरा लॉक स्क्रीन पर नहीं दिखेगा।' : 'Pick a moment. We will remind you once, then. No amount or detail shows on your lock screen.'}</Text>
           {status && typeof status === 'object' ? (
             <Text style={s.done} accessibilityLiveRegion="polite">{(hi ? 'ठीक है। याद दिलाएँगे: ' : 'Done. We will remind you: ') + status.done}</Text>
           ) : (
             <>
               {options.map(o => <TouchableOpacity key={o.id} accessibilityRole="button" style={s.opt} onPress={() => onPick(o)}><Text style={s.optTxt}>{o.label[lang]}</Text></TouchableOpacity>)}
-              {status === 'denied' ? <Text style={s.warn}>{hi ? 'फ़ोन की सेटिंग में इस ऐप के लिए नोटिफ़िकेशन बंद हैं। उन्हें चालू करके फिर चुनें।' : 'Notifications are off for this app in your phone settings. Turn them on, then pick a time.'}</Text> : null}
-              {status === 'unsupported' ? <Text style={s.warn}>{hi ? 'रिमाइंडर फ़ोन ऐप में चलते हैं, ब्राउज़र प्रीव्यू में नहीं।' : 'Reminders work in the phone app, not in the browser preview.'}</Text> : null}
+              {status === 'denied' ? <Text style={s.warn} accessibilityLiveRegion="polite">{hi ? 'फ़ोन की सेटिंग में इस ऐप के लिए नोटिफ़िकेशन बंद हैं। उन्हें चालू करके फिर चुनें।' : 'Notifications are off for this app in your phone settings. Turn them on, then pick a time.'}</Text> : null}
+              {status === 'unsupported' ? <Text style={s.warn} accessibilityLiveRegion="polite">{hi ? 'रिमाइंडर फ़ोन ऐप में चलते हैं, ब्राउज़र प्रीव्यू में नहीं।' : 'Reminders work in the phone app, not in the browser preview.'}</Text> : null}
             </>
           )}
           <TouchableOpacity accessibilityRole="button" style={s.close} onPress={onClose}><Text style={s.closeTxt}>{status && typeof status === 'object' ? (hi ? 'ठीक है' : 'Done') : (hi ? 'अभी नहीं' : 'Not now')}</Text></TouchableOpacity>
@@ -41,6 +43,7 @@ export function NudgeSheet({ lang, visible, onClose }: { lang: Lang; visible: bo
   const [prefs, setPrefs] = useState<NudgePrefs>({ ...DEFAULT_NUDGE });
   const [msg, setMsg] = useState<null | 'denied' | 'unsupported'>(null);
   useEffect(() => { if (visible) { setMsg(null); loadNudge().then(setPrefs).catch(() => {}); } }, [visible]);
+  useEffect(() => { if (msg === 'denied') announce(hi ? 'फ़ोन की सेटिंग में नोटिफ़िकेशन बंद हैं।' : 'Notifications are off in your phone settings.'); else if (msg === 'unsupported') announce(hi ? 'रिमाइंडर फ़ोन ऐप में चलते हैं।' : 'Reminders work in the phone app.'); }, [msg, hi]);
 
   const apply = useCallback(async (next: NudgePrefs) => {
     setMsg(null);
@@ -56,7 +59,7 @@ export function NudgeSheet({ lang, visible, onClose }: { lang: Lang; visible: bo
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={s.back}>
         <View style={s.card} accessibilityViewIsModal>
-          <Text style={s.title}>{hi ? 'रोज़ का रिमाइंडर' : 'Daily reminder'}</Text>
+          <Text style={s.title} accessibilityRole="header">{hi ? 'रोज़ का रिमाइंडर' : 'Daily reminder'}</Text>
           <Text style={s.sub}>{hi ? 'दिन में एक बार, आपके चुने वक़्त पर, एक छोटे पाठ का नाम। जिस दिन आप रील देख चुके हों, उस दिन नहीं।' : 'Once a day, at the hour you pick, naming one short lesson. Not on a day you have already done a reel.'}</Text>
           <View style={s.switchRow}>
             <Text style={s.optTxt}>{hi ? 'रोज़ याद दिलाएँ' : 'Remind me daily'}</Text>
@@ -67,8 +70,8 @@ export function NudgeSheet({ lang, visible, onClose }: { lang: Lang; visible: bo
               {NUDGE_HOURS.map(h => <TouchableOpacity key={h} accessibilityRole="button" accessibilityState={{ selected: prefs.hour === h }} style={[s.hour, prefs.hour === h && s.hourOn]} onPress={() => apply({ ...prefs, hour: h })}><Text style={[s.hourTxt, prefs.hour === h && s.hourTxtOn]}>{hourLabel(h, lang)}</Text></TouchableOpacity>)}
             </View>
           ) : null}
-          {msg === 'denied' ? <Text style={s.warn}>{hi ? 'फ़ोन की सेटिंग में इस ऐप के लिए नोटिफ़िकेशन बंद हैं। उन्हें चालू करके फिर कोशिश करें।' : 'Notifications are off for this app in your phone settings. Turn them on, then try again.'}</Text> : null}
-          {msg === 'unsupported' ? <Text style={s.warn}>{hi ? 'रिमाइंडर फ़ोन ऐप में चलते हैं, ब्राउज़र प्रीव्यू में नहीं।' : 'Reminders work in the phone app, not in the browser preview.'}</Text> : null}
+          {msg === 'denied' ? <Text style={s.warn} accessibilityLiveRegion="polite">{hi ? 'फ़ोन की सेटिंग में इस ऐप के लिए नोटिफ़िकेशन बंद हैं। उन्हें चालू करके फिर कोशिश करें।' : 'Notifications are off for this app in your phone settings. Turn them on, then try again.'}</Text> : null}
+          {msg === 'unsupported' ? <Text style={s.warn} accessibilityLiveRegion="polite">{hi ? 'रिमाइंडर फ़ोन ऐप में चलते हैं, ब्राउज़र प्रीव्यू में नहीं।' : 'Reminders work in the phone app, not in the browser preview.'}</Text> : null}
           <Text style={s.fine}>{hi ? 'कोई दोष-भावना वाला संदेश नहीं, रात को कभी नहीं। कभी भी बंद करें।' : 'Never a guilt message, never at night. Turn it off any time.'}</Text>
           <TouchableOpacity accessibilityRole="button" style={s.close} onPress={onClose}><Text style={s.closeTxt}>{hi ? 'ठीक है' : 'Done'}</Text></TouchableOpacity>
         </View>

@@ -4,28 +4,30 @@ import { router, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { ReelPlayer } from '@/components/reels/ReelPlayer';
 import { EpisodeEnd } from '@/components/reels/EpisodeEnd';
-import { NudgeSheet, WhenSheet, type WhenStatus } from '@/components/reels/ReminderSheets';
-import { addMoveReminder, syncReelReminders } from '@/lib/reelRemindersStorage';
-import { getPermission, requestPermission } from '@/lib/remindersNative';
-import { toLocalIso, whenOptions, type WhenOption } from '@/lib/reels/reminders';
+import { Banner } from '@/components/reels/Banner';
+import { TogetherSheet } from '@/components/reels/TogetherSheet';
+import { NudgeSheet, WhenSheet } from '@/components/reels/ReminderSheets';
+import { useMoveReminder } from '@/hooks/useMoveReminder';
 import { ACT_ALL, LIBRARY } from '@/lib/reels/library';
 import { EPISODE_SIZE, composeEpisode, finishedToday, type Episode } from '@/lib/reels/episode';
 import { blindSpot } from '@/lib/reels/ranker';
-import { weekKey } from '@/lib/reels/reelsProfile';
+import { isPledged, isSaved, showTip, weekKey } from '@/lib/reels/reelsProfile';
+import { seasonOf } from '@/lib/reels/seasons';
+import { factFor } from '@/lib/reels/facts';
 import type { L, Reel, Topic } from '@/lib/reels/types';
 import { recordWatched } from '@/lib/reelsStorage';
-import { recordStat } from '@/lib/reelsStatsStorage';
+import { loadStats, recordStat } from '@/lib/reelsStatsStorage';
+import { weekLine, weekOf } from '@/lib/reels/weekly';
 import type { Ranked } from '@/lib/reels/journey';
-import { SharePreview } from '@/components/SharePreview';
-import { shareText } from '@/lib/reels/share';
+import { ShareSheet } from '@/components/reels/ShareSheet';
 import { useReelsJourney } from '@/hooks/useReelsJourney';
 import { stopSpeaking } from '@/lib/reels/speech';
 import { useLang } from '@/lib/i18n';
 import { Colors, Spacing } from '@/constants/theme';
 
-type Tab = Topic | 'all' | 'foryou';
+type Tab = Topic | 'all' | 'foryou' | 'saved';
 const TOPICS: { key: Tab; en: string; hi: string }[] = [
-  { key: 'foryou', en: 'For you', hi: 'आपके लिए' }, { key: 'all', en: 'All', hi: 'सभी' }, { key: 'invest', en: 'Investing', hi: 'निवेश' }, { key: 'loans', en: 'Loans', hi: 'लोन' },
+  { key: 'foryou', en: 'For you', hi: 'आपके लिए' }, { key: 'saved', en: '🔖 Saved', hi: '🔖 सेव' }, { key: 'all', en: 'All', hi: 'सभी' }, { key: 'invest', en: 'Investing', hi: 'निवेश' }, { key: 'loans', en: 'Loans', hi: 'लोन' },
   { key: 'protect', en: 'Protection', hi: 'सुरक्षा' }, { key: 'tax', en: 'Tax', hi: 'टैक्स' }, { key: 'retire', en: 'Retirement', hi: 'रिटायरमेंट' },
   { key: 'credit', en: 'Credit', hi: 'क्रेडिट' }, { key: 'safety', en: 'Scams', hi: 'धोखाधड़ी' }, { key: 'goals', en: 'Goals', hi: 'लक्ष्य' }, { key: 'basics', en: 'Basics', hi: 'बुनियादी' },
 ];
@@ -46,21 +48,36 @@ export default function ReelsScreen() {
   const j = useReelsJourney();
   const reloadJourney = j.reload;
   const markBlind = j.markBlind;
+  const markResurfaced = j.markResurfaced;
   const [order, setOrder] = useState<Ranked[] | null>(null);               // the personalised order is fixed for this visit, so a finished reel never jumps
   const [episode, setEpisode] = useState<Episode | null>(null);          // today's episode is fixed for this visit too
-  useEffect(() => { if (j.loaded && !order) { setOrder(j.ranked); const now = new Date(); const ep = composeEpisode(j.ranked, Math.max(0, EPISODE_SIZE - finishedToday(j.watched, now)), blindSpot(j.ranked, j.signals, j.profile, now)); setEpisode(ep); if (ep.picks.length > 0) recordStat('eps'); if (ep.blind) markBlind(weekKey(now)); } }, [j.loaded, j.ranked, j.watched, j.signals, j.profile, markBlind, order]);
+  useEffect(() => { if (j.loaded && !order) { setOrder(j.ranked); const now = new Date(); const ep = composeEpisode(j.ranked, Math.max(0, EPISODE_SIZE - finishedToday(j.watched, now)), blindSpot(j.ranked, j.signals, j.profile, now)); setEpisode(ep); if (ep.picks.length > 0) recordStat('eps'); if (ep.blind) markBlind(weekKey(now)); for (const pk of ep.picks) if (pk.why === 'pledge') markResurfaced(pk.reel.id); } }, [j.loaded, j.ranked, j.watched, j.signals, j.profile, markBlind, markResurfaced, order]);
   const [topic, setTopic] = useState<Tab>(id ? 'all' : 'foryou');
   const library = useMemo(() => { const by = Object.fromEntries((order ?? []).map(o => [o.reel.id, o.reel])); return LIBRARY.map(r => by[r.id] ?? r); }, [order]);   // fixed with the order, so nothing changes under the person's thumb
-  const reels: Item[] = useMemo(() => (topic === 'foryou' ? [...(episode?.picks ?? []).map(r => r.reel), END] : topic === 'all' ? library : library.filter(r => r.topic === topic)), [topic, episode, library]);
+  const [savedSnap, setSavedSnap] = useState<string[]>([]);              // the saved list as it was when the tab was opened, so un-saving a reel does not pull it from under the thumb
+  const reels: Item[] = useMemo(() => (topic === 'foryou' ? [...(episode?.picks ?? []).map(r => r.reel), END] : topic === 'all' ? library : topic === 'saved' ? library.filter(r => savedSnap.includes(r.id)) : library.filter(r => r.topic === topic)), [topic, episode, library, savedSnap]);
   const reelCount = reels.filter(x => !isEnd(x)).length;
   const reasons = useMemo(() => Object.fromEntries((order ?? []).filter(r => r.reason).map(r => [r.reel.id, r.reason as L])), [order]);
   const [startAt] = useState(() => (id ? Math.max(0, LIBRARY.findIndex(r => r.id === id)) : 0));      // the reel the link asked for, fixed at mount
   const [active, setActive] = useState(startAt);
   const startDone = useRef(!id);                  // once the person picks a topic or scrolls away, the link's start no longer applies
   const [sharing, setSharing] = useState<string | null>(null);
+  const [together, setTogether] = useState<string | null>(null);        // Money date on one phone, for this reel
+  const season = useMemo(() => seasonOf(new Date()), []);
+  const fact = useMemo(() => factFor(new Date()), []);
+  const [week, setWeek] = useState<string | null>(null);                // the last seven days, said gently, refreshed whenever a reel is finished
+  useEffect(() => { let live = true; loadStats().then(st => { if (live) setWeek(weekLine(weekOf(st, new Date()))?.[lang] ?? null); }); return () => { live = false; }; }, [j.watched, lang]);
+  const [tipFor, setTipFor] = useState<string | null>(null);            // the gesture tips ride on the first reel, on the first few visits only
+  const tipDone = useRef(false);
+  const tipShown = j.tipShown, profile = j.profile;
+  useEffect(() => {
+    if (!episode || tipDone.current) return;
+    tipDone.current = true;
+    const first = episode.picks[0]?.reel.id;
+    if (first && showTip(profile)) { setTipFor(first); tipShown(); }
+  }, [episode, profile, tipShown]);
   const [sound, setSound] = useState(false);
   const [nudgeOpen, setNudgeOpen] = useState(false);
-  const [when, setWhen] = useState<null | { reelId: string; status: WhenStatus }>(null);       // "when will you do it?" for a reel's tool
   const watched = j.watched;
   const list = useRef<FlatList>(null);
   useEffect(() => () => stopSpeaking(), []);
@@ -86,23 +103,12 @@ export default function ReelsScreen() {
   }, [episode]);
   const answered = useCallback((rid: string, correct: boolean) => { Haptics.notificationAsync(correct ? Haptics.NotificationFeedbackType.Success : Haptics.NotificationFeedbackType.Warning).catch(() => {}); recordStat('fin'); if (correct) recordStat('right'); noteEpisodeProgress(rid); recordWatched(rid, correct).then(() => reloadJourney()); }, [reloadJourney, noteEpisodeProgress]);
   const next = useCallback(() => { if (active < reels.length - 1) list.current?.scrollToIndex({ index: active + 1, animated: true }); else router.back(); }, [active, reels.length]);
-  const pick = useCallback((k: Tab) => { stopSpeaking(); startDone.current = true; setTopic(k); setActive(0); list.current?.scrollToOffset({ offset: 0, animated: false }); }, []);
+  const pick = useCallback((k: Tab) => { stopSpeaking(); startDone.current = true; if (k === 'saved') setSavedSnap(j.profile.saved ?? []); setTopic(k); setActive(0); list.current?.scrollToOffset({ offset: 0, animated: false }); }, [j.profile.saved]);
   const actFor = (rid: string) => { const a = ACT_ALL[rid]; return a ? { label: a.label[lang], onPress: () => { j.beginMove(rid); router.push(a.href as any); } } : null; };
   const streakLine = j.streak > 0 ? (lang === 'hi' ? `🔥 ${j.streak} दिन की लकीर` : `🔥 ${j.streak}-day streak`) : null;
   const seen = Object.keys(watched).filter(k => LIBRARY.some(r => r.id === k)).length;
   const anchorId = episode?.picks[0]?.reel.id;
-  /** The person picked a moment for a reel's tool: ask the phone once for permission, keep one reminder, and start watching the figure for a receipt. */
-  const remind = useCallback(async (reelId: string, o: WhenOption) => {
-    const a = ACT_ALL[reelId];
-    if (!a) return;
-    let perm = await getPermission();
-    if (perm === 'undetermined') perm = await requestPermission();
-    if (perm !== 'granted') { setWhen({ reelId, status: perm === 'unsupported' ? 'unsupported' : 'denied' }); return; }
-    await addMoveReminder({ reelId, at: toLocalIso(o.at), href: a.href, label: a.label });
-    j.beginMove(reelId);
-    await syncReelReminders().catch(() => {});
-    setWhen({ reelId, status: { done: o.label[lang] } });
-  }, [j, lang]);
+  const reminder = useMoveReminder(lang, j.beginMove);
 
   return (
     <View style={s.root} onLayout={e => setH(e.nativeEvent.layout.height)}>
@@ -114,12 +120,12 @@ export default function ReelsScreen() {
           onViewableItemsChanged={onViewable} viewabilityConfig={{ itemVisiblePercentThreshold: 70 }} windowSize={3} initialNumToRender={1} maxToRenderPerBatch={1}
           renderItem={({ item, index }) => isEnd(item) ? (
             <View style={{ height: h }}>
-              <EpisodeEnd lang={lang} count={finishedToday(watched, new Date())} streakLine={streakLine} move={anchorId ? actFor(anchorId) : null} tomorrow={episode?.tomorrow?.title[lang] ?? null} topInset={64 + CHIPS_H}
+              <EpisodeEnd lang={lang} count={finishedToday(watched, new Date())} streakLine={streakLine} move={anchorId ? actFor(anchorId) : null} tomorrow={episode?.tomorrow?.title[lang] ?? null} topInset={64 + CHIPS_H} week={week} fact={fact.text[lang]} pledges={j.profile.pledges?.length ?? 0} onMoves={() => router.push('/learn/moves' as never)}
                 onMore={() => pick('all')} onChallenges={() => router.push('/learn/challenges' as never)} onClose={() => (router.canGoBack() ? router.back() : router.replace('/learn' as any))} />
             </View>
           ) : (
             <View style={{ height: h }}>
-              <ReelPlayer reel={item} active={index === active} lang={lang} sound={sound} width={width} height={h} topInset={64 + CHIPS_H} reason={item.mine ? [reasons[item.id]?.[lang], lang === 'hi' ? 'आपके अपने आँकड़े, इसी ऐप से। वे फ़ोन पर ही रहते हैं।' : 'Your own numbers, from this app. They stay on this phone.'].filter(Boolean).join(' ') : reasons[item.id]?.[lang] ?? null} onShare={() => setSharing(item.id)} onKnow={id => { recordStat('know'); j.know(id); }} onLess={t => { recordStat('less'); j.less(t); }} onPoke={(_, engaged) => { recordStat('poke'); if (engaged) recordStat('engaged'); j.pokeDone(engaged); }} onRemind={ACT_ALL[item.id] ? () => setWhen({ reelId: item.id, status: null }) : null} act={actFor(item.id)} streakLine={streakLine} onAnswered={answered} onNext={next} />
+              <ReelPlayer reel={item} active={index === active} lang={lang} sound={sound} width={width} height={h} topInset={64 + CHIPS_H} reason={item.mine ? [reasons[item.id]?.[lang], lang === 'hi' ? 'आपके अपने आँकड़े, इसी ऐप से। वे फ़ोन पर ही रहते हैं।' : 'Your own numbers, from this app. They stay on this phone.'].filter(Boolean).join(' ') : reasons[item.id]?.[lang] ?? null} onShare={() => setSharing(item.id)} onKnow={id => { recordStat('know'); j.know(id); }} onLess={t => { recordStat('less'); j.less(t); }} onPoke={(_, engaged) => { recordStat('poke'); if (engaged) recordStat('engaged'); j.pokeDone(engaged); }} onRemind={ACT_ALL[item.id] ? () => reminder.open(item.id) : null} act={actFor(item.id)} streakLine={streakLine} shelf={{ saved: isSaved(j.profile, item.id), pledged: isPledged(j.profile, item.id), tip: item.id === tipFor, season, onSave: () => j.toggleSave(item.id), onPledge: () => j.pledge(item.id), onTogether: () => setTogether(item.id) }} onAnswered={answered} onNext={next} />
             </View>
           )}
         />
@@ -128,24 +134,27 @@ export default function ReelsScreen() {
         <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close reels" style={s.round} onPress={() => (router.canGoBack() ? router.back() : router.replace('/learn' as any))}><Text style={s.roundTxt}>✕</Text></TouchableOpacity>
         <View style={{ flex: 1, alignItems: 'center' }}><Text style={s.head}>{lang === 'hi' ? 'मनी रील्स' : 'Money reels'}</Text><Text style={s.sub}>{`${Math.min(active + 1, Math.max(1, reelCount))} / ${reelCount}${seen ? ` · ${seen} ${lang === 'hi' ? 'देखी' : 'watched'}` : ''}${j.streak > 0 ? ` · 🔥 ${j.streak}` : ''}`}</Text></View>
         <TouchableOpacity accessibilityRole="button" accessibilityLabel={lang === 'hi' ? 'रोज़ का रिमाइंडर' : 'Daily reminder'} style={[s.round, { marginRight: 8 }]} onPress={() => setNudgeOpen(true)}><Text style={s.roundTxt}>🔔</Text></TouchableOpacity>
-        <Pressable accessibilityRole="switch" accessibilityState={{ checked: sound }} accessibilityLabel={sound ? 'Voice on' : 'Voice off'} style={s.round} onPress={() => { setSound(v => { if (v) stopSpeaking(); return !v; }); }}><Text style={s.roundTxt}>{sound ? '🔊' : '🔇'}</Text></Pressable>
+        <Pressable accessibilityRole="switch" accessibilityState={{ checked: sound }} accessibilityLabel={sound ? 'Voice on' : 'Voice off'} accessibilityHint={lang === 'hi' ? 'देर तक दबाएँ: आवाज़ की सेटिंग' : 'Long press for voice settings'}
+          accessibilityActions={[{ name: 'settings', label: lang === 'hi' ? 'आवाज़ की सेटिंग' : 'Voice settings' }]} onAccessibilityAction={() => router.push('/learn/voice' as never)}
+          style={s.round} delayLongPress={450} onLongPress={() => { stopSpeaking(); router.push('/learn/voice' as never); }} onPress={() => { setSound(v => { if (v) stopSpeaking(); return !v; }); }}><Text style={s.roundTxt}>{sound ? '🔊' : '🔇'}</Text></Pressable>
       </View>
-      <WhenSheet lang={lang} visible={when !== null} options={whenOptions(new Date())} status={when?.status ?? null} onPick={o => { if (when) remind(when.reelId, o); }} onClose={() => setWhen(null)} />
+      <WhenSheet lang={lang} visible={reminder.visible} options={reminder.options} status={reminder.status} onPick={reminder.pick} onClose={reminder.close} />
       <NudgeSheet lang={lang} visible={nudgeOpen} onClose={() => setNudgeOpen(false)} />
+      {together ? <TogetherSheet reelId={together} lang={lang} visible onClose={() => setTogether(null)} onPlayed={() => recordStat('together')} /> : null}
+      {topic === 'saved' && order && reels.length === 0 ? (
+        <View style={s.empty} pointerEvents="none"><Text style={s.emptyTitle}>{lang === 'hi' ? 'अभी कुछ सेव नहीं है' : 'Nothing saved yet'}</Text><Text style={s.emptyBody}>{lang === 'hi' ? 'किसी रील को दाएँ स्वाइप करें, या जवाब के बाद 🔖 दबाएँ। वह यहाँ मिलेगी।' : 'Swipe a reel to the right, or tap 🔖 after its question. It will wait for you here.'}</Text></View>
+      ) : null}
       <Modal visible={sharing !== null} transparent animationType="slide" onRequestClose={() => setSharing(null)}>
         <View style={s.modalBack}><View style={s.modalCard}>
-          {sharing ? <SharePreview title={lang === 'hi' ? 'यह पाठ साझा करें' : 'Share this lesson'} text={shareText(sharing, lang)} onClose={() => setSharing(null)} /> : null}
+          {sharing ? <ShareSheet reelId={sharing} lang={lang} onClose={() => setSharing(null)} /> : null}
         </View></View>
       </Modal>
       {j.receipts[0] ? (
-        <View style={s.receipt} accessibilityLiveRegion="polite">
-          <View style={{ flex: 1 }}>
-            <Text style={s.receiptTag}>{lang === 'hi' ? '🎉 आपने जो किया, उसका नतीजा' : '🎉 YOU DID IT'}</Text>
-            <Text style={s.receiptTitle} maxFontSizeMultiplier={1.3}>{j.receipts[0].title[lang]}</Text>
-            <Text style={s.receiptBody} maxFontSizeMultiplier={1.3}>{j.receipts[0].body[lang]}</Text>
-          </View>
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel={lang === 'hi' ? 'ठीक है' : 'Got it'} style={s.receiptOk} onPress={() => j.dismissReceipt(j.receipts[0].receipt)}><Text style={s.receiptOkTxt}>{lang === 'hi' ? 'ठीक' : 'OK'}</Text></TouchableOpacity>
-        </View>
+        <Banner tone="teal" tag={lang === 'hi' ? '🎉 आपने जो किया, उसका नतीजा' : '🎉 YOU DID IT'} title={j.receipts[0].title[lang]} body={j.receipts[0].body[lang]}
+          okLabel={lang === 'hi' ? 'ठीक है' : 'Got it'} okText={lang === 'hi' ? 'ठीक' : 'OK'} onOk={() => j.dismissReceipt(j.receipts[0].receipt)} />
+      ) : j.milestones[0] ? (
+        <Banner tone="gold" tag={lang === 'hi' ? '🦉 आपकी ज़िंदगी की एक असली उपलब्धि' : '🦉 A REAL MILESTONE'} title={j.milestones[0].title[lang]} body={j.milestones[0].body[lang]}
+          okLabel={lang === 'hi' ? 'ठीक है' : 'Got it'} okText={lang === 'hi' ? 'ठीक' : 'OK'} onOk={() => j.dismissMilestone(j.milestones[0].id)} />
       ) : null}
       <View style={s.chips} pointerEvents="box-none">
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: Spacing.md, gap: 8, alignItems: 'center' }}>
@@ -167,12 +176,9 @@ const s = StyleSheet.create({
   roundTxt: { color: '#fff', fontSize: 18, fontWeight: '800' },
   modalBack: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.55)' },
   modalCard: { padding: Spacing.md, paddingBottom: Spacing.lg },
-  receipt: { position: 'absolute', left: Spacing.md, right: Spacing.md, bottom: 24, flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, padding: Spacing.md, borderRadius: 18, backgroundColor: '#12304A', borderWidth: 1, borderColor: 'rgba(34,211,166,0.5)' },
-  receiptTag: { color: Colors.teal, fontSize: 11, fontWeight: '800', letterSpacing: 0.8 },
-  receiptTitle: { color: '#fff', fontSize: 16, fontWeight: '900', marginTop: 2 },
-  receiptBody: { color: '#D8DEEC', fontSize: 13, lineHeight: 18, marginTop: 2 },
-  receiptOk: { minWidth: 48, minHeight: 44, borderRadius: 22, backgroundColor: Colors.teal, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12 },
-  receiptOkTxt: { color: '#000', fontSize: 14, fontWeight: '900' },
+  empty: { position: 'absolute', left: Spacing.lg, right: Spacing.lg, top: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' },
+  emptyTitle: { color: '#fff', fontSize: 20, fontWeight: '900', textAlign: 'center' },
+  emptyBody: { color: Colors.textMuted, fontSize: 14, lineHeight: 21, textAlign: 'center', marginTop: Spacing.sm },
   chips: { position: 'absolute', top: 56, left: 0, right: 0, height: CHIPS_H },
   chip: { minHeight: 44, paddingHorizontal: 14, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center' },
   chipOn: { backgroundColor: '#fff' },

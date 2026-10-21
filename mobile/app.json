@@ -2,7 +2,7 @@
   "expo": {
     "name": "FIN·OS",
     "slug": "finos-mobile",
-    "version": "1.0.0",
+    "version": "1.2.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "finos",
@@ -41,6 +41,7 @@
     },
     "plugins": [
       "./plugins/withLocalNotificationsOnly",
+      "./plugins/withLocalReleaseSigning",
       "expo-router",
       [
         "expo-splash-screen",

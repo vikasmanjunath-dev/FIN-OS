@@ -12,12 +12,12 @@ export function TrustSheet({ trust, lang, visible, onClose }: { trust: Trust | n
       <View style={s.back}>
         <View style={s.card} accessibilityViewIsModal>
           <ScrollView>
-            <Text style={s.title}>{hi ? 'यह कैसे निकाला गया' : 'How this is worked out'}</Text>
-            <Text style={s.label}>{hi ? 'सूत्र' : 'FORMULA'}</Text>
+            <Text style={s.title} accessibilityRole="header">{hi ? 'यह कैसे निकाला गया' : 'How this is worked out'}</Text>
+            <Text style={s.label} accessibilityRole="header">{hi ? 'सूत्र' : 'FORMULA'}</Text>
             <Text style={s.body}>{trust?.formula[lang]}</Text>
-            <Text style={s.label}>{hi ? 'हमने क्या माना' : 'WHAT WE ASSUMED'}</Text>
+            <Text style={s.label} accessibilityRole="header">{hi ? 'हमने क्या माना' : 'WHAT WE ASSUMED'}</Text>
             <Text style={s.body}>{trust?.assumes[lang]}</Text>
-            <Text style={s.label}>{hi ? 'आख़िरी जाँच' : 'LAST CHECKED'}</Text>
+            <Text style={s.label} accessibilityRole="header">{hi ? 'आख़िरी जाँच' : 'LAST CHECKED'}</Text>
             <Text style={s.body}>{trust?.asOf}</Text>
             <Text style={s.note}>{hi ? 'शिक्षा के लिए, सलाह नहीं। अपने आँकड़ों से कैलकुलेटर में देखें।' : 'For education, not advice. Check your own numbers in the calculator.'}</Text>
           </ScrollView>

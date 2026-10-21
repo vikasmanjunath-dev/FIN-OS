@@ -37,7 +37,7 @@ export function AskSheet({ reel, lang, visible, onClose }: { reel: Reel; lang: L
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <KeyboardAvoidingView style={s.back} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={s.card} accessibilityViewIsModal>
-          <Text style={s.title}>{hi ? '🦉 मित्रा से पूछें' : '🦉 Ask Mitra'}</Text>
+          <Text style={s.title} accessibilityRole="header">{hi ? '🦉 मित्रा से पूछें' : '🦉 Ask Mitra'}</Text>
           <Text style={s.sub}>{base ? (hi ? 'इस रील के आँकड़ों पर “अगर…?” पूछें। जवाब इसी फ़ोन पर निकलता है।' : 'Ask a “what if…?” on this reel’s numbers. The answer is worked out on this phone.') : (hi ? 'अपने आँकड़ों या किसी कैलकुलेटर के बारे में पूछें। जवाब इसी फ़ोन पर निकलता है।' : 'Ask about your own figures or a calculator. The answer is worked out on this phone.')}</Text>
           <ScrollView style={{ maxHeight: 280 }} keyboardShouldPersistTaps="handled">
             <View style={s.chips}>
@@ -47,12 +47,14 @@ export function AskSheet({ reel, lang, visible, onClose }: { reel: Reel; lang: L
             </View>
             {busy ? <Text style={s.note}>{hi ? 'निकाल रही हूँ…' : 'Working it out…'}</Text> : null}
             {answer ? (
-              <View accessibilityLiveRegion="polite" style={s.answer}>
-                {answer.note ? <Text style={s.note}>{answer.note[lang]}</Text> : null}
-                {answer.text ? <Text style={s.text}>{answer.text}</Text> : null}
-                {answer.source ? <Text style={s.src}>{`${hi ? 'स्रोत' : 'From'}: ${answer.source}${answer.asOf ? ` ${stamp(answer.asOf)}` : ''}`}</Text> : null}
-                {answer.text && lang === 'hi' ? <Text style={s.src}>जवाब अंग्रेज़ी में है; संख्याएँ वही हैं।</Text> : null}
-                {answer.route && answer.routeLabel ? <TouchableOpacity accessibilityRole="button" style={s.open} onPress={() => { onClose(); router.push(answer.route as never); }}><Text style={s.openTxt}>{`${answer.routeLabel} →`}</Text></TouchableOpacity> : null}
+              <View style={s.answer}>
+                <View accessibilityLiveRegion="polite">
+                  {answer.note ? <Text style={s.note}>{answer.note[lang]}</Text> : null}
+                  {answer.text ? <Text style={s.text}>{answer.text}</Text> : null}
+                  {answer.source ? <Text style={s.src}>{`${hi ? 'स्रोत' : 'From'}: ${answer.source}${answer.asOf ? ` ${stamp(answer.asOf)}` : ''}`}</Text> : null}
+                  {answer.text && lang === 'hi' ? <Text style={s.src}>जवाब अंग्रेज़ी में है; संख्याएँ वही हैं।</Text> : null}
+                </View>
+                {answer.route && answer.routeLabel ? <TouchableOpacity accessibilityRole="button" accessibilityLabel={answer.routeLabel} style={s.open} onPress={() => { onClose(); router.push(answer.route as never); }}><Text style={s.openTxt}>{`${answer.routeLabel} →`}</Text></TouchableOpacity> : null}
               </View>
             ) : null}
           </ScrollView>
@@ -80,8 +82,8 @@ const s = StyleSheet.create({
   note: { color: Colors.cyan, fontSize: 13, fontWeight: '800', marginTop: Spacing.sm },
   text: { color: '#fff', fontSize: 15, lineHeight: 22, marginTop: Spacing.xs },
   src: { color: Colors.textMuted, fontSize: 12, marginTop: Spacing.sm },
-  open: { minHeight: 44, borderRadius: Radii.lg, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', marginTop: Spacing.sm, paddingHorizontal: Spacing.md },
-  openTxt: { color: '#070A1A', fontSize: 14, fontWeight: '800' },
+  open: { minHeight: 44, paddingVertical: 8, borderRadius: Radii.lg, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', marginTop: Spacing.sm, paddingHorizontal: Spacing.md },
+  openTxt: { color: '#070A1A', fontSize: 14, fontWeight: '800', textAlign: 'center' },
   row: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.md },
   input: { flex: 1, minHeight: 48, borderRadius: Radii.lg, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.2)', color: '#fff', paddingHorizontal: Spacing.md, fontSize: 15 },
   send: { minWidth: 64, minHeight: 48, borderRadius: Radii.lg, backgroundColor: Colors.cyan, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.md },
