@@ -4,7 +4,13 @@
     {
       "name": "finos-site",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "3000", "--directory", "/Users/vkm/Desktop/Finos/Initial Deployment"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "3000",
+        "--directory",
+        "/Users/vkm/Desktop/Finos/Initial Deployment"
+      ],
       "port": 3000
     }
   ]

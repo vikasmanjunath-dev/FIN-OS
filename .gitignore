@@ -58,3 +58,7 @@ mobile/.audit-insurance-export/
 *.apk
 *.aab
 mobile/release/
+
+# Generated native project (expo prebuild) and local caches
+mobile/android/
+sml/training/.embed_cache.npz
