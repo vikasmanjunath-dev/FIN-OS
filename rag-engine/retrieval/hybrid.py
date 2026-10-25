@@ -69,6 +69,12 @@ def rrf_fuse(dense_results: list[dict], sparse_results: list[dict]) -> list[dict
     return fused
 
 
+def query_vector(query: str, use_hyde: bool = False) -> list[float]:
+    """The dense-leg vector: the query itself, or (use_hyde) a generated hypothetical answer. Exposed so a caller that runs
+    hybrid_retrieve twice for one question (retrieval/personal.py) embeds, and pays for HyDE, once."""
+    return embed_batch([generate_hypothetical_answer(query) if use_hyde else query])[0]
+
+
 def hybrid_retrieve(
     query: str,
     user_id: str | None = None,
@@ -76,6 +82,8 @@ def hybrid_retrieve(
     sparse_k: int = 10,
     use_hyde: bool = False,
     doc_type: str | None = None,
+    personal_only: bool = False,
+    query_vec: list[float] | None = None,
 ) -> list[dict]:
     """
     Embeds the query once, runs both retrievers, fuses with RRF (+ recency
@@ -88,8 +96,8 @@ def hybrid_retrieve(
     cost on this hardware: +4-7s per query (qwen3:8b generation) — real, not
     negligible — so this is opt-in, not default. See docs/RAG_HARDWARE.md §4.
     """
-    dense_query_text = generate_hypothetical_answer(query) if use_hyde else query
-    query_vec = embed_batch([dense_query_text])[0]
-    dense_results = qdrant_store.search(query_vec, user_id=user_id, top_k=dense_k, doc_type=doc_type)
-    sparse_results = sqlite_fts.search(query, user_id=user_id, top_k=sparse_k, doc_type=doc_type)
+    if query_vec is None:
+        query_vec = query_vector(query, use_hyde)
+    dense_results = qdrant_store.search(query_vec, user_id=user_id, top_k=dense_k, doc_type=doc_type, personal_only=personal_only)
+    sparse_results = sqlite_fts.search(query, user_id=user_id, top_k=sparse_k, doc_type=doc_type, personal_only=personal_only)
     return rrf_fuse(dense_results, sparse_results)

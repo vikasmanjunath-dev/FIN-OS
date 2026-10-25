@@ -70,8 +70,8 @@ def upsert_chunks(vectors: list[list[float]], payloads: list[dict], point_ids: l
     return point_ids
 
 
-def _namespace_filter(user_id: str | None, doc_type: str | None = None) -> Filter:
-    allowed = [config.PUBLIC_NAMESPACE]
+def _namespace_filter(user_id: str | None, doc_type: str | None = None, personal_only: bool = False) -> Filter:
+    allowed = [] if (personal_only and user_id) else [config.PUBLIC_NAMESPACE]
     if user_id:
         allowed.append(config.user_namespace(user_id))
     must = [FieldCondition(key="namespace", match=MatchAny(any=allowed))]
@@ -82,7 +82,7 @@ def _namespace_filter(user_id: str | None, doc_type: str | None = None) -> Filte
     return Filter(must=must)
 
 
-def search(query_vector: list[float], user_id: str | None, top_k: int = 8, doc_type: str | None = None) -> list[dict]:
+def search(query_vector: list[float], user_id: str | None, top_k: int = 8, doc_type: str | None = None, personal_only: bool = False) -> list[dict]:
     """
     Namespace-filtered vector search. The filter is passed INTO the Qdrant
     search call (not applied after) — a private chunk is never scored or
@@ -92,7 +92,7 @@ def search(query_vector: list[float], user_id: str | None, top_k: int = 8, doc_t
     results = client.query_points(
         collection_name=config.COLLECTION_NAME,
         query=query_vector,
-        query_filter=_namespace_filter(user_id, doc_type),
+        query_filter=_namespace_filter(user_id, doc_type, personal_only),
         limit=top_k,
         with_payload=True,
     )

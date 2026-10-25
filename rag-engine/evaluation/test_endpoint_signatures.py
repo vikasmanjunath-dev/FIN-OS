@@ -18,7 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from server import app  # noqa: E402
 
-_BODY_ENDPOINTS = ["/api/search", "/api/retrieve", "/api/query", "/api/feedback"]
+_BODY_ENDPOINTS = ["/api/search", "/api/retrieve", "/api/query", "/api/feedback", "/api/route"]
 
 
 def _schema():

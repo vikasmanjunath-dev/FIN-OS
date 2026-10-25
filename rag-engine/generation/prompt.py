@@ -5,11 +5,21 @@ See docs/RAG_PIPELINE.md Layer 6 and docs/RAG_PHASES.md Phase 2.
 from __future__ import annotations
 
 import re
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+import config
 
 SYSTEM_PROMPT = """You are Arya, FIN-OS's financial assistant for Indian users.
 Answer ONLY from the context below; say so if it lacks the answer. Cite every fact
 with [SOURCE_N]. If sources conflict, state both with dates. Use ₹ L/Cr/K formatting.
 HARD LIMIT: 3-4 sentences max (latency constraint on this hardware, not style)."""
+
+SYSTEM_PROMPT_QUOTE = """You are Arya, FIN-OS's financial assistant for Indian users.
+Answer ONLY from the context below; if it does not contain the answer, say so.
+FORMAT: line 1 = the single sentence from the context that answers the question, copied word for word, in quotation marks, followed by its [SOURCE_N].
+Then 1-2 sentences answering the question using ONLY facts stated in that quoted sentence (do not borrow numbers from other sentences).
+If sources conflict, state both with dates. Use ₹ L/Cr/K formatting. HARD LIMIT: 3 sentences besides the quote."""
 
 ANSWER_TEMPLATE = """{system_prompt}
 
@@ -25,7 +35,7 @@ USER QUESTION:
 Answer now, citing sources as instructed:"""
 
 
-_MAX_CHUNK_CHARS = 500  # ~125 tokens/chunk — prefill on this M5 measures ~200-260 tok/s
+_MAX_CHUNK_CHARS = config.PROMPT_CHUNK_CHARS  # default 500; ~125 tokens/chunk — prefill on this M5 measures ~200-260 tok/s
                          # (not the ~2500 tok/s originally assumed — see docs/RAG_HARDWARE.md
                          # "Measured Performance" section), so trimming context size directly
                          # cuts the dominant latency cost for a RAG query on this hardware.
@@ -105,7 +115,7 @@ def build_prompt(query: str, chunks: list[dict], history: list[dict] | None = No
         else "(no prior conversation)"
     )
     return ANSWER_TEMPLATE.format(
-        system_prompt=SYSTEM_PROMPT,
+        system_prompt=(SYSTEM_PROMPT_QUOTE if getattr(config, "PROMPT_VARIANT", "base") == "quote" else SYSTEM_PROMPT),
         context_block=build_context_block(chunks, query),
         history_block=history_block,
         query=query,

@@ -40,3 +40,9 @@ FEEDBACK_VOTES = Counter(
 
 def render() -> tuple[bytes, str]:
     return generate_latest(), CONTENT_TYPE_LATEST
+
+ROUTER_DECISIONS = Counter(
+    "rag_router_decisions_total",
+    "SML router shadow decisions from POST /api/route (labels only; the message text is never recorded)",
+    ["intent", "needs_guard"],
+)

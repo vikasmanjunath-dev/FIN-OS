@@ -35,7 +35,7 @@ def stream_generate(prompt: str, temperature: float = 0.1) -> Iterator[str]:
                 # target (docs/RAG_EVALUATION.md) is capping output length, not chasing
                 # decode speed. 120 tokens ≈ 6s at 20 tok/s — generous for a 3-4 sentence
                 # cited answer per the prompt's conciseness rule.
-                "num_predict": 120,
+                "num_predict": config.NUM_PREDICT,
             },
         },
         timeout=_TIMEOUT,

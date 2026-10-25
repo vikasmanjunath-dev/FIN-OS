@@ -75,13 +75,13 @@ def _fts_query_escape(query: str) -> str:
     return " OR ".join(terms)
 
 
-def search(query: str, user_id: str | None, top_k: int = 20, doc_type: str | None = None) -> list[dict]:
+def search(query: str, user_id: str | None, top_k: int = 20, doc_type: str | None = None, personal_only: bool = False) -> list[dict]:
     """Namespace-filtered BM25 search via SQLite FTS5's native bm25() ranking."""
     match_query = _fts_query_escape(query)
     if not match_query:
         return []
 
-    allowed_namespaces = [config.PUBLIC_NAMESPACE]
+    allowed_namespaces = [] if (personal_only and user_id) else [config.PUBLIC_NAMESPACE]
     if user_id:
         allowed_namespaces.append(config.user_namespace(user_id))
 

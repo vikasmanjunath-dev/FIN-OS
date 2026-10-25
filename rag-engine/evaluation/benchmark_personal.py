@@ -391,13 +391,12 @@ def cleanup() -> None:
 
 
 def _answer(query: str, user_id: str | None) -> tuple[str, list[str]]:
-    from retrieval.hybrid import hybrid_retrieve
-    from retrieval.reranker import rerank
     from generation.prompt import build_prompt
     from generation.streamer import generate
 
-    cands = hybrid_retrieve(query, user_id=user_id, dense_k=10, sparse_k=10)
-    ranked = rerank(query, cands, top_k=3)
+    import config
+    from retrieval.personal import retrieve_ranked
+    ranked = retrieve_ranked(query, user_id, config.PROMPT_TOP_K)
     titles = [c["payload"].get("doc_title", "?") for c in ranked]
     return generate(build_prompt(query, ranked)), titles
 
@@ -411,11 +410,11 @@ def passes(answer: str, expect: list[list[str]], forbid: list[str]) -> bool:
 
 def run(categories: list[str] | None = None, verbose: bool = True) -> dict:
     qs = [q for q in build_questions() if categories is None or q["category"] in categories]
-    seeded = seed()
-    if verbose:
-        print(f"seeded {seeded} fact cards for {len(PERSONAS)} personas; running {len(qs)} questions")
     results, by_cat = [], {}
-    try:
+    try:                                    # seed inside the try: a failure half-way through seeding must still clean up
+        seeded = seed()
+        if verbose:
+            print(f"seeded {seeded} fact cards for {len(PERSONAS)} personas; running {len(qs)} questions")
         for q in qs:
             t0 = time.time()
             try:

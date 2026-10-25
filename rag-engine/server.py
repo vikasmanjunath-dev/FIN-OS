@@ -21,7 +21,7 @@ from rq.worker import Worker
 from rq.exceptions import NoSuchJobError
 from fastapi import FastAPI, HTTPException, Header, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 from pydantic import BaseModel
 
 import config
@@ -114,7 +114,7 @@ class QueryRequest(BaseModel):
     query: str
     user_id: str | None = None
     session_id: str | None = None  # Phase 7: multi-turn conversation memory (Redis TTL 2h)
-    top_k: int = 3  # measured prefill on this M5 is the dominant latency cost
+    top_k: int = config.PROMPT_TOP_K  # measured prefill on this M5 is the dominant latency cost
                      # (~200-260 tok/s, not ~2500 — see docs/RAG_HARDWARE.md); fewer
                      # chunks in context directly cuts it. 8 is still available if a
                      # caller explicitly wants broader context at the cost of latency.
@@ -408,8 +408,8 @@ def _retrieve_and_rerank(
         sub_questions, merged = multi_hop_retrieve(query, user_id=user_id, top_k_per_hop=max(2, top_k // 2 or 1))
         return merged[:top_k], sub_questions
 
-    candidates = hybrid_retrieve(query, user_id=user_id, dense_k=10, sparse_k=10, use_hyde=use_hyde, doc_type=doc_type)
-    return rerank(query, candidates, top_k=top_k), [query]
+    from retrieval.personal import retrieve_ranked
+    return retrieve_ranked(query, user_id, top_k, use_hyde=use_hyde, doc_type=doc_type), [query]
 
 
 @app.post("/api/retrieve")
@@ -445,6 +445,34 @@ def retrieve_endpoint(req: QueryRequest, authorization: str | None = Header(None
             for c in ranked_chunks
         ],
     }
+
+
+class RouteRequest(BaseModel):
+    text: str
+
+
+@app.post("/api/route")
+def route_endpoint(req: RouteRequest):
+    """SML router (shadow mode, sml/PLAN.md W1.1): intent / risk / needs_guard for one message.
+    PRIVACY: the message text is never logged, printed, cached or stored. Only the decision's intent and
+    needs_guard go to a Prometheus counter. Imported lazily so server start does not depend on it.
+    No decorator-wrapped timing here (see the 422 note above); failures answer 503, never a stack trace."""
+    if not req.text.strip():
+        return JSONResponse(status_code=422, content={"error": "text is empty"})   # nothing to classify; not a router failure
+    try:
+        import sys as _sys
+        _rt = str(Path(__file__).resolve().parents[1] / "sml" / "runtime")
+        if _rt not in _sys.path:
+            _sys.path.insert(0, _rt)
+        import router_predict
+        decision = router_predict.predict(req.text)
+        metrics.ROUTER_DECISIONS.labels(
+            intent=str(decision.get("intent", "unknown")),
+            needs_guard="true" if decision.get("needs_guard") else "false",
+        ).inc()
+        return decision
+    except Exception as e:  # noqa: BLE001 - deliberately broad: shadow mode must never 500
+        return JSONResponse(status_code=503, content={"error": f"router unavailable ({type(e).__name__})"})
 
 
 @app.post("/api/query")
