@@ -1,6 +1,8 @@
 # 400 more reels: the production plan
 
-Status: written Oct 19 2026. The library today is 104 reels (98 lessons plus 6 playable). This plan takes it to about 500 in eight waves of about 50. Wave 3 is built with this document; the rest are scheduled and gated.
+> **History.** Current status is on `docs/REELS-STATUS.md`; the reference guide is `docs/REELS.md`. Checked 24 Oct 2026: 177 reels live, 50 wave-4 drafts held behind the gate (0 sign-offs recorded), waves 5 to 9 not started; the beats `spot`, `path` (the plan's `choose`), `sort` and `order` and ten slider models are built.
+
+Status: written Oct 19 2026. **Update, Oct 22 2026: 177 reels are live, wave 4 (50 reels) is written and machine-checked but held as drafts behind the review gate (`mobile/lib/reels/review.ts`), and waves 5 to 9 have not been started.** The library on Oct 19 was 104 reels (98 lessons plus 6 playable). This plan takes it to about 500 in eight waves of about 50. Wave 3 is built with this document; the rest are scheduled and gated.
 
 ## 1. What "400 more" has to mean
 

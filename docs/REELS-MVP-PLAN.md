@@ -1,6 +1,8 @@
 # Money reels as the FIN-OS mobile MVP: plan
 
-Status: Phase 1 is built (this document, Oct 18 2026). Phases 2 to 5 are planned. Nothing here needs a server or a paid service to work.
+> **History.** Current status is on `docs/REELS-STATUS.md`; the reference guide is `docs/REELS.md`. This is the original plan (Oct 18 2026); the status lines below were updated on 24 Oct 2026 to say what is built. Phases 1 to 3 and the engine parts of 2 and 4 are built; what remains is people, a real phone, assets and a backend.
+
+Status (24 Oct 2026): Phases 1, 2 and 3 are built; Phase 4 is partly built (haptics, accessibility pass, the Hindi and compliance tools; not the review itself, recorded voice or commissioned art); Phase 5 is partly built (a web version of the feed; not the backend, push or referral links). Nothing here needs a server or a paid service to work.
 
 ## 1. The idea in one sentence
 
@@ -49,20 +51,20 @@ Not doing: tips on what to buy, return promises, social feeds, ads, or sending r
 - Home card "Today's reel" with the streak.
 - Tests for the ranking, the streak maths and the links.
 
-**Phase 2: your numbers in the reels (built Oct 18 2026; share is text, not an image)**
+**Phase 2: your numbers in the reels (built Oct 18 2026; share as an image was added later and is built, untested on a phone)**
 - A reel can read figures from the device (monthly income, SIP, loan EMI from the debt tracker, emergency fund) and fall back to the example figures when absent. Guard: the caption always says "your" figure came from the app, never invents one.
 - Share card for a finished reel (image with the one takeaway, no personal figures).
 
-**Phase 3: content engine (40 reels built Oct 19 2026; the author checklist and seasonal reels are not)**
+**Phase 3: content engine (built: 177 live reels, the author checklist `npm run reels:check`; seasons are built as a stage tint, a ranker lift and a nudge headline for Diwali, Budget and March year-end, not as separate reels)**
 - 40+ reels in 6 topics (tax, retirement, credit score, scams and fraud, home loan, goals), each tied to a Learn lesson.
 - A content checklist script for authors (the existing validator plus a Hindi review sign-off field).
 - Seasonal reels (tax-saving in Jan to Mar, advance tax in Jun/Sep/Dec, Diwali spending).
 
-**Phase 4: production polish**
+**Phase 4: production polish (partly built: haptics, accessibility passes and Hindi/compliance review tooling are built; native Hindi review, recorded voice, commissioned art and the real-phone screen-reader pass are not done)**
 - Hindi review by a native speaker; optional recorded voice; commissioned Mitra art; haptics and sound design.
 - Accessibility pass on a real phone with a screen reader.
 
-**Phase 5: growth (needs the team)**
+**Phase 5: growth (needs the team; the web version of the feed is built at `html/reels.html`; backend sync, push reminders and referral links are not built)**
 - Hosted backend for sync (the Supabase project is gone and needs replacing), push reminder at the person's chosen time, referral share links, a small web version of the feed on the site.
 
 ## 6. Risks and how they are handled

@@ -5,6 +5,7 @@ import { eraseEverything, ACCOUNT_LINK_KEYS, type EraseDeps, type EraseResult } 
 import { bumpEraseEpoch } from '@/lib/eraseEpoch';
 import { clearLock } from '@/lib/appLockStorage';
 import { cancelAll as cancelReminders } from '@/lib/remindersNative';
+import { cancelReelNotices } from '@/lib/reels/reminders-native';
 import { sweepTempFiles } from '@/lib/tempFiles';
 import { SECURE_KEYS } from '@/lib/storageKeys';
 
@@ -25,6 +26,7 @@ async function resetMemory() {
 
 async function cancelNotifications() {
   await cancelReminders();
+  await cancelReelNotices();            // the money reels' own notices have ids that start `finosreel-`, which the calendar reminders' `finos-` filter does not match
   if (Platform.OS === 'web') return;
   try { await require('expo-notifications').dismissAllNotificationsAsync(); } catch { /* none delivered */ }
 }

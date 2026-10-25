@@ -1,0 +1,13 @@
+﻿Category,What it is,What the reader asks,Claims,Reels,Asserted by the reel,Cross-check mismatches,Cross-check matches
+regulator,Names a regulator or law,Is the body named correctly and is what it is said to do accurate?,17,14,16,0,0
+tax-section,Cites an Income-tax section,"Is the section number right for the rule described, and does it still exist under the current Act?",24,10,24,0,0
+tax-limit,"States a tax limit, threshold or deduction","Is the amount right for the year the reel says (or implies), and for the regime it names?",13,7,13,0,7
+tax-rate,States a tax rate or slab percentage,Is the rate right for the year and the regime?,56,35,56,0,27
+tax-year,Ties a rule to a financial year,Is that the year in force when the reel is shown? Does the reel say to check the current rule?,18,15,18,0,18
+tax-example,Worked tax example,"Amounts here are example inputs or results (checked by the maths tests). Check the rule the example applies, not the arithmetic.",56,41,54,0,0
+deposit-insurance,Deposit insurance cover,"Is the insured amount and what it covers (per depositor, per bank) correct?",1,1,1,0,1
+rate-fact,"An interest, inflation or return figure not marked as assumed","Is this a real published figure that needs a source and a date, or should the reel call it an assumption?",48,37,48,0,0
+scheme,Names a scheme or product,"Are the scheme’s features as described (lock-in, eligibility, tax treatment)?",56,13,50,0,0
+rule,"A rule, period, date or threshold stated as fact","Is the period, date or threshold right, and is it the same for everyone?",73,34,55,0,0
+helpline,"A helpline, number or official website",Is the number or address correct and still in service?,47,34,46,0,40
+advice-wording,Wording that could read as advice or a promise,"Could a viewer take this as a recommendation or a promise? Reword, qualify, or accept.",64,51,49,0,0

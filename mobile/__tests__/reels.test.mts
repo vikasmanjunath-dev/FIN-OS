@@ -404,7 +404,7 @@ test('wave 2 reels show the worked figures', () => {
     ['salary-slip-decoded', 'about ₹90,200 in hand'],                                      // 12,00,000 less 57,600 + 57,600 + 2,400 = 10,82,400 a year, no tax under the new-regime rebate
     ['needs-wants-wealth', '₹25,000 for needs, ₹15,000 for wants, ₹10,000 for saving'],
     ['pay-yourself-first', `grows to about ${money(loopSip(5_000, 10, 10)).en}`],
-    ['lifestyle-creep', `would be about ${money(loopSip(5_000, 12, 10)).en}`],
+    ['lifestyle-creep', 'would be about ₹11.5 lakh'],   // loopSip(5000, 12, 10) = 1,150,193; one decimal in lakh, not money()'s whole lakh
     ['sip-vs-lumpsum', `ends near ${money(grow(1_200_000, 12, 10)).en}`],
     ['index-fund-basics', `near ${money(grow(1_000_000, 11.8, 20)).en} at 0.2% cost, near ${money(grow(1_000_000, 10.5, 20)).en} at 1.5%`],
     ['elss-basics', 'save about ₹46,800 of tax'],
@@ -435,7 +435,7 @@ test('wave 2 reels show the worked figures', () => {
     ['wedding-fund', `in 5 years it is about ${money(Math.round(1_200_000 * Math.pow(1.08, 5))).en}`],
     ['child-education-fund', `in 12 years it is about ${money(Math.round(2_000_000 * Math.pow(1.08, 12))).en}`],
     ['first-home-downpayment', 'is about ₹16 lakh'],
-    ['car-buying-math', /EMI is about ₹20,7\d\d, and you pay about ₹12 lakh in all/],
+    ['car-buying-math', /EMI is about ₹20,7\d\d, and you pay about ₹12.5 lakh in all/],
     ['sabbatical-fund', 'you need about ₹2.4 lakh'],
     ['irregular-income-buffer', 'average, but the lowest month is ₹25,000'],
     ['sinking-funds', 'come to ₹90,000 a year, which is ₹7,500 a month'],

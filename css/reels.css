@@ -125,3 +125,34 @@
 }
 @media (max-height: 640px) { .rl-stage { height: clamp(150px, 30dvh, 200px); } .rl-say { min-height: 3.6em; font-size: 14.5px; } }
 @media (prefers-reduced-motion: reduce) { .rl-feed { scroll-behavior: auto; } .rl-prog i b { transition: none; } }
+
+/* Seasonal look, as in the app: a tint on the stage and a small badge. */
+.rl-feed[data-season] .rl-stage { background: linear-gradient(160deg, var(--rl-sa), var(--rl-sb)); border-color: var(--rl-sb); }
+[data-theme="light"] .rl-feed[data-season] .rl-stage { background: linear-gradient(160deg, color-mix(in srgb, var(--rl-sb) 14%, #fff), color-mix(in srgb, var(--rl-sb) 30%, #fff)); }
+.rl-season { font-size: 12px; font-weight: 800; color: var(--rl-gold); }
+.rl-card-h .rl-season { margin-left: auto; margin-right: 8px; }
+.rl-stop .rl-season { margin: 0; }
+.rl-fact { max-width: 30em; border: 1px solid var(--border-soft); border-radius: 14px; padding: 10px 14px; background: var(--bg-main); color: var(--text-primary); }
+.rl-stop p.rl-fact { color: var(--text-primary); font-size: 14px; line-height: 1.55; }
+
+/* My moves: a plain list under the feed. */
+.rl-statusrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 8px; }
+.rl-statusrow .rl-status { margin: 0; flex: 1 1 auto; }
+.rl-statusrow .rl-btn { flex: 0 0 auto; min-height: 40px; padding: 8px 14px; font-size: 13.5px; }
+.rl-moves { margin-top: 14px; padding: 14px; border: 1px solid var(--border-soft); border-radius: 20px; background: var(--bg-surface); color: var(--text-primary); }
+.rl-moves[hidden] { display: none; }
+.rl-moves h2 { font-family: 'Space Grotesk', sans-serif; font-size: 18px; margin: 0 0 8px; color: var(--text-primary); }
+.rl-moves h3 { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); margin: 14px 0 6px; font-weight: 800; }
+.rl-moves .rl-list li { padding-bottom: 8px; border-bottom: 1px solid var(--border-soft); }
+.rl-moves h2:focus-visible { outline: 3px solid var(--rl-focus); outline-offset: 2px; }
+.rl-btn[aria-pressed="true"] { border-color: var(--rl-teal); background: rgba(34, 211, 166, .14); }
+
+/* Touch targets: every control on this page is at least 44 x 44 CSS pixels, including the shared header and skip link (scoped to this page). */
+.rl-body .mob-ham, .rl-body #floatThemeBtn, .rl-body #fs-toggle, .rl-body #finos-alert-bell { min-width: 44px; min-height: 44px; }
+.rl-body #finos-skip-link { min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; box-sizing: border-box; }
+.rl-lang button { min-width: 44px; min-height: 44px; padding: 8px 14px; }
+.rl-wrap .page-back-link { display: inline-flex; align-items: center; min-width: 44px; min-height: 44px; }
+.rl-statusrow .rl-btn { min-height: 44px; }
+.rl-msg .rl-opt { min-height: 44px; padding: 8px 10px; }
+.rl-panel input[type="range"] { height: 44px; }
+.rl-card summary { min-height: 44px; }

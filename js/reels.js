@@ -8,6 +8,8 @@
  *
  * Privacy: everything stays in the browser. The only network request is loading the data file. What you watch, answer and your day streak are
  * kept in localStorage under keys starting finos_session_reels_web_ (the site never syncs finos_session_* keys). No tracking, no sharing.
+ * Also here, as in the app: the seasonal look (Diwali week, Budget week, March year-end), a money fact and a quiet look at the week at the calm stop,
+ * reels to save for later, "I'll do this", and a small My moves list. All of it is plain lists in this browser; the maths and dates are tested copies (js/reels-eval.js).
  */
 (function () {
   'use strict';
@@ -15,6 +17,8 @@
   const E = window.FinosReelsEval;
   const PREFIX = 'finos_session_reels_web_';
   const KEY_SEEN = PREFIX + 'seen', KEY_DAYS = PREFIX + 'days', KEY_EPISODE = PREFIX + 'episode';
+  const KEY_STATS = PREFIX + 'stats', KEY_SAVED = PREFIX + 'saved', KEY_PLEDGES = PREFIX + 'pledges';
+  const ID_OK = /^[a-z0-9-]{1,40}$/;
   const EPISODE_SIZE = 3;
   const reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
@@ -46,6 +50,14 @@
       stopH: (n) => `That’s today’s ${n}.`, stopP: 'A small daily habit beats a long scroll. Come back tomorrow for a new episode.',
       stopStreak: (n) => `Day streak: ${n}. One rest day in a week never breaks it.`, stopTomorrow: (t) => `Coming up: ${t}`, again: 'Watch today’s again', learn: 'Back to Learn',
       stopApp: 'More reels, a voice and reels built from your own numbers are in the FIN-OS app.',
+      mitra: 'Mitra the owl',
+      factTitle: 'Money fact of the day', savedReel: 'Saved reel',
+      save: '\uD83D\uDD16 Save for later', saved: '\uD83D\uDD16 Saved', pledge: '\u2705 I\u2019ll do this', pledged: '\u2705 On my moves',
+      movesBtn: (n) => (n ? `My moves (${n})` : 'My moves'), movesTitle: 'My moves', pledgesH: 'I\u2019ll do this',
+      pledgesNone: 'Nothing here yet. After a reel, tap \u201cI\u2019ll do this\u201d to keep its next step here.', since: (d) => `since ${d}`,
+      savedH: 'Saved for later', savedNone: 'Nothing saved yet. After a reel, tap \u201cSave for later\u201d.', watch: 'Watch now', remove: 'Remove',
+      movesNote: 'Kept only in this browser. The app can also notice when your own figures improve; this page never sees your numbers.',
+      clear: 'Clear everything this page remembers', clearSure: 'Tap again to erase it', cleared: 'Cleared.',
     },
     hi: {
       title: 'मनी रील्स', back: '← Learn पर वापस',
@@ -73,6 +85,14 @@
       stopH: (n) => `आज के ${n} पूरे हुए।`, stopP: 'रोज़ की छोटी आदत लंबे स्क्रॉल से बेहतर है। नए एपिसोड के लिए कल आइए।',
       stopStreak: (n) => `लगातार दिन: ${n}। हफ़्ते में एक छुट्टी से यह कभी नहीं टूटता।`, stopTomorrow: (t) => `आगे: ${t}`, again: 'आज की रील्स फिर देखें', learn: 'Learn पर वापस',
       stopApp: 'और रील्स, आवाज़ और आपके अपने आँकड़ों वाली रील्स FIN-OS ऐप में हैं।',
+      mitra: 'मित्रा उल्लू',
+      factTitle: 'आज का पैसे का तथ्य', savedReel: 'सहेजी रील',
+      save: '\uD83D\uDD16 बाद के लिए सहेजें', saved: '\uD83D\uDD16 सहेजी गई', pledge: '\u2705 मैं यह करूँगा/करूँगी', pledged: '\u2705 मेरे कामों में',
+      movesBtn: (n) => (n ? `मेरे काम (${n})` : 'मेरे काम'), movesTitle: 'मेरे काम', pledgesH: 'मैं यह करूँगा/करूँगी',
+      pledgesNone: 'अभी कुछ नहीं। रील के बाद \u201cमैं यह करूँगा/करूँगी\u201d छुएँ, तो उसका अगला क़दम यहाँ रहेगा।', since: (d) => `${d} से`,
+      savedH: 'बाद के लिए सहेजी', savedNone: 'अभी कुछ सहेजा नहीं है। रील के बाद \u201cबाद के लिए सहेजें\u201d छुएँ।', watch: 'अभी देखें', remove: 'हटाएँ',
+      movesNote: 'सिर्फ़ इसी ब्राउज़र में रहता है। ऐप आपके अपने आँकड़े सुधरने पर भी पहचान सकता है; यह पेज आपके आँकड़े कभी नहीं देखता।',
+      clear: 'इस पेज की याद की हर चीज़ मिटाएँ', clearSure: 'मिटाने के लिए फिर छुएँ', cleared: 'मिटा दिया।',
     },
   };
 
@@ -93,6 +113,71 @@
   };
   function siteLang() { try { return window.localStorage.getItem('finos_lang') === 'hi' ? 'hi' : 'en'; } catch (e) { return 'en'; } }
 
+  // What comes back from storage is never trusted: another tab, an older version or a person can leave anything there. Each reader returns a
+  // well-formed value or an empty one, so a damaged entry costs only that entry, never the page.
+  const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+  const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+  const validDay = (s) => {
+    if (typeof s !== 'string' || !DAY_RE.test(s)) return false;
+    const [y, m, d] = s.split('-').map(Number), t = new Date(Date.UTC(y, m - 1, d));
+    return t.getUTCFullYear() === y && t.getUTCMonth() === m - 1 && t.getUTCDate() === d;          // a real calendar day, not 2026-13-45
+  };
+  /** { reelId: { at, correct } } with a real date and a boolean; anything else is dropped. */
+  function cleanSeen(v) {
+    const out = {};
+    if (!isObj(v)) return out;
+    for (const [id, w] of Object.entries(v).slice(0, 600)) {
+      if (ID_OK.test(id) && isObj(w) && typeof w.at === 'string' && w.at.length <= 40 && Number.isFinite(new Date(w.at).getTime())) out[id] = { at: w.at, correct: w.correct === true };
+    }
+    return out;
+  }
+  /** A list of 'YYYY-MM-DD' days, each a real date, no repeats, the last 120. */
+  function cleanDays(v) {
+    return Array.isArray(v) ? Array.from(new Set(v.filter(validDay))).sort().slice(-120) : [];
+  }
+  /** { v: 1, days: { 'YYYY-MM-DD': { counter: whole number 0..500 } } } for the counters the page keeps. */
+  function cleanStats(v) {
+    const out = { v: 1, days: {} };
+    if (!isObj(v) || !isObj(v.days)) return out;
+    for (const [day, d] of Object.entries(v.days)) {
+      if (!validDay(day) || !isObj(d)) continue;
+      const row = {};
+      for (const f of ['fin', 'pledges', 'saves', 'moves', 'receipts', 'together']) { const n = d[f]; if (typeof n === 'number' && Number.isFinite(n) && n > 0) row[f] = Math.min(500, Math.floor(n)); }
+      out.days[day] = row;
+    }
+    const keys = Object.keys(out.days).sort();
+    keys.slice(0, -90).forEach((k) => { delete out.days[k]; });
+    return out;
+  }
+  const cleanSaved = (v) => (Array.isArray(v) ? Array.from(new Set(v.filter((x) => typeof x === 'string' && ID_OK.test(x)))).slice(-60) : []);
+  const cleanPledges = (v) => {
+    if (!Array.isArray(v)) return [];
+    const seen = new Set(), out = [];
+    for (const x of v) { if (isObj(x) && typeof x.id === 'string' && ID_OK.test(x.id) && typeof x.at === 'string' && x.at.length <= 40 && !seen.has(x.id)) { seen.add(x.id); out.push({ id: x.id, at: x.at }); } }
+    return out.slice(-20);
+  };
+  /** Today's three ids if they were kept for today and are all real reels; otherwise null (a new episode is chosen). */
+  function cleanEpisode(v, today, known) {
+    if (!isObj(v) || v.day !== today || !Array.isArray(v.ids) || v.ids.length < 1 || v.ids.length > 6) return null;
+    return v.ids.every((id) => typeof id === 'string' && known.has(id)) && new Set(v.ids).size === v.ids.length ? v.ids : null;
+  }
+  function loadLists() {
+    state.saved = cleanSaved(store.get(KEY_SAVED, []));
+    state.pledges = cleanPledges(store.get(KEY_PLEDGES, []));
+    state.stats = cleanStats(store.get(KEY_STATS, null));
+    state.seen = cleanSeen(store.get(KEY_SEEN, {}));
+    state.days = cleanDays(store.get(KEY_DAYS, []));
+  }
+  /** A tally for today (reels finished, moves kept, reels saved): numbers only, no reel names, kept 90 days, shown back as the weekly line. */
+  function bumpStat(field) {
+    const days = state.stats.days, d = days[state.today] || (days[state.today] = {});
+    d[field] = Math.min(500, (Number(d[field]) || 0) + 1);
+    Object.keys(days).sort().slice(0, -90).forEach((k) => { delete days[k]; });
+    store.set(KEY_STATS, state.stats);
+  }
+  const reelById = (id) => state.reels.find((r) => r.id === id) || null;
+  const fmtDate = (iso) => { const d = new Date(iso); return Number.isFinite(d.getTime()) ? d.toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-IN', { day: 'numeric', month: 'short' }) : ''; };
+
   const dayKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const dayNum = (key) => { const [y, m, d] = key.split('-').map(Number); return Math.floor(Date.UTC(y, m - 1, d) / 86400000); };
 
@@ -109,7 +194,7 @@
     return count;
   }
   function streakNow(days, today) {
-    const t = dayNum(today), active = new Set(days.map(dayNum).filter((n) => Number.isFinite(n) && n <= t));
+    const t = dayNum(today), active = new Set(days.filter((s) => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s)).map(dayNum).filter((n) => Number.isFinite(n) && n <= t));
     return runBack(active, active.has(t) ? t : t - 1);
   }
 
@@ -125,12 +210,12 @@
   /** Today's reels: the best unseen one, then one with something to try, then one from a different topic. Same all day (kept in the browser). */
   function composeEpisode(reels, seen, today) {
     const byId = new Map(reels.map((r) => [r.id, r]));
-    const kept = store.get(KEY_EPISODE, null);
+    const keptIds = cleanEpisode(store.get(KEY_EPISODE, null), today, new Set(reels.map((r) => r.id)));
     const pool0 = shuffled(reels, dayNum(today));
     const fresh = pool0.filter((r) => !seen[r.id]);
     const pool = fresh.length >= EPISODE_SIZE ? fresh : pool0;
     let picks;
-    if (kept && kept.day === today && Array.isArray(kept.ids) && kept.ids.length && kept.ids.every((id) => byId.has(id))) picks = kept.ids.map((id) => byId.get(id));
+    if (keptIds) picks = keptIds.map((id) => byId.get(id));
     else {
       picks = [pool[0]];
       if (!pool[0].beat) { const play = pool.find((r) => r.beat && !picks.includes(r)); if (play) picks.push(play); }
@@ -159,7 +244,10 @@
     return out;
   }
   const svgText = (x, y, size, fill, weight, anchor, content) => `<text x="${x}" y="${y}" font-size="${size}" font-weight="${weight}" text-anchor="${anchor}" style="fill:${fill}">${esc(content)}</text>`;
-  const textLines = (text, x, y, max, size, fill, weight, anchor) => wrapText(text, max).slice(0, 4).map((ln, i) => svgText(x, y + i * (size + 3), size, fill || SOFT, weight || 400, anchor || 'middle', ln)).join('');
+  function textLines(text, x, y, max, size, fill, weight, anchor) {
+    const sz = Number.isFinite(size) ? size : 12;          // a missing size must never reach the picture as NaN
+    return wrapText(text, max).slice(0, 4).map((ln, i) => svgText(x, y + i * (sz + 3), sz, fill || SOFT, weight || 400, anchor || 'middle', ln)).join('');
+  }
   const inrFull = (n) => { const s = String(Math.round(n)); const l = s.slice(-3), r = s.slice(0, -3); return '₹' + (r ? r.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + l : l); };
 
   /** What sits beside Mitra for a scene, as SVG markup. Every shape is a function of p (how far through the scene we are, 0..1). */
@@ -170,7 +258,7 @@
         const v = prop.from + (prop.to - prop.from) * settle(p, 0.75), col = TONE[prop.tone || 'cyan'], plain = prop.format === 'plain';
         const fmt = (n) => (plain ? String(Math.round(n)) : n >= 100000 ? E.money(Math.round(n))[li()] : inrFull(n));
         const size = plain ? 78 : Math.min(44, Math.floor(184 / (fmt(Math.max(prop.from, prop.to)).length * 0.62)));
-        return svgText(100, 130, size, col, 800, 'middle', fmt(v)) + (plain && prop.unit ? svgText(100, 160, 18, INK, 800, 'middle', t(prop.unit)) : '') + (prop.label ? textLines(t(prop.label), 100, plain ? 188 : 164, 22) : '');
+        return svgText(100, 130, size, col, 800, 'middle', fmt(v)) + (plain && prop.unit ? svgText(100, 160, 18, INK, 800, 'middle', t(prop.unit)) : '') + (prop.label ? textLines(t(prop.label), 100, plain ? 188 : 164, 22, 12) : '');
       }
       case 'bars': {
         const n = prop.items.length, bw = n > 2 ? 44 : 62, gap = (200 - n * bw) / (n + 1), max = Math.max(...prop.items.map((i) => i.value)), base = 205, grow = settle(p, 0.65);
@@ -240,7 +328,7 @@
       ? '<ellipse cx="18" cy="82" rx="10" ry="26" transform="rotate(28 18 82)" style="fill:var(--rl-owl-dark)"/><ellipse cx="102" cy="82" rx="10" ry="26" transform="rotate(-28 102 82)" style="fill:var(--rl-owl-dark)"/>'
       : '<ellipse cx="17" cy="104" rx="10" ry="28" style="fill:var(--rl-owl-dark)"/><ellipse cx="103" cy="104" rx="10" ry="28" style="fill:var(--rl-owl-dark)"/>';
     const extra = mood === 'worry' ? '<path d="M96 40 q4 8 0 12 q-4 -4 0 -12z" fill="#4DB8FF"/>' : mood === 'surprised' ? svgText(100, 30, 26, 'var(--rl-gold)', 800, 'middle', '!') : mood === 'think' ? svgText(100, 30, 24, 'var(--rl-purple)', 800, 'middle', '?') : mood === 'cheer' ? '<path d="M14 24 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3z" style="fill:var(--rl-gold)"/>' : '';
-    return `<svg viewBox="0 0 120 160" role="img" aria-label="Mitra the owl" focusable="false">${wing}<path d="M26 32 L40 14 L52 30 Z M94 32 L80 14 L68 30 Z" style="fill:var(--rl-owl-dark)"/>` +
+    return `<svg viewBox="0 0 120 160" role="img" aria-label="${esc(S().mitra)}" focusable="false">${wing}<path d="M26 32 L40 14 L52 30 Z M94 32 L80 14 L68 30 Z" style="fill:var(--rl-owl-dark)"/>` +
       `<ellipse cx="60" cy="88" rx="40" ry="52" style="fill:var(--rl-owl)"/><ellipse cx="60" cy="108" rx="24" ry="30" style="fill:var(--rl-belly)"/>${eyes}${brows}${beak}` +
       '<path d="M48 142 l-4 10 m10 -10 l0 10 m10 -10 l4 10 M62 142 l-4 10 m10 -10 l0 10 m10 -10 l4 10" stroke="#C47F00" stroke-width="3" stroke-linecap="round" fill="none"/>' + extra + '</svg>';
   }
@@ -254,7 +342,7 @@
   const nameOf = (id) => id.charAt(0).toUpperCase() + id.slice(1);
 
   // ── one reel's player ───────────────────────────────────────────────────────────────────────────────────────
-  const state = { data: null, reels: [], players: [], active: -1, episode: null, today: '', seen: {}, days: [], feed: null, last: 0, drawAt: 0 };
+  const state = { season: null, stats: { v: 1, days: {} }, saved: [], pledges: [], stopEl: null, io: null, data: null, reels: [], players: [], active: -1, episode: null, today: '', seen: {}, days: [], feed: null, last: 0, drawAt: 0 };
 
   const sceneMs = (reel, i) => Math.max(reel.scenes[i].ms, Math.min(7500, 1200 + 40 * tx(reel.scenes[i].say).length));
 
@@ -262,7 +350,7 @@
     const el = document.createElement('article');
     el.className = 'rl-card'; el.tabIndex = -1; el.dataset.idx = String(idx);
     el.innerHTML =
-      '<div class="rl-card-h"><span class="rl-chip" data-r="chip"></span><span class="rl-count" data-r="count"></span></div>' +
+      '<div class="rl-card-h"><span class="rl-chip" data-r="chip"></span><span class="rl-season" data-r="season" hidden></span><span class="rl-count" data-r="count"></span></div>' +
       '<h2 class="rl-reel-title" data-r="title"></h2>' +
       `<div class="rl-prog" aria-hidden="true">${reel.scenes.map(() => '<i><b></b></i>').join('')}</div>` +
       '<div class="rl-stage" data-r="stage" tabindex="0" role="group"><div class="rl-big" data-r="big"></div><div class="rl-who" data-r="who"></div><svg class="rl-prop" data-r="prop" viewBox="0 0 200 270" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"></svg><span class="rl-pause-badge" data-r="badge" hidden></span></div>' +
@@ -272,22 +360,23 @@
     return el;
   }
 
-  function makePlayer(reel, idx, total, el) {
+  function makePlayer(reel, idx, total, el, extra) {
     const q = (name) => el.querySelector(`[data-r="${name}"]`);
-    const P = { reel, idx, total, el, phase: 'scene', si: 0, t: 0, playing: false, userPaused: false, beat: null, quiz: { picked: -1 }, finished: false, focusNext: false,
-      r: { chip: q('chip'), count: q('count'), title: q('title'), stage: q('stage'), big: q('big'), who: q('who'), prop: q('prop'), badge: q('badge'), say: q('say'), ctl: q('ctl'), panel: q('panel'), bars: el.querySelectorAll('.rl-prog i b') } };
+    const P = { reel, idx, total, el, extra: !!extra, phase: 'scene', si: 0, t: 0, playing: false, userPaused: false, beat: null, quiz: { picked: -1 }, finished: false, focusNext: false,
+      r: { chip: q('chip'), count: q('count'), season: q('season'), title: q('title'), stage: q('stage'), big: q('big'), who: q('who'), prop: q('prop'), badge: q('badge'), say: q('say'), ctl: q('ctl'), panel: q('panel'), bars: el.querySelectorAll('.rl-prog i b') } };
 
     P.labels = () => {
       const s = S();
       P.r.chip.textContent = s.topics[reel.topic] || reel.topic;
-      P.r.count.textContent = s.reelOf(idx + 1, total);
+      P.r.count.textContent = P.extra ? s.savedReel : s.reelOf(idx + 1, total);
+      P.r.season.hidden = !state.season; if (state.season) P.r.season.textContent = `${state.season.badge} ${tx(state.season.label)}`;
       P.r.title.textContent = tx(reel.title);
       P.r.stage.setAttribute('aria-label', s.stageLabel);
       const toggle = el.querySelector('[data-a="toggle"]'), prev = el.querySelector('[data-a="prev"]'), nx = el.querySelector('[data-a="nextscene"]');
       toggle.textContent = P.playing ? '⏸' : '▶'; toggle.setAttribute('aria-label', P.playing ? s.pause : s.play);
       prev.setAttribute('aria-label', s.prev); nx.setAttribute('aria-label', s.next);
       P.r.badge.textContent = s.paused; P.r.badge.hidden = P.playing || P.phase !== 'scene' || !P.started;
-      el.setAttribute('aria-label', `${s.reelOf(idx + 1, total)}: ${tx(reel.title)}`);
+      el.setAttribute('aria-label', `${P.extra ? s.savedReel : s.reelOf(idx + 1, total)}: ${tx(reel.title)}`);
     };
 
     P.drawScene = (p, now) => {
@@ -408,7 +497,7 @@
           `<p class="rl-take" data-o="stake" aria-live="polite">${esc(tx(line))}</p>${contBtn()}`;
       }
       case 'myth': {
-        if (st.i >= b.cards.length) { const right = b.cards.filter((c, k) => st.answers[k] === c.fact).length; return `${head()}<p class="rl-q" tabindex="-1" data-focus>${esc(s.score(right, b.cards.length))}</p>${contBtn()}`; }
+        if (st.i >= b.cards.length) { const right = E.scoreMyth(b.cards, st.answers).right; return `${head()}<p class="rl-q" tabindex="-1" data-focus>${esc(s.score(right, b.cards.length))}</p>${contBtn()}`; }
         const c = b.cards[st.i], last = st.i === b.cards.length - 1;
         const ans = st.answers[st.i];
         const body = `<p class="rl-q" tabindex="-1" data-focus>${esc(tx(c.s))}</p>`;
@@ -418,7 +507,7 @@
           `<div class="rl-row"><button type="button" class="rl-btn primary" data-a="mnext">${esc(last ? s.mScoreBtn : s.mNext)}</button></div>`;
       }
       case 'spot': {
-        const flags = b.parts.filter((p) => p.flag).length;
+        const flags = E.scoreSpot(b.parts, st.picked).flags;
         const partsHtml = b.parts.map((p, i) => {
           let cls = '', extra = '';
           if (st.checked) { const picked = st.picked[i]; if (p.flag) cls = picked ? 'ok' : 'miss'; else if (picked) cls = 'no'; }
@@ -428,7 +517,7 @@
         }).join('');
         const msg = `<div class="rl-msg"><p class="rl-from">${esc(tx(b.from))}</p><div class="rl-opts">${partsHtml}</div></div>`;
         if (!st.checked) return `${head()}<p class="rl-q" tabindex="-1" data-focus>${esc(tx(b.q))}</p><p class="rl-note">${esc(s.spotHelp)}</p>${msg}<div class="rl-row"><button type="button" class="rl-btn primary" data-a="spotcheck">${esc(s.spotCheck)}</button>${skipLink()}</div>`;
-        const found = b.parts.filter((p, i) => p.flag && st.picked[i]).length;
+        const found = E.scoreSpot(b.parts, st.picked).found;
         const why = b.parts.map((p) => (p.flag ? `<li><b>${esc(tx(p.t))}</b><br>${esc(tx(p.flag))}</li>` : '')).join('');
         return `${head()}<p class="rl-q" tabindex="-1" data-focus>${esc(s.found(found, flags))}</p>${msg}<ul class="rl-list">${why}</ul><p class="rl-why"><b>${esc(s.todo)}:</b> ${esc(tx(b.todo))}</p>${contBtn()}`;
       }
@@ -440,7 +529,7 @@
           (st.chosen.length ? `<div tabindex="-1" data-focus>${results}</div><p class="rl-take"><b>${esc(s.verdict)}:</b> ${esc(tx(b.verdict))}</p>${st.chosen.length < b.options.length ? `<p class="rl-note">${esc(s.another)}</p>` : ''}${contBtn()}` : `<p class="rl-note" tabindex="-1" data-focus>${esc(s.pathHelp)}</p>${skipLink()}`);
       }
       case 'sort': {
-        if (st.i >= b.cards.length) { const right = b.cards.filter((c, k) => st.answers[k] === c.bin).length; return `${head()}<p class="rl-q" tabindex="-1" data-focus>${esc(s.score(right, b.cards.length))}</p>${contBtn()}`; }
+        if (st.i >= b.cards.length) { const right = E.scoreSort(b.cards, st.answers).right; return `${head()}<p class="rl-q" tabindex="-1" data-focus>${esc(s.score(right, b.cards.length))}</p>${contBtn()}`; }
         const c = b.cards[st.i], last = st.i === b.cards.length - 1;
         const bins = b.bins.map((bn, k) => `<button type="button" class="rl-opt ${st.shown ? (k === c.bin ? 'ok' : k === st.answers[st.i] ? 'no' : '') : ''}" data-a="sortbin" data-v="${k}" ${st.shown ? 'disabled' : ''}>${esc(tx(bn))}</button>`).join('');
         const right = st.answers[st.i] === c.bin;
@@ -451,7 +540,7 @@
         const n = b.items.length;
         const items = st.deck.map((idx) => { const pos = st.chosen.indexOf(idx); return `<button type="button" class="rl-opt" data-a="ord" data-v="${idx}" ${pos >= 0 || st.done ? 'disabled' : ''} aria-pressed="${pos >= 0 ? 'true' : 'false'}">${pos >= 0 ? `<span class="rl-order-n">${pos + 1}</span>` : ''}<span>${esc(tx(b.items[idx].t))}</span></button>`; }).join('');
         if (!st.done) return `${head()}<p class="rl-q" tabindex="-1" data-focus>${esc(tx(b.q))}</p><p class="rl-note">${esc(s.orderHelp)}</p><div class="rl-opts">${items}</div><div class="rl-row">${st.chosen.length ? `<button type="button" class="rl-btn" data-a="ordreset">${esc(s.reset)}</button>` : ''}${skipLink()}</div>`;
-        const right = st.chosen.filter((idx, pos) => idx === pos).length;
+        const right = E.scoreOrder(st.chosen, n).right;
         return `${head()}<p class="rl-q" tabindex="-1" data-focus>${esc(s.orderScore(right, n))}</p><p class="rl-note"><b>${esc(s.correctOrder)}</b></p><ol class="rl-list" style="padding-left:20px;list-style:decimal">${b.items.map((it) => `<li><b>${esc(tx(it.t))}</b><br>${esc(tx(it.why))}</li>`).join('')}</ol>${contBtn()}`;
       }
       default: return contBtn();
@@ -471,32 +560,13 @@
   }
 
   function endHtml(P) {
-    const s = S(), r = P.reel, last = P.idx === P.total - 1;
+    const s = S(), r = P.reel, last = state.feed.children[P.idx + 1] === state.stopEl;
     const trust = r.trust ? `<details><summary>${esc(s.trust)}</summary><p>${esc(tx(r.trust.formula))}</p><p><b>${esc(s.assumes)}:</b> ${esc(tx(r.trust.assumes))}</p><p>${esc(s.checked(r.trust.asOf))}</p></details>` : '';
     const act = r.act ? `<a class="rl-btn primary rl-act" href="../${esc(r.act.href)}">${esc(tx(r.act.label))}</a>` : '';
-    return `<p class="rl-done" tabindex="-1" data-focus>${esc(s.done)}</p>${trust}<div class="rl-row">${act}<button type="button" class="rl-btn ${act ? '' : 'primary'}" data-a="nextreel">${esc(last ? s.toStop : s.nextReel)}</button><button type="button" class="rl-link" data-a="replay">${esc(s.replay)}</button></div><p class="rl-edu">${esc(s.edu)}</p>`;
+    const isSaved = state.saved.includes(r.id), isPledged = state.pledges.some((x) => x.id === r.id);
+    const keep = `<div class="rl-row"><button type="button" class="rl-btn" data-a="pledge" aria-pressed="${isPledged}">${esc(isPledged ? s.pledged : s.pledge)}</button><button type="button" class="rl-btn" data-a="save" aria-pressed="${isSaved}">${esc(isSaved ? s.saved : s.save)}</button></div>`;
+    return `<p class="rl-done" tabindex="-1" data-focus>${esc(s.done)}</p>${trust}${keep}<div class="rl-row">${act}<button type="button" class="rl-btn ${act ? '' : 'primary'}" data-a="nextreel">${esc(last ? s.toStop : s.nextReel)}</button><button type="button" class="rl-link" data-a="replay">${esc(s.replay)}</button></div><p class="rl-edu">${esc(s.edu)}</p>`;
   }
-
-  /** Range inputs update their numbers in place (re-drawing the panel would drop the thumb mid-drag). */
-  function wireInputs(P) {
-    const panel = P.r.panel, b = P.reel.beat;
-    const g = panel.querySelector('[data-in="guess"]');
-    if (g && b) g.addEventListener('input', () => {
-      P.beat.pos = Number(g.value) / 1000;
-      const v = E.posToValue(P.beat.pos, b.min, b.max), txt = E.money(v)[li()];
-      panel.querySelector('[data-o="gv"]').textContent = txt; g.setAttribute('aria-valuetext', txt);
-    });
-    const sl = panel.querySelector('[data-in="slider"]');
-    if (sl && b) sl.addEventListener('input', () => {
-      const x = Number(sl.value); P.beat.x = x;
-      const xt = E.xText(b, x, lang);
-      panel.querySelector('[data-o="sx"]').textContent = xt; sl.setAttribute('aria-valuetext', xt);
-      panel.querySelector('[data-o="sbars"]').innerHTML = barsHtml(E.sliderBars(b, x));
-      panel.querySelector('[data-o="stake"]').textContent = tx(E.sliderLine(b, x));
-    });
-  }
-
-  // ── what a tap does ─────────────────────────────────────────────────────────────────────────────────────────
   function onPanelClick(P, a, v) {
     const b = P.reel.beat, st = P.beat;
     P.focusNext = true;
@@ -515,6 +585,13 @@
       case 'quiz': P.quiz.picked = Number(v); finishReel(P, P.quiz.picked === P.reel.quiz.answer); break;
       case 'qskip': finishReel(P, false, true); P.enterEnd(); return;
       case 'qdone': P.enterEnd(); return;
+      case 'save': { const r = E.toggleSaved(state.saved, P.reel.id); state.saved = r.list; store.set(KEY_SAVED, state.saved); if (r.kept) bumpStat('saves'); P.focusNext = false; P.keep = '[data-a="save"]'; renderMoves(); break; }
+      case 'pledge': {
+        const had = state.pledges.some((x) => x.id === P.reel.id);
+        state.pledges = had ? E.removePledge(state.pledges, P.reel.id) : E.addPledge(state.pledges, P.reel.id, new Date());
+        store.set(KEY_PLEDGES, state.pledges); if (!had) bumpStat('pledges');
+        P.focusNext = false; P.keep = '[data-a="pledge"]'; renderMoves(); break;
+      }
       case 'nextreel': goNext(P); return;
       case 'replay': P.restart(); return;
       default: return;
@@ -533,6 +610,7 @@
     state.seen[P.reel.id] = { at: new Date().toISOString(), correct: !!correct && !skipped };
     store.set(KEY_SEEN, state.seen);
     if (!state.days.includes(state.today)) { state.days.push(state.today); state.days = state.days.slice(-120); store.set(KEY_DAYS, state.days); }
+    bumpStat('fin');
     renderStatus(); renderStop();
   }
 
@@ -546,10 +624,87 @@
   function renderStop() {
     const el = state.stopEl; if (!el) return;
     const s = S(), n = state.episode.picks.length, streak = streakNow(state.days, state.today), tm = state.episode.tomorrow;
+    const facts = state.data.facts || [], fact = facts.length ? facts[E.factIndex(new Date(), facts.length)] : null;
+    const week = E.weekLine(E.weekOf(state.stats, new Date()));
     el.setAttribute('aria-label', s.stopH(n));
-    el.innerHTML = `<div style="font-size:44px" aria-hidden="true">🦉</div><h2 tabindex="-1" data-r="stoph">${esc(s.stopH(n))}</h2><p>${esc(s.stopP)}</p>` +
-      (streak > 0 ? `<p><b>${esc(s.stopStreak(streak))}</b></p>` : '') + (tm ? `<p>${esc(s.stopTomorrow(tx(tm.title)))}</p>` : '') +
+    el.innerHTML = `<div style="font-size:44px" aria-hidden="true">\uD83E\uDD89</div><h2 tabindex="-1" data-r="stoph">${esc(s.stopH(n))}</h2><p>${esc(s.stopP)}</p>` +
+      (state.season ? `<p class="rl-season">${esc(state.season.badge)} ${esc(tx(state.season.label))}</p>` : '') +
+      (streak > 0 ? `<p><b>${esc(s.stopStreak(streak))}</b></p>` : '') + (week ? `<p>${esc(tx(week))}</p>` : '') +
+      (fact ? `<p class="rl-fact"><b>${esc(s.factTitle)}</b><br>${esc(tx(fact))}</p>` : '') + (tm ? `<p>${esc(s.stopTomorrow(tx(tm.title)))}</p>` : '') +
       `<div class="rl-row"><button type="button" class="rl-btn primary" data-a="again">${esc(s.again)}</button><a class="rl-btn" href="foundations.html">${esc(s.learn)}</a></div><p class="rl-edu">${esc(s.stopApp)} ${esc(s.edu)}</p>`;
+  }
+
+  // ── My moves: what you said you would do, and what you saved (plain lists in this browser) ────────────────────
+  let clearArmed = false;
+  function renderMoves() {
+    const s = S(), btn = $('#rl-moves-btn'), box = $('#rl-moves');
+    if (!btn || !box) return;
+    const n = state.pledges.length + state.saved.length;
+    btn.textContent = s.movesBtn(n);
+    if (box.hidden) return;
+    const row = (id, extra, at) => {
+      const r = reelById(id); if (!r) return '';
+      const act = r.act && extra === 'pledge' ? `<a class="rl-btn" href="../${esc(r.act.href)}">${esc(tx(r.act.label))}</a>` : '';
+      return `<li><b>${esc(tx(r.title))}</b>${at ? ` <span class="rl-note">${esc(s.since(fmtDate(at)))}</span>` : ''}<div class="rl-row">${act}<button type="button" class="rl-btn" data-a="watch" data-v="${esc(id)}">${esc(s.watch)}</button><button type="button" class="rl-link" data-a="${extra === 'pledge' ? 'unpledge' : 'unsave'}" data-v="${esc(id)}">${esc(s.remove)}</button></div></li>`;
+    };
+    const pl = state.pledges.slice().reverse().map((x) => row(x.id, 'pledge', x.at)).join(''), sv = state.saved.slice().reverse().map((id) => row(id, 'save')).join('');
+    box.innerHTML = `<h2 id="rl-moves-h" tabindex="-1">${esc(s.movesTitle)}</h2><h3>${esc(s.pledgesH)}</h3>${pl ? `<ul class="rl-list">${pl}</ul>` : `<p class="rl-note">${esc(s.pledgesNone)}</p>`}` +
+      `<h3>${esc(s.savedH)}</h3>${sv ? `<ul class="rl-list">${sv}</ul>` : `<p class="rl-note">${esc(s.savedNone)}</p>`}<p class="rl-note">${esc(s.movesNote)}</p>` +
+      `<div class="rl-row"><button type="button" class="rl-link" data-a="clear">${esc(clearArmed ? s.clearSure : s.clear)}</button></div>`;
+  }
+  function toggleMoves(open) {
+    const btn = $('#rl-moves-btn'), box = $('#rl-moves');
+    box.hidden = !open; btn.setAttribute('aria-expanded', open ? 'true' : 'false'); clearArmed = false;
+    renderMoves();
+    if (open) { try { box.querySelector('#rl-moves-h').focus({ preventScroll: false }); } catch (e) { /* fine */ } }
+  }
+  /** Plays a saved reel: it is added to the feed (after today's) and brought into view. */
+  function playExtra(id) {
+    const reel = reelById(id); if (!reel) return;
+    let P = state.players.find((x) => x.reel.id === id && x.extra);
+    if (!P) {
+      const feed = state.feed, el = buildCard(reel, state.players.length, state.episode.picks.length);
+      feed.insertBefore(el, state.stopEl);
+      P = makePlayer(reel, state.players.length, state.episode.picks.length, el, true);
+      state.players.push(P); P.enterScene(0); P.started = false; P.labels(); bindCard(P);
+      if (state.io) state.io.observe(el);
+    } else P.restart();
+    P.el.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+    $('#rl-feed').scrollIntoView({ behavior: 'auto', block: 'nearest' });
+    setTimeout(() => { try { P.el.focus({ preventScroll: true }); } catch (e) { /* fine */ } }, reduced ? 0 : 450);
+  }
+  function onMovesClick(e) {
+    const btn = e.target.closest('[data-a]'); if (!btn) return;
+    const a = btn.dataset.a, id = btn.dataset.v;
+    if (a === 'watch') return playExtra(id);
+    if (a === 'unpledge') { state.pledges = E.removePledge(state.pledges, id); store.set(KEY_PLEDGES, state.pledges); }
+    else if (a === 'unsave') { state.saved = state.saved.filter((x) => x !== id); store.set(KEY_SAVED, state.saved); }
+    else if (a === 'clear') {
+      if (!clearArmed) { clearArmed = true; return renderMoves(); }
+      [KEY_SEEN, KEY_DAYS, KEY_EPISODE, KEY_STATS, KEY_SAVED, KEY_PLEDGES].forEach((k) => { try { window.localStorage.removeItem(k); } catch (err) { /* fine */ } });
+      state.seen = {}; state.days = []; state.saved = []; state.pledges = []; state.stats = { v: 1, days: {} }; clearArmed = false;
+      renderMoves(); renderStatus(); renderStop(); state.players.forEach((P) => { P.finished = false; if (P.phase === 'end') P.renderPanel(); });
+      const msg = document.createElement('p'); msg.className = 'rl-note'; msg.setAttribute('role', 'status'); msg.textContent = S().cleared; $('#rl-moves').appendChild(msg); return;
+    }
+    clearArmed = false; renderMoves();
+    state.players.forEach((P) => { if (P.phase === 'end') P.renderPanel(); });
+  }
+
+  // The site's shared header, skip link and page-tools region come with English names. On this page they follow the language chosen here.
+  const CHROME_HI = {
+    'Skip to main content': 'मुख्य सामग्री पर जाएँ', 'Open navigation menu': 'नेविगेशन मेनू खोलें', 'Close navigation menu': 'नेविगेशन मेनू बंद करें',
+    'Switch to light mode': 'लाइट मोड में बदलें', 'Switch to dark mode': 'डार्क मोड में बदलें', 'Toggle theme': 'थीम बदलें', 'Search': 'खोजें', 'FIN-OS Alerts': 'FIN-OS अलर्ट',
+    'Page tools': 'पेज के औज़ार', 'Navigation': 'नेविगेशन', 'Main': 'मुख्य', 'Your profile': 'आपकी प्रोफ़ाइल', 'Search (Ctrl+K)': 'खोजें (Ctrl+K)',
+  };
+  const CHROME_EN = Object.fromEntries(Object.entries(CHROME_HI).map(([en, hi]) => [hi, en]));
+  function localizeChrome() {
+    const sel = '#finos-skip-link, .mob-ham, #floatThemeBtn, #fs-toggle, #finos-alert-bell, #finos-fixed-controls, aside.sidebar, nav.sb-nav, a.sb-identity, #sb-cmd';
+    document.querySelectorAll(sel).forEach((el) => {
+      const isLink = el.id === 'finos-skip-link', cur = (isLink ? el.textContent : el.getAttribute('aria-label')) || '';
+      const next = lang === 'hi' ? CHROME_HI[cur.trim()] : CHROME_EN[cur.trim()];
+      if (!next) return;
+      if (isLink) el.textContent = next; else el.setAttribute('aria-label', next);
+    });
   }
 
   function renderStatic() {
@@ -559,7 +714,10 @@
     $('#rl-feed').setAttribute('aria-label', s.feedLabel);
     document.querySelectorAll('.rl-lang button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.lang === lang ? 'true' : 'false'));
     document.title = s.title + ' | FIN-OS';
+    const lg = $('.rl-lang'); if (lg) lg.setAttribute('aria-label', s.langLabel);
+    localizeChrome();
     const loading = $('#rl-loading'); if (loading) loading.textContent = s.loading;
+    if (state.data) renderMoves(); else { const mb = $('#rl-moves-btn'); if (mb) mb.textContent = s.movesBtn(0); }
   }
 
   function setLang(next, fromSite) {
@@ -568,7 +726,7 @@
     if (!fromSite && window.FinosI18n && typeof window.FinosI18n.setLang === 'function') { try { window.FinosI18n.setLang(next); } catch (e) { /* the site menu keeps its own language */ } }
     else if (!fromSite) { try { window.localStorage.setItem('finos_lang', next); } catch (e) { /* private mode */ } }
     renderStatic();
-    if (state.data) { state.players.forEach((P) => P.refreshText()); renderStatus(); renderStop(); }
+    if (state.data) { state.players.forEach((P) => P.refreshText()); renderStatus(); renderStop(); renderMoves(); }
   }
 
   function setActive(i) {
@@ -587,9 +745,34 @@
     window.requestAnimationFrame(frame);
   }
 
+  /** The taps and keys of one card. */
+  function bindCard(P) {
+    const el = P.el;
+    el.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-a]');
+      if (btn && el.contains(btn)) {
+        const a = btn.dataset.a;
+        if (a === 'toggle') { P.setPlaying(!P.playing, true); return; }
+        if (a === 'prev') { P.enterScene(Math.max(0, P.si - 1)); return; }
+        if (a === 'nextscene') { P.advance(); return; }
+        if (P.phase !== 'scene') return onPanelClick(P, a, btn.dataset.v);
+        return;
+      }
+      if (e.target.closest('[data-r="stage"]') && P.phase === 'scene') P.setPlaying(!P.playing, true);
+    });
+    P.r.stage.addEventListener('keydown', (e) => {
+      if (P.phase !== 'scene') return;
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); P.setPlaying(!P.playing, true); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); P.advance(); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); P.enterScene(Math.max(0, P.si - 1)); }
+    });
+    P.r.panel.addEventListener('keydown', (e) => { if (e.key === 'Escape' && P.phase === 'beat') { P.beatDone = true; P.enterScene(P.si + 1); P.setPlaying(!reduced && !P.userPaused); } });
+  }
+
   function build() {
     const feed = state.feed = $('#rl-feed');
     feed.innerHTML = '';
+    if (state.season) { feed.dataset.season = state.season.id; feed.style.setProperty('--rl-sa', state.season.tint[0]); feed.style.setProperty('--rl-sb', state.season.tint[1]); }
     const picks = state.episode.picks;
     picks.forEach((reel, idx) => {
       const el = buildCard(reel, idx, picks.length);
@@ -597,25 +780,7 @@
       const P = makePlayer(reel, idx, picks.length, el);
       state.players.push(P);
       P.enterScene(0); P.started = false; P.labels();
-      el.addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-a]');
-        if (btn && el.contains(btn)) {
-          const a = btn.dataset.a;
-          if (a === 'toggle') { P.setPlaying(!P.playing, true); return; }
-          if (a === 'prev') { P.enterScene(Math.max(0, P.si - 1)); return; }
-          if (a === 'nextscene') { P.advance(); return; }
-          if (P.phase !== 'scene') return onPanelClick(P, a, btn.dataset.v);
-          return;
-        }
-        if (e.target.closest('[data-r="stage"]') && P.phase === 'scene') P.setPlaying(!P.playing, true);
-      });
-      P.r.stage.addEventListener('keydown', (e) => {
-        if (P.phase !== 'scene') return;
-        if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); P.setPlaying(!P.playing, true); }
-        else if (e.key === 'ArrowRight') { e.preventDefault(); P.advance(); }
-        else if (e.key === 'ArrowLeft') { e.preventDefault(); P.enterScene(Math.max(0, P.si - 1)); }
-      });
-      P.r.panel.addEventListener('keydown', (e) => { if (e.key === 'Escape' && P.phase === 'beat') { P.beatDone = true; P.enterScene(P.si + 1); P.setPlaying(!reduced && !P.userPaused); } });
+      bindCard(P);
     });
     const stop = state.stopEl = document.createElement('section');
     stop.className = 'rl-card rl-stop'; stop.tabIndex = -1;
@@ -629,6 +794,7 @@
     const io = new IntersectionObserver((entries) => {
       entries.forEach((en) => { if (en.isIntersecting && en.intersectionRatio >= 0.6) { const i = Number(en.target.dataset.idx); if (Number.isFinite(i) && en.target !== stop) setActive(i); else if (en.target === stop) setActive(-2); } });
     }, { root: feed, threshold: [0.6] });
+    state.io = io;
     [...feed.children].forEach((c) => io.observe(c));
     window.requestAnimationFrame(frame);
     // arrow keys on the feed itself move one reel at a time
@@ -645,15 +811,22 @@
     document.querySelectorAll('.rl-lang button').forEach((b) => b.addEventListener('click', () => setLang(b.dataset.lang, false)));
     window.addEventListener('finos:lang', (e) => { const next = e && e.detail && e.detail.lang; if (next && next !== lang) setLang(next, true); });
     renderStatic();
+    window.addEventListener('load', () => { localizeChrome(); setTimeout(localizeChrome, 1200); });
     fetch('../js/reels-data.json', { credentials: 'omit' }).then((r) => { if (!r.ok) throw new Error('bad status'); return r.json(); }).then((data) => {
-      state.data = data; state.reels = data.reels;
+      state.data = E.expand(data); state.reels = state.data.reels;
+      loadLists();
+      const want = new URLSearchParams(window.location.search).get('season');      // ?season=diwali|budget|yearend previews a seasonal look
+      state.season = (want && E.SEASONS[want]) || E.seasonOf(new Date());
       state.today = dayKey(new Date());
-      state.seen = store.get(KEY_SEEN, {}) || {};
-      state.days = Array.isArray(store.get(KEY_DAYS, [])) ? store.get(KEY_DAYS, []) : [];
       state.episode = composeEpisode(state.reels, state.seen, state.today);
-      build(); renderStatus();
+      build(); renderStatus(); renderMoves();
+      $('#rl-moves-btn').addEventListener('click', () => toggleMoves($('#rl-moves').hidden));
+      $('#rl-moves').addEventListener('click', onMovesClick);
     }).catch(() => { $('#rl-feed').innerHTML = `<div class="rl-err" role="alert">${esc(S().loadErr)}</div>`; });
   }
+
+  // Pure helpers, exposed for tests/reels-web.test.js (it draws every picture and feeds hostile storage values through these).
+  window.FinosReelsPage = { propSvg, mitraSvg, personSvg, cleanSeen, cleanDays, cleanStats, cleanSaved, cleanPledges, cleanEpisode, streakNow, loadLists, composeEpisode, state, setLang: (l) => { lang = l; } };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true }); else init();
 })();

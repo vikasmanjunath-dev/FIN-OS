@@ -1,7 +1,7 @@
 # FIN·OS mobile: release runbook (owner steps, in order)
 
 Everything marked **OWNER** needs your accounts, money, or a legal decision: an agent cannot do it. Everything else is
-already in the repository and has a command that checks it. Written 14 Oct 2026 against Expo SDK 53 / EAS CLI 16; brought in line
+already in the repository and has a command that checks it. Written 14 Oct 2026 against Expo SDK 53 / EAS CLI 16; the project moved to Expo SDK 57 on 19 Oct 2026 and section 4b (local sideload APK) was added on 22 Oct 2026; brought in line
 with the code on 17 Oct 2026 (after the October merges: onboarding, crash notes, feedback, erase flow, `expo-av` removed,
 Settings reads the real version). Nothing in this file has been run on a device or against a Supabase project.
 
@@ -80,8 +80,8 @@ RECORD_AUDIO / MODIFY_AUDIO_SETTINGS from what libraries add): Android permissio
 USE_BIOMETRIC, USE_FINGERPRINT, VIBRATE, RECEIVE_BOOT_COMPLETED (the last three come from the libraries' own manifests and are
 named in the privacy notice, `lib/privacy.ts` PERMISSIONS, which `__tests__/privacy.test.mts` checks against those manifests) and
 `tools:node="remove"` for RECORD_AUDIO, MODIFY_AUDIO_SETTINGS, SYSTEM_ALERT_WINDOW, READ/WRITE_EXTERNAL_STORAGE; `android:allowBackup="false"`;
-iOS entitlements file empty (no `aps-environment`), `NSFaceIDUsageDescription` present, `NSAllowsArbitraryLoads=false`. `prebuild` creates `android/` and `ios/`: delete them afterwards (the project is managed
-workflow; they are not committed).
+iOS entitlements file empty (no `aps-environment`), `NSFaceIDUsageDescription` present, `NSAllowsArbitraryLoads=false`. `prebuild` creates `android/` and `ios/`: the project is managed
+workflow, so they are generated, not hand-edited (`mobile/android/` has been git-ignored since 21 Oct 2026); delete them afterwards if you want a clean tree.
 
 ## 4. Build and test
 
@@ -100,12 +100,40 @@ eas submit --profile production --platform android # lands on the *internal* tra
 eas submit --profile production --platform ios     # TestFlight first
 ```
 
-Versioning: `app.json` `version` is the human version (1.0.0). The iOS build number and Android version code are
+Versioning: `app.json` `version` is the human version (1.2.0 on 22 Oct 2026). The iOS build number and Android version code are
 created and incremented by EAS on each production build; do not add `buildNumber` / `versionCode` (a test fails if you
 do). To release 1.0.1, bump `version` only. To set the first number explicitly: `eas build:version:set`.
 Settings > About shows the `version` from `app.json` through `expo-constants` (`lib/appInfo.ts`; it was hard-coded until 15 Oct), so
 the number on screen cannot drift from the config. Confirm it on the preview build (device checklist D-6): it is read from the
 native config at run time, which the web preview cannot prove.
+
+## 4b. Sideload APK built on your own machine (what the website's download page serves)
+
+This is how FIN-OS 1.0.0, 1.1.0 and 1.2.0 were produced and handed out. It is **not** a store build: no EAS, no Play review, no auto-update, and the backend-hosting problem in section 0 still applies. The commands below are the standard Expo and Gradle ones; the exact sequence used for the three releases was not written down in the repository, so check each step on the first run.
+
+What the repository gives you:
+
+- `mobile/plugins/withLocalReleaseSigning.js` (listed in `app.json` `plugins`) re-applies three things every time `expo prebuild` regenerates `android/`: (1) release signing read from `~/finos-release-signing/signing.properties` (keys `FINOS_STORE_FILE`, `FINOS_STORE_PASSWORD`, `FINOS_KEY_ALIAS`, `FINOS_KEY_PASSWORD`; the key and passwords stay outside the repo); (2) the `--enable-native-access` Gradle flag that JDK 24 and newer, such as Android Studio's bundled JDK, need for the CMake step; (3) `FINOS_ANDROID_VERSION_CODE` from the environment as the Android version code, because `app.json` must not hard-code one.
+- **If `signing.properties` is missing the plugin does nothing, and the release build is signed with the debug key.** Do not hand that file to anyone: a later update signed with the real key will not install over it.
+- `mobile/android/`, `mobile/release/`, `*.apk` and `*.aab` are git-ignored, so builds and the generated native project are never committed.
+
+Steps:
+
+1. Bump `version` in `mobile/app.json`. Pick an Android version code higher than the last one you handed out.
+2. Regenerate the native project, then build with Gradle:
+
+   ```bash
+   cd mobile
+   FINOS_ANDROID_VERSION_CODE=<n> npx expo prebuild --platform android --no-install
+   cd android && ./gradlew assembleRelease     # APK under app/build/outputs/apk/release/
+   ```
+
+3. Rename the APK to `FIN-OS-<version>.apk`, keep a copy in `mobile/release/` and run `shasum -a 256 FIN-OS-<version>.apk`. Check that it is signed with the release key (`apksigner verify --print-certs`).
+4. Create a GitHub release tagged `v<version>` on `vikasmanjunath-dev/FIN-OS` and attach the APK. The page links to `https://github.com/vikasmanjunath-dev/FIN-OS/releases/download/v<version>/FIN-OS-<version>.apk`.
+5. Update `html/download.html`: the card title and version, size and date, the Download link, the file name in the install steps and the `shasum` line, the SHA-256 shown on the page, and the "What's new" paragraph. Then bump the cache name in `sw.js` so installed copies of the site fetch the new page.
+6. Install it on a phone and run `docs/DEVICE_TEST_CHECKLIST.md` (at least sections A, C, E and J) before you tell anyone to download it.
+
+Nothing in this section has been run as written, and nothing on a device is recorded.
 
 ## 5. Supabase SQL (only if sign-in ships) (OWNER, ~20 min)
 

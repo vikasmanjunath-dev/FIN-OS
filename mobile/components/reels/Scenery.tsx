@@ -1,5 +1,5 @@
-import React from 'react';
-import { Circle, G, Path, Polyline, Rect, Text as SvgText } from 'react-native-svg';
+import React, { memo } from 'react';
+import Svg, { Circle, G, Path, Polyline, Rect, Text as SvgText } from 'react-native-svg';
 import { ease, settle, wrap } from '@/lib/reels/engine';
 import { money } from '@/lib/reels/figures';
 import type { L, Prop, Tone } from '@/lib/reels/types';
@@ -10,14 +10,32 @@ const WHITE = '#F5F7FA', MUTED = '#9AA4B8';
 /** The picture area to the right of Mitra is 200 wide and 270 tall, with (0,0) at its top-left. */
 export const AREA = { w: 200, h: 270 };
 
+// The same label is wrapped on every frame of its scene; the lines never change, so they are worked out once.
+const WRAPPED = new Map<string, string[]>();
+const wrapped = (text: string, max: number): string[] => {
+  const k = `${max}|${text}`;
+  let v = WRAPPED.get(k);
+  if (!v) { v = wrap(text, max).slice(0, 4); if (WRAPPED.size > 600) WRAPPED.clear(); WRAPPED.set(k, v); }
+  return v;
+};
 const Lines = ({ text, x, y, max, size = 12, color = MUTED, weight = 'normal', anchor = 'middle' as const }: { text: string; x: number; y: number; max: number; size?: number; color?: string; weight?: 'normal' | 'bold'; anchor?: 'middle' | 'start' }) => (
-  <>{wrap(text, max).slice(0, 4).map((ln, i) => <SvgText key={i} x={x} y={y + i * (size + 3)} fontSize={size} fill={color} fontWeight={weight} textAnchor={anchor}>{ln}</SvgText>)}</>
+  <>{wrapped(text, max).map((ln, i) => <SvgText key={i} x={x} y={y + i * (size + 3)} fontSize={size} fill={color} fontWeight={weight} textAnchor={anchor}>{ln}</SvgText>)}</>
 );
 
 const inrFull = (n: number) => { const s = String(Math.round(n)); const l = s.slice(-3), r = s.slice(0, -3); return '₹' + (r ? r.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + l : l); };
 
-/** What sits beside Mitra for a scene. `p` is how far through the scene we are (0..1); every shape is a function of it. */
-export function Scenery({ prop, p, lang, t }: { prop: Prop; p: number; lang: Lang; t: number }) {
+// Numbers that depend only on the picture's data (its largest value, its total, the size of its type) are worked out once per picture, not once per frame.
+const KEPT = new WeakMap<object, Record<string, unknown>>();
+const once = <T,>(o: object, key: string, make: () => T): T => {
+  let m = KEPT.get(o);
+  if (!m) { m = {}; KEPT.set(o, m); }
+  if (!(key in m)) m[key] = make();
+  return m[key] as T;
+};
+
+/** What sits beside Mitra for a scene. `p` is how far through the scene we are (0..1); every shape is a function of it. Memoised: the player hands it a
+ *  `p` that stops changing once the drawing has finished (see `pictureP` in frame.ts), so a finished picture is not drawn again. */
+function SceneryDraw({ prop, p, lang, t }: { prop: Prop; p: number; lang: Lang; t: number }) {
   const tx = (l: L) => l[lang];
   switch (prop.kind) {
     case 'counter': {
@@ -26,7 +44,7 @@ export function Scenery({ prop, p, lang, t }: { prop: Prop; p: number; lang: Lan
       const plain = prop.format === 'plain';
       // From a lakh up the amount is shown the way the captions say it ("₹6.44 crore"), and the type size follows the final text so nothing runs off the picture.
       const fmt = (n: number) => (plain ? `${Math.round(n)}` : n >= 100_000 ? money(Math.round(n))[lang] : inrFull(n));
-      const txt = fmt(v), size = plain ? 78 : Math.min(44, Math.floor(184 / (fmt(Math.max(prop.from, prop.to)).length * 0.62)));
+      const txt = fmt(v), size = plain ? 78 : once(prop, `size-${lang}`, () => Math.min(44, Math.floor(184 / (fmt(Math.max(prop.from, prop.to)).length * 0.62))));
       return (
         <G>
           <SvgText x={100} y={130} fontSize={size} fontWeight="bold" fill={col} textAnchor="middle">{txt}</SvgText>
@@ -36,7 +54,7 @@ export function Scenery({ prop, p, lang, t }: { prop: Prop; p: number; lang: Lan
       );
     }
     case 'bars': {
-      const n = prop.items.length, bw = n > 2 ? 44 : 62, gap = (AREA.w - n * bw) / (n + 1), max = Math.max(...prop.items.map(i => i.value));
+      const n = prop.items.length, bw = n > 2 ? 44 : 62, gap = (AREA.w - n * bw) / (n + 1), max = once(prop, 'max', () => Math.max(...prop.items.map(i => i.value)));
       const base = 205, grow = settle(p, 0.65);
       return (
         <G>
@@ -55,7 +73,7 @@ export function Scenery({ prop, p, lang, t }: { prop: Prop; p: number; lang: Lan
       );
     }
     case 'line': {
-      const pts = prop.points, n = pts.length, col = TONES[prop.tone ?? 'teal'], lo = Math.min(...pts), hi = Math.max(...pts);
+      const pts = prop.points, n = pts.length, col = TONES[prop.tone ?? 'teal'], lo = once(prop, 'lo', () => Math.min(...pts)), hi = once(prop, 'hi', () => Math.max(...pts));
       const X = (i: number) => 10 + (i / (n - 1)) * 180, Y = (v: number) => 190 - ((v - lo) / (hi - lo || 1)) * 140;
       const upto = settle(p, 0.8) * (n - 1), whole = Math.floor(upto), frac = upto - whole;
       const drawn: [number, number][] = pts.slice(0, whole + 1).map((v, i) => [X(i), Y(v)]);
@@ -73,7 +91,7 @@ export function Scenery({ prop, p, lang, t }: { prop: Prop; p: number; lang: Lan
       );
     }
     case 'donut': {
-      const total = prop.parts.reduce((s, x) => s + x.value, 0), R = 58, C = 2 * Math.PI * R, sweep = settle(p, 0.7);
+      const total = once(prop, 'total', () => prop.parts.reduce((s, x) => s + x.value, 0)), R = 58, C = 2 * Math.PI * R, sweep = settle(p, 0.7);
       let acc = 0;
       return (
         <G>
@@ -139,3 +157,13 @@ export function Scenery({ prop, p, lang, t }: { prop: Prop; p: number; lang: Lan
     }
   }
 }
+export const Scenery = memo(SceneryDraw);
+
+/** The picture's own Svg and its position, memoised so that a finished picture costs nothing per frame. Every prop is a number or a string. */
+export const SceneryLayer = memo(function SceneryLayer({ prop, p, lang, t, width, height, top }: { prop: Prop; p: number; lang: Lang; t: number; width: number; height: number; top: number }) {
+  return (
+    <Svg style={{ position: 'absolute', right: 0, top }} width={width} height={height} viewBox={`0 0 ${AREA.w} ${AREA.h}`}>
+      <Scenery prop={prop} p={p} lang={lang} t={t} />
+    </Svg>
+  );
+});

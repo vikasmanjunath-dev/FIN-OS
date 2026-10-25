@@ -73,6 +73,9 @@ export function settleMoves(state: MovesState, mine: Mine, now: Date): MovesStat
   return { v: 1, open, receipts: receipts.slice(-MAX_RECEIPTS) };
 }
 
+/** A receipt about raising a SIP reads as "put in more": it is not shown to a person under money strain (the feed and Home agree on this one rule). */
+export const isGrowthReceipt = (r: Pick<StoredReceipt, 'metric'>): boolean => r.metric === 'sip';
+
 export const unseenReceipts = (s: MovesState): StoredReceipt[] => s.receipts.filter(r => !r.seen);
 export const markSeen = (s: MovesState, id: string, at: string): MovesState => ({ ...s, receipts: s.receipts.map(r => (r.id === id && r.at === at ? { ...r, seen: true } : r)) });
 

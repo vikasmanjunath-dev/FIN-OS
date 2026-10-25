@@ -182,7 +182,7 @@ test('the player has the gestures and their accessible alternatives', () => {
   assert.match(p, /accessibilityActions=\{shelf \?/); for (const n of ["'save'", "'pledge'", "'steer'"]) assert.ok(p.includes(`name: ${n}`), n);
   assert.match(p, /onMoveShouldSetPanResponderCapture/);                   // only clearly sideways moves, so the feed still scrolls
   const r = read('app/learn/reels.tsx');
-  assert.match(r, /key: 'saved'/); assert.match(r, /TogetherSheet/); assert.match(r, /j\.milestones\[0\]/); assert.match(r, /factFor/); assert.match(r, /seasonOf/);
+  assert.match(r, /key: 'saved'/); assert.match(r, /TogetherSheet/); assert.match(r, /j\.milestones\.find\(/); assert.match(r, /factFor/); assert.match(r, /seasonOf/);
   assert.ok(fs.existsSync(nodePath.join(process.cwd(), 'app/learn/moves.tsx')));
   assert.match(read('app/learn/index.tsx'), /\/learn\/moves/);
 });
@@ -235,7 +235,7 @@ test('the feed marks a brought-back pledge, and personalisation knows about stra
   const feed = read('app/learn/reels.tsx');
   assert.match(feed, /pk\.why === 'pledge'\) markResurfaced\(pk\.reel\.id\)/);
   const hook = read('hooks/useReelsJourney.ts');
-  assert.match(hook, /personalisePlay\(personaliseReels\(LIBRARY, mine\), mine, \{ strain, income \}\)/);
+  assert.match(hook, /personalisePlay\(personaliseReels\(LIBRARY, mine, \{ strain, income \}\), mine, \{ strain, income \}\)/);
   assert.match(hook, /started: startedReelIds\(moves\)/);
 });
 

@@ -28,3 +28,19 @@ Not wrong against taxcore.ts. Confirm which Budget 2026 / Income-tax Act 2025 ch
 - hra-basics | "least of three amounts ... 50% of basic (metro)" | rule as in the old Act; the metro list and rule may change.
 - tax-dates | "15 June, 15 September, 15 December, 15 March ... 31 July ... over ₹10,000" | confirm dates and thresholds for the current year.
 - capital-gains | "more than 12 months is long term" for listed equity | rule as of FY 2025-26; rates are not quoted.
+
+## Follow-up, Oct 25 2026: FY 2026-27 re-check and wording fixes
+
+**Tax year.** FY 2026-27 is "tax year 2026-27" under the Income-tax Act, 2025 (in force from 1 April 2026). Confirmed from official or official-republished text, with no change from FY 2025-26: new-regime slabs (Act s.202 table: nil to ₹4 lakh, 5/10/15/20/25%, 30% above ₹24 lakh), rebate (s.156: ₹60,000 up to ₹12 lakh with marginal relief; ₹12,500 up to ₹5 lakh), standard deduction (s.19(1): ₹75,000 / ₹50,000), 80C cap ₹1.5 lakh (s.123), NPS extra ₹50,000 (s.124(3)), health insurance ₹25,000 / ₹50,000 senior (s.126), home loan interest ₹2 lakh (s.22(2)), listed equity long term at 12 months (s.2(101)), advance tax dates 15 Jun / 15 Sep / 15 Dec / 15 Mar and the ₹10,000 threshold (s.404, s.408; CBDT transition FAQ), ITR-1 and ITR-2 due 31 July (Budget 2026 speech para 109). The Budget 2026 speech (Part B, paras 98-135) and the PIB summary propose no slab, rebate or deduction change; PRS's Union Budget 2026-27 analysis says "No change in income tax slabs". The Act text was read from PRS's copy of the Income-tax Bill 2025 (as introduced); the Finance Act 2026 amendments were not opened (incometaxindia.gov.in refused the fetch), so a Finance Act change to a section above would not show here.
+
+**Changed:** year labels and as-of dates only (tax reels, trust notes, `lib/taxcore.ts` header, `TAXCORE_FY`). No constant changed. Tax notes carry asOf 2026-10-25 and name the new section numbers.
+
+**Not confirmed (left as written, for the product owner):**
+- `hra-basics`: the 50% / 40% metro rule is not in the Act text (it is in the rules); the Income-tax Rules 2026 were not read.
+- Finance Act 2026 (as passed) against the Bill as introduced: only the Budget papers were read for changes.
+- Surcharge above ₹50 lakh, capital-gains rates, STT: not modelled in taxcore and not quoted in the reels. Budget 2026 raised STT on futures and options; no reel mentions it.
+- Calculators and screens outside the reels still print "FY 2025-26" (`app/tools/*.tsx`, `lib/taxPlanner.ts`, `lib/aryaIndia.ts` RULES_FY, `lib/itrSummary.ts`, `js/finos-taxcore.js` header). The numbers are right; the label is stale.
+
+**Section C above is closed** for every item except `hra-basics` (see above). Section A and B items are fixed in the reel text (the assumption is now stated in the reel, the notes agree): `path-spare-monthly`, `choose-bonus`, `no-cost-emi`, `path-card-bill`, `car-buying-math` (₹12.5 lakh), `lifestyle-creep` (₹11.5 lakh), `real-return-fd` ("cess left out"), `standard-deduction` ("only higher earners" are in the 30% slab).
+
+**Hindi term clashes:** only forms the glossary lists as "replace" were changed: इमरजेंसी / इमर्जेंसी / इमरजेन्सी फ़ंड became आपातकालीन फ़ंड (the form the glossary allows and most reels use, 12 places); हेल्थ इंश्योरेंस became हेल्थ बीमा (2 labels). रिजीम stays: the glossary lists it as allowed and proposes व्यवस्था, a feminine noun, so changing 67 sentences needs the reviewer's decision and gender agreement, not a script.

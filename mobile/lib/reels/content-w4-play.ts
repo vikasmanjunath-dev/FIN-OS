@@ -257,7 +257,7 @@ export const W4_SLIDE: Reel[] = [
   slide({
     id: 'slide-tax-big-deductions', topic: 'tax', title: t('Drag it: tax with large deductions', 'खिसकाइए: बड़ी कटौतियों के साथ टैक्स'), tags: ['income tax', 'regime'],
     hook: t('With large deductions, the old regime can win. Drag the income to see where.', 'बड़ी कटौतियों के साथ पुराना रिजीम जीत सकता है। आय खिसकाकर देखें कहाँ।'),
-    setupCaption: t('Salary income, FY 2025-26, with ₹3.5 lakh of deductions in the old regime.', 'वेतन की आय, FY 2025-26, पुराने रिजीम में ₹3.5 लाख की कटौती के साथ।'),
+    setupCaption: t('Salary income, FY 2026-27, with ₹3.5 lakh of deductions in the old regime.', 'वेतन की आय, FY 2026-27, पुराने रिजीम में ₹3.5 लाख की कटौती के साथ।'),
     setupSteps: [t('Salary income', 'वेतन की आय'), t('₹3.5 lakh deductions, old', '₹3.5 लाख कटौती, पुराना'), t('Cess included', 'सेस सहित')],
     resultCaption: t('The line where the two meet depends on your deductions. Bigger deductions move it.', 'जहाँ दोनों मिलते हैं वह रेखा आपकी कटौतियों पर निर्भर है। बड़ी कटौतियाँ उसे खिसकाती हैं।'),
     caveat: t('Rules change with each Budget. Check the current year before you choose.', 'नियम हर बजट में बदलते हैं। चुनने से पहले इस साल के नियम देखें।'),

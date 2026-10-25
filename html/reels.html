@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="../css/interactions.css">
   <link rel="stylesheet" href="../css/reels.css">
 </head>
-<body data-nav-section="foundations.html">
+<body class="rl-body" data-nav-section="foundations.html">
 <div class="app">
   <aside class="sidebar" role="complementary" aria-label="Navigation">
     <div class="sb-brand">
@@ -77,18 +77,22 @@
         </div>
       </div>
       <p class="rl-sub" id="rl-sub">Three short animated lessons a day, with a moment to try it yourself. For education, not advice.</p>
-      <p class="rl-status" id="rl-status" role="status"></p>
+      <div class="rl-statusrow">
+        <p class="rl-status" id="rl-status" role="status"></p>
+        <button type="button" class="rl-btn" id="rl-moves-btn" aria-expanded="false" aria-controls="rl-moves">My moves</button>
+      </div>
       <div class="rl-feed" id="rl-feed" tabindex="0" role="region" aria-label="Today's reels">
         <div class="rl-loading" id="rl-loading">Loading today's reels…</div>
         <noscript><div class="rl-err">Money Reels needs JavaScript. The same lessons are in the FIN-OS app.</div></noscript>
       </div>
+      <section class="rl-moves" id="rl-moves" aria-labelledby="rl-moves-h" hidden></section>
       <p class="rl-foot" id="rl-foot">Education, not advice. Every figure is an example with stated assumptions. What you watch and answer is kept only in this browser (keys starting finos_session_reels_web_) and is never sent anywhere or synced.</p>
     </div>
   </main>
 </div>
 
 <style>
-#floatThemeBtn { position:fixed;top:14px;right:18px;z-index:9999;width:36px;height:36px;border-radius:10px;background:var(--bg-surface);border:1px solid var(--border-soft);color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s;backdrop-filter:blur(10px); }
+#floatThemeBtn { position:fixed;top:14px;right:18px;z-index:9999;width:44px;height:44px;border-radius:10px;background:var(--bg-surface);border:1px solid var(--border-soft);color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s;backdrop-filter:blur(10px); }
 #floatThemeBtn:hover{background:transparent;transform:scale(1.08);}
 [data-theme="light"] #floatThemeBtn{color:var(--text-primary)!important;}
 </style>

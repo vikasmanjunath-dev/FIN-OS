@@ -142,9 +142,9 @@ const stdDed: Reel = {
   title: t('The deduction you get without proof', 'वह कटौती जो बिना प्रूफ़ मिलती है'),
   scenes: [
     sc('happy', t('Salaried people get a standard deduction from their salary. You need no bills for it.', 'नौकरीपेशा लोगों को सैलरी से स्टैंडर्ड डिडक्शन मिलता है। इसके लिए कोई बिल नहीं चाहिए।'), { big: t('Standard deduction', 'स्टैंडर्ड डिडक्शन') }),
-    sc('think', fill(t('For FY 2025-26 it is {n} in the new regime and {o} in the old regime.', 'FY 2025-26 में यह नए रिजीम में {n} और पुराने में {o} है।'), { n: money(STD_NEW), o: money(STD_OLD) }),
+    sc('think', fill(t('For FY 2026-27 it is {n} in the new regime and {o} in the old regime.', 'FY 2026-27 में यह नए रिजीम में {n} और पुराने में {o} है।'), { n: money(STD_NEW), o: money(STD_OLD) }),
       { prop: { kind: 'bars', items: [{ label: t('New regime', 'नया रिजीम'), value: STD_NEW, text: money(STD_NEW), tone: 'teal' }, { label: t('Old regime', 'पुराना रिजीम'), value: STD_OLD, text: money(STD_OLD), tone: 'gold' }] } }),
-    sc('surprised', fill(t('At the 30% slab, {n} can save about {s} of tax with cess.', '30% स्लैब में {n} से सेस सहित लगभग {s} का टैक्स बचता है।'), { n: money(STD_NEW), s: money(stdSaved30) })),
+    sc('surprised', fill(t('If you are in the 30% slab, {n} can save about {s} of tax with cess. Only higher earners are.', 'अगर आप 30% स्लैब में हैं, तो {n} से सेस सहित लगभग {s} का टैक्स बचता है। ऐसा सिर्फ़ ऊँची आय वालों के साथ है।'), { n: money(STD_NEW), s: money(stdSaved30) })),
     sc('worry', t('It is for salary and pension income, not for business income. Amounts change with Budgets.', 'यह वेतन और पेंशन की आय के लिए है, कारोबार की आय के लिए नहीं। रक़में बजट के साथ बदलती हैं।')),
     sc('cheer', t('Check that your payslip and Form 16 show it.', 'देखें कि आपकी पेस्लिप और फ़ॉर्म 16 में यह दिख रही है।')),
   ],

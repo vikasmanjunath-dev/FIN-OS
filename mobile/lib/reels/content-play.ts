@@ -266,7 +266,7 @@ const chooseBonus: Reel = {
   title: t('Choose your path: a ₹2 lakh bonus', 'अपना रास्ता चुनें: ₹2 लाख का बोनस'),
   scenes: [
     sc('happy', t('Priya gets a ₹2 lakh bonus. What could she do with it?', 'प्रिया को ₹2 लाख का बोनस मिला। वह इसका क्या कर सकती है?'), { big: t('₹2 lakh bonus', '₹2 लाख का बोनस') }),
-    sc('think', fill(t('She has a car loan with {l} left at {r}% a year, and savings for {m} months of spending.', 'उसके कार लोन में {l} बाक़ी है, {r}% सालाना, और {m} महीने के ख़र्च जितनी बचत है।'), { l: money(B.loan), r: B.rate, m: B.fundMonths }),
+    sc('think', fill(t('She has a car loan with {l} left at {r}% a year, {y} years to go, and savings for {m} months of spending.', 'उसके कार लोन में {l} बाक़ी है, {r}% सालाना, {y} साल बाक़ी, और {m} महीने के ख़र्च जितनी बचत है।'), { l: money(B.loan), r: B.rate, y: B.years, m: B.fundMonths }),
       { prop: { kind: 'steps', items: [fill(t('Car loan {l}', 'कार लोन {l}'), { l: money(B.loan) }), fill(t('{m} months of savings', '{m} महीने की बचत'), { m: B.fundMonths }), fill(t('{s} spent a month', 'महीने का ख़र्च {s}'), { s: money(B.spend) })] } }),
     sc('think', t('Each path helps in a different way, and each has a cost.', 'हर रास्ता अलग तरह से मदद करता है, और हर रास्ते की एक क़ीमत है।')),
     sc('happy', t('Paying a loan early gives a sure saving: the interest you would have paid.', 'लोन जल्दी चुकाने से पक्की बचत होती है: वह ब्याज जो आप देते।')),
@@ -310,10 +310,10 @@ const sortNeeds: Reel = {
         { t: t('Streaming apps he rarely opens', 'स्ट्रीमिंग ऐप जो वह कम खोलता है'), bin: 1, why: t('A want. If it is rarely used, it is worth a second look.', 'चाहत। कम इस्तेमाल हो तो एक बार फिर सोचना ठीक है।') },
         { t: t('A monthly SIP', 'हर महीने की SIP'), bin: 2, why: t('It builds his future: money set aside to grow over time.', 'यह उसका भविष्य बनाती है: पैसा अलग रखा जो समय के साथ बढ़ता है।') },
         { t: t('Electricity bill', 'बिजली का बिल'), bin: 0, why: t('A need: it is a must-pay running cost.', 'ज़रूरत: यह देना ही पड़ने वाला चालू ख़र्च है।') },
-        { t: t('Top-up of his emergency fund', 'इमरजेंसी फ़ंड में जमा'), bin: 2, why: t('It builds his future: a cushion for a surprise bill.', 'यह भविष्य बनाता है: अचानक के बिल के लिए गद्दी।') },
+        { t: t('Top-up of his emergency fund', 'आपातकालीन फ़ंड में जमा'), bin: 2, why: t('It builds his future: a cushion for a surprise bill.', 'यह भविष्य बनाता है: अचानक के बिल के लिए गद्दी।') },
       ] },
   },
-  quiz: { q: t('Which group does money set aside for an emergency fund belong to?', 'इमरजेंसी फ़ंड के लिए अलग रखा पैसा किस समूह में आता है?'),
+  quiz: { q: t('Which group does money set aside for an emergency fund belong to?', 'आपातकालीन फ़ंड के लिए अलग रखा पैसा किस समूह में आता है?'),
     options: [t('Needs', 'ज़रूरत'), t('Wants', 'चाहत'), t('What builds your future', 'जो भविष्य बनाता है')], answer: 2,
     why: t('Money set aside for later, like a cushion or a SIP, builds your future. It is not spent on today.', 'आगे के लिए अलग रखा पैसा, जैसे गद्दी या SIP, भविष्य बनाता है। वह आज पर ख़र्च नहीं होता।') },
 };
@@ -336,7 +336,7 @@ const orderSalary: Reel = {
       items: [
         { t: t('Pay rent and bills', 'किराया और बिल भरें'), why: t('These are fixed, so they come out first.', 'ये तय हैं, इसलिए सबसे पहले निकलते हैं।') },
         { t: t('Clear costly card dues', 'महँगी कार्ड बकाया चुकाएँ'), why: t('Card interest is often far higher than savings earn, so clearing it usually comes first.', 'कार्ड का ब्याज अक्सर बचत की कमाई से कहीं ज़्यादा होता है, इसलिए इसे चुकाना आमतौर पर पहले आता है।') },
-        { t: t('Build a small emergency fund', 'छोटा इमरजेंसी फ़ंड बनाएँ'), why: t('A few months of spending set aside stops a surprise from becoming a loan.', 'कुछ महीनों का ख़र्च अलग रखने से अचानक की मुसीबत क़र्ज़ नहीं बनती।') },
+        { t: t('Build a small emergency fund', 'छोटा आपातकालीन फ़ंड बनाएँ'), why: t('A few months of spending set aside stops a surprise from becoming a loan.', 'कुछ महीनों का ख़र्च अलग रखने से अचानक की मुसीबत क़र्ज़ नहीं बनती।') },
         { t: t('Start a monthly SIP', 'हर महीने की SIP शुरू करें'), why: t('Starting small and early lets time do the work.', 'छोटी और जल्दी शुरुआत से समय अपना काम करता है।') },
         { t: t('Spend the rest on yourself', 'बाक़ी अपने ऊपर ख़र्च करें'), why: t('Once the basics are done, enjoying the rest is part of a healthy plan.', 'बुनियादी काम हो जाएँ तो बाक़ी का आनंद लेना भी स्वस्थ योजना का हिस्सा है।') },
       ] },

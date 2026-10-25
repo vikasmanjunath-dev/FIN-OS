@@ -1,6 +1,6 @@
 // Second wave, part D: scams and goals. Scam reels name no number to call except the national helpline 1930 (a test enforces it).
 import { emi, fill, grownCost, mean, money, pctOf, sipNeeded } from '@/lib/reels/figures';
-import { sc, t } from '@/lib/reels/kit';
+import { lakhDec, sc, t } from '@/lib/reels/kit';
 import type { Reel } from '@/lib/reels/types';
 
 // ── Scams ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -189,8 +189,8 @@ const carMath: Reel = {
   title: t('The real cost of a car', 'कार की असली लागत'),
   scenes: [
     sc('think', t('A car loan spreads the price over years. The sticker price is not what you end up paying.', 'कार लोन कीमत को सालों में बाँट देता है। स्टिकर प्राइस वह नहीं जो आप अंत में चुकाते हैं।'), { big: t('Total cost', 'कुल लागत') }),
-    sc('surprised', fill(t('Take {p} at an assumed {r}% for {y} years. The EMI is about {e}, and you pay about {t} in all.', '{p} का लोन, मान लें {r}% पर {y} साल। EMI लगभग {e}, और आप कुल लगभग {t} चुकाते हैं।'), { p: money(CAR), r: CAR_RATE, y: CAR_YEARS, e: money(Math.round(carEmi)), t: money(Math.round(carTotal)) }),
-      { prop: { kind: 'bars', items: [{ label: t('Price', 'कीमत'), value: CAR, text: money(CAR), tone: 'gold' }, { label: t('You pay', 'आप चुकाते'), value: carTotal, text: money(Math.round(carTotal)), tone: 'red' }] } }),
+    sc('surprised', fill(t('Take {p} at an assumed {r}% for {y} years. The EMI is about {e}, and you pay about {t} in all.', '{p} का लोन, मान लें {r}% पर {y} साल। EMI लगभग {e}, और आप कुल लगभग {t} चुकाते हैं।'), { p: money(CAR), r: CAR_RATE, y: CAR_YEARS, e: money(Math.round(carEmi)), t: lakhDec(carTotal) }),
+      { prop: { kind: 'bars', items: [{ label: t('Price', 'कीमत'), value: CAR, text: money(CAR), tone: 'gold' }, { label: t('You pay', 'आप चुकाते'), value: carTotal, text: lakhDec(carTotal), tone: 'red' }] } }),
     sc('worry', t('A car usually loses value as it ages, so it is a cost, not an investment. Fuel, insurance and servicing come on top.', 'कार उम्र के साथ आम तौर पर कीमत खोती है, इसलिए वह लागत है, निवेश नहीं। ऊपर से ईंधन, बीमा और सर्विस।')),
     sc('think', t('A larger down payment, a shorter loan or a cheaper car all cut the interest you pay.', 'बड़ी डाउन पेमेंट, छोटा लोन या सस्ती कार, सब आपके ब्याज को घटाते हैं।')),
     sc('cheer', t('Decide the total monthly cost you can carry, then pick the car.', 'तय करें कि कुल मासिक ख़र्च कितना सँभाल सकते हैं, फिर कार चुनें।')),
@@ -239,7 +239,7 @@ const priority: Reel = {
   title: t('Which goal first?', 'कौन-सा लक्ष्य पहले?'),
   scenes: [
     sc('think', t('You have more goals than money. Putting them in order stops you from doing a little for each.', 'आपके पास पैसे से ज़्यादा लक्ष्य हैं। उन्हें क्रम देने से आप हर एक में थोड़ा-थोड़ा करने से बचते हैं।'), { big: t('In order', 'क्रम में') }),
-    sc('happy', t('A common order to think about:', 'सोचने के लिए एक आम क्रम:'), { prop: { kind: 'steps', items: [t('Safety: emergency fund, cover', 'सुरक्षा: इमरजेंसी फ़ंड, कवर'), t('Costly debt', 'महँगा क़र्ज़'), t('Goals with a fixed date', 'तय तारीख़ वाले लक्ष्य'), t('Flexible goals, treats', 'लचीले लक्ष्य, शौक़')] }, ms: 5400 }),
+    sc('happy', t('A common order to think about:', 'सोचने के लिए एक आम क्रम:'), { prop: { kind: 'steps', items: [t('Safety: emergency fund, cover', 'सुरक्षा: आपातकालीन फ़ंड, कवर'), t('Costly debt', 'महँगा क़र्ज़'), t('Goals with a fixed date', 'तय तारीख़ वाले लक्ष्य'), t('Flexible goals, treats', 'लचीले लक्ष्य, शौक़')] }, ms: 5400 }),
     sc('worry', t('Retirement has no loan to fall back on, so it should not sit last just because it is far away.', 'रिटायरमेंट के लिए कोई लोन नहीं मिलता, इसलिए दूर होने भर से उसे आख़िर में न रखें।')),
     sc('think', t('Your own order may differ. A parent’s surgery, for example, can jump the queue.', 'आपका क्रम अलग हो सकता है। जैसे माता-पिता की सर्जरी सबसे आगे आ सकती है।')),
     sc('cheer', t('Write the order down, and give each goal its own monthly amount.', 'क्रम लिख लें, और हर लक्ष्य को उसकी अपनी मासिक रकम दें।')),
@@ -292,12 +292,12 @@ const windfall: Reel = {
     sc('think', t('A bonus or a gift lands in your account. The right use depends on your situation.', 'बोनस या तोहफ़ा खाते में आता है। सही उपयोग आपकी स्थिति पर निर्भर है।'), { big: t('A windfall', 'अचानक रकम') }),
     sc('surprised', fill(t('If you carry card debt at about {c}% a year, clearing {w} of it saves roughly {s} in interest a year.', 'अगर आप पर लगभग {c}% सालाना का कार्ड क़र्ज़ है, तो {w} चुकाने से साल में मोटे तौर पर {s} का ब्याज बचता है।'), { c: CARD, w: money(WINDFALL), s: money(cardSaved) }),
       { prop: { kind: 'counter', from: 0, to: cardSaved, format: 'inr', tone: 'teal', label: t('interest saved a year', 'साल में बचा ब्याज') } }),
-    sc('happy', t('Questions to ask in order:', 'क्रम से ये सवाल पूछें:'), { prop: { kind: 'steps', items: [t('Any costly debt?', 'कोई महँगा क़र्ज़?'), t('Is the emergency fund full?', 'क्या इमरजेंसी फ़ंड पूरा है?'), t('Any goal with a near date?', 'कोई नज़दीकी तारीख़ का लक्ष्य?'), t('Then long-term goals', 'फिर लंबी अवधि के लक्ष्य')] }, ms: 5400 }),
+    sc('happy', t('Questions to ask in order:', 'क्रम से ये सवाल पूछें:'), { prop: { kind: 'steps', items: [t('Any costly debt?', 'कोई महँगा क़र्ज़?'), t('Is the emergency fund full?', 'क्या आपातकालीन फ़ंड पूरा है?'), t('Any goal with a near date?', 'कोई नज़दीकी तारीख़ का लक्ष्य?'), t('Then long-term goals', 'फिर लंबी अवधि के लक्ष्य')] }, ms: 5400 }),
     sc('think', t('Keep a small part to enjoy. A plan you can live with is one you will follow.', 'थोड़ा हिस्सा आनंद के लिए रखें। जिस योजना के साथ जी सकें, उसी पर चलेंगे।')),
     sc('cheer', t('Decide before the money arrives, so it is not spent by default.', 'पैसा आने से पहले तय करें, ताकि वह यूँ ही ख़र्च न हो।')),
   ],
   quiz: { q: t('What usually comes first for a windfall?', 'अचानक रकम के लिए आम तौर पर पहले क्या आता है?'),
-    options: [t('Costly debt and the emergency fund', 'महँगा क़र्ज़ और इमरजेंसी फ़ंड'), t('A luxury purchase', 'महँगी ख़रीद'), t('A risky bet', 'जोखिम भरा दाँव')], answer: 0,
+    options: [t('Costly debt and the emergency fund', 'महँगा क़र्ज़ और आपातकालीन फ़ंड'), t('A luxury purchase', 'महँगी ख़रीद'), t('A risky bet', 'जोखिम भरा दाँव')], answer: 0,
     why: t('Clearing high-interest debt and building safety give the surest benefit.', 'महँगा क़र्ज़ चुकाने और सुरक्षा बनाने से सबसे पक्का लाभ मिलता है।') },
 };
 

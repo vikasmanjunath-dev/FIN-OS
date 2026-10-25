@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { ChatMessage } from '@/hooks/useAryaChat';
 import { AryaToolCalls } from '@/components/AryaToolCalls';
+import { AryaReelChip } from '@/components/reels/AryaReelChip';
 import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
 
 // Minimal markdown: headings, **bold**, and -/*/1. list items. No dependency needed for chat-sized text.
@@ -29,9 +30,11 @@ interface AryaBubbleProps {
   message: ChatMessage;
   /** a chip that carries a question ("Which did you mean?") sends it through this */
   onAsk?: (question: string) => void;
+  /** the question this answer replies to; a finished answer may carry one "Watch a 30-second reel on this" chip for it (lib/reels/aryaLink.ts) */
+  question?: string;
 }
 
-export function AryaBubble({ message, onAsk }: AryaBubbleProps) {
+export function AryaBubble({ message, onAsk, question }: AryaBubbleProps) {
   const isArya = message.role === 'arya';
 
   return (
@@ -57,6 +60,7 @@ export function AryaBubble({ message, onAsk }: AryaBubbleProps) {
             ))}
           </View>
         ) : null}
+        {isArya && question && !message.streaming && message.text ? <AryaReelChip question={question} answer={message.text} /> : null}
         <Text style={styles.time}>
           {message.timestamp.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
         </Text>

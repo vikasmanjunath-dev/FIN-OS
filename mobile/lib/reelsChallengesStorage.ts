@@ -10,3 +10,5 @@ export async function loadChallenges(now: Date = new Date()): Promise<ChallengeS
   try { return pruneStale(parseChallenges(await getText(CHALLENGES_KEY)), now); } catch { return { ...EMPTY_CHALLENGES, runs: [] }; }
 }
 export async function saveChallenges(s: ChallengeState): Promise<void> { try { await AsyncStorage.setItem(CHALLENGES_KEY, JSON.stringify(s)); } catch { /* the progress is just not kept */ } }
+/** Forgets every challenge run. Whatever the person did for a task (a subscription cancelled, a limit set) is theirs and stays. */
+export async function resetChallenges(): Promise<void> { try { await AsyncStorage.removeItem(CHALLENGES_KEY); } catch { /* ignore */ } }

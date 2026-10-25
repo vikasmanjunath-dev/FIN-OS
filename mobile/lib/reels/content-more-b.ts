@@ -54,7 +54,7 @@ const noCost: Reel = {
     sc('think', t('“No-cost EMI” sounds like free credit. The cost is often hidden somewhere else.', '“नो-कॉस्ट EMI” मुफ़्त क्रेडिट जैसा लगता है। लागत अक्सर कहीं और छिपी होती है।'), { big: t('No-cost?', 'नो-कॉस्ट?') }),
     sc('surprised', fill(t('Example: a phone is {c} if you pay cash, or {e} a month for {n} months, which is {t}.', 'उदाहरण: फ़ोन नक़द देने पर {c} का है, या {n} महीने {e} महीना, जो {t} होता है।'), { c: money(CASH), e: money(EMI3), n: N, t: money(EMI3 * N) }),
       { prop: { kind: 'bars', items: [{ label: t('Cash price', 'नक़द भाव'), value: CASH, text: money(CASH), tone: 'teal' }, { label: t('EMI total', 'EMI कुल'), value: EMI3 * N, text: money(EMI3 * N), tone: 'gold' }] } }),
-    sc('worry', fill(t('That gap works out to about {m}% a month, or roughly {a}% a year. That is the real cost of the “no-cost” offer.', 'वह अंतर लगभग {m}% महीना, यानी मोटे तौर पर {a}% सालाना बैठता है। यही “नो-कॉस्ट” ऑफ़र की असली लागत है।'), { m: pct1(monthly), a: Math.round(monthly * 12) })),
+    sc('worry', fill(t('That gap works out to about {m}% a month, or roughly {a}% a year, simple. That is the real cost of the “no-cost” offer.', 'वह अंतर लगभग {m}% महीना, यानी मोटे तौर पर {a}% सालाना (साधारण) बैठता है। यही “नो-कॉस्ट” ऑफ़र की असली लागत है।'), { m: pct1(monthly), a: Math.round(monthly * 12) })),
     sc('think', t('The cost can sit in a lost discount, a processing fee or the interest the seller pays and recovers in the price.', 'लागत छूटे हुए डिस्काउंट, प्रोसेसिंग फ़ीस या उस ब्याज में हो सकती है जिसे विक्रेता क़ीमत में वसूल लेता है।')),
     sc('cheer', t('Always ask for the cash price and compare it with the EMI total.', 'हमेशा नक़द भाव पूछें और उसकी तुलना EMI के कुल से करें।')),
   ],

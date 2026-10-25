@@ -8,11 +8,12 @@ import { loadMoves, loadReelsProfile, saveMoves, saveReelsProfile } from '@/lib/
 import { loadSignals, deriveSignals, type Signals } from '@/lib/reels/signals';
 import { personaliseReels } from '@/lib/reels/personal';
 import { recordStat } from '@/lib/reelsStatsStorage';
+import { syncReelReminders } from '@/lib/reelRemindersStorage';
 import { personalisePlay } from '@/lib/reels/personal-play';
 import { startedReelIds } from '@/lib/reels/followup';
 import { rankReelsV2 } from '@/lib/reels/ranker';
 import { withScrambledQuiz } from '@/lib/reels/quizorder';
-import { EMPTY_PROFILE, addKnown, addLess, addPledge, noteBlind, notePoke, noteResurfaced, noteTip, removePledge, toggleSaved, type ReelsProfile } from '@/lib/reels/reelsProfile';
+import { EMPTY_PROFILE, addKnown, addLess, addPledge, noteBlind, notePoke, noteResurfaced, noteTip, removePledge, toggleSaved, type ReelsProfile, type StartAnswers } from '@/lib/reels/reelsProfile';
 import { checkMilestones, markMilestoneSeen, unseenMilestones } from '@/lib/reels/milestones';
 import { EMPTY_MOVES, markSeen, receiptText, settleMoves, startMove, unseenReceipts, type MovesState, type StoredReceipt } from '@/lib/reels/moves';
 import type { L, Topic } from '@/lib/reels/types';
@@ -27,13 +28,17 @@ export function useReelsJourney() {
   const [signals, setSignals] = useState<Signals>(() => deriveSignals({ now: new Date() }));
   const [profile, setProfile] = useState<ReelsProfile>(EMPTY_PROFILE);
   const profRef = useRef<ReelsProfile>(EMPTY_PROFILE);                 // the latest profile, so two quick taps never overwrite each other
-  const commit = useCallback((next: ReelsProfile) => { profRef.current = next; setProfile(next); saveReelsProfile(next); }, []);
+  const edits = useRef(0);                                              // counts edits, so a reload that began before an edit never overwrites it with older data
+  /** Notices the plan depends on (a follow-up for a pledge, the reminders after a reel) are re-planned once the change is saved, so a pledge that was removed, a reel marked known or a move that was started stops its notice now and not at the next app start. */
+  const replan = useCallback(() => { syncReelReminders().catch(() => {}); }, []);
+  const commit = useCallback((next: ReelsProfile, replanAfter = false) => { edits.current++; profRef.current = next; setProfile(next); const saved = saveReelsProfile(next); if (replanAfter) saved.then(replan); }, [replan]);
   const [moves, setMoves] = useState<MovesState>(EMPTY_MOVES);
   const [loaded, setLoaded] = useState(false);
 
   const reload = useCallback(async () => {
-    const now = new Date();
-    const [w, d, s, p, mv] = await Promise.all([loadWatched(), loadDays(), loadSignals(now), loadReelsProfile(), loadMoves()]);
+    const now = new Date(), seen = edits.current;
+    const [w, d, s, p0, mv] = await Promise.all([loadWatched(), loadDays(), loadSignals(now), loadReelsProfile(), loadMoves()]);
+    const p = edits.current === seen ? p0 : profRef.current;       // the person edited the profile while it was loading: keep their edit
     const settled = settleMoves(mv, s.mine, now);              // a move whose figure improved becomes a receipt
     if (JSON.stringify(settled) !== JSON.stringify(mv)) saveMoves(settled);
     const earned = settled.receipts.length - mv.receipts.length;
@@ -49,7 +54,7 @@ export function useReelsJourney() {
   const today = dayKey(new Date());
   const mine = signals.mine;
   const strain = signals.strain, income = signals.income;
-  const library = useMemo(() => personalisePlay(personaliseReels(LIBRARY, mine), mine, { strain, income }).map(withScrambledQuiz), [mine, strain, income]);
+  const library = useMemo(() => personalisePlay(personaliseReels(LIBRARY, mine, { strain, income }), mine, { strain, income }).map(withScrambledQuiz), [mine, strain, income]);
   const ranked: Ranked[] = useMemo(() => rankReelsV2(library, { watched, signals, profile, now: new Date(), started: startedReelIds(moves) }), [library, watched, signals, profile, moves]);
   const streak = useMemo(() => forgivingStreak(days, today), [days, today]);
   const todays = ranked.find(r => r.why !== 'done') ?? ranked[0];
@@ -57,7 +62,7 @@ export function useReelsJourney() {
   const receipts: ReceiptView[] = useMemo(() => unseenReceipts(moves).map(r => ({ receipt: r, ...receiptText(r, mine) })), [moves, mine]);
 
   /** "I already know this": the reel stops coming up in the episode. */
-  const know = useCallback((id: string) => commit(addKnown(profRef.current, id)), [commit]);
+  const know = useCallback((id: string) => commit(addKnown(profRef.current, id), true), [commit]);
   /** "Less of this topic": it ranks lower from now on. */
   const less = useCallback((topic: Topic) => commit(addLess(profRef.current, topic)), [commit]);
   /** An interactive beat was shown: did the person play with it or skip it? Feeds the ranker's format fit. */
@@ -69,15 +74,17 @@ export function useReelsJourney() {
   /** Keeps a reel to watch later, or lets it go; returns whether it is now kept. */
   const toggleSave = useCallback((id: string): boolean => { const r = toggleSaved(profRef.current, id); commit(r.profile); if (r.kept) recordStat('saves'); return r.kept; }, [commit]);
   /** "I'll do this": the reel's move goes on My moves. Returns false when it was already there. */
-  const pledge = useCallback((id: string): boolean => { const next = addPledge(profRef.current, id, new Date()); if (next === profRef.current) return false; commit(next); recordStat('pledges'); return true; }, [commit]);
-  const unpledge = useCallback((id: string) => commit(removePledge(profRef.current, id)), [commit]);
+  const pledge = useCallback((id: string): boolean => { const next = addPledge(profRef.current, id, new Date()); if (next === profRef.current) return false; commit(next, true); recordStat('pledges'); return true; }, [commit]);
+  const unpledge = useCallback((id: string) => commit(removePledge(profRef.current, id), true), [commit]);
   /** A milestone was shown; it will not be shown again. */
   const dismissMilestone = useCallback((id: string) => commit(markMilestoneSeen(profRef.current, id)), [commit]);
   /** The gesture tips were shown once more. */
   const tipShown = useCallback(() => commit(noteTip(profRef.current)), [commit]);
+  /** The welcome was answered, skipped, or changed later: remembered on the phone, so it never asks twice. */
+  const chooseStart = useCallback((start: StartAnswers) => commit({ ...profRef.current, start }), [commit]);
   /** The person tapped a reel's tool: remember the figure it is about so a later improvement can be recognised. */
-  const beginMove = useCallback((reelId: string) => { const next = startMove(moves, reelId, mine, new Date()); if (next !== moves) { setMoves(next); saveMoves(next); recordStat('moves'); } }, [moves, mine]);
+  const beginMove = useCallback((reelId: string) => { const next = startMove(moves, reelId, mine, new Date()); if (next !== moves) { setMoves(next); saveMoves(next).then(replan); recordStat('moves'); } }, [moves, mine, replan]);
   const dismissReceipt = useCallback((r: StoredReceipt) => { const next = markSeen(moves, r.id, r.at); setMoves(next); saveMoves(next); }, [moves]);
 
-  return { loaded, library, watched, setWatched, setDays, ranked, todays, signals, profile, receipts, moves, milestones, know, less, pokeDone, markBlind, markResurfaced, toggleSave, pledge, unpledge, dismissMilestone, tipShown, beginMove, dismissReceipt, ...streak, reload };
+  return { loaded, library, watched, setWatched, setDays, ranked, todays, signals, profile, receipts, moves, milestones, know, less, pokeDone, markBlind, markResurfaced, toggleSave, pledge, unpledge, dismissMilestone, tipShown, chooseStart, beginMove, dismissReceipt, ...streak, reload };
 }

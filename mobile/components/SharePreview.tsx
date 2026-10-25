@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Share, Platform } from 'react-native';
+import { translate, useLang } from '@/lib/i18n';
 import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
 
 /**
@@ -7,6 +8,7 @@ import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
  * Nothing leaves the phone before that tap, and the person picks where it goes.
  */
 export function SharePreview({ title, text, onClose }: { title: string; text: string; onClose: () => void }) {
+  const hi = useLang() === 'hi';
   const [msg, setMsg] = useState('');
   const share = async () => {
     try {
@@ -24,7 +26,7 @@ export function SharePreview({ title, text, onClose }: { title: string; text: st
     <View style={s.wrap}>
       <Text style={s.title}>{title}</Text>
       <Text style={[Typography.caption, { marginBottom: Spacing.sm, lineHeight: 17 }]}>This is exactly what will be shared, and you choose where it goes. Nothing has been sent.</Text>
-      <TextInput style={s.box} value={text} editable={false} multiline selectTextOnFocus accessibilityLabel={`${title} (text to share)`} />
+      <TextInput style={s.box} value={text} editable={false} multiline selectTextOnFocus accessibilityLabel={`${translate(title)} (${hi ? 'साझा किया जाने वाला पाठ' : 'text to share'})`} />
       <View style={s.row}>
         <TouchableOpacity style={s.primary} accessibilityRole="button" onPress={share}><Text style={s.primaryTxt}>Share…</Text></TouchableOpacity>
         <TouchableOpacity style={s.secondary} accessibilityRole="button" onPress={onClose}><Text style={s.secondaryTxt}>Close</Text></TouchableOpacity>

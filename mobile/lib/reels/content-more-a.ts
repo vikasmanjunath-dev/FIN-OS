@@ -1,7 +1,7 @@
 // Second wave, part A: basics and investing. Figures come from lib/reels/figures.ts and lib/taxcore.ts.
 import { STD_NEW, taxNew } from '@/lib/taxcore';
 import { averageCost, driftedShare, fill, lumpsumValue, money, pctOf, potLoss, realReturn, sipFutureValue, sipThenHold, taxAtSlab } from '@/lib/reels/figures';
-import { sc, t } from '@/lib/reels/kit';
+import { lakhDec, sc, t } from '@/lib/reels/kit';
 import type { Reel } from '@/lib/reels/types';
 
 const pct1 = (n: number) => String(Math.round(n * 10) / 10);
@@ -68,7 +68,7 @@ const creep: Reel = {
   title: t('When every raise gets spent', 'जब हर इन्क्रीमेंट ख़र्च हो जाए'),
   scenes: [
     sc('think', t('You get a raise, and a nicer phone, a bigger flat and more dining out follow. That is lifestyle creep.', 'इन्क्रीमेंट मिलता है, और फिर बेहतर फ़ोन, बड़ा फ़्लैट, ज़्यादा बाहर खाना। इसे लाइफ़स्टाइल क्रीप कहते हैं।'), { big: t('Lifestyle creep', 'लाइफ़स्टाइल क्रीप') }),
-    sc('surprised', fill(t('A {a} monthly upgrade, invested instead for {y} years at an assumed {r}%, would be about {v}.', '{a} महीने का अपग्रेड, अगर {y} साल मान लें {r}% पर निवेश होता, तो लगभग {v} बनता।'), { a: money(UPGRADE), y: UP_YEARS, r: UP_RATE, v: money(upgradeFv) }),
+    sc('surprised', fill(t('A {a} monthly upgrade, invested instead for {y} years at an assumed {r}%, would be about {v}.', '{a} महीने का अपग्रेड, अगर {y} साल मान लें {r}% पर निवेश होता, तो लगभग {v} बनता।'), { a: money(UPGRADE), y: UP_YEARS, r: UP_RATE, v: lakhDec(upgradeFv) }),
       { prop: { kind: 'counter', from: 0, to: Math.round(upgradeFv), format: 'inr', tone: 'gold', label: t('if invested instead (assumption)', 'अगर निवेश होता (अनुमान)') } }),
     sc('happy', t('This is not about never enjoying money. Enjoying it is the point of earning it.', 'बात पैसे का आनंद न लेने की नहीं है। कमाने का मक़सद ही आनंद है।')),
     sc('think', t('A simple middle path: when your pay rises, put part of the raise to savings first, and enjoy the rest.', 'एक सीधा बीच का रास्ता: आय बढ़े तो बढ़त का एक हिस्सा पहले बचत में डालें, बाक़ी का आनंद लें।')),
@@ -256,7 +256,7 @@ const realFd: Reel = {
   title: t('What an FD really earns', 'FD असल में कितना कमाती है'),
   scenes: [
     sc('think', t('An FD pays a fixed rate. But what matters is what is left after tax and rising prices.', 'FD तय दर देती है। पर मायने यह रखता है कि टैक्स और बढ़ती कीमतों के बाद क्या बचता है।'), { big: t('Real return', 'असली रिटर्न') }),
-    sc('happy', fill(t('Example: an FD at {f}%. In the {s}% slab the interest is taxed, leaving about {a}%.', 'उदाहरण: {f}% की FD। {s}% स्लैब में ब्याज पर टैक्स लगता है, और लगभग {a}% बचता है।'), { f: FD, s: SLAB, a: pct1(FD * (1 - SLAB / 100)) })),
+    sc('happy', fill(t('Example: an FD at {f}%. In the {s}% slab the interest is taxed, leaving about {a}% (cess left out).', 'उदाहरण: {f}% की FD। {s}% स्लैब में ब्याज पर टैक्स लगता है, और लगभग {a}% बचता है (सेस छोड़कर)।'), { f: FD, s: SLAB, a: pct1(FD * (1 - SLAB / 100)) })),
     sc('surprised', fill(t('With an assumed {i}% inflation, the real return is about {r}%. Your money buys a little less each year.', 'मान लें {i}% महँगाई, तो असली रिटर्न लगभग {r}% है। आपका पैसा हर साल थोड़ा कम ख़रीदता है।'), { i: INFL, r: pct1(real) }),
       { prop: { kind: 'bars', items: [{ label: t('After tax', 'टैक्स के बाद'), value: FD * (1 - SLAB / 100), text: t(`${pct1(FD * (1 - SLAB / 100))}%`, `${pct1(FD * (1 - SLAB / 100))}%`), tone: 'gold' }, { label: t('Inflation', 'महँगाई'), value: INFL, text: t(`${INFL}%`, `${INFL}%`), tone: 'red' }] } }),
     sc('think', t('This does not make FDs bad. They give safety and a known amount, which some goals need.', 'इसका मतलब FD बुरी नहीं है। वे सुरक्षा और तय रकम देती हैं, जो कुछ लक्ष्यों को चाहिए।')),

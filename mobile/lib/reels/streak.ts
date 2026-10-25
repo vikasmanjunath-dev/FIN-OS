@@ -49,10 +49,16 @@ export interface TabState {
   label: string;
 }
 
-export function reelsTabState(days: string[], today: string): TabState {
+/** `pledges` (optional) is how many moves are on the person's list; it is only ever said in the accessibility label, never drawn on the icon.
+ *  `lang` (optional, default English) picks the language of that label; the Hindi wording is a draft for the native reviewer. */
+export function reelsTabState(days: string[], today: string, pledges: number = 0, lang: 'en' | 'hi' = 'en'): TabState {
   const s = forgivingStreak(days, today);
-  const run = s.streak > 0 ? `, ${s.streak}-day streak` : '';
-  if (s.doneToday) return { badge: 'check', streak: s.streak, label: `Reels, done for today${run}` };
-  if (s.streak > 0) return { badge: 'streak', streak: s.streak, label: `Reels, today's reel is ready${run}` };
-  return { badge: 'dot', streak: 0, label: "Reels, today's reel is ready" };
+  const n = Number.isFinite(pledges) ? Math.max(0, Math.floor(pledges)) : 0;
+  const hi = lang === 'hi';
+  const name = hi ? 'रील्स' : 'Reels';
+  const run = s.streak > 0 ? (hi ? `, ${s.streak} दिन की लगातार स्ट्रीक` : `, ${s.streak}-day streak`) : '';
+  const list = n > 0 ? (hi ? `, आपकी सूची में ${n} काम` : `, ${n} ${n === 1 ? 'move' : 'moves'} on your list`) : '';
+  if (s.doneToday) return { badge: 'check', streak: s.streak, label: `${name}, ${hi ? 'आज की रील पूरी हुई' : 'done for today'}${run}${list}` };
+  if (s.streak > 0) return { badge: 'streak', streak: s.streak, label: `${name}, ${hi ? 'आज की रील तैयार है' : "today's reel is ready"}${run}${list}` };
+  return { badge: 'dot', streak: 0, label: `${name}, ${hi ? 'आज की रील तैयार है' : "today's reel is ready"}${list}` };
 }

@@ -9,9 +9,20 @@ import {
   categoryProgress, continueLesson, rowMeta, lessonBodyText, lessonsOf, nextLesson, overallProgress, searchLessons,
   type Learned, type ManifestEntry, type Opened,
 } from '@/lib/learn';
+import { translate, useLang } from '@/lib/i18n';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 
 const BODIES: Record<string, string> = Object.fromEntries(Object.entries(LESSONS).map(([id, l]) => [id, lessonBodyText(l)]));
+
+const CARDS: { title: string; sub: string; accent: string; href: string }[] = [
+  { title: '🎬 Money reels', sub: 'Short animated lessons with Mitra the owl: SIP, inflation, EMI and more. 30 seconds each, with a quick question.', accent: Colors.purple, href: '/learn/reels' },
+  { title: '🗺️ Money Map', sub: 'Nine topics by four rungs: myth, concept, decision, action. See where you are strong and what to watch next.', accent: Colors.teal, href: '/learn/map' },
+  { title: '📌 My moves', sub: 'What you said you would do after a reel, how each one stands, and the reels you kept for later. All on this phone.', accent: Colors.gold, href: '/learn/moves' },
+  { title: '✅ 7-day challenges', sub: 'One small task a day: find your money leak, or scam-proof your phone. You tick each one; a missed day costs nothing.', accent: Colors.cyan, href: '/learn/challenges' },
+  { title: '🔊 Reel voice', sub: 'Pick a voice, speed and style for the reels, and hear a sample with the words lighting up in time.', accent: Colors.cyan, href: '/learn/voice' },
+  { title: '🔒 What the reels know about you', sub: 'Everything the money reels have learned on this phone, why a reel was picked, and a button to forget each part. All on this phone.', accent: Colors.teal, href: '/learn/reels-data' },
+  { title: '📖 Story series', sub: 'Six short runs of reels, each following one person to one real move: first salary, a safety net, scams, tax, a home loan, retirement.', accent: Colors.gold, href: '/learn/series' },
+];
 
 const openLesson = (id: string) => router.push(`/learn/${id}` as any);
 
@@ -21,7 +32,7 @@ function Row({ e, learned }: { e: ManifestEntry; learned: Learned }) {
   return (
     <TouchableOpacity
       style={s.row} onPress={() => openLesson(e.id)} accessibilityRole="button"
-      accessibilityLabel={`${e.title}. ${meta}.${done ? ' Learned.' : ''}${e.needsReview ? ' Some passages are under fact-check.' : ''}`}>
+      accessibilityLabel={`${e.title}. ${translate(meta)}.${done ? ` ${translate('Learned.')}` : ''}${e.needsReview ? ` ${translate('Some passages are under fact-check.')}` : ''}`}>
       <View style={[s.tick, done && { backgroundColor: Colors.teal, borderColor: Colors.teal }]}>
         {done ? <Text style={s.tickTxt}>✓</Text> : null}
       </View>
@@ -35,6 +46,7 @@ function Row({ e, learned }: { e: ManifestEntry; learned: Learned }) {
 }
 
 export default function LearnHome() {
+  const hi = useLang() === 'hi';                              // also redraws the translated card names when the language changes
   const [learned, setLearned] = useState<Learned>({});
   const [opened, setOpened] = useState<Opened>({});
   const [q, setQ] = useState('');
@@ -54,12 +66,7 @@ export default function LearnHome() {
 
   return (
     <TrackerScreen title="Learn" subtitle="Short lessons from FIN·OS, on your phone. For education, not advice; check rates and rules against official sources.">
-      <NavCard title="🎬 Money reels" sub="Short animated lessons with Mitra the owl: SIP, inflation, EMI and more. 30 seconds each, with a quick question." accent={Colors.purple} onPress={() => router.push('/learn/reels' as any)} />
-      <NavCard title="🗺️ Money Map" sub="Nine topics by four rungs: myth, concept, decision, action. See where you are strong and what to watch next." accent={Colors.teal} onPress={() => router.push('/learn/map' as any)} />
-      <NavCard title="📌 My moves" sub="What you said you would do after a reel, how each one stands, and the reels you kept for later. All on this phone." accent={Colors.gold} onPress={() => router.push('/learn/moves' as any)} />
-      <NavCard title="✅ 7-day challenges" sub="One small task a day: find your money leak, or scam-proof your phone. You tick each one; a missed day costs nothing." accent={Colors.cyan} onPress={() => router.push('/learn/challenges' as any)} />
-      <NavCard title="🔊 Reel voice" sub="Pick a voice, speed and style for the reels, and hear a sample with the words lighting up in time." accent={Colors.cyan} onPress={() => router.push('/learn/voice' as any)} />
-      <NavCard title="📖 Story series" sub="Six short runs of reels, each following one person to one real move: first salary, a safety net, scams, tax, a home loan, retirement." accent={Colors.gold} onPress={() => router.push('/learn/series' as any)} />
+      {CARDS.map(c => <NavCard key={c.href} title={translate(c.title)} sub={translate(c.sub)} accent={c.accent} onPress={() => router.push(c.href as any)} />)}
 
       <Card accent={Colors.teal}>
         <Text style={Typography.label}>YOUR PROGRESS</Text>
@@ -75,7 +82,7 @@ export default function LearnHome() {
 
       {hits ? (
         <>
-          <SectionLabel>{`${hits.length} RESULT${hits.length === 1 ? '' : 'S'}`}</SectionLabel>
+          <SectionLabel>{hi ? `${hits.length} परिणाम` : `${hits.length} RESULT${hits.length === 1 ? '' : 'S'}`}</SectionLabel>
           {hits.length === 0 ? <Card><Text style={Typography.body}>No lesson matches "{q.trim()}".</Text></Card> : null}
           {hits.map(e => <Row key={e.id} e={e} learned={learned} />)}
         </>
@@ -97,7 +104,7 @@ export default function LearnHome() {
               <SectionLabel>{c.total ? `${c.title.toUpperCase()}  ·  ${c.learned}/${c.total}` : c.title.toUpperCase()}</SectionLabel>
               {c.total === 0 ? (
                 <TouchableOpacity style={s.row} onPress={() => setOpenWeb(v => !v)} accessibilityRole="button" accessibilityState={{ expanded: openWeb }}
-                  accessibilityLabel={`${lessonsOf(MANIFEST, c.id).length} interactive pages on the website. ${openWeb ? 'Hide' : 'Show'} the list.`}>
+                  accessibilityLabel={`${translate(`${lessonsOf(MANIFEST, c.id).length} interactive pages on the website.`)} ${translate(openWeb ? 'Hide the list.' : 'Show the list.')}`}>
                   <View style={{ flex: 1 }}>
                     <LText style={s.title}>{`${lessonsOf(MANIFEST, c.id).length} pages that are interactive, menus or website only`}</LText>
                     <LText style={Typography.caption}>Each has a page here that says what it is and what the phone has instead.</LText>

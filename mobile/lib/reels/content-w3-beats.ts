@@ -30,7 +30,7 @@ export const SORT_REELS: Reel[] = [
       t('A product that does both may do each job less well, and costs more to understand.', 'जो दोनों करे वह हर काम कम अच्छा कर सकता है, और समझने में भी महँगा है।'), t('Ask of each rupee: is it to protect, or to grow?', 'हर रुपये से पूछें: यह बचाने के लिए है, या बढ़ाने के लिए?')],
     beat: { kind: 'sort', q: t('What is the main job of each?', 'हर एक का मुख्य काम क्या है?'), bins: [t('Protects', 'सुरक्षा'), t('Grows', 'बढ़त')], cards: [
       card('Term life cover', 'टर्म जीवन कवर', 0, 'It pays your family if you are gone, and builds no savings.', 'आपके न रहने पर परिवार को देता है, और बचत नहीं बनाता।'),
-      card('Health insurance', 'हेल्थ इंश्योरेंस', 0, 'It pays hospital bills, within the policy’s limits.', 'पॉलिसी की सीमा में अस्पताल के बिल चुकाता है।'),
+      card('Health insurance', 'हेल्थ बीमा', 0, 'It pays hospital bills, within the policy’s limits.', 'पॉलिसी की सीमा में अस्पताल के बिल चुकाता है।'),
       card('An index fund', 'इंडेक्स फ़ंड', 1, 'It holds shares to grow over time, with risk.', 'समय के साथ बढ़ने के लिए शेयर रखता है, जोखिम के साथ।'),
       card('A PPF account', 'PPF खाता', 1, 'It is a long-term saving scheme, built to grow.', 'यह लंबी अवधि की बचत योजना है, बढ़ने के लिए बनी।'),
       card('Personal accident cover', 'पर्सनल एक्सीडेंट कवर', 0, 'It pays if an accident causes loss or injury.', 'दुर्घटना से नुक़सान या चोट हो तो देता है।')] },
@@ -54,7 +54,7 @@ export const SORT_REELS: Reel[] = [
   reel({
     id: 'sort-regime-items', topic: 'tax', title: t('Sort it: which regime has it?', 'छाँटिए: किस रिजीम में मिलता है?'), tags: ['income tax', 'regime'],
     lines: [t('The old and new tax regimes allow different deductions. Knowing which is which saves a wrong choice.', 'पुराने और नए टैक्स रिजीम में अलग कटौतियाँ मिलती हैं। कौन-सी कहाँ है, यह जानना ग़लत चुनाव से बचाता है।'),
-      t('Sort each item. Rules are for FY 2025-26 and change with Budgets.', 'हर एक को छाँटें। नियम FY 2025-26 के हैं और बजट के साथ बदलते हैं।'), t('The new regime has lower rates and few deductions. The old one has more deductions and higher rates.', 'नए रिजीम में दरें कम और कटौतियाँ कम हैं। पुराने में कटौतियाँ ज़्यादा और दरें ऊँची।'),
+      t('Sort each item. Rules are for FY 2026-27 and change with Budgets.', 'हर एक को छाँटें। नियम FY 2026-27 के हैं और बजट के साथ बदलते हैं।'), t('The new regime has lower rates and few deductions. The old one has more deductions and higher rates.', 'नए रिजीम में दरें कम और कटौतियाँ कम हैं। पुराने में कटौतियाँ ज़्यादा और दरें ऊँची।'),
       t('Count your own deductions before you choose.', 'चुनने से पहले अपनी कटौतियाँ गिनें।'), t('Check the current year’s rules, then compare both on your numbers.', 'इस साल के नियम देखें, फिर अपने आँकड़ों पर दोनों की तुलना करें।')],
     beat: { kind: 'sort', q: t('Old regime, new regime, or both?', 'पुराना, नया, या दोनों?'), bins: [t('Old only', 'सिर्फ़ पुराना'), t('New only', 'सिर्फ़ नया'), t('Both', 'दोनों')], cards: [
       card('HRA exemption', 'HRA की छूट', 0, 'Not available in the new regime.', 'नए रिजीम में उपलब्ध नहीं।'),
@@ -68,7 +68,7 @@ export const SORT_REELS: Reel[] = [
   reel({
     id: 'sort-emergency-or-not', topic: 'protect', title: t('Sort it: is it an emergency?', 'छाँटिए: क्या यह आपातकाल है?'), tags: ['emergency fund'],
     lines: [t('An emergency fund works only if it is kept for emergencies. A sale is not one.', 'आपातकालीन फ़ंड तभी काम करता है जब वह आपात के लिए ही रखा जाए। सेल आपात नहीं है।'),
-      t('Sort each situation: dip into the emergency fund, or not?', 'हर स्थिति छाँटें: इमरजेंसी फ़ंड से लें, या नहीं?'), t('A real emergency is sudden, necessary and cannot wait.', 'असली आपात अचानक, ज़रूरी होता है और रुक नहीं सकता।'),
+      t('Sort each situation: dip into the emergency fund, or not?', 'हर स्थिति छाँटें: आपातकालीन फ़ंड से लें, या नहीं?'), t('A real emergency is sudden, necessary and cannot wait.', 'असली आपात अचानक, ज़रूरी होता है और रुक नहीं सकता।'),
       t('A want, however tempting, belongs in your regular budget or a separate goal fund.', 'चाहत, कितनी भी लुभावनी, नियमित बजट या अलग लक्ष्य-फ़ंड में आती है।'), t('Write down your own three emergencies, so the choice is made in advance.', 'अपने तीन आपात लिख लें, ताकि चुनाव पहले से हो चुका हो।')],
     beat: { kind: 'sort', q: t('Dip into the fund?', 'फ़ंड से लें?'), bins: [t('Use the fund', 'फ़ंड से लें'), t('Do not', 'नहीं')], cards: [
       card('Rent and food after a sudden job loss', 'अचानक नौकरी जाने के बाद किराया और खाना', 0, 'This is exactly what the fund is for.', 'फ़ंड इसी के लिए है।'),
@@ -112,7 +112,7 @@ export const SORT_REELS: Reel[] = [
 // ── Put it in order ──────────────────────────────────────────────────────────────────────────────────────────────
 export const ORDER_REELS: Reel[] = [
   reel({
-    id: 'order-emergency-steps', topic: 'protect', title: t('Put it in order: building an emergency fund', 'क्रम में लगाइए: इमरजेंसी फ़ंड बनाना'), tags: ['emergency fund', 'steps'],
+    id: 'order-emergency-steps', topic: 'protect', title: t('Put it in order: building an emergency fund', 'क्रम में लगाइए: आपातकालीन फ़ंड बनाना'), tags: ['emergency fund', 'steps'],
     lines: [t('An emergency fund is built in steps. Done in the wrong order, people stall.', 'आपातकालीन फ़ंड क़दमों में बनता है। उल्टे क्रम में करें तो लोग अटक जाते हैं।'),
       t('Put the steps in order, first to last.', 'क़दमों को पहले से आख़िरी तक क्रम में लगाएँ।'), t('Start with what you know, then pick a target, then make saving automatic.', 'जो जानते हैं उससे शुरू करें, फिर लक्ष्य चुनें, फिर बचत को ऑटोमैटिक करें।'),
       t('A small first step beats a perfect plan you never start.', 'छोटा पहला क़दम उस पूरी योजना से बेहतर है जो कभी शुरू नहीं होती।'), t('Do step one this week.', 'पहला क़दम इसी हफ़्ते करें।')],
@@ -208,7 +208,7 @@ export const SLIDER2_REELS: Reel[] = [
   reel({
     id: 'slide-tax-income', topic: 'tax', title: t('Drag it: tax at different incomes', 'खिसकाइए: अलग आय पर टैक्स'), tags: ['income tax', 'regime'],
     lines: [t('Which regime costs less can flip as your income changes. Drag the income to see it.', 'कौन-सा रिजीम सस्ता है, आय बदलने पर पलट सकता है। आय खिसकाकर देखें।'),
-      t('Salary income, FY 2025-26, with ₹2 lakh of deductions in the old regime.', 'वेतन की आय, FY 2025-26, पुराने रिजीम में ₹2 लाख की कटौती के साथ।'), t('At lower incomes the new regime can come to nil, and at higher ones the gap closes or flips.', 'कम आय पर नया रिजीम शून्य तक आ सकता है, और ज़्यादा पर अंतर घटता या पलटता है।'),
+      t('Salary income, FY 2026-27, with ₹2 lakh of deductions in the old regime.', 'वेतन की आय, FY 2026-27, पुराने रिजीम में ₹2 लाख की कटौती के साथ।'), t('At lower incomes the new regime can come to nil, and at higher ones the gap closes or flips.', 'कम आय पर नया रिजीम शून्य तक आ सकता है, और ज़्यादा पर अंतर घटता या पलटता है।'),
       t('Your own deductions decide where the line falls.', 'आपकी अपनी कटौतियाँ तय करती हैं कि रेखा कहाँ पड़ती है।'), t('Rules change with each Budget. Check the current year before you choose.', 'नियम हर बजट में बदलते हैं। चुनने से पहले इस साल के नियम देखें।')],
     steps: [t('Salary income', 'वेतन की आय'), t('₹2 lakh deductions, old', '₹2 लाख कटौती, पुराना'), t('Cess included', 'सेस सहित')],
     beat: { kind: 'slider', q: t('Drag the yearly income to compare the two regimes.', 'सालाना आय खिसकाकर दोनों रिजीम की तुलना करें।'), label: t('Yearly salary', 'सालाना वेतन'), unit: t('a year', 'सालाना'), xFormat: 'inr', min: 800_000, max: 3_000_000, step: 50_000, start: 1_500_000,

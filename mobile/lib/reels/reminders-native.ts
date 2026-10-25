@@ -32,7 +32,7 @@ export async function scheduleReelNotices(list: PlannedNotice[]): Promise<number
       if (r.at.getTime() <= Date.now()) continue;
       await N.scheduleNotificationAsync({
         identifier: r.id,
-        content: { title: r.title, body: r.body, data: { route: r.route } },
+        content: { title: r.title, body: r.body, data: { route: r.route, ...(r.kind ? { kind: r.kind } : {}) } },
         trigger: { type: N.SchedulableTriggerInputTypes.DATE, date: r.at, channelId: CHANNEL },
       });
       n++;

@@ -10,6 +10,10 @@
  *   FinosReelsEval.sliderLine(beat, x)   → [en, hi] takeaway with the figures in
  *   FinosReelsEval.sliderBars(beat, x)   → two bars under the slider
  *   FinosReelsEval.posToValue / valueToPos / scoreGuess / niceRound / orderDeck / money
+ *   FinosReelsEval.scoreMyth / scoreSpot / scoreSort / scoreOrder   how the other beats are marked
+ *   FinosReelsEval.seasonOf / factIndex / weekOf / weekLine         the seasonal look, the fact of the day, the week at the calm stop
+ *   FinosReelsEval.toggleSaved / addPledge / removePledge           the saved list and "I'll do this" (plain lists, kept by the page)
+ *   FinosReelsEval.expand(data)                                     turns js/reels-data.json (short keys, shared texts) into the long form
  */
 (function (root, factory) {
   const api = factory(root);
@@ -173,5 +177,113 @@
     return out.map((i) => (i + shift) % n);
   }
 
-  return { FOREVER_YEARS, money, evalModel, xText, sliderLine, sliderBars, niceRound, posToValue, valueToPos, scoreGuess, orderDeck, sipFutureValue, emi, sipNeeded, monthsToDeplete };
+
+  // ── the other beats: how they are marked (beats.ts) ─────────────────────────────────────────────────────────
+  /** `answers[i]` is true for "fact", false for "myth", null/undefined if not answered. */
+  function scoreMyth(cards, answers) {
+    let right = 0, answered = 0;
+    cards.forEach((c, i) => { const a = answers[i]; if (a === null || a === undefined) return; answered++; if (a === c.fact) right++; });
+    return { right, answered, total: cards.length };
+  }
+  /** `picked[i]` is true if piece i was tapped; a piece with a `flag` is a red flag. */
+  function scoreSpot(parts, picked) {
+    let found = 0, flags = 0; const missed = [], wrong = [];
+    parts.forEach((p, i) => {
+      const isFlag = !!p.flag, tapped = picked[i] === true;
+      if (isFlag) { flags++; if (tapped) found++; else missed.push(i); } else if (tapped) wrong.push(i);
+    });
+    return { found, flags, missed, wrong };
+  }
+  function scoreSort(cards, answers) {
+    let right = 0, answered = 0;
+    cards.forEach((c, i) => { const a = answers[i]; if (a === null || a === undefined) return; answered++; if (a === c.bin) right++; });
+    return { right, answered, total: cards.length };
+  }
+  /** `chosen` lists item indices in the order they were tapped; the items are stored in the correct order. */
+  function scoreOrder(chosen, total) {
+    let right = 0;
+    chosen.slice(0, total).forEach((idx, pos) => { if (idx === pos) right++; });
+    return { right, total };
+  }
+
+  // ── seasons (seasons.ts): same dates, plain calendar arithmetic ─────────────────────────────────────────────
+  const SEASONS = {
+    diwali: { id: 'diwali', badge: '🪔', label: ['Diwali week', 'दिवाली का हफ़्ता'], tint: ['#2A1405', '#4A2208'] },
+    budget: { id: 'budget', badge: '📜', label: ['Budget week', 'बजट का हफ़्ता'], tint: ['#0B1F33', '#12304A'] },
+    yearend: { id: 'yearend', badge: '🗓️', label: ['Year-end in March', 'मार्च का वित्त-वर्ष अंत'], tint: ['#1F1A0A', '#3A2F0B'] },
+  };
+  /** The day of Lakshmi Puja by year, [month, day]. Years after 2030 are not listed and the season then does not show (check these each year). */
+  const DIWALI = { 2026: [11, 8], 2027: [10, 29], 2028: [10, 17], 2029: [11, 5], 2030: [10, 26] };
+  const DAY = 86400000;
+  function seasonOf(date) {
+    const y = date.getFullYear(), m = date.getMonth() + 1, d = date.getDate();
+    const t = Date.UTC(y, m - 1, d), dv = DIWALI[y];
+    if (dv) { const gap = (t - Date.UTC(y, dv[0] - 1, dv[1])) / DAY; if (gap >= -5 && gap <= 2) return SEASONS.diwali; }
+    if ((m === 1 && d >= 29) || (m === 2 && d <= 4)) return SEASONS.budget;
+    if (m === 3 && d >= 15) return SEASONS.yearend;
+    return null;
+  }
+
+  /** The fact of the day: an index into the exported list, changing daily and cycling (facts.ts). */
+  function factIndex(date, count) {
+    const day = Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000);
+    return ((day % count) + count) % count;
+  }
+
+  // ── the week at the calm stop (weekly.ts) ───────────────────────────────────────────────────────────────────
+  const dayKey = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  /** state = { days: { 'YYYY-MM-DD': { fin, pledges, moves, receipts, together, saves } } }; the seven days ending today, added up. */
+  function weekOf(state, now) {
+    const w = { days: 0, reels: 0, pledges: 0, moves: 0, receipts: 0, together: 0, saves: 0 };
+    for (let i = 0; i < 7; i++) {
+      const r = state.days[dayKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() - i))];
+      if (!r) continue;
+      if (r.fin > 0) w.days += 1;
+      w.reels += r.fin || 0; w.pledges += r.pledges || 0; w.moves += r.moves || 0; w.receipts += r.receipts || 0; w.together += r.together || 0; w.saves += r.saves || 0;
+    }
+    return w;
+  }
+  const countText = (k, en1, enN, hi) => [k + ' ' + (k === 1 ? en1 : enN), k + ' ' + hi];
+  /** One sentence about the week as [en, hi], or null in a week with no reels (nothing is said about a quiet week). */
+  function weekLine(w) {
+    if (w.reels <= 0) return null;
+    const parts = [[w.reels + ' ' + (w.reels === 1 ? 'reel' : 'reels') + ' on ' + w.days + ' ' + (w.days === 1 ? 'day' : 'days'), w.days + ' दिन में ' + w.reels + ' रीलें']];
+    if (w.pledges > 0) parts.push(countText(w.pledges, 'move on your list', 'moves on your list', 'काम आपकी सूची में'));
+    if (w.moves > 0) parts.push(countText(w.moves, 'move started', 'moves started', 'काम शुरू किए'));
+    if (w.receipts > 0) parts.push(countText(w.receipts, 'real change noticed', 'real changes noticed', 'असली बदलाव दिखे'));
+    if (w.together > 0) parts.push(countText(w.together, 'round played together', 'rounds played together', 'बार साथ खेले'));
+    return ['This week: ' + parts.map((p) => p[0]).join(', ') + '.', 'इस हफ़्ते: ' + parts.map((p) => p[1]).join(', ') + '।'];
+  }
+
+  // ── saved reels and "I'll do this" (reelsProfile.ts): plain lists ───────────────────────────────────────────
+  const ID = /^[a-z0-9-]{1,40}$/, MAX_SAVED = 60, MAX_PLEDGES = 20;
+  /** Keeps a reel to watch later, or lets it go if it was kept. */
+  function toggleSaved(list, id) {
+    if (!ID.test(id)) return { list, kept: false };
+    if (list.includes(id)) return { list: list.filter((x) => x !== id), kept: false };
+    return { list: list.concat([id]).slice(-MAX_SAVED), kept: true };
+  }
+  /** "I'll do this": the reel goes on the list once, with when. */
+  function addPledge(list, id, now) {
+    if (!ID.test(id) || list.some((x) => x.id === id)) return list;
+    return list.concat([{ id, at: now.toISOString() }]).slice(-MAX_PLEDGES);
+  }
+  const removePledge = (list, id) => (list.some((x) => x.id === id) ? list.filter((x) => x.id !== id) : list);
+
+  // ── the data file: short keys and shared texts, written by mobile/scripts/export-reels-web.mts ──────────────
+  /** Long key → short key. Keys not listed (id, to, q, s, t and anything new) are written as they are. */
+  const KEYS = { mood: 'a', say: 'b', ms: 'c', label: 'd', kind: 'e', options: 'f', answer: 'g', scenes: 'h', prop: 'i', title: 'j', topic: 'k', why: 'l', items: 'm', assumes: 'n', formula: 'o', tone: 'p', value: 'r', quiz: 'u', text: 'v', trust: 'w', href: 'x', asOf: 'y', act: 'z', big: 'A', after: 'B', beat: 'C', fact: 'D', format: 'E', from: 'F', flag: 'G', takeaway: 'H', parts: 'I', result: 'J', bin: 'K', unit: 'L', cards: 'M', model: 'N', start: 'O', max: 'P', min: 'Q', who: 'R', sub: 'S', step: 'T', reveal: 'U', todo: 'V', centre: 'W', rate: 'X', verdict: 'Y', setup: 'Z', bins: 'aa', monthly: 'ab', principal: 'ac', count: 'ad', points: 'ae', xFormat: 'af', amount: 'ag', years: 'ah', horizon: 'ai', corpus: 'aj', target: 'ak', monthlyPct: 'al', rate0: 'am', deduction: 'an', balance: 'ao' };
+  const LONG = Object.fromEntries(Object.entries(KEYS).map(([long, short]) => [short, long]));
+  /** The long form of the data file: every short key spelled out, and the shared texts (data.texts) put back where reels point at them. */
+  function expand(data) {
+    const walk = (v) => (Array.isArray(v) ? v.map(walk) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [LONG[k] || k, walk(x)])) : v);
+    const out = walk(data), texts = out.texts || [];
+    out.reels.forEach((r) => {
+      if (r.trust && typeof r.trust.formula === 'number') r.trust.formula = texts[r.trust.formula];
+      if (r.act && typeof r.act.label === 'number') r.act.label = texts[r.act.label];
+    });
+    return out;
+  }
+
+  return { KEYS, expand, SEASONS, DIWALI, FOREVER_YEARS, scoreMyth, scoreSpot, scoreSort, scoreOrder, seasonOf, factIndex, weekOf, weekLine, dayKey, toggleSaved, addPledge, removePledge, money, evalModel, xText, sliderLine, sliderBars, niceRound, posToValue, valueToPos, scoreGuess, orderDeck, sipFutureValue, emi, sipNeeded, monthsToDeplete };
 });

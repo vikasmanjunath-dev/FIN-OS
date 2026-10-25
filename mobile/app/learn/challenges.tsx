@@ -4,7 +4,9 @@ import { router, useFocusEffect } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { Card, TrackerScreen } from '@/components/TrackerUI';
 import { loadChallenges, saveChallenges } from '@/lib/reelsChallengesStorage';
-import { CHALLENGES, EMPTY_CHALLENGES, completeToday, isFinished, runOf, startChallenge, todayOf, type ChallengeState } from '@/lib/reels/challenges';
+import { CHALLENGES, EMPTY_CHALLENGES, completeToday, isFinished, pledgeToStart, runOf, startChallenge, todayOf, type ChallengeState } from '@/lib/reels/challenges';
+import { ACT_ALL, libraryById } from '@/lib/reels/library';
+import { useReelsJourney } from '@/hooks/useReelsJourney';
 import { useLang } from '@/lib/i18n';
 import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
 
@@ -13,6 +15,9 @@ export default function Challenges() {
   const lang = useLang(), hi = lang === 'hi';
   const [state, setState] = useState<ChallengeState>(EMPTY_CHALLENGES);
   useFocusEffect(useCallback(() => { let live = true; loadChallenges().then(s => { if (live) setState(s); }); return () => { live = false; }; }, []));
+  const j = useReelsJourney();
+  const pledged = (j.profile.pledges ?? []).map(p => p.id);
+  const started = [...j.moves.open.map(m => m.id), ...j.moves.receipts.map(r => r.id)];
   const update = (next: ChallengeState) => { setState(next); saveChallenges(next); };
 
   return (
@@ -22,6 +27,7 @@ export default function Challenges() {
         const finished = run ? isFinished(run) : false;
         const t = run && !finished ? todayOf(run, new Date()) : null;
         const day = t ? c.days[t.index] : null;
+        const mv = day ? pledgeToStart(day, pledged, id => ACT_ALL[id]?.href, started) : null;
         return (
           <Card key={c.id} accent={Colors.cyan}>
             <Text style={s.title}>{c.title[lang]}</Text>
@@ -41,13 +47,15 @@ export default function Challenges() {
                 <Text style={s.taskTag}>{hi ? `दिन ${t.index + 1} / ${c.days.length}` : `DAY ${t.index + 1} OF ${c.days.length}`}</Text>
                 <Text style={s.taskTitle}>{day.title[lang]}</Text>
                 <Text style={s.taskBody}>{day.body[lang]}</Text>
+                {day.reel && libraryById(day.reel) ? <TouchableOpacity accessibilityRole="button" accessibilityLabel={`${hi ? 'पहले देखें' : 'Watch first'}: ${libraryById(day.reel)!.title[lang]}`} style={s.link} onPress={() => router.push({ pathname: '/learn/reels', params: { id: day.reel } } as never)}><Text style={s.linkTxt} maxFontSizeMultiplier={1.3}>{`▶ ${hi ? 'पहले देखें' : 'Watch first'}: ${libraryById(day.reel)!.title[lang]}`}</Text></TouchableOpacity> : null}
                 {day.href ? <TouchableOpacity accessibilityRole="button" style={s.ghost} onPress={() => router.push(day.href as never)}><Text style={s.ghostTxt}>{`${day.hrefLabel?.[lang] ?? (hi ? 'खोलें' : 'Open')} →`}</Text></TouchableOpacity> : null}
+                {mv ? <TouchableOpacity accessibilityRole="button" accessibilityLabel={`${hi ? 'मेरे काम में शुरू मानें' : 'Mark as started in My moves'}: ${libraryById(mv)!.title[lang]}`} style={s.ghost} onPress={() => j.beginMove(mv)}><Text style={s.ghostTxt} maxFontSizeMultiplier={1.3}>{hi ? `“${libraryById(mv)!.title[lang]}” को मेरे काम में शुरू मानें` : `Mark “${libraryById(mv)!.title[lang]}” as started in My moves`}</Text></TouchableOpacity> : null}
                 {t.available ? (
                   <TouchableOpacity accessibilityRole="button" style={s.primary} onPress={() => { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {}); update(completeToday(state, c.id, new Date())); }}><Text style={s.primaryTxt}>{hi ? 'आज यह कर लिया' : 'Done for today'}</Text></TouchableOpacity>
                 ) : <Text style={s.wait}>{hi ? 'आज का काम हो गया। अगला कल।' : 'Today’s task is done. The next one is tomorrow.'}</Text>}
               </View>
             ) : (
-              <TouchableOpacity accessibilityRole="button" style={s.primary} onPress={() => update(startChallenge(state, c.id, new Date()))}><Text style={s.primaryTxt}>{hi ? 'शुरू करें' : 'Start'}</Text></TouchableOpacity>
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel={`${hi ? 'शुरू करें' : 'Start'}: ${c.title[lang]}`} style={s.primary} onPress={() => update(startChallenge(state, c.id, new Date()))}><Text style={s.primaryTxt}>{hi ? 'शुरू करें' : 'Start'}</Text></TouchableOpacity>
             )}
           </Card>
         );
@@ -71,6 +79,8 @@ const s = StyleSheet.create({
   primaryTxt: { color: '#000', fontWeight: '900', fontSize: 15 },
   ghost: { minHeight: 44, borderRadius: Radii.md, borderWidth: 1, borderColor: Colors.cyan + '66', alignItems: 'center', justifyContent: 'center', marginTop: Spacing.sm, paddingHorizontal: Spacing.md },
   ghostTxt: { color: Colors.cyan, fontWeight: '800', fontSize: 14 },
+  link: { minHeight: 44, justifyContent: 'center', marginTop: Spacing.xs },
+  linkTxt: { color: Colors.cyan, fontSize: 13, fontWeight: '700', textDecorationLine: 'underline' },
   done: { color: Colors.teal, fontSize: 14, fontWeight: '700', marginTop: Spacing.md, lineHeight: 20 },
   wait: { color: Colors.textMuted, fontSize: 14, marginTop: Spacing.md },
 });

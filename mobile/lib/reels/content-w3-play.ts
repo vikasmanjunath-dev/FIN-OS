@@ -3,7 +3,7 @@
 import { calcPrepayment } from '@/lib/debt';
 import { niceRound } from '@/lib/reels/beats';
 import { emi, fill, grownCost, lumpsumValue, money, pctOf, sipFutureValue, stepUpSipFutureValue, unpaidBalance, yearlyDepositsValue } from '@/lib/reels/figures';
-import { readMs, sc, t } from '@/lib/reels/kit';
+import { holdScenes, readMs, sc, t } from '@/lib/reels/kit';
 import type { CastId } from '@/lib/reels/cast';
 import type { L, Reel, Topic } from '@/lib/reels/types';
 
@@ -260,6 +260,23 @@ const noExtra = calcPrepayment(LOAN_BAL, LOAN_RATE, LOAN_EMI, 0), withExtra = ca
 const SP10 = sipFutureValue(SP, 12, 10);
 
 export const PATH_REELS: Reel[] = [
+  holdScenes(path({
+    id: 'path-unknown-caller', who: 'imran', topic: 'safety', title: t('Choose: what Imran does when the “bank” calls', 'चुनें: “बैंक” का फ़ोन आए तो इमरान क्या करे'), tags: ['call', 'OTP', 'scam'],
+    lines: [t('A caller says he is from Imran’s bank and that a payment is stuck. He sounds calm and knows Imran’s name.', 'एक कॉल करने वाला कहता है वह इमरान के बैंक से है और एक भुगतान अटका है। वह शांत है और इमरान का नाम जानता है।'),
+      t('Pick what Imran does next. You will see where each choice leads.', 'चुनें कि इमरान आगे क्या करता है। फिर देखें हर चुनाव कहाँ ले जाता है।'),
+      t('Scammers rush you and keep you on their line, so you have no time to check.', 'ठग जल्दी मचाते हैं और आपको अपनी लाइन पर रखते हैं, ताकि जाँचने का समय न मिले।'),
+      t('Checking through a number or app you found yourself takes a minute and costs nothing.', 'ख़ुद ढूँढे नंबर या ऐप से जाँचने में एक मिनट लगता है और कुछ ख़र्च नहीं होता।'),
+      t('Pause first. If money has gone, report it quickly on the helpline, 1930.', 'पहले रुकें। पैसा चला गया हो तो तुरंत हेल्पलाइन 1930 पर बताएँ।')],
+    q: t('What does Imran do with the call?', 'इमरान इस कॉल का क्या करता है?'), setup: t('Pick one. You will see what each choice can lead to.', 'एक चुनें। देखें हर चुनाव का नतीजा क्या हो सकता है।'),
+    options: [
+      { label: t('Read out the OTP to fix it fast', 'जल्दी ठीक कराने के लिए OTP बता दे'), result: t('The OTP lets the caller approve a payment from his account. A real bank does not ask for it. Money can leave within minutes.', 'OTP से कॉल करने वाला उसके खाते से भुगतान मंज़ूर कर सकता है। असली बैंक यह नहीं माँगता। पैसा मिनटों में जा सकता है।') },
+      { label: t('Hang up, call the number on his card', 'फ़ोन काटे, कार्ड वाले नंबर पर कॉल करे'), result: t('The bank can tell him at once whether anything is wrong. If it was a trick, nothing is lost and he can report it.', 'बैंक तुरंत बता सकता है कि कुछ गड़बड़ है या नहीं। चाल थी तो कुछ नहीं गया और वह रिपोर्ट कर सकता है।') },
+      { label: t('Stay on and ask him to prove it', 'लाइन पर रहे, उससे सबूत माँगे'), result: t('A scammer has ready answers and can read out details. Staying on his line gives him more time to pressure Imran.', 'ठग के पास जवाब तैयार होते हैं और वह जानकारी पढ़ सकता है। उसकी लाइन पर रहने से उसे दबाव डालने का और समय मिलता है।') },
+    ],
+    verdict: t('The safe habit is to end the call and check through a channel you found yourself. Your bank’s own app or the number on your card works.', 'सुरक्षित आदत है कॉल ख़त्म करना और ख़ुद ढूँढे रास्ते से जाँचना। बैंक का अपना ऐप या कार्ड पर छपा नंबर काम आता है।'),
+    quiz: { q: t('An unexpected caller says your account has a problem. What is a safe next step?', 'अचानक आया कॉल कहता है आपके खाते में गड़बड़ है। सुरक्षित अगला क़दम क्या है?'), options: [t('Share the OTP so they can fix it', 'OTP बता दें ताकि वे ठीक कर दें'), t('Hang up and call the bank on the number from your card or app', 'फ़ोन काटें और कार्ड या ऐप के नंबर पर बैंक को कॉल करें'), t('Call back the number the caller gave', 'कॉल करने वाले का दिया नंबर मिलाएँ')], answer: 1,
+      why: t('Only a number or app you found yourself reaches the real bank. A number the caller gives can lead back to the scammer.', 'सिर्फ़ ख़ुद ढूँढा नंबर या ऐप असली बैंक तक पहुँचाता है। कॉल करने वाले का दिया नंबर वापस ठग तक ले जा सकता है।') },
+  }), 6000),
   path({
     id: 'path-first-raise', who: 'neha', topic: 'goals', title: t('Choose: what Neha does with a raise', 'चुनें: इन्क्रीमेंट का नेहा क्या करे'), tags: ['raise', 'saving'],
     lines: [t('Neha gets a ₹10,000 monthly raise. What happens next is up to her.', 'नेहा को महीने के ₹10,000 का इन्क्रीमेंट मिलता है। आगे क्या हो, यह उस पर है।'),
@@ -286,7 +303,7 @@ export const PATH_REELS: Reel[] = [
       t('Pay the full bill whenever you can.', 'जब भी हो सके पूरा बिल चुकाएँ।')],
     q: t('How does Dev pay the bill?', 'देव बिल कैसे चुकाता है?'), setup: t('Pick one, then see what carrying the rest costs for a month.', 'एक चुनें, फिर देखें बाक़ी रकम एक महीना रखने की क्या लागत है।'),
     options: [
-      { label: t('Pay only the minimum', 'सिर्फ़ न्यूनतम भरे'), result: fill(t('Almost all of {b} stays on the card. At an assumed {r}% a month, carrying it costs about {c} in interest for one month.', 'लगभग पूरा {b} कार्ड पर रहता है। मान लें {r}% महीना, उसे रखने का एक महीने का ब्याज लगभग {c}।'), { b: money(BILL), r: MONTH_RATE, c: money(Math.round(carryFull)) }) },
+      { label: t('Pay only the minimum', 'सिर्फ़ न्यूनतम भरे'), result: fill(t('Almost all of {b} stays on the card. At an assumed {r}% a month, that is at most about {c} in interest for one month.', 'लगभग पूरा {b} कार्ड पर रहता है। मान लें {r}% महीना, तो एक महीने का ब्याज अधिकतम लगभग {c}।'), { b: money(BILL), r: MONTH_RATE, c: money(Math.round(carryFull)) }) },
       { label: t('Pay ₹15,000 now', '₹15,000 अभी चुकाए'), result: fill(t('{o} stays on the card and costs about {c} in interest for a month. It is a step, not the end.', '{o} कार्ड पर रहता है और एक महीने का ब्याज लगभग {c}। यह एक क़दम है, अंत नहीं।'), { o: money(BILL - SPARE), c: money(Math.round(carryHalf)) }) },
       { label: t('Find the rest and pay in full', 'बाक़ी जुटाकर पूरा चुकाए'), result: t('No interest this month, and the habit starts clean. It may mean pausing something else for now.', 'इस महीने कोई ब्याज नहीं, और आदत साफ़ शुरू होती है। इसके लिए अभी कुछ और रोकना पड़ सकता है।') },
     ],
@@ -335,7 +352,7 @@ export const PATH_REELS: Reel[] = [
       t('Prepaying saves interest for sure. Investing may earn more, or less.', 'प्रीपे पक्का ब्याज बचाता है। निवेश ज़्यादा या कम कमा सकता है।'),
       t('Splitting it keeps both going, with less of each.', 'बाँटने से दोनों चलते हैं, हर एक कम के साथ।'),
       t('Keep an emergency fund first, then decide.', 'पहले आपातकालीन फ़ंड रखें, फिर तय करें।')],
-    q: t('What does Kabir do with the ₹15,000?', 'कबीर उन ₹15,000 का क्या करता है?'), setup: t('Pick one. Figures are over 10 years, for a ₹30 lakh loan at an assumed 9%.', 'एक चुनें। आँकड़े 10 साल के हैं, ₹30 लाख का लोन, मान लें 9%।'),
+    q: t('What does Kabir do with the ₹15,000?', 'कबीर उन ₹15,000 का क्या करता है?'), setup: t('Pick one. A ₹30 lakh, 20-year loan at an assumed 9%. The SIP runs for 10 years.', 'एक चुनें। ₹30 लाख का 20 साल का लोन, मान लें 9%। SIP 10 साल चलती है।'),
     options: [
       { label: t('Prepay the loan every month', 'हर महीने लोन प्रीपे करे'), result: fill(t('The loan ends about {y} years sooner and saves about {i} of interest. A sure result, equal to the loan’s rate.', 'लोन लगभग {y} साल पहले ख़त्म होता है और लगभग {i} का ब्याज बचता है। पक्का नतीजा, लोन की दर के बराबर।'), { y: Math.round((noExtra.months - withExtra.months) / 12), i: money(Math.round(noExtra.interest - withExtra.interest)) }) },
       { label: t('Invest it in a SIP', 'SIP में निवेश करे'), result: fill(t('At an assumed 12% a year, {s} a month could become about {v} in ten years. It is not certain, and may fall short.', 'मान लें 12% सालाना, {s} महीना दस साल में लगभग {v} हो सकता है। यह पक्का नहीं, और कम भी रह सकता है।'), { s: money(SP), v: money(Math.round(SP10)) }) },

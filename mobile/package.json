@@ -10,6 +10,10 @@
     "lint": "eslint app components hooks lib constants scripts __tests__ --max-warnings 0",
     "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./__tests__/register-aliases.mjs --test __tests__/*.test.mts",
     "reels:check": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./__tests__/register-aliases.mjs scripts/reel-check.mts",
+    "reels:perf": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./__tests__/register-aliases.mjs scripts/reels-perf.mts",
+    "reels:hindi": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./__tests__/register-aliases.mjs scripts/hindi-sheet.mts",
+    "reels:compliance": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./__tests__/register-aliases.mjs scripts/compliance-sheet.mts",
+    "reels:smoke": "python3 scripts/reels-smoke.py",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

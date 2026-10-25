@@ -60,6 +60,7 @@ export const ACT_MORE: Record<string, Act> = {
   'sinking-funds': a('/tracker/budget', 'Add yearly costs to your budget', 'सालाना ख़र्च बजट में जोड़ें'),
   'windfall-plan': a('/tools/windfall', 'Plan a windfall', 'अचानक आई रकम की योजना बनाएँ'),
   'myths-sip': a('/tools/calc/sip', 'Try a SIP on your numbers', 'अपने आँकड़ों पर SIP आज़माएँ'),
+  'myths-goals': a('/tracker/goals', 'Write down one goal with an amount and a date', 'एक लक्ष्य रकम और तारीख़ के साथ लिखें'),
   'myths-credit-score': a('/tools/credit', 'Check your credit habits', 'अपनी क्रेडिट आदतें जाँचें'),
   'myths-insurance': a('/insurance', 'Review your insurance', 'अपना बीमा देखें'),
   'myths-tax': a('/tools/tax', 'Compare the two regimes', 'दोनों रिजीम की तुलना करें'),

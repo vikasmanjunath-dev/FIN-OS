@@ -16,6 +16,7 @@ import { inrShort, tierColor, NavCard } from '@/components/TrackerUI';
 import { useQuickLog } from '@/hooks/useQuickLog';
 import { useMoneyScore } from '@/hooks/useMoneyScore';
 import { useReelsJourney } from '@/hooks/useReelsJourney';
+import { ReelsHomeCard } from '@/components/ReelsHomeCard';
 import { QuickLogChips } from '@/components/QuickLogChips';
 import { ToolRow, StatRow } from '@/components/ToolRow';
 import { PersonaStrip } from '@/components/PersonaStrip';
@@ -242,9 +243,7 @@ export default function DashboardScreen() {
         ) : null}
         <ToolRow label="Financial calendar" sub="SIPs, renewals and tax dates that are due" accent={Colors.gold} icon="🗓️" onPress={() => open('/tools/calendar')} />
         <ToolRow label="Retirement odds" sub="will what you hold last? a simulation on your own numbers" accent={Colors.purple} icon="🏖️" onPress={() => open('/tools/retirement')} />
-        <ToolRow label={rj.doneToday ? 'Money reels' : "Today's reel"} value={rj.streak > 0 ? `🔥 ${rj.streak}` : undefined}
-          sub={rj.doneToday ? 'done for today, come back tomorrow' : rj.todays ? rj.todays.reel.title.en : '30-second animated lessons with Mitra the owl'}
-          accent={Colors.purple} icon="🎬" onPress={() => open('/learn/reels')} />
+        <ReelsHomeCard j={rj} open={open} />
         <ToolRow label="Learn" sub="money, markets and insurance, on this phone" accent={Colors.cyan} icon="📚" onPress={() => open('/learn')} />
       </View>
       <NavCard style={styles.allToolsCard} title="All trackers, calculators and guides" sub="EPF, NPS, insurance, loans, tax, planning and more, in one place" onPress={() => open('/tools/all')} />

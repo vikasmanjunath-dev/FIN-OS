@@ -126,6 +126,19 @@ Mark each failing line with the screen, device model and OS version. Start a fre
 | D-91 | Unreadable stored value | Not testable on a device without a corrupted store: covered by `corruptData.test.mts` (170 tests) | Listed so nobody looks for it on a device |
 | D-92 | Hindi first pass | Settings > Language > Hindi, open the screens above | No clipped text; the new strings are a **first pass**: a native reader must sign them off (PENDING U10) |
 
+## J. Money Reels (built and web-preview checked only; nothing here has run on a device)
+
+| ID | Check | How | Expected |
+| --- | --- | --- | --- |
+| D-100 | Reels tab and badge | Open the app; look at the second tab; finish today's episode; come back the next day | Reels is the second of six tabs; pressing it opens the full-screen feed, not a tab screen; the badge shows a dot when today's reel is ready, the streak number when a streak is alive and today is open, a tick when today is done |
+| D-101 | Read-aloud voice | Sound on, one reel in English and one in Hindi, with at least two voices installed | The caption is spoken in step with the lit word; rupees, percent and E M I are said as words; pauses fall at sentence ends; no overlap with the next scene. Write down which voice you heard: quality depends on the installed voices |
+| D-102 | Reel voice settings | Learn > Reel voice: change speed, style, breaths and the voice for each language; play the sample; kill and relaunch | The sample follows the choices, the choices are kept, enhanced voices are listed first |
+| D-103 | Share as image | A reel's Share > Share as image, then Share as text | The system share sheet gets a 4:5 PNG with the topic, Mitra and the takeaway and **no personal figure**; on a build made before `react-native-view-shot` was added, the sheet says it could not make the picture and falls back to text |
+| D-104 | Screen reader on the feed | VoiceOver / TalkBack through one reel, the question and the calm stop | The picture is one pause/play button; the caption and big words are read; reels off screen are not read; the verdict is announced once; after the answer the verdict, the move and Next come before Keep / Tune |
+| D-105 | Gestures | Double-tap the picture; swipe right; swipe left, with gesture navigation on | Double-tap = "I'll do this", swipe right keeps the reel, swipe left opens "I know this / fewer on this topic"; none of them triggers the system back gesture |
+| D-106 | My moves and reminders | Learn > My moves: add a move from a reel, tap Remind me, pick a time, then deny and re-allow notifications | The reminder arrives at that time with a plain message; a denied permission gives the plain message of D-22; the button fits a 320 dp screen |
+| D-107 | Small screen, large text, reduce motion | 320 dp width or Display size max, text at 1.35x and 2x, then toggle reduce motion while a reel is open | Nothing is clipped or overlapping on the question, the calm stop, the sheets and the banners (known: the feed's top bar wraps into the topic chips from 1.35x text); the motion setting takes effect without a restart |
+
 ## Sign-off
 
 Device(s), OS version(s), build number, date, tester. Any failing row blocks the production build unless the owner

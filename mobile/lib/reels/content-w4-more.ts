@@ -88,7 +88,7 @@ export const W4_SORT: Reel[] = [
       card('A music app you use every day', 'रोज़ इस्तेमाल होने वाला म्यूज़िक ऐप', 0, 'You use it, so it earns its place.', 'आप इस्तेमाल करते हैं, इसलिए जगह बनती है।'),
       card('A gym you have not visited in months', 'महीनों से न गए जिम की सदस्यता', 1, 'Unused, so it is just a cost.', 'इस्तेमाल नहीं, तो सिर्फ़ ख़र्च है।'),
       card('Four video apps with overlapping shows', 'एक-जैसे शो वाले चार वीडियो ऐप', 1, 'Doubled up. One or two may be enough.', 'दोहराव। एक-दो काफ़ी हो सकते हैं।'),
-      card('Your yearly health insurance', 'आपका सालाना हेल्थ इंश्योरेंस', 0, 'Protection you would regret dropping.', 'सुरक्षा जिसे छोड़ने पर पछतावा होगा।'),
+      card('Your yearly health insurance', 'आपका सालाना हेल्थ बीमा', 0, 'Protection you would regret dropping.', 'सुरक्षा जिसे छोड़ने पर पछतावा होगा।'),
       card('A “free trial” that started charging', 'एक “मुफ़्त ट्रायल” जो चार्ज करने लगा', 1, 'You may not have chosen it. Check and cancel if unwanted.', 'शायद आपने नहीं चुना। जाँचें और अनचाहा हो तो रद्द करें।')] },
     quiz: { q: t('When is cancelling a charge not a loss?', 'शुल्क रद्द करना नुक़सान कब नहीं है?'), options: [t('When you had stopped using it', 'जब आपने इस्तेमाल बंद कर दिया हो'), t('Never', 'कभी नहीं'), t('When it is cheap', 'जब वह सस्ता हो')], answer: 0,
       why: t('Paying for what you do not use gives you nothing back.', 'जो इस्तेमाल नहीं होता उसके पैसे देने से कुछ वापस नहीं मिलता।') },
@@ -102,12 +102,12 @@ export const W4_ORDER: Reel[] = [
       t('Put the steps in order.', 'क़दमों को क्रम में लगाएँ।'), t('Safety and goals come before a product. Then comes the amount, and then the habit.', 'उत्पाद से पहले सुरक्षा और लक्ष्य आते हैं। फिर रकम, और फिर आदत।'),
       t('A simple first SIP is better than a perfect one you never start.', 'सरल पहली SIP उस पूरी SIP से बेहतर है जो कभी शुरू नहीं होती।'), t('Do step one today.', 'पहला क़दम आज करें।')],
     beat: { kind: 'order', q: t('First to last.', 'पहले से आख़िरी।'), items: [
-      item('Build a small emergency fund', 'छोटा इमरजेंसी फ़ंड बनाएँ', 'Investing comes after a cushion.', 'निवेश गद्दी के बाद आता है।'),
+      item('Build a small emergency fund', 'छोटा आपातकालीन फ़ंड बनाएँ', 'Investing comes after a cushion.', 'निवेश गद्दी के बाद आता है।'),
       item('Name your goal and its date', 'लक्ष्य और उसकी तारीख़ तय करें', 'The goal decides how much risk fits.', 'लक्ष्य तय करता है कि कितना जोखिम जमेगा।'),
       item('Complete KYC and link your bank', 'KYC पूरा करें और बैंक जोड़ें', 'You need these before any investment.', 'किसी भी निवेश से पहले ये चाहिए।'),
       item('Pick a fund and read its risk label and cost', 'फ़ंड चुनें और उसका जोखिम लेबल व लागत पढ़ें', 'Read before you commit.', 'वादा करने से पहले पढ़ें।'),
       item('Set a small monthly amount on payday', 'पे-डे पर छोटी मासिक रकम तय करें', 'A small automatic amount is easy to keep.', 'छोटी ऑटोमैटिक रकम निभाना आसान है।')] },
-    quiz: { q: t('What comes before investing?', 'निवेश से पहले क्या आता है?'), options: [t('A small emergency fund', 'छोटा इमरजेंसी फ़ंड'), t('A big first deposit', 'बड़ी पहली जमा'), t('A tip from a friend', 'दोस्त की सलाह')], answer: 0,
+    quiz: { q: t('What comes before investing?', 'निवेश से पहले क्या आता है?'), options: [t('A small emergency fund', 'छोटा आपातकालीन फ़ंड'), t('A big first deposit', 'बड़ी पहली जमा'), t('A tip from a friend', 'दोस्त की सलाह')], answer: 0,
       why: t('A cushion stops you from selling investments to pay a surprise bill.', 'गद्दी आपको अचानक के बिल के लिए निवेश बेचने से बचाती है।') },
   }, 'order'),
   reel({
@@ -214,7 +214,7 @@ export const W4_EXPLAIN: Reel[] = [
     title: t('Talking about money as a couple', 'जोड़े के रूप में पैसे पर बात'),
     scenes: [
       sc('think', t('Couples often fight about money not because of the numbers, but because they never talked about them.', 'जोड़े अक्सर पैसे पर आँकड़ों की वजह से नहीं, बल्कि इसलिए झगड़ते हैं कि कभी बात ही नहीं की।'), { who: 'neel', big: t('Talk first', 'पहले बात'), ...atLeast(t('x'.repeat(110), 'x'.repeat(110)), 5200) }),
-      sc('happy', t('A first conversation can cover four things.', 'पहली बातचीत चार चीज़ें ढक सकती है।'), { who: 'isha', prop: { kind: 'steps', items: [t('What each of you earns and owes', 'आप दोनों क्या कमाते और चुकाते हैं'), t('What each of you wants', 'आप दोनों क्या चाहते हैं'), t('How you will split costs', 'ख़र्च कैसे बाँटेंगे'), t('A shared emergency fund', 'साझा इमरजेंसी फ़ंड')] }, ms: 5600 }),
+      sc('happy', t('A first conversation can cover four things.', 'पहली बातचीत चार चीज़ें ढक सकती है।'), { who: 'isha', prop: { kind: 'steps', items: [t('What each of you earns and owes', 'आप दोनों क्या कमाते और चुकाते हैं'), t('What each of you wants', 'आप दोनों क्या चाहते हैं'), t('How you will split costs', 'ख़र्च कैसे बाँटेंगे'), t('A shared emergency fund', 'साझा आपातकालीन फ़ंड')] }, ms: 5600 }),
       sc('think', t('There is no single right way. Some pool all income, some pool a share, some keep it all apart.', 'कोई एक सही तरीक़ा नहीं। कुछ पूरी आय मिलाते हैं, कुछ एक हिस्सा, कुछ सब अलग रखते हैं।'), atLeast(t('x'.repeat(100), 'x'.repeat(100)), 5000)),
       sc('worry', t('Hidden debts and secret spending are what break trust, far more than small amounts.', 'छिपे क़र्ज़ और गुप्त ख़र्च भरोसा तोड़ते हैं, छोटी रकमों से कहीं ज़्यादा।'), atLeast(t('x'.repeat(90), 'x'.repeat(90)), 4800)),
       sc('cheer', t('Set a monthly money date, thirty minutes, and keep it kind.', 'महीने की एक मनी डेट रखें, तीस मिनट, और उसे प्यार से निभाएँ।'), { who: 'neel', ...atLeast(t('x'.repeat(65), 'x'.repeat(65)), 4000) }),

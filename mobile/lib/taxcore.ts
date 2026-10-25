@@ -1,4 +1,7 @@
-// Pure port of js/finos-taxcore.js (income-tax maths, FY 2025-26 slabs). Surcharge (> ₹50L) is NOT modelled.
+// Pure port of js/finos-taxcore.js (income-tax maths, FY 2026-27 slabs). Surcharge (> ₹50L) is NOT modelled.
+// FY 2026-27 is "tax year 2026-27" under the Income-tax Act, 2025 (in force from 1 April 2026). Checked 2026-10-25: the Budget 2026 speech and the
+// Finance Bill 2026 changed no slab, rebate or standard deduction, so every constant below is the same as in FY 2025-26. Sources: Income-tax Act 2025
+// s.202 (slabs), s.156 (rebate: ₹60,000 up to ₹12 lakh, marginal relief above; ₹12,500 up to ₹5 lakh), s.19(1) (standard deduction ₹75,000 under s.202, ₹50,000 otherwise).
 // taxNew / taxOld / best, and savingsPlan() (the model behind the Tax Savings Tracker).
 // No imports on purpose, so Node can run it and __tests__ can compare it with the web file on random incomes.
 

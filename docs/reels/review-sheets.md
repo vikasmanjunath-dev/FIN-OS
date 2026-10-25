@@ -1,0 +1,24 @@
+# Review sheets and the release gate
+
+Part of the Money Reels guide (`docs/REELS.md`, section 8). Hindi and compliance readers are people; these tools prepare their work. See also `docs/hindi-review/README.md` and `docs/compliance-review/README.md` (generated).
+
+## The two sheets
+
+A reel stays a draft until a native Hindi reader and a compliance reader have both signed it off in `mobile/lib/reels/review.ts`. These tools make those two reads short and complete. They read the live library, the 50 draft reels, every "How this is worked out" note and the money facts; they **change no content, make no sign-off, and print no dates**, so a regenerated sheet only differs when a reel does.
+
+```bash
+cd mobile
+npm run reels:hindi        # writes ../docs/hindi-review/
+npm run reels:compliance   # writes ../docs/compliance-review/
+# add  -- --check  to compare with the files on disk without writing (exit 1 when out of date)
+```
+
+**Hindi** (`lib/reels/hindi-lint.ts`, `hindi-glossary.ts`, `hindi-sheets.ts`; sheet writer `scripts/hindi-sheet.mts`). One CSV per topic (`topic-<topic>.csv`, UTF-8 with a byte-order mark so Excel shows Devanagari): reel, release state, gate state, where on screen, English, Hindi, the lint flags, and empty **Reviewer fix** and **OK** columns. Also `glossary.csv` (the Hindi proposed for SIP, EMI, NAV, mutual fund, emergency fund, credit score, inflation, interest, premium, term plan, KYC, UPI, OTP, FD, PPF, EPF, NPS, ELSS, 80C, TDS, ITR, GST and about 50 more, with the other forms in use and how often), `variants.csv` (terms written more than one way, counted in the reels and in the app's own screens `lib/i18nHi.ts`), `spelling.csv` (a word spelled two ways, such as ख़रीद / खरीद), `reels-index.csv` (which reels have sign-offs) and a README with the first-pass totals. The glossary is a **proposal**: where the reels and the app screens disagree the proposal follows the screens, and the reader decides; changing `hi`, `allowed` or `avoid` in `hindi-glossary.ts` re-lints the library against the new choice.
+
+The 15 checks: English term inside a Hindi sentence; term written differently from elsewhere (counts per variant); English term whose Hindi uses none of the listed forms; spelling that differs from the rest of the library; English word left in Hindi; acronym not in the glossary; Hindi missing or equal to the English; Devanagari digits (the app prints 0-9); figures, ₹, % or lakh/crore/thousand that differ from the English; unbalanced brackets or quotes; spacing; Hindi more than 1.6 times the English length; sentence endings (`।` where English has `.`, `?`); a `{gap}` left in or a slider template whose gaps differ between languages; and four machine-translation tells kept short because each is wrong in nearly every use (the literal "अपने आप को", the "द्वारा … जाता है" passive, a repeated particle such as "में में", and "आप" three or more times in one line). A flag means "look here", never "this is wrong".
+
+**Compliance** (`lib/reels/claims.ts`, `compliance-sheets.ts`; sheet writer `scripts/compliance-sheet.mts`). `claims.csv` has one row per sentence-and-category: claim id (`<reel id>.<nn>`), reel, topic, release, gate, where, category, the figure found, framing (a rate is `stated as fact` unless the sentence calls it an assumption), whether the reel asserts it or shows it as a wrong option or inside a scam message, the exact English, the same screen text in Hindi, an automatic cross-check, the caveats `docs/REELS-FIGURE-FINDINGS.md` already recorded for the reel, and empty **Source**, **Verdict** and **Reader note** for the reader. Categories: regulator or law, tax section, tax limit, tax rate, financial year, worked tax example, deposit insurance, rate stated as fact, named scheme, rule or period or date, helpline, advice or promise wording. The cross-check compares rupee amounts and rates with `lib/taxcore.ts` (`STD_NEW`, `STD_OLD`, `NEW_REBATE_LIMIT`, `OLD_REBATE_LIMIT`, `CESS`) and `lib/taxSavings.ts` (`SECTIONS`); a number with no shared constant (the ₹5 lakh deposit cover, the ₹50,000 senior-citizen 80D limit) is only compared with a literal and says so. A match with the app is not a source. Also `reels-index.csv`, `summary-by-category.csv` and a README that explains how to use the sheet and what a sign-off means.
+
+**What a sign-off is.** A line for the reel in `REVIEWED` (`{ hindi, compliance, on }`), added by the content owner after both readers are done. Both names must be present; the sheets show `none` for a missing one. The tools only read this record.
+
+**Not covered.** "Your Number" reels fill their sentences at run time from templates in `personal*.ts`; those sentences are not in the sheets. The Hindi checks compare numbers with the English, not meaning. The claim finder reads English and misses a claim with no number, name or phrase from its lists. Tests: `__tests__/reels-review-sheets.test.mts`.

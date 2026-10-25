@@ -200,7 +200,7 @@ test('tax notes: the regimes example and the salary-slip example follow the rule
   assert.match(TRUST['tax-regimes'].formula.en, /₹12 lakh/);
   assert.match(TRUST['tax-regimes'].formula.en, /₹5 lakh/);
   assert.match(TRUST['tax-regimes'].formula.en, /4% cess/);
-  assert.match(TRUST['tax-regimes'].formula.en, /FY 2025-26/);
+  assert.match(TRUST['tax-regimes'].formula.en, /FY 2026-27/);
   const pay = 1_500_000;
   assert.equal(taxNew(pay - STD_NEW), 97_500);                                 // tax-regimes, tds-refund: ₹97,500
   assert.equal(taxOld(pay - STD_OLD - 200_000), 195_000);                      // ₹1.95 lakh

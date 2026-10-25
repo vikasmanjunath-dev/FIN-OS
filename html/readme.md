@@ -1,7 +1,7 @@
 # FIN-OS HTML Pages
 
-> Version: 1.8 | Date: October 3, 2026  
-> Total: **118 pages** in this folder + `index.html` + `login.html` = **120 pages**
+> Version: 1.9 | Date: October 22, 2026  
+> Total: **125 pages** in this folder + `index.html` + `login.html` = **127 pages**
 
 ---
 
@@ -205,6 +205,13 @@ Reachable only via dynamically-injected personalization/insight cards (`js/finos
 | `system-leak.html` | Wealth leak detector |
 | `not-money.html` | → redirects to mindset-sim.html |
 | `tax.html` | Tax planning hub |
+| `reels.html` | Money Reels: today's three short animated lessons in English and Hindi, in the browser only (`js/reels.js`, data in `js/reels-data.json` exported from the app; see `docs/REELS.md`) |
+| `download.html` | Download the Android app (APK from GitHub Releases, with its SHA-256 and install steps) |
+| `money-score.html` | Money Score |
+| `import-statement.html` | Import a bank statement |
+| `feedback.html` | Feedback |
+| `privacy.html` | Privacy and your data (draft for legal review) |
+| `terms.html` | Terms of use (draft for legal review) |
 
 ---
 
@@ -262,10 +269,10 @@ Reachable only via dynamically-injected personalization/insight cards (`js/finos
 
 | Location | Count |
 |---|---|
-| `html/*.html` | 118 |
+| `html/*.html` | 125 |
 | `index.html` | 1 |
 | `login.html` | 1 |
-| **Total HTML pages** | **120** |
+| **Total HTML pages** | **127** |
 | `calculators/*/*.html` (stateless, 9 categories) | 90 |
 | Command Hub trackers (stateful, within `html/`) | 29 |
 

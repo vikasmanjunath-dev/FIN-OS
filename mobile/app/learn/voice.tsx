@@ -47,7 +47,7 @@ export default function VoiceScreen() {
           <View key={i} style={s.row}>
             <TouchableOpacity style={s.play} accessibilityRole="button" accessibilityLabel={`${hi ? 'अंग्रेज़ी नमूना' : 'English sample'} ${i + 1}`} onPress={() => play(i, 'en')}><Text style={s.playTxt}>▶ EN</Text></TouchableOpacity>
             <TouchableOpacity style={s.play} accessibilityRole="button" accessibilityLabel={`${hi ? 'हिंदी नमूना' : 'Hindi sample'} ${i + 1}`} onPress={() => play(i, 'hi')}><Text style={s.playTxt}>▶ हि</Text></TouchableOpacity>
-            <Text style={[Typography.caption, { flex: 1 }]} numberOfLines={2}>{smp.mood === 'surprised' ? (hi ? 'आश्चर्य' : 'surprised') : smp.mood === 'worry' ? (hi ? 'चिंता' : 'worried') : (hi ? 'उत्साह' : 'cheering')}</Text>
+            <Text style={[Typography.caption, { flexGrow: 1, flexShrink: 1, flexBasis: 90 }]}>{smp.mood === 'surprised' ? (hi ? 'आश्चर्य' : 'surprised') : smp.mood === 'worry' ? (hi ? 'चिंता' : 'worried') : (hi ? 'उत्साह' : 'cheering')}</Text>
           </View>
         ))}
         <TouchableOpacity style={s.stop} accessibilityRole="button" onPress={() => { stopSpeaking(); setSample(null); }}><Text style={s.stopTxt}>{hi ? 'रोकें' : 'Stop'}</Text></TouchableOpacity>
@@ -74,7 +74,7 @@ export default function VoiceScreen() {
           {voices[l].slice(0, 8).map(v => {
             const on = (prefs.voice[l] ?? best(l)?.identifier) === v.identifier;
             return (
-              <TouchableOpacity key={v.identifier} style={[s.voice, on && s.voiceOn]} accessibilityRole="button" accessibilityState={{ selected: on }} accessibilityLabel={`${v.name}, ${v.enhanced ? 'enhanced' : 'standard'}${v.recommended ? ', recommended' : ''}`}
+              <TouchableOpacity key={v.identifier} style={[s.voice, on && s.voiceOn]} accessibilityRole="button" accessibilityState={{ selected: on }} accessibilityLabel={`${v.name}, ${v.enhanced ? (hi ? 'बेहतर गुणवत्ता' : 'enhanced') : (hi ? 'मानक' : 'standard')}${v.recommended ? (hi ? ', सुझाई गई' : ', recommended') : ''}`}
                 onPress={() => { update({ ...prefs, voice: { ...prefs.voice, [l]: v.identifier } }); play(0, l); }}>
                 <View style={{ flex: 1 }}><Text style={s.voiceName}>{v.name}</Text><Text style={Typography.caption}>{`${v.language}${v.enhanced ? (hi ? ' · बेहतर गुणवत्ता' : ' · enhanced') : ''}${v.recommended ? (hi ? ' · सुझाई गई' : ' · recommended') : ''}`}</Text></View>
                 <Text style={s.tick}>{on ? '✓' : ''}</Text>
@@ -95,7 +95,7 @@ export default function VoiceScreen() {
 const s = StyleSheet.create({
   sampleBox: { minHeight: 90, justifyContent: 'center', marginVertical: 8 },
   sampleTxt: { color: '#fff', fontSize: 18, lineHeight: 26, fontWeight: '800', textAlign: 'center' },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 },
+  row: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginTop: 8 },
   play: { minHeight: 44, minWidth: 64, borderRadius: Radii.md, backgroundColor: Colors.purple, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10 },
   playTxt: { color: '#fff', fontWeight: '800', fontSize: 14 },
   stop: { minHeight: 44, alignItems: 'center', justifyContent: 'center', marginTop: 6 },

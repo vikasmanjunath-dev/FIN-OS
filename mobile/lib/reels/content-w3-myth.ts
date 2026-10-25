@@ -1,6 +1,6 @@
 // Wave 3, part 2: ten myth-or-fact decks. Each reel sets up a topic, pauses on five statements the viewer calls a myth or a fact, then explains the pattern.
 // Statements are about how things work, never about what to buy. Facts that change (limits, rates) are phrased so they stay true, or are left out.
-import { readMs, sc, t } from '@/lib/reels/kit';
+import { holdScenes, readMs, sc, t } from '@/lib/reels/kit';
 import type { L, Reel, Topic } from '@/lib/reels/types';
 
 export const mythCard = (s: [string, string], fact: boolean, why: [string, string]) => ({ s: t(s[0], s[1]), fact, why: t(why[0], why[1]) });
@@ -185,4 +185,20 @@ export const MYTH_REELS: Reel[] = [
     quiz: { q: t('What helps saving most?', 'बचत में सबसे ज़्यादा क्या मदद करता है?'), options: [t('An automatic transfer on payday', 'पे-डे पर ऑटोमैटिक ट्रांसफ़र'), t('Saving what is left', 'जो बचे वह बचाना'), t('Waiting to earn more', 'ज़्यादा कमाने का इंतज़ार')], answer: 0,
       why: t('A system that runs by itself beats willpower at the end of the month.', 'अपने आप चलने वाला तरीक़ा महीने के अंत की इच्छाशक्ति से बेहतर है।') },
   }),
+  holdScenes(myth({
+    id: 'myths-goals', topic: 'goals', title: t('Goal myths, sorted', 'लक्ष्य के मिथक, छाँटे हुए'), tags: ['goals', 'saving'],
+    lines: [t('Many people never start on a goal because of something they were told, not something true.', 'कई लोग लक्ष्य पर कभी शुरू ही नहीं करते, किसी सुनी हुई बात की वजह से, जो सच नहीं होती।'),
+      t('A goal needs two things written down: an amount and a date. That makes it something you can plan.', 'लक्ष्य के लिए दो चीज़ें लिखी होनी चाहिए: रकम और तारीख़। तब वह ऐसी चीज़ बनता है जिसकी योजना बन सके।'),
+      t('Money needed soon and money needed in many years are kept differently.', 'जो पैसा जल्दी चाहिए और जो बरसों बाद चाहिए, उन्हें अलग तरह से रखा जाता है।'),
+      t('Pick one goal, write its amount and date, and review it once a year.', 'एक लक्ष्य चुनें, उसकी रकम और तारीख़ लिखें, और साल में एक बार जाँचें।')],
+    cards: [
+      mythCard(['You need a large sum before you can start saving for a goal.', 'लक्ष्य के लिए बचत शुरू करने से पहले बड़ी रकम चाहिए।'], false, ['A small amount, set aside regularly, is how most goals are built.', 'छोटी रकम, नियमित रूप से अलग रखना, ज़्यादातर लक्ष्य ऐसे ही बनते हैं।']),
+      mythCard(['A goal with an amount and a date is easier to plan than “someday”.', 'रकम और तारीख़ वाला लक्ष्य “कभी न कभी” से आसान योजना बनता है।'], true, ['With both written down, you can divide the amount by the months left.', 'दोनों लिखे हों तो रकम को बचे महीनों से बाँटा जा सकता है।']),
+      mythCard(['Money for a goal two years away should be treated like money for twenty years away.', 'दो साल बाद के लक्ष्य के पैसे को बीस साल बाद वाले जैसा ही रखना चाहिए।'], false, ['The nearer the goal, the less time there is to recover if its value falls.', 'लक्ष्य जितना पास हो, मूल्य गिरने पर सँभलने का समय उतना कम।']),
+      mythCard(['Goals can change as life changes, and that is fine.', 'जीवन बदलने के साथ लक्ष्य बदल सकते हैं, और यह ठीक है।'], true, ['A yearly review lets you update the amount, the date or the goal itself.', 'साल की समीक्षा में रकम, तारीख़ या लक्ष्य, कुछ भी बदला जा सकता है।']),
+      mythCard(['You must give up everything else to reach a goal.', 'लक्ष्य पाने के लिए बाक़ी सब छोड़ना पड़ता है।'], false, ['A goal is one line in a budget. Most plans leave room for everyday life.', 'लक्ष्य बजट की एक पंक्ति है। ज़्यादातर योजनाओं में रोज़मर्रा के जीवन की जगह रहती है।']),
+    ],
+    quiz: { q: t('What turns a wish into a goal you can plan?', 'कौन-सी चीज़ इच्छा को ऐसे लक्ष्य में बदलती है जिसकी योजना बन सके?'), options: [t('Hoping for a lucky break', 'किसी भाग्य के मौक़े की उम्मीद'), t('Writing down an amount and a date', 'रकम और तारीख़ लिखना'), t('Waiting until you earn more', 'ज़्यादा कमाने तक रुकना')], answer: 1,
+      why: t('An amount and a date let you work out what to set aside each month.', 'रकम और तारीख़ से निकल आता है कि हर महीने कितना अलग रखना है।') },
+  }), 6000),
 ];

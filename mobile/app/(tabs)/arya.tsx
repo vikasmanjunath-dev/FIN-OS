@@ -5,11 +5,15 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { router, useFocusEffect } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useAryaChat } from '@/hooks/useAryaChat';
 import { AryaBubble } from '@/components/AryaBubble';
 import { AryaTabs } from '@/components/AryaTabs';
 import { loadPrefs, savePrefs } from '@/lib/aryaMemoryStorage';
+import { useLang } from '@/lib/i18n';
+import { contextBase } from '@/lib/reels/ask';
+import { aryaPrefill, parseAryaParams, PREFILL_NOTE, PREFILL_NOTE_MINE } from '@/lib/reels/aryaLink';
+import { loadMine } from '@/lib/reels/mine';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 
 // The first four are answered on the phone from your own records (no connection needed); the rest go to Arya online.
@@ -28,6 +32,22 @@ export default function AryaScreen() {
   const [input, setInput] = React.useState('');
   const listRef = useRef<FlatList>(null);
   const [toolsOn, setToolsOn] = useState(true);
+  // Opened from a reel's "Ask Arya more": the route carries only a library reel id (and "mine=1" if the person asked for their own numbers). Anything else is ignored.
+  const lang = useLang();
+  const params = useLocalSearchParams<{ reel?: string; mine?: string }>();
+  const [fromReel, setFromReel] = useState<{ mine: boolean } | null>(null);
+  useFocusEffect(useCallback(() => {
+    const p = parseAryaParams(params);
+    if (!p) return;
+    let live = true;
+    (async () => {
+      const mineBase = p.mine ? contextBase({ ...p.reel, mine: true }, await loadMine().catch(() => ({}))) : null;
+      if (!live) return;
+      setInput(aryaPrefill(p.reel, lang, mineBase)); setFromReel({ mine: !!mineBase });
+      router.setParams({ reel: undefined, mine: undefined } as never);
+    })();
+    return () => { live = false; };
+  }, [params, lang]));
   useFocusEffect(useCallback(() => { loadPrefs().then(p => setToolsOn(p.tools)).catch(() => {}); }, []));
   const toggleTools = useCallback(() => {
     Haptics.selectionAsync();
@@ -37,7 +57,7 @@ export default function AryaScreen() {
   const handleSend = useCallback(() => {
     const text = input.trim();
     if (!text || isStreaming) return;
-    setInput('');
+    setInput(''); setFromReel(null);
     Haptics.selectionAsync();
     send(text);
     setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 100);
@@ -88,7 +108,7 @@ export default function AryaScreen() {
         ref={listRef}
         data={messages}
         keyExtractor={m => m.id}
-        renderItem={({ item }) => <AryaBubble message={item} onAsk={handleSuggest} />}
+        renderItem={({ item, index }) => <AryaBubble message={item} onAsk={handleSuggest} question={messages[index - 1]?.role === 'user' ? messages[index - 1].text : undefined} />}
         contentContainerStyle={styles.messageList}
         onContentSizeChange={() => { if (messages.length > 1) listRef.current?.scrollToEnd({ animated: true }); }}   // the greeting plus the suggestions stay at the top: scrolling to the end cut the greeting under the header
         showsVerticalScrollIndicator={false}
@@ -107,6 +127,7 @@ export default function AryaScreen() {
         }
       />
 
+      {fromReel ? <Text style={styles.fromReel}>{(fromReel.mine ? PREFILL_NOTE_MINE : PREFILL_NOTE)[lang]}</Text> : null}
       {/* ── Input ── */}
       <View style={styles.inputBar}>
         <TextInput accessibilityLabel="Message to Arya"
@@ -168,6 +189,7 @@ const styles = StyleSheet.create({
   toolsTxt: { ...Typography.caption, flex: 1, lineHeight: 16 },
   toolsLink: { ...Typography.caption, color: Colors.purpleInk, fontWeight: '700' },
 
+  fromReel: { ...Typography.caption, color: Colors.textMuted, paddingHorizontal: Spacing.md, paddingTop: Spacing.xs },
   messageList: { paddingTop: Spacing.md, paddingBottom: Spacing.lg },
 
   suggestContainer: { paddingHorizontal: Spacing.md, paddingTop: Spacing.lg, gap: Spacing.sm },

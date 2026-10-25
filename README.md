@@ -3,7 +3,7 @@
 > India's most complete personal finance platform.  
 > Education · Intelligence · Voice AI · Calculators · Markets · Tracking — all in one place.
 
-**Last updated:** October 1, 2026 — Sitewide JS runtime-error sweep across all 117 `html/` pages + all 88 calculators (10 real bugs found and fixed, including a systemic voice-widget path bug affecting all calculator pages); sidebar nav simplified (Goals/Household removed); `track-finances.html` reorganized from a flat 33-card grid into 9 labeled categories. Previous: Arya AI Sidebar Panel v4.0 (`js/arya-sidebar-panel.js`, 7,945 lines) — 8-tab system (💬 Chat · 🗺️ Plan · 🧠 Map · 🌅 Life · 📊 Pulse · 📅 Cal · 🇮🇳 India · 🤖 Agent) embedded on 113 pages; `arya-roadmap.js` self-contained visual engine (990 lines, `injectStyles()`, pan/zoom SVG mindmap, life-journey timeline with Unsplash cards); `roadmap.html` rebuilt as interactive 3-view page. Portfolio.AI v10 (22,570 lines). Voice agent: ws://127.0.0.1:8765.
+**Last updated:** October 22, 2026 — Money Reels (short animated money lessons in English and Hindi: in the app as the Reels tab with read-aloud voice, share as image and a personal ranker, and on the web at `html/reels.html`); the Android app is on Expo SDK 57 with release APKs offered at `html/download.html`; tracker and security hardening across web, phone and backends; `sml/` holds the first intent-router dataset and training scripts. The page, stylesheet, script and documentation counts below were re-measured on this date; the other figures and the older feature notes are as of October 1. **Previous update, October 1, 2026 —** Sitewide JS runtime-error sweep across all 117 `html/` pages + all 88 calculators (10 real bugs found and fixed, including a systemic voice-widget path bug affecting all calculator pages); sidebar nav simplified (Goals/Household removed); `track-finances.html` reorganized from a flat 33-card grid into 9 labeled categories. Previous: Arya AI Sidebar Panel v4.0 (`js/arya-sidebar-panel.js`, 7,945 lines) — 8-tab system (💬 Chat · 🗺️ Plan · 🧠 Map · 🌅 Life · 📊 Pulse · 📅 Cal · 🇮🇳 India · 🤖 Agent) embedded on 113 pages; `arya-roadmap.js` self-contained visual engine (990 lines, `injectStyles()`, pan/zoom SVG mindmap, life-journey timeline with Unsplash cards); `roadmap.html` rebuilt as interactive 3-view page. Portfolio.AI v10 (22,570 lines). Voice agent: ws://127.0.0.1:8765.
 
 ---
 
@@ -31,6 +31,12 @@ The six docs added after PRD/FRD/TRD are exports of living Claude Docs; the onli
 | Doc | What it covers |
 |---|---|
 | [MOBILE_APP.md](docs/MOBILE_APP.md) | Expo / React Native app — screens, architecture, web parity, known gaps |
+| [REELS.md](docs/REELS.md) | Money Reels — how a reel works, the Reels tab, voice, share image, ranker, web version, accessibility, what is not built |
+| [REELS-AUTHORS.md](docs/REELS-AUTHORS.md) | One-page guide to adding or reviewing a reel, and the `npm run reels:check` checklist |
+| [REELS-400-PLAN.md](docs/REELS-400-PLAN.md) | Plan and review gate for growing the library; status at the top |
+| [RELEASE_RUNBOOK.md](docs/RELEASE_RUNBOOK.md) | Store release steps (EAS) and the local sideload APK path (section 4b) |
+| [DEVICE_TEST_CHECKLIST.md](docs/DEVICE_TEST_CHECKLIST.md) | What to check on a real phone before a release; no results recorded yet |
+| [PENDING.md](docs/PENDING.md) | The working list: what needs you, build order, known quirks |
 | [UPGRADES_OCT_2026.md](docs/UPGRADES_OCT_2026.md) | October 2026 six-stage upgrade pass — what was added, where, what is not done |
 | [PREPAY_OFFERS_SUBSCRIPTIONS.md](docs/PREPAY_OFFERS_SUBSCRIPTIONS.md) | Prepay-vs-Invest, Job-Offer Comparer and Subscription Tracker — pages, logic modules, tests |
 
@@ -79,10 +85,10 @@ FIN•OS is a full-stack personal finance operating system built for Indian user
 
 | Dimension | Count / Value |
 |---|---|
-| HTML pages | **119** (117 in `html/` + `index.html` + `login.html`) |
+| HTML pages | **127** (125 in `html/` + `index.html` + `login.html`) |
 | Financial calculators | **88** across 9 categories |
-| CSS stylesheets | **44** (incl. design tokens + interaction system) |
-| JavaScript modules | **111** (incl. arya-sidebar-panel.js, arya-roadmap.js) |
+| CSS stylesheets | **46** (incl. design tokens + interaction system) |
+| JavaScript modules | **147** (incl. arya-sidebar-panel.js, arya-roadmap.js) |
 | Design tokens (CSS vars) | **137** |
 | Light-mode CSS rules | **360** |
 | Standalone sub-apps | `voiceagent/` (Python), `News1/` (Vite+Express), `TradeJournal/`, `Porfolio Analyser/` — each with its own dev server, not served statically from this root |
@@ -358,6 +364,8 @@ python3 tests/mobile_check.py    # every page at 375px — horizontal overflow, 
 python3 tests/perf_budget.py     # JS weight per page vs tests/perf_budget.json
 ```
 
+The phone app is checked separately, from `mobile/`: `npm test` (1,371 tests on 22 Oct 2026), `npm run typecheck`, `npm run lint` (no warnings allowed) and `npm run reels:check -- --all` for the reel library. See [mobile/README.md](mobile/README.md).
+
 `.github/workflows/ci.yml` runs the fast + browser suites on every push/PR and the full crawls nightly. Details: [tests/README.md](tests/README.md), [docs/UPGRADES_OCT_2026.md](docs/UPGRADES_OCT_2026.md).
 
 ---
@@ -373,9 +381,9 @@ Initial Deployment/
 ├── vercel.json                 Rewrites, security headers, CSP, iframe override
 ├── api/
 │   └── chat.js                 Vercel Edge Function — OpenRouter proxy
-├── html/                       117 main app pages
-├── css/                        44 stylesheets
-├── js/                         111 JavaScript modules
+├── html/                       125 main app pages
+├── css/                        46 stylesheets
+├── js/                         147 JavaScript modules
 ├── assets/                     Images, icons, fonts
 ├── calculators/                88 standalone HTML calculators
 │   ├── investment & wealth/    sip.html, sip-optimizer.html, swp.html ...
@@ -401,7 +409,8 @@ Initial Deployment/
 ├── market intelligence/        Market data service — app.py, fundamental/intraday/long/swing.py
 ├── rag-engine/                 RAG pipeline — server.py, jobs.py, scheduler.py, metrics.py, .venv/
 ├── stock-engine/                Stock research backend
-├── mobile/                      Expo/React Native app ("finos-mobile") — separate from the web site
+├── mobile/                      Expo SDK 57 / React Native app ("finos-mobile") — separate from the web site; android/ is generated and git-ignored
+├── sml/                         Small-model work: intent-router dataset, training script, dev predictor, leakage tests (see sml/README.md)
 ├── scripts/                     Maintenance/one-off scripts
 ├── tests/                       pytest suite (conftest.py, test_health_score.py, test_rules.py)
 ├── supabase/                    Supabase project config/migrations
@@ -410,7 +419,7 @@ Initial Deployment/
 ├── Porfolio Analyser/          Portfolio.AI v10 (22,570-line single-file quant app)
 │   ├── portfolio-analyser-v10.html   Full institutional quant suite + Arya AI on all 10 pages
 │   └── server.py                    Arya AI backend — HTTP :8766 (llama3.1:latest + llama3.2:3b)
-├── docs/                       36 documentation files
+├── docs/                       56 documentation files (plus agent-notes/, audit/, review/, voice/)
 └── .vercelignore               Excludes Python backends, node_modules, SSL certs
 ```
 

@@ -1,0 +1,14 @@
+# Sharing: text and image
+
+Part of the Money Reels guide (`docs/REELS.md`, section 9). Not tried on a phone.
+
+## Share as an image
+
+- **What the person gets.** Tapping Share on a reel opens `components/reels/ShareSheet.tsx`: the card as it will be sent, with **Share as image**, **Share as text** and Close. The image is a 1080 x 1350 PNG (4:5, uncropped on WhatsApp): the topic chip, Mitra, the reel's title, its one takeaway line, "Money reels by FIN·OS" and "For education, not advice." In Diwali, Budget and March weeks the card takes the season tint and badge (`seasonOf`). Hindi or English follows the app language.
+- **Privacy.** The card is built by `lib/reels/sharecard.ts` from the **library's example reel** (`LIBRARY`), from an id and a language only: it imports no storage and no personal data, so it cannot show a figure the person entered. The takeaway is the reel's own quiz "why"; the title is the reel's title. A test seeds odd personal figures into every personalised reel and checks none reaches the card, that every digit on the card is from the example, and that no card has a link. Nothing is sent until the person picks where it goes in the phone's share sheet.
+- **Fitting.** `CARD_MAX` caps title (60), takeaway (160) and topic (24) characters; `fitLine` cuts at a sentence or word end if a future reel runs longer. A test checks every library reel in both languages.
+- **Capture.** `shareCardImage` in `lib/reels/share.ts` uses `react-native-view-shot` (`captureRef`, PNG, tmpfile) and `expo-sharing`. The card is drawn at 360 x 450 and captured at 3x, so it is sharp whatever the phone's size; the on-screen preview is scaled by a transform, not by resizing, so the capture is always full size. The temporary file (`finos-reel-card-<time>.png`, cache directory) is deleted as soon as the iOS sheet closes, and two minutes later on Android, where the chosen app may still be reading it.
+- **Fallbacks.** If the capture fails, or the device cannot share a file, the sheet switches to the text share with a plain note ("Could not make the picture, so here is the text instead"). On the web there is no share sheet for files: **Share as image** saves the PNG to downloads (html2canvas), and the text share copies instead.
+- **Native module.** `react-native-view-shot` is a native module: **a dev client or release build must be rebuilt** (`npx expo run:ios` / `run:android` or a new EAS build). Expo Go already includes it. A build made before this change will fail the capture and show the text share.
+- **Not counted.** Shares are not in the health counters: there is no `shareimg` or `sharetxt` field in `lib/reels/stats.ts` (checked 24 Oct 2026). When a counter is wanted, add `shareimg` and `sharetxt` beside `saves` and `pledges` there and call `recordStat` in `ShareSheet.tsx`.
+- **Test.** `__tests__/reels-shareimage.test.mts`. Not testable in Node: the actual capture and the share sheet, which need a phone.

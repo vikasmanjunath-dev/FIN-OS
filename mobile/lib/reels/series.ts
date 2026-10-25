@@ -46,6 +46,7 @@ const BASE_SERIES: Series[] = [
       { reel: 'health-cover-gotchas', intro: l('A hospital bill is the other way to lose a fund. She reads her policy.', 'अस्पताल का बिल फ़ंड गँवाने का दूसरा रास्ता है। वह अपनी पॉलिसी पढ़ती है।') },
       { reel: 'insurance-basics', intro: l('What is insurance really for?', 'बीमा असल में किसलिए है?') },
       { reel: 'life-cover', intro: l('Her family depends on her income. How much cover is right?', 'परिवार उसकी आय पर निर्भर है। कितना कवर ठीक है?') },
+      { reel: 'myths-goals', intro: l('Meera sorts what she has heard about goals before setting her own.', 'मीरा अपना लक्ष्य तय करने से पहले उसके बारे में सुनी बातें छाँटती है।') },
       { reel: 'sinking-funds', intro: l('Last step: yearly bills stop breaking her month.', 'आख़िरी क़दम: सालाना बिल अब उसका महीना नहीं बिगाड़ते।') },
     ],
     endMove: { text: l('Set your emergency fund target', 'अपना आपातकालीन फ़ंड लक्ष्य तय करें'), href: '/tracker/emergency' },
@@ -56,6 +57,7 @@ const BASE_SERIES: Series[] = [
     premise: l('Seven tricks that take real money, and a five-minute phone check.', 'सात चालें जो असली पैसा ले जाती हैं, और पाँच मिनट की फ़ोन जाँच।'),
     episodes: [
       { reel: 'otp-never-share', intro: l('A “bank officer” calls Imran. He asks for an OTP.', 'एक “बैंक अफ़सर” इमरान को कॉल करता है। वह OTP माँगता है।') },
+      { reel: 'path-unknown-caller', intro: l('The next call is the same trick. This time Imran has a choice to make.', 'अगला कॉल वही चाल है। इस बार इमरान के पास चुनाव है।') },
       { reel: 'upi-collect-scam', intro: l('A buyer says the money is sent. He just has to approve.', 'ख़रीदार कहता है पैसे भेज दिए। बस मंज़ूरी देनी है।') },
       { reel: 'qr-code-scam', intro: l('Another buyer sends a QR “to receive payment”.', 'एक और ख़रीदार “पेमेंट पाने के लिए” QR भेजता है।') },
       { reel: 'fake-kyc-links', intro: l('An SMS says his account will be blocked today.', 'एक SMS कहता है आज उसका खाता बंद हो जाएगा।') },

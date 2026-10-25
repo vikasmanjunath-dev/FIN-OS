@@ -1,12 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { AccessibilityInfo, AppState, Modal, PanResponder, PixelRatio, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import Svg from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from '@/components/Gradient';
 import { Cast } from '@/components/reels/Cast';
 import { Mitra } from '@/components/reels/Mitra';
-import { AREA, Scenery } from '@/components/reels/Scenery';
+import { AREA, SceneryLayer } from '@/components/reels/Scenery';
 import { Poke } from '@/components/reels/Poke';
 import { announce } from '@/components/reels/announce';
 import { AskSheet } from '@/components/reels/AskSheet';
@@ -14,6 +13,7 @@ import { TrustSheet } from '@/components/reels/TrustSheet';
 import { BeatBoundary } from '@/components/reels/BeatBoundary';
 import { isBeatUsable, pokeStart } from '@/lib/reels/beats';
 import { momentAt, sceneStarts, totalMs } from '@/lib/reels/engine';
+import { captionElapsed, createClock, phaseCode, phaseFromCode, phaseOf, pictureP, pictureT, startFrameLoop, type Clock } from '@/lib/reels/frame';
 import { trustFor } from '@/lib/reels/trust';
 import { togetherBeat } from '@/lib/reels/together';
 import type { Season } from '@/lib/reels/seasons';
@@ -26,7 +26,14 @@ import type { Reel, Topic } from '@/lib/reels/types';
 import type { Lang } from '@/lib/i18nCore';
 import { Colors, Radii, Spacing } from '@/constants/theme';
 
-const TICK = 40;
+/** The reel's picture is redrawn at most 30 times a second (see lib/reels/frame.ts). The clock lives in a `Clock`, not in React state: the player itself renders
+ *  only when something it shows changes (the scene, pause, a beat, the question), and the few pieces that move (the progress bars, the stage, a fading
+ *  caption) subscribe to the clock themselves. `t` is deliberately never passed to anything that does not animate. */
+const noSub = () => () => {};
+const zero = () => 0;
+const TrustSheetM = memo(TrustSheet);
+const AskSheetM = memo(AskSheet);
+const CaptionM = memo(Caption);
 /** The words of a toast without its leading emoji, for a screen reader (the emoji is only decoration). */
 const plain = (t: string) => t.replace(/^[^\p{L}\p{N}]+/u, '');
 
@@ -40,7 +47,10 @@ export function ReelPlayer({ reel, active, lang, sound, width, height, topInset 
   reel: Reel; active: boolean; lang: Lang; sound: boolean; width: number; height: number; topInset?: number; reason?: string | null; act?: { label: string; onPress: () => void } | null; streakLine?: string | null; onShare?: (() => void) | null; onKnow?: ((reelId: string) => void) | null; onLess?: ((topic: Topic) => void) | null; onRemind?: (() => void) | null; onPoke?: ((reelId: string, engaged: boolean) => void) | null;
   onAnswered: (reelId: string, correct: boolean) => void; onNext: () => void;
 }) {
-  const [t, setT] = useState(0);
+  const clockRef = useRef<Clock | null>(null);
+  if (!clockRef.current) clockRef.current = createClock();
+  const clock = clockRef.current;
+  const setT = useCallback((v: number | ((t0: number) => number)) => clock.set(typeof v === 'function' ? v(clock.get()) : v, true), [clock]);   // a jump, a restart or the end of a beat always redraws
   const [playing, setPlaying] = useState(true);
   const [picked, setPicked] = useState<number | null>(null);
   const [poking, setPoking] = useState(false);                           // the reel is paused on its guess, slider or myth cards
@@ -63,17 +73,19 @@ export function ReelPlayer({ reel, active, lang, sound, width, height, topInset 
   // segments and the jumps all follow that copy, so the caption, the picture and the voice change scene together. Content stays on `reel`.
   const played = useMemo(() => (sound ? withVoiceTiming(reel, lang) : reel), [reel, lang, sound]);
   const total = totalMs(played);
-  const m = momentAt(played, t);
-  const done = m.done;
   const startsOf = useMemo(() => sceneStarts(played), [played]);
+  const msOf = useMemo(() => played.scenes.map(x => x.ms), [played]);
   const pokeAt = useMemo(() => (isBeatUsable(reel) ? pokeStart(played) : null), [reel, played]);        // a broken beat is skipped, not shown
+  // Which scene, whether it is over, and where the clock stands against the beat: a few changes a reel, so the player renders then and not every frame.
+  const phase = phaseFromCode(useSyncExternalStore(clock.subscribe, () => phaseCode(phaseOf(startsOf, msOf, total, clock.get(), pokeAt))));
+  const done = phase.done;
   // Turning the voice on or off changes scene lengths: keep the person at the same place in the same scene.
   const prevPlayed = useRef(played);
   useEffect(() => {
     if (prevPlayed.current === played) return;
     const old = prevPlayed.current; prevPlayed.current = played;
     setT(v => { const mo = momentAt(old, v); return mo.done ? totalMs(played) : sceneStarts(played)[mo.index] + mo.p * played.scenes[mo.index].ms; });
-  }, [played]);
+  }, [played, setT]);
   const trust = trustFor(reel.id, !!reel.mine);
   const steerNote = (k: 'known' | 'less') => (k === 'known' ? (lang === 'hi' ? 'ठीक है, यह अब नहीं आएगी।' : 'Got it. This one will not come up again.') : (lang === 'hi' ? 'ठीक है, इस विषय की रीलें कम आएँगी।' : 'Got it. Fewer reels on this topic.'));
   const canTogether = !!shelf?.onTogether && togetherBeat(reel.id) !== null;
@@ -106,31 +118,33 @@ export function ReelPlayer({ reel, active, lang, sound, width, height, topInset 
   useEffect(() => { const sub = AppState.addEventListener('change', st => { if (st !== 'active') { setPlaying(false); stopSpeaking(); } }); return () => sub.remove(); }, []);
 
   // Each time the reel comes on screen it starts again from the beginning.
-  useEffect(() => { if (active) { setT(0); setPlaying(true); setPicked(null); setPoking(false); setPokeDone(false); setTrustOpen(false); setAskOpen(false); setSteerOpen(false); setToast(null); setSteered(null); heldRef.current = 0; last.current = Date.now(); } else stopSpeaking(); }, [active]);
+  useEffect(() => { if (active) { setT(0); setPlaying(true); setPicked(null); setPoking(false); setPokeDone(false); setTrustOpen(false); setAskOpen(false); setSteerOpen(false); setToast(null); setSteered(null); heldRef.current = 0; last.current = Date.now(); } else stopSpeaking(); }, [active, setT]);
 
-  const idx = m.index;
-  const sc = m.scene, bigText = sc.big?.[lang];
-  const voice = useVoice({ key: `${reel.id}:${idx}:${lang}`, text: sc.say[lang], big: bigText, mood: sc.mood, lang, budgetMs: sc.ms, enabled: active && sound && playing && !done && !poking && !sheetOpen });
+  const idx = phase.idx;
+  const sc = played.scenes[idx], bigText = sc.big?.[lang];
+  const heard = useVoice({ key: `${reel.id}:${idx}:${lang}`, text: sc.say[lang], big: bigText, mood: sc.mood, lang, budgetMs: sc.ms, enabled: active && sound && playing && !done && !poking && !sheetOpen });
+  const replayRef = useRef(heard.replay); replayRef.current = heard.replay;
+  const replay = useCallback(() => replayRef.current(), []);                  // the same function every render, so the pill row can be memoised
+  const voice = { ...heard, replay };
   const voiceBusy = sound && voice.busy;
-  const tRef = useRef(0); tRef.current = t;
   const heldRef = useRef(0);                                              // how long the clock has been held at a scene's end for the voice
   const busyRef = useRef(false); busyRef.current = voiceBusy;
   const endOfScene = startsOf[idx] + played.scenes[idx].ms;
   const endRef = useRef(0); endRef.current = endOfScene;
 
   // A reel with a beat stops at the end of its beat scene (once the voice has finished its sentence) and waits for the person (or for the beat to reveal itself).
-  useEffect(() => { if (active && pokeAt !== null && !pokeDone && !poking && t >= pokeAt && !(voiceBusy && t <= pokeAt)) { setT(pokeAt); setPoking(true); } }, [active, pokeAt, pokeDone, poking, t, voiceBusy]);
+  useEffect(() => { if (active && pokeAt !== null && !pokeDone && !poking && phase.atPoke && !(voiceBusy && !phase.pastPoke)) { setT(pokeAt); setPoking(true); } }, [active, pokeAt, pokeDone, poking, phase.atPoke, phase.pastPoke, voiceBusy, setT]);
 
   useEffect(() => {
     if (!active || !playing || done || poking || sheetOpen) return;
     last.current = Date.now();
-    const id = setInterval(() => {
+    // One frame loop, only while this reel is the one on screen, playing and not paused by a sheet or a beat; none at all for the reels beside it.
+    return startFrameLoop(() => {
       const now = Date.now(); const dt = Math.min(120, now - last.current); last.current = now;      // a stalled frame never skips a scene
-      const r = holdAtSceneEnd(tRef.current, dt, endRef.current, busyRef.current, heldRef.current);       // a slow voice is never cut off by the next scene
-      heldRef.current = r.heldMs; tRef.current = Math.min(total, r.t); setT(tRef.current);
-    }, TICK);
-    return () => clearInterval(id);
-  }, [active, playing, done, total, poking, sheetOpen]);
+      const r = holdAtSceneEnd(clock.get(), dt, endRef.current, busyRef.current, heldRef.current);       // a slow voice is never cut off by the next scene
+      heldRef.current = r.heldMs; clock.set(Math.min(total, r.t), r.t >= total);      // reaching the end always notifies, even inside the last frame, or the question would never come up
+    }, { raf: cb => requestAnimationFrame(cb), caf: id => cancelAnimationFrame(id as number), now: Date.now, timer: { set: (cb, ms) => setTimeout(cb, ms), clear: id => clearTimeout(id as ReturnType<typeof setTimeout>) } });
+  }, [active, playing, done, total, poking, sheetOpen, clock]);
 
   // The voice (useVoice, above) follows the scenes, and is silent while paused, finished or off screen.
   useEffect(() => stopSpeaking, []);
@@ -141,17 +155,21 @@ export function ReelPlayer({ reel, active, lang, sound, width, height, topInset 
     return () => { clearTimeout(id); stopSpeaking(); };
   }, [active, sound, done, picked, sheetOpen, lang, reel]);
 
-  const jump = useCallback((i0: number) => { const i = Number.isFinite(i0) ? Math.min(reel.scenes.length - 1, Math.max(0, Math.floor(i0))) : 0; heldRef.current = 0; setT(startsOf[i]); setPlaying(true); setPicked(null); setPoking(false); setPokeDone(reel.poke ? i > reel.poke.after : false); }, [reel, startsOf]);
-  const finishPoke = useCallback((r: { engaged: boolean }) => { onPoke?.(reel.id, r.engaged); setPoking(false); setPokeDone(true); setT(t0 => t0 + 1); setPlaying(true); }, [onPoke, reel.id]);
+  const jump = useCallback((i0: number) => { const i = Number.isFinite(i0) ? Math.min(reel.scenes.length - 1, Math.max(0, Math.floor(i0))) : 0; heldRef.current = 0; setT(startsOf[i]); setPlaying(true); setPicked(null); setPoking(false); setPokeDone(reel.poke ? i > reel.poke.after : false); }, [reel, startsOf, setT]);
+  const finishPoke = useCallback((r: { engaged: boolean }) => { onPoke?.(reel.id, r.engaged); setPoking(false); setPokeDone(true); setT(t0 => t0 + 1); setPlaying(true); }, [onPoke, reel.id, setT]);
   // The stage takes the height that is left after the header, the big words, the caption and the bottom safe area, within a sensible shape.
   const stageW = width - Spacing.lg * 2;
   const fs = Math.min(PixelRatio.getFontScale(), 1.35);                 // the caption and big words grow with the phone's text size (capped), and the picture gives up the room
   const [slotH, setSlotH] = useState(0);                                  // the room the layout really gives the picture: whatever is left after the header, big words, caption and hint at this text size
   const minStage = Math.round(stageW * 0.3), maxStage = Math.round(stageW * 1.2);
-  const stageH = Math.max(minStage, Math.min(maxStage, slotH > 0 ? Math.floor(slotH) : Math.round(height - topInset - 72 - 50 * fs - 120 * fs - 28 - insets.bottom - 16)));
+  // When the picture is already squeezed to its smallest (large text on a small phone) the page is out of room: the gesture hint (a first-visits extra) gives way for good,
+  // the picture may shrink to half its usual smallest, and the pause mark moves to its corner, so nothing sits on the caption or the buttons.
+  const [tightHint, setTightHint] = useState(false);
+  useEffect(() => { if (slotH > 0 && slotH <= minStage + 1) setTightHint(true); }, [slotH, minStage]);
+  const floorStage = tightHint ? Math.round(minStage / 2) : minStage;
+  const stageH = Math.max(floorStage, Math.min(maxStage, slotH > 0 ? Math.floor(slotH) : Math.round(height - topInset - 72 - 50 * fs - 120 * fs - 28 - insets.bottom - 16)));
   const sceneryW = stageW * 0.58, sceneryH = (sceneryW * AREA.h) / AREA.w;
   const pickOption = (i: number) => { if (picked !== null) return; setPicked(i); onAnswered(reel.id, i === reel.quiz.answer); };
-  const motionT = calm ? 0 : t, motionP = calm ? 1 : m.p;
   const verdict = picked === null ? '' : (picked === reel.quiz.answer ? (hiL ? 'सही! ' : 'Right! ') : (hiL ? 'लगभग! ' : 'Not quite. ')) + reel.quiz.why[lang];
   useEffect(() => { if (verdict) announce(verdict); }, [verdict]);     // iPhone ignores live regions; elsewhere the verdict text below is the live region
   // After an answer the verdict and the main buttons come into view (as little scrolling as it takes), so Next is never a long scroll away at large text.
@@ -161,6 +179,11 @@ export function ReelPlayer({ reel, active, lang, sound, width, height, topInset 
     return () => clearTimeout(id);
   }, [picked, calm]);
   const holdPress = trust ? () => { buzz(); setTrustOpen(true); } : undefined;
+  const openTrust = useCallback(() => setTrustOpen(true), []);
+  const closeTrust = useCallback(() => setTrustOpen(false), []);
+  const openAsk = useCallback(() => setAskOpen(true), []);
+  const closeAsk = useCallback(() => setAskOpen(false), []);
+
 
   return (
     <View style={[s.page, { width, paddingTop: topInset }]} aria-hidden={!active} accessibilityElementsHidden={!active} importantForAccessibility={active ? 'auto' : 'no-hide-descendants'}>
@@ -174,9 +197,7 @@ export function ReelPlayer({ reel, active, lang, sound, width, height, topInset 
         onLayout={e => { segW.current = e.nativeEvent.layout.width; segX.current = e.nativeEvent.layout.x; }}
         onPress={e => { const ne = e.nativeEvent as { locationX?: number; pageX?: number }; const x = Number.isFinite(ne.locationX) ? (ne.locationX as number) : (ne.pageX ?? 0) - segX.current;   // a web click has no locationX
           const i = Math.floor((x / Math.max(1, segW.current)) * reel.scenes.length); jump(Math.min(reel.scenes.length - 1, Math.max(0, i))); }}>
-        {reel.scenes.map((x, i) => (
-          <View key={i} style={s.seg} pointerEvents="none"><View style={[s.segFill, { width: `${i < idx || done ? 100 : i === idx ? m.p * 100 : 0}%` }]} /></View>
-        ))}
+        <SegmentFills clock={clock} count={reel.scenes.length} idx={idx} done={done} starts={startsOf} ms={msOf} />
       </Pressable>
       {/* while a beat is on, the reel's title is hidden: the beat needs the room, most of all at large text */}
       {poking ? null : <Text style={s.title} maxFontSizeMultiplier={1.3}>{reel.title[lang]}</Text>}
@@ -188,31 +209,25 @@ export function ReelPlayer({ reel, active, lang, sound, width, height, topInset 
         <>
         <View style={s.swipeZone} {...swipe.panHandlers}>
         <Pressable onPress={bodyPress} onLongPress={holdPress} delayLongPress={450} style={s.body} accessible={false} accessibilityRole="none">
-          <View style={s.bigWrap}>{bigText ? <Text style={[s.big, bigText.length > 12 && { fontSize: 28 }]} maxFontSizeMultiplier={1.2}>{bigText}</Text> : null}</View>
-          <View style={[s.slot, { minHeight: minStage, maxHeight: maxStage }]} onLayout={e => { const h = e.nativeEvent.layout.height; setSlotH(v => (Math.abs(v - h) > 1 ? h : v)); }}>
+          <View style={[s.bigWrap, tightHint && !bigText && { minHeight: 0, marginBottom: 0 }]}>{bigText ? <Text style={[s.big, bigText.length > 12 && { fontSize: 28 }]} maxFontSizeMultiplier={1.2}>{bigText}</Text> : null}</View>
+          <View style={[s.slot, { minHeight: floorStage, maxHeight: maxStage }]} onLayout={e => { const h = e.nativeEvent.layout.height; setSlotH(v => (Math.abs(v - h) > 1 ? h : v)); }}>
           {/* The picture is the one pause/play control. The caption, the big words and the season badge sit beside it, not inside it: a button's own label would
               otherwise hide them from a screen reader. A tap anywhere else on the page still pauses (the outer Pressable), a swipe still reaches the swipe zone. */}
           <Pressable onPress={bodyPress} onLongPress={holdPress} delayLongPress={450} style={s.stageTap} accessibilityRole="button" accessibilityLabel={playing ? (hiL ? 'रोकें' : 'Pause') : (hiL ? 'चलाएँ' : 'Play')}
             accessibilityActions={shelf ? [{ name: 'save', label: hiL ? 'बाद के लिए रखें' : 'Save for later' }, { name: 'pledge', label: hiL ? 'मैं यह करूँगा' : 'I will do this' }, { name: 'steer', label: hiL ? 'कम दिखाएँ या पता है' : 'Less like this or I know this' }] : undefined}
             onAccessibilityAction={e => { const n = e.nativeEvent.actionName; if (n === 'save') doSave(); else if (n === 'pledge') doPledge(); else if (n === 'steer') setSteerOpen(true); }}>
           <LinearGradient colors={shelf?.season?.tint ?? ['#0B1233', '#1B0F45']} style={[s.stage, { width: stageW, height: stageH }]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-            {/* beside a picture Mitra stands to the left; with no picture Mitra takes the middle of the stage */}
-            {(() => { const sz = sc.prop ? stageW * 0.4 : Math.min(stageW * 0.62, stageH * 0.62 / 1.25); return <View style={{ position: 'absolute', left: sc.prop ? 0 : (stageW - sz) / 2, bottom: sc.prop ? 0 : (stageH - sz * 1.25) / 2 }}>{sc.who ? <Cast who={sc.who} mood={sc.mood} t={motionT} size={sz} /> : <Mitra mood={sc.mood} t={motionT} size={sz} />}</View>; })()}
-            {sc.prop ? (
-              <Svg style={{ position: 'absolute', right: 0, top: Math.max(0, (stageH - sceneryH) / 2 - 8) }} width={sceneryW} height={sceneryH} viewBox={`0 0 ${AREA.w} ${AREA.h}`}>
-                <Scenery prop={sc.prop} p={motionP} lang={lang} t={motionT} />
-              </Svg>
-            ) : null}
-            {!playing ? <View style={s.pauseVeil}><Text style={s.pauseGlyph} accessibilityElementsHidden importantForAccessibility="no">▶</Text></View> : null}
+            <Art clock={clock} scene={sc} start={startsOf[idx]} calm={calm} lang={lang} stageW={stageW} stageH={stageH} sceneryW={sceneryW} sceneryH={sceneryH} />
+            {!playing ? <View style={[s.pauseVeil, tightHint && s.pauseVeilTight]}><Text style={[s.pauseGlyph, { fontSize: Math.max(12, Math.min(54, Math.floor(stageH * 0.3))) }]} accessibilityElementsHidden importantForAccessibility="no">▶</Text></View> : null}
           </LinearGradient>
           </Pressable>
           {shelf?.season ? <Text style={[s.season, { maxWidth: stageW - 24 }]} pointerEvents="none" accessibilityLabel={shelf.season.label[lang]} maxFontSizeMultiplier={1.2}>{`${shelf.season.badge} ${shelf.season.label[lang]}`}</Text> : null}
           </View>
-          <Caption text={sc.say[lang]} progress={voiceBusy ? voice.progress : null} elapsedMs={t - startsOf[idx]} sceneMs={sc.ms} style={s.caption} reduceMotion={calm} />
-          {shelf?.tip && idx === 0 ? <Text style={s.hint} maxFontSizeMultiplier={1.2}>{hiL ? 'दो बार टैप: मैं यह करूँगा · दाएँ स्वाइप: सेव · बाएँ: कम दिखाएँ' : 'Double-tap: I’ll do this · swipe right: save · swipe left: less like this'}</Text> : null}
+          <LiveCaption clock={clock} text={sc.say[lang]} progress={voiceBusy ? voice.progress : null} start={startsOf[idx]} sceneMs={sc.ms} reduceMotion={calm} />
+          {shelf?.tip && idx === 0 && !tightHint ? <Text style={s.hint} maxFontSizeMultiplier={1.2}>{hiL ? 'दो बार टैप: मैं यह करूँगा · दाएँ स्वाइप: सेव · बाएँ: कम दिखाएँ' : 'Double-tap: I’ll do this · swipe right: save · swipe left: less like this'}</Text> : null}
         </Pressable>
         </View>
-        <PillRow lang={lang} onTrust={trust ? () => setTrustOpen(true) : null} onAsk={() => setAskOpen(true)} onReplay={sound && playing ? voice.replay : null} />
+        <PillRow lang={lang} onTrust={trust ? openTrust : null} onAsk={openAsk} onReplay={sound && playing ? voice.replay : null} />
         </>
       ) : (
         <ScrollView ref={quizRef} style={s.quizScroll} contentContainerStyle={s.quiz} nestedScrollEnabled showsVerticalScrollIndicator={false} onLayout={e => { quizH.current = e.nativeEvent.layout.height; }}>
@@ -268,7 +283,7 @@ export function ReelPlayer({ reel, active, lang, sound, width, height, topInset 
               ) : null}
             </>
           ) : null}
-          <PillRow lang={lang} onTrust={trust ? () => setTrustOpen(true) : null} onAsk={() => setAskOpen(true)} />
+          <PillRow lang={lang} onTrust={trust ? openTrust : null} onAsk={openAsk} />
           <Text style={s.disclaimer}>{lang === 'hi' ? 'शिक्षा के लिए, सलाह नहीं। संख्याएँ उदाहरण या अनुमान हैं।' : 'For education, not advice. The numbers are illustrations or assumptions.'}</Text>
         </ScrollView>
       )}
@@ -286,14 +301,53 @@ export function ReelPlayer({ reel, active, lang, sound, width, height, topInset 
           </View>
         </View>
       </Modal>
-      <TrustSheet trust={trust} lang={lang} visible={trustOpen} onClose={() => setTrustOpen(false)} />
-      <AskSheet reel={reel} lang={lang} visible={askOpen} onClose={() => setAskOpen(false)} />
+      <TrustSheetM trust={trust} lang={lang} visible={trustOpen} onClose={closeTrust} />
+      <AskSheetM reel={reel} lang={lang} visible={askOpen} onClose={closeAsk} />
     </View>
   );
 }
 
+/** One progress segment. Memoised, so only the segment that is filling is redrawn each frame. */
+const Seg = memo(function Seg({ pct }: { pct: number }) {
+  return <View style={s.seg} pointerEvents="none"><View style={[s.segFill, { width: `${pct}%` }]} /></View>;
+});
+/** The fills of the progress bar: finished scenes full, the current one as far as the clock has got, the rest empty. It watches the clock itself. */
+const SegmentFills = memo(function SegmentFills({ clock, count, idx, done, starts, ms }: { clock: Clock; count: number; idx: number; done: boolean; starts: number[]; ms: number[] }) {
+  useSyncExternalStore(clock.subscribe, clock.stamp);
+  const p = Math.min(1, Math.max(0, (clock.get() - starts[idx]) / ms[idx]));
+  const out: React.ReactElement[] = [];
+  for (let i = 0; i < count; i++) out.push(<Seg key={i} pct={i < idx || done ? 100 : i === idx ? p * 100 : 0} />);
+  return <>{out}</>;
+});
+
+/** The moving picture: Mitra (or the cast member) and the scene's drawing. This is the part that is redrawn every frame, and nothing else on the page is.
+ *  Mitra is always in motion; the drawing is memoised on a `p` that stops changing once it has finished, so it is not redrawn for the rest of the scene.
+ *  With reduced motion nothing watches the clock: the picture is the finished one. */
+const Art = memo(function Art({ clock, scene, start, calm, lang, stageW, stageH, sceneryW, sceneryH }: { clock: Clock; scene: Reel['scenes'][number]; start: number; calm: boolean; lang: Lang; stageW: number; stageH: number; sceneryW: number; sceneryH: number }) {
+  useSyncExternalStore(calm ? noSub : clock.subscribe, calm ? zero : clock.stamp);
+  const now = clock.get();
+  const t = now, m = { p: Math.min(1, Math.max(0, (now - start) / scene.ms)) };
+  const motionT = calm ? 0 : t, motionP = calm ? 1 : m.p;
+  const prop = scene.prop;
+  const sz = prop ? stageW * 0.4 : Math.min(stageW * 0.62, stageH * 0.62 / 1.25);
+  // beside a picture Mitra stands to the left; with no picture Mitra takes the middle of the stage
+  const place = useMemo(() => ({ position: 'absolute' as const, left: prop ? 0 : (stageW - sz) / 2, bottom: prop ? 0 : (stageH - sz * 1.25) / 2 }), [prop, stageW, stageH, sz]);
+  return (
+    <>
+      <View style={place}>{scene.who ? <Cast who={scene.who} mood={scene.mood} t={motionT} size={sz} /> : <Mitra mood={scene.mood} t={motionT} size={sz} />}</View>
+      {prop ? <SceneryLayer prop={prop} p={pictureP(prop, motionP)} lang={lang} t={pictureT(prop, motionT)} width={sceneryW} height={sceneryH} top={Math.max(0, (stageH - sceneryH) / 2 - 8)} /> : null}
+    </>
+  );
+});
+
+/** The caption, redrawn only while it slides in or out (its first 340 ms and last 220 ms) or the voice moves to the next word; a still caption is not touched. */
+function LiveCaption({ clock, text, progress, start, sceneMs, reduceMotion }: { clock: Clock; text: string; progress: number | null; start: number; sceneMs: number; reduceMotion: boolean }) {
+  const elapsed = useSyncExternalStore(clock.subscribe, () => (reduceMotion ? 0 : captionElapsed(clock.get() - start, sceneMs)));
+  return <CaptionM text={text} progress={progress} elapsedMs={elapsed} sceneMs={sceneMs} style={s.caption} reduceMotion={reduceMotion} />;
+}
+
 /** Two small, quiet buttons under a reel: how its figures are worked out (when it quotes any), and Ask Mitra a what-if. */
-function PillRow({ lang, onTrust, onAsk, onReplay }: { lang: Lang; onTrust: (() => void) | null; onAsk: () => void; onReplay?: (() => void) | null }) {
+const PillRow = memo(function PillRow({ lang, onTrust, onAsk, onReplay }: { lang: Lang; onTrust: (() => void) | null; onAsk: () => void; onReplay?: (() => void) | null }) {
   return (
     <View style={s.pills}>
       {onTrust ? (
@@ -311,7 +365,7 @@ function PillRow({ lang, onTrust, onAsk, onReplay }: { lang: Lang; onTrust: (() 
       </TouchableOpacity>
     </View>
   );
-}
+});
 
 const s = StyleSheet.create({
   page: { flex: 1, paddingHorizontal: Spacing.lg, overflow: 'hidden' },
@@ -343,6 +397,7 @@ const s = StyleSheet.create({
   slot: { flex: 1, flexBasis: 0, justifyContent: 'flex-start', alignItems: 'center' },
   stage: { borderRadius: Radii.xl, overflow: 'hidden', alignSelf: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' },
   pauseVeil: { ...(StyleSheet.absoluteFill as object), backgroundColor: 'rgba(0,0,0,0.35)', alignItems: 'center', justifyContent: 'center' },
+  pauseVeilTight: { alignItems: 'flex-end', justifyContent: 'flex-end', padding: 6 },
   pauseGlyph: { color: '#fff', fontSize: 54 },
   caption: { color: '#fff', fontSize: 22, lineHeight: 31, fontWeight: '800', textAlign: 'center', marginTop: Spacing.md, minHeight: 66 },
   hint: { color: Colors.textDim, fontSize: 12, textAlign: 'center', marginTop: Spacing.sm },

@@ -60,6 +60,14 @@ export function bump(state: StatsState, day: string, field: StatField, n = 1): S
   return { v: 1, days: trim({ ...state.days, [day]: d }) };
 }
 
+/** Which counters one quiz answer adds to. A reel is counted once a visit: answering it again after "Watch again" adds nothing, so a replay cannot inflate
+ *  "reels finished" or turn a wrong first answer into "right first time". `seen` holds the ids already answered this visit and is updated here. */
+export function countAnswer(seen: Set<string>, id: string, correct: boolean): StatField[] {
+  if (seen.has(id)) return [];
+  seen.add(id);
+  return correct ? ['fin', 'right'] : ['fin'];
+}
+
 export interface Health {
   windowDays: number;
   /** Days in the window with at least one reel finished (Money Days). */

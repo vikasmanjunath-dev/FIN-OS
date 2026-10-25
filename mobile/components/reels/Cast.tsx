@@ -2,7 +2,7 @@ import React from 'react';
 import Svg, { Circle, Ellipse, G, Path, Rect } from 'react-native-svg';
 import type { Mood } from '@/lib/reels/types';
 
-/** The six people the story series follow. Vector art like Mitra: no image files, and every picture is a pure function of the mood and the clock `t` (ms),
+/** The fourteen people the story series follow. Vector art like Mitra: no image files, and every picture is a pure function of the mood and the clock `t` (ms),
  *  so they bob, blink and gesture without an animation library, and a reduced-motion screen can freeze them by passing a fixed `t`. */
 export type CastId = 'aarav' | 'meera' | 'imran' | 'kavya' | 'rohan' | 'devika' | 'neha' | 'dev' | 'arjun' | 'riya' | 'kabir' | 'neel' | 'isha' | 'sana';
 export const CAST_IDS: CastId[] = ['aarav', 'meera', 'imran', 'kavya', 'rohan', 'devika', 'neha', 'dev', 'arjun', 'riya', 'kabir', 'neel', 'isha', 'sana'];

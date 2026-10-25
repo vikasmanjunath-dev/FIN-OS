@@ -67,18 +67,18 @@ test('move notices: generic title, the tool as the body, in the app\'s language,
 test('nudge preferences: off by default, a sane hour, nonsense ignored', () => {
   assert.deepEqual(normaliseNudge(null), DEFAULT_NUDGE); assert.equal(DEFAULT_NUDGE.enabled, false);
   assert.deepEqual(normaliseNudge({ enabled: true, hour: 20 }), { enabled: true, hour: 20 });
-  assert.equal(normaliseNudge({ enabled: true, hour: 3 }).hour, DEFAULT_NUDGE.hour, 'never in the small hours');
-  assert.equal(normaliseNudge({ enabled: true, hour: 23 }).hour, DEFAULT_NUDGE.hour, 'never late at night');
+  assert.equal(normaliseNudge({ enabled: true, hour: 3 }).hour, EARLIEST_HOUR, 'never in the small hours: pulled to the earliest allowed hour');
+  assert.equal(normaliseNudge({ enabled: true, hour: 23 }).hour, LATEST_HOUR, 'never late at night: pulled to the latest allowed hour');
   assert.equal(normaliseNudge({ enabled: 'yes' }).enabled, false);
   assert.ok(NUDGE_HOURS.every(h => h >= EARLIEST_HOUR && h <= LATEST_HOUR));
 });
 
 test('nudge plan: one a day at the chosen hour, curious not guilty, silent when today is done or the hour has passed', () => {
   const prefs = { enabled: true, hour: 18 };
-  const titles = [{ en: 'The EMI trap', hi: 'EMI का जाल' }, { en: 'Inflation', hi: 'महँगाई' }, { en: 'Rule of 72', hi: '72 का नियम' }];
+  const titles = [{ en: 'Compounding', hi: 'चक्रवृद्धि' }, { en: 'Inflation', hi: 'महँगाई' }, { en: 'Rule of 72', hi: '72 का नियम' }];
   const morning = planNudges(prefs, at(2026, 10, 19, 9), false, titles);
   assert.equal(morning.length, NUDGE_DAYS);
-  assert.deepEqual(morning.map(n => n.body), ['The EMI trap', 'Inflation', 'Rule of 72']);
+  assert.deepEqual(morning.map(n => n.body), ['Compounding', 'Inflation', 'Rule of 72']);
   assert.deepEqual(morning.map(n => n.at.getHours()), [18, 18, 18]);
   assert.equal(new Set(morning.map(n => n.id)).size, NUDGE_DAYS);
   for (const n of morning) assert.ok(!/streak|miss|lost|don't|don’t|behind|hurry|last chance/i.test(n.title + n.body), n.body);

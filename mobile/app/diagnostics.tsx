@@ -11,13 +11,15 @@ import { PURPOSES } from '@/lib/consents';
 import { USAGE_DAYS, usageRows, type UsageData } from '@/lib/usage';
 import { clearUsage, consentGranted, loadUsage, setConsentFor } from '@/lib/feedbackStorage';
 import { appInfo } from '@/lib/appInfo';
+import { translate, useLang } from '@/lib/i18n';
 
 const confirm = (title: string, msg: string, ok: string): Promise<boolean> => {
   if (Platform.OS === 'web') return Promise.resolve(typeof window !== 'undefined' && window.confirm(`${title}\n\n${msg}`));
-  return new Promise(res => Alert.alert(title, msg, [{ text: 'Cancel', style: 'cancel', onPress: () => res(false) }, { text: ok, style: 'destructive', onPress: () => res(true) }], { onDismiss: () => res(false) }));
+  return new Promise(res => Alert.alert(title, msg, [{ text: translate('Cancel'), style: 'cancel', onPress: () => res(false) }, { text: ok, style: 'destructive', onPress: () => res(true) }], { onDismiss: () => res(false) }));
 };
 
 export default function DiagnosticsScreen() {
+  const hi = useLang() === 'hi';
   const [crashes, setCrashes] = useState<CrashRecord[]>([]);
   const [usage, setUsage] = useState<UsageData>({ v: 1, days: {} });
   const [on, setOn] = useState(false);
@@ -35,16 +37,16 @@ export default function DiagnosticsScreen() {
   const rows = usageRows(usage);
   const total = rows.reduce((s, r) => s + r.count, 0);
 
-  const shareCrashes = async () => setPreview({ title: 'Diagnostic report', text: formatReport(await currentDiagnosticReport({ includeUsage: false })) });
-  const shareUsage = async () => setPreview({ title: 'Usage counts', text: formatReport(await currentDiagnosticReport({ includeUsage: true })) });
-  const delCrashes = async () => { if (await confirm('Delete crash reports?', 'This removes the crash notes kept on this phone.', 'Delete')) { await clearCrashes(); setPreview(null); load(); } };
-  const delUsage = async () => { if (await confirm('Delete usage counts?', 'This removes the screen counts kept on this phone.', 'Delete')) { await clearUsage(); setPreview(null); load(); } };
+  const shareCrashes = async () => setPreview({ title: translate('Diagnostic report'), text: formatReport(await currentDiagnosticReport({ includeUsage: false })) });
+  const shareUsage = async () => setPreview({ title: translate('Usage counts'), text: formatReport(await currentDiagnosticReport({ includeUsage: true })) });
+  const delCrashes = async () => { if (await confirm(translate('Delete crash reports?'), translate('This removes the crash notes kept on this phone.'), translate('Delete'))) { await clearCrashes(); setPreview(null); load(); } };
+  const delUsage = async () => { if (await confirm(translate('Delete usage counts?'), translate('This removes the screen counts kept on this phone.'), translate('Delete'))) { await clearUsage(); setPreview(null); load(); } };
 
   return (
     <TrackerScreen title="Diagnostics" subtitle="Crash notes and screen counts, kept on this phone. You can read, delete or share them. Nothing is sent automatically.">
       <Card>
         <Text style={[Typography.body, { lineHeight: 20 }]}>FIN·OS has no crash-reporting or analytics service. If the app fails, a short note is written here with numbers, e-mails, links and IDs removed. Sharing is always your choice, through your phone's share sheet.</Text>
-        <Text style={[Typography.caption, { marginTop: 6 }]}>{`App ${info.appVersion} · ${info.os} ${info.osVersion}`}</Text>
+        <Text style={[Typography.caption, { marginTop: 6 }]}>{`${hi ? 'ऐप' : 'App'} ${info.appVersion} · ${info.os} ${info.osVersion}`}</Text>
       </Card>
 
       <SectionLabel>CRASH NOTES</SectionLabel>
@@ -53,7 +55,7 @@ export default function DiagnosticsScreen() {
         {crashes.slice().reverse().map((c, i) => (
           <View key={`${c.day}-${i}`} style={s.item}>
             <Text style={[Typography.body, { fontWeight: '700' }]}>{describeCrash(c)}</Text>
-            <Text style={[Typography.caption, { marginTop: 2 }]}>{`${c.day === c.lastDay ? c.day : `${c.day} to ${c.lastDay}`} · ${c.name}${c.fatal ? ' · ended the app' : ''}`}</Text>
+            <Text style={[Typography.caption, { marginTop: 2 }]}>{`${c.day === c.lastDay ? c.day : `${c.day} to ${c.lastDay}`} · ${c.name}${c.fatal ? ` · ${hi ? 'ऐप बंद हो गया' : 'ended the app'}` : ''}`}</Text>
             {c.message ? <Text style={[Typography.mono, { marginTop: 4, fontSize: 12 }]}>{c.message}</Text> : null}
             {c.stack.length > 0 && <Collapsible title={`Where (${c.stack.length} steps)`}>{c.stack.map((f, k) => <Bullet key={k}>{f}</Bullet>)}</Collapsible>}
           </View>
@@ -71,11 +73,12 @@ export default function DiagnosticsScreen() {
       <Card>
         <Text style={[Typography.caption, { lineHeight: 17 }]}>How the reels are used on this phone: reels finished, moves started, minutes a day. Counted here, never sent, and you can delete the counts.</Text>
         <TouchableOpacity accessibilityRole="button" style={[s.action, { marginTop: Spacing.md }]} onPress={() => router.push('/learn/health' as never)}><Text style={s.actionTxt}>Open reels health</Text></TouchableOpacity>
+        <TouchableOpacity accessibilityRole="button" style={[s.action, { marginTop: Spacing.sm }]} onPress={() => router.push('/learn/reels-data' as never)}><Text style={s.actionTxt}>What the reels know about you</Text></TouchableOpacity>
       </Card>
 
       <SectionLabel>SCREEN COUNTS (OFF BY DEFAULT)</SectionLabel>
       <Card>
-        <CheckRow label={purpose.title} value={on} onChange={async v => { await setConsentFor('usage', v); setOn(v); }} />
+        <CheckRow label={translate(purpose.title)} value={on} onChange={async v => { await setConsentFor('usage', v); setOn(v); }} />
         <Text style={[Typography.caption, { lineHeight: 17, marginTop: 6 }]}>{purpose.detail}</Text>
         {rows.length === 0 ? (
           <Text style={[Typography.body, { marginTop: Spacing.md }]}>{on ? 'Nothing counted yet. Counts appear as you open screens.' : 'Nothing is being counted.'}</Text>

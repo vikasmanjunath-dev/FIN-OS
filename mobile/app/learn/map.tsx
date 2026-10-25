@@ -46,14 +46,16 @@ export default function MoneyMap() {
         return (
           <TouchableOpacity
             key={r.topic} style={s.row} disabled={!next} accessibilityRole="button"
-            accessibilityLabel={`${TOPIC_NAME[r.topic][lang]}, ${r.watched} of ${r.total} reels watched.${next ? ` Next: ${next.title[lang]}.` : ' All watched.'}`}
+            accessibilityLabel={hi
+              ? `${TOPIC_NAME[r.topic].hi}, ${r.total} में से ${r.watched} रील देखी।${next ? ` अगली: ${next.title.hi}।` : ' सब देख ली गईं।'}`
+              : `${TOPIC_NAME[r.topic].en}, ${r.watched} of ${r.total} reels watched.${next ? ` Next: ${next.title.en}.` : ' All watched.'}`}
             onPress={() => next && router.push(`/learn/reels?id=${next.id}` as any)}>
             <View style={s.head}>
               <Text style={s.topic}>{TOPIC_NAME[r.topic][lang]}</Text>
               <Text style={Typography.caption}>{`${r.watched}/${r.total}`}</Text>
             </View>
             <View style={s.dots}>{r.rungs.map(g => <Dot key={g.level} rung={g} lang={lang} />)}</View>
-            <Text style={[Typography.caption, { marginTop: 6 }]} numberOfLines={2}>{next ? `${hi ? 'अगली: ' : 'Next: '}${next.title[lang]}` : hi ? 'सब देख ली गईं ✓' : 'All watched ✓'}</Text>
+            <Text style={[Typography.caption, { marginTop: 6 }]}>{next ? `${hi ? 'अगली: ' : 'Next: '}${next.title[lang]}` : hi ? 'सब देख ली गईं ✓' : 'All watched ✓'}</Text>
           </TouchableOpacity>
         );
       })}
@@ -64,8 +66,9 @@ export default function MoneyMap() {
 
 const s = StyleSheet.create({
   big: { ...Typography.h3, marginVertical: 4 },
-  legend: { flexDirection: 'row', marginTop: Spacing.sm },
-  legendTxt: { flex: 1, textAlign: 'center', fontSize: 11, color: Colors.textDim },
+  // two by two, so "Decision" and "Action" have room at 320 px with large text
+  legend: { flexDirection: 'row', flexWrap: 'wrap', marginTop: Spacing.sm },
+  legendTxt: { width: '50%', textAlign: 'center', fontSize: 11, color: Colors.textDim, paddingVertical: 2 },
   row: { backgroundColor: Colors.surface, borderWidth: 1, borderColor: Colors.borderMed, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm, minHeight: 44 },
   head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   topic: { ...Typography.h3 },

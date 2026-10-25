@@ -9,6 +9,16 @@ export const ROUTE = /^\/[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+){0,6}$/;
 /** What expo-notifications calls a plain tap on the notice (as opposed to dismissing it or pressing an action button). */
 export const DEFAULT_ACTION = 'expo.modules.notifications.actions.DEFAULT';
 
+/**
+ * What each kind of reels notice may open. A notice carries `data.kind` as well as `data.route`; for a kind listed here the route must also be one this kind
+ * can produce, so a doctored notice cannot send the Sunday look-back or the daily nudge anywhere but the reels. A follow-up or a reminder set after a reel opens the reel's tool
+ * (any screen the tools link to, so only the plain-path rule applies), and so does a kind not listed (the calendar reminders, older notices).
+ */
+export const KIND_ROUTES: Record<string, RegExp> = {
+  weekly: /^\/learn\/reels$/,
+  nudge: /^\/learn\/reels$/,
+};
+
 export interface TapResponse {
   actionIdentifier?: unknown;
   notification?: { date?: unknown; request?: { identifier?: unknown; content?: { data?: unknown } } };
@@ -20,8 +30,14 @@ export function routeOf(r: TapResponse | null | undefined): string | null {
   if (r.actionIdentifier !== undefined && r.actionIdentifier !== DEFAULT_ACTION) return null;
   const data = r.notification?.request?.content?.data;
   if (!data || typeof data !== 'object') return null;
-  const route = (data as Record<string, unknown>).route;
-  return typeof route === 'string' && route.length <= 120 && ROUTE.test(route) ? route : null;
+  const { route, kind } = data as Record<string, unknown>;
+  if (typeof route !== 'string' || route.length > 120 || !ROUTE.test(route)) return null;
+  if (kind !== undefined) {
+    if (typeof kind !== 'string') return null;
+    const allowed = Object.prototype.hasOwnProperty.call(KIND_ROUTES, kind) ? KIND_ROUTES[kind] : undefined;
+    if (allowed && !allowed.test(route)) return null;
+  }
+  return route;
 }
 
 /** The slice of expo-notifications this uses, so it can be driven by a fake in tests. */

@@ -30,7 +30,15 @@ export interface ReelsProfile {
   hadLoan?: boolean;
   /** How many times the gesture tips have been shown (they stop after a few). */
   tips?: number;
+  /** The cold-start answers (see coldstart.ts): what the person is here for and how comfortable they are with money terms. Absent until the welcome has been answered or skipped. */
+  start?: StartAnswers;
 }
+
+/** Answers to the welcome. `skipped` means the person chose Skip: nothing is assumed from them and the welcome never asks again. */
+export type StartLevel = 'new' | 'some' | 'comfortable';
+export const START_LEVELS: StartLevel[] = ['new', 'some', 'comfortable'];
+export const MAX_START_GOALS = 3;
+export interface StartAnswers { goals: Topic[]; level: StartLevel; at: string; skipped?: true }
 export const EMPTY_PROFILE: ReelsProfile = { v: 1, known: [], less: {} };
 
 const ID = /^[a-z0-9-]{1,40}$/;
@@ -39,7 +47,7 @@ const ID = /^[a-z0-9-]{1,40}$/;
 export function parseReelsProfile(raw: string | null | undefined): ReelsProfile {
   const p = parseJSON(raw ?? null);
   if (!p.ok || !isPlainObject(p.value)) return { v: 1, known: [], less: {} };
-  const o = p.value as { known?: unknown; less?: unknown; blindWeek?: unknown; fmt?: unknown; saved?: unknown; pledges?: unknown; ms?: unknown; msSeen?: unknown; hadLoan?: unknown; tips?: unknown };
+  const o = p.value as { known?: unknown; less?: unknown; blindWeek?: unknown; fmt?: unknown; saved?: unknown; pledges?: unknown; ms?: unknown; msSeen?: unknown; hadLoan?: unknown; tips?: unknown; start?: unknown };
   const known = Array.isArray(o.known) ? Array.from(new Set(o.known.filter((x): x is string => typeof x === 'string' && ID.test(x)))).slice(-MAX_KNOWN) : [];
   const less: ReelsProfile['less'] = {};
   if (isPlainObject(o.less)) for (const t of TOPIC_LIST) { const n = (o.less as Record<string, unknown>)[t]; if (typeof n === 'number' && Number.isFinite(n) && n > 0) less[t] = Math.min(MAX_LESS, Math.floor(n)); }
@@ -60,7 +68,19 @@ export function parseReelsProfile(raw: string | null | undefined): ReelsProfile 
   if (Array.isArray(o.msSeen)) out.msSeen = ids(o.msSeen, 20);
   if (o.hadLoan === true) out.hadLoan = true;
   if (typeof o.tips === 'number' && Number.isInteger(o.tips) && o.tips > 0) out.tips = Math.min(o.tips, 99);
+  const st = parseStart(o.start);
+  if (st) out.start = st;
   return out;
+}
+
+/** The welcome's answers made safe: known topics only (at most three), a known level (else the neutral one), and a real date. Anything else and the welcome simply asks again. */
+export function parseStart(x: unknown): StartAnswers | null {
+  if (!isPlainObject(x)) return null;
+  const r = x as Record<string, unknown>;
+  if (typeof r.at !== 'string' || r.at.length > 40 || !Number.isFinite(new Date(r.at).getTime())) return null;
+  const goals = Array.isArray(r.goals) ? Array.from(new Set(r.goals.filter((g): g is Topic => TOPIC_LIST.includes(g as Topic)))).slice(0, MAX_START_GOALS) : [];
+  const level: StartLevel = START_LEVELS.includes(r.level as StartLevel) ? (r.level as StartLevel) : 'some';
+  return { goals, level, at: r.at, ...(r.skipped === true ? { skipped: true as const } : {}) };
 }
 
 const WEEK = /^\d{4}-W\d{2}$/;
@@ -120,3 +140,29 @@ export const isPledged = (p: ReelsProfile, id: string): boolean => !!p.pledges?.
 export const TIPS_MAX = 3;
 export const noteTip = (p: ReelsProfile): ReelsProfile => ({ ...p, tips: (p.tips ?? 0) + 1 });
 export const showTip = (p: ReelsProfile): boolean => (p.tips ?? 0) < TIPS_MAX;
+
+// ── forgetting one part (Control and transparency, app/learn/reels-data.tsx) ───────────────────────────────────────────
+// Each returns the same profile object when there was nothing to forget, so a caller can skip the write. Only the named part goes.
+type ProfileKey = keyof ReelsProfile;
+function without(p: ReelsProfile, ...keys: ProfileKey[]): ReelsProfile {
+  if (!keys.some(k => p[k] !== undefined)) return p;
+  const out: Record<string, unknown> = { ...p };
+  for (const k of keys) delete out[k];
+  return out as unknown as ReelsProfile;
+}
+/** Forget the reels marked "I know this": they can come up again. */
+export const forgetKnown = (p: ReelsProfile): ReelsProfile => (p.known.length ? { ...p, known: [] } : p);
+/** Forget every "less of this topic". */
+export const forgetLess = (p: ReelsProfile): ReelsProfile => (Object.keys(p.less).length ? { ...p, less: {} } : p);
+/** Forget the reels kept for later. */
+export const forgetSaved = (p: ReelsProfile): ReelsProfile => without(p, 'saved');
+/** Forget the "I'll do this" list, with the times each was brought back. */
+export const forgetPledges = (p: ReelsProfile): ReelsProfile => without(p, 'pledges');
+/** Forget the milestones noticed and shown, and whether a loan was ever seen. The next check takes a fresh baseline and celebrates nothing that was already true. */
+export const forgetMilestones = (p: ReelsProfile): ReelsProfile => without(p, 'ms', 'msSeen', 'hadLoan');
+/** Forget how often the interactive parts were played, so the format fit is neutral again. */
+export const forgetPlay = (p: ReelsProfile): ReelsProfile => without(p, 'fmt');
+/** Forget the small housekeeping: how many times the gesture tips showed, and the week the weekly look was last offered. */
+export const forgetHousekeeping = (p: ReelsProfile): ReelsProfile => without(p, 'tips', 'blindWeek');
+/** Forget the welcome answers (what the person is here for, how comfortable they are). The welcome asks again the next time the reels open. */
+export const forgetStart = (p: ReelsProfile): ReelsProfile => without(p, 'start');

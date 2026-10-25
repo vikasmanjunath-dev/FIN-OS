@@ -15,3 +15,12 @@ export async function resetReelsProfile(): Promise<void> { try { await AsyncStor
 
 export async function loadMoves(): Promise<MovesState> { try { return parseMoves(await getText(REELS_MOVES_KEY)); } catch { return { ...EMPTY_MOVES, open: [], receipts: [] }; } }
 export async function saveMoves(s: MovesState): Promise<void> { try { await AsyncStorage.setItem(REELS_MOVES_KEY, JSON.stringify(s)); } catch { /* a receipt not kept is only a missed congratulation */ } }
+
+/** Loads the profile, applies one pure change (see the forget* helpers in reelsProfile.ts) and saves it only if something changed. */
+export async function updateReelsProfile(change: (p: ReelsProfile) => ReelsProfile): Promise<ReelsProfile> {
+  const cur = await loadReelsProfile(), next = change(cur);
+  if (next !== cur) await saveReelsProfile(next);
+  return next;
+}
+/** Forgets the moves in progress and the receipts. Only the reels' own memory goes; the person's trackers are never touched. */
+export async function resetMoves(): Promise<void> { try { await AsyncStorage.removeItem(REELS_MOVES_KEY); } catch { /* ignore */ } }

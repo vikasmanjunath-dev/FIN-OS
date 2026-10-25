@@ -39,6 +39,9 @@ export function checkMilestones(p: ReelsProfile, mine: Mine): ReelsProfile {
   return ms.length === p.ms.length && out.hadLoan === p.hadLoan ? p : { ...out, ms };
 }
 
+/** A SIP milestone reads as "put in more": it is not shown to a person under money strain. A cleared loan and months of cover are calm and always shown. */
+export const isGrowthMilestone = (id: string): boolean => id === 'first-sip';
+
 /** Milestones noticed but not yet shown, oldest first. */
 export function unseenMilestones(p: ReelsProfile): Milestone[] {
   const seen = new Set(p.msSeen ?? []);

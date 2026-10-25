@@ -164,6 +164,8 @@ export const META: Record<string, Meta> = {
   'spot-loan-app': m('myth', { debt: 0.4, savings: 0.3 }),
   'myths-sip': m('myth', { investing: 0.8 }),
   'myths-credit-score': m('myth', { debt: 0.6 }),
+  'myths-goals': m('myth', { wealth: 0.5, savings: 0.4 }),
+  'path-unknown-caller': m('decision', { savings: 0.4 }),
   'myths-insurance': m('myth', { insurance: 0.9 }),
   'myths-tax': m('myth', { savings: 0.4, wealth: 0.3 }, ['cal:tax-season']),
   'myths-loans': m('myth', { debt: 0.8 }, ['state:has-loan']),
