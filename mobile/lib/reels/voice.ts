@@ -116,7 +116,9 @@ export function rankVoices(voices: VoiceInfo[], lang: Lang): (VoiceInfo & { scor
     if (rank < 0) continue;
     const q = `${v.name} ${v.identifier} ${v.quality ?? ''}`.toLowerCase();
     const enhanced = /premium|enhanced|neural|natural|wavenet|studio/.test(q);
-    out.push({ ...v, enhanced, score: (want.length - rank) * 100 + (enhanced ? 60 : 0) + (/compact|espeak|robot/.test(q) ? -40 : 0) + (/network|online/.test(q) ? 10 : 0) });
+    // Android's Google voices ending in "-network" and the browsers' "Online (Natural)" / Google voices are the neural ones; they beat any local voice of the same language.
+    const neuralHint = /-network|online|\bgoogle\b/.test(q);
+    out.push({ ...v, enhanced: enhanced || /-network/.test(q), score: (want.length - rank) * 100 + (enhanced ? 60 : 0) + (neuralHint ? 50 : 0) + (/compact|espeak|robot/.test(q) ? -40 : 0) });
   }
   return out.sort((a, b) => b.score - a.score);
 }
@@ -146,9 +148,30 @@ export function captionMotion(elapsedMs: number, sceneMs: number): { opacity: nu
  * The reel's clock while a voice is speaking: it will not cross into the next scene until the voice has finished its sentence (and the scene's own
  * length has passed), for at most `maxHoldMs`, so the voice is never cut off and the next text never arrives over the old one.
  */
-export function holdAtSceneEnd(t: number, dt: number, sceneEnd: number, voiceBusy: boolean, heldMs: number, maxHoldMs = 1600): { t: number; heldMs: number } {
+export const MAX_HOLD_MS = 7000;       // the voice is the clock: a scene waits for its sentence, up to this long (only a voice that never reports back runs into it)
+export function holdAtSceneEnd(t: number, dt: number, sceneEnd: number, voiceBusy: boolean, heldMs: number, maxHoldMs = MAX_HOLD_MS): { t: number; heldMs: number } {
   if (voiceBusy && t + dt >= sceneEnd && heldMs < maxHoldMs) return { t: Math.min(t + dt, sceneEnd - 1), heldMs: heldMs + dt };
   return { t: t + dt, heldMs: t + dt >= sceneEnd ? 0 : heldMs };
+}
+
+/** How long after the voice has finished its sentence the next scene starts: a short breath, not a gap. */
+export const BREATH_MS = 320;
+/**
+ * The other half of keeping voice and text together. `holdAtSceneEnd` stops the scene from ending before the voice has finished; this lets a scene end
+ * early when the voice finished first, so there is no dead air while the next text waits. It never cuts the text short of its own reading time
+ * (`readEnd`, the scene's length with no voice), and only counts a voice that finished by itself (`doneAt` is 0 until it does).
+ */
+export function advanceEarly(o: { now: number; doneAt: number; t: number; readEnd: number; sceneEnd: number; voiceBusy: boolean }): boolean {
+  return !o.voiceBusy && o.doneAt > 0 && o.now - o.doneAt >= BREATH_MS && o.t >= o.readEnd && o.t < o.sceneEnd;
+}
+
+/** A scene as the single utterance the phone speaks: its phrases joined, one pace and pitch (the average weighted by length). One call to the phone's
+ *  voice per scene means no start-up gap between phrases and the voice's own sentence rhythm, which is what makes it sound like a person. */
+export function utterance(p: { chunks: { text: string; rate: number; pitch: number }[] }): { text: string; rate: number; pitch: number } {
+  const text = p.chunks.map(c => c.text).join(' ');
+  const w = p.chunks.reduce((n, c) => n + c.text.length, 0) || 1;
+  const avg = (f: (c: { rate: number; pitch: number }) => number) => Math.round((p.chunks.reduce((n, c) => n + f(c) * c.text.length, 0) / w) * 100) / 100;
+  return { text, rate: avg(c => c.rate), pitch: avg(c => c.pitch) };
 }
 
 /**

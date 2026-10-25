@@ -271,3 +271,11 @@ test('quiz order: "all of these" stays where the author put it, and the feed app
   assert.equal(withScrambledQuiz(one), one);
   assert.match(read('hooks/useReelsJourney.ts'), /\.map\(withScrambledQuiz\)/);
 });
+
+import { CAST_IDS } from '../lib/reels/cast.ts';
+test('the web page writes every cast name in Hindi too (no Latin name left in Hindi mode)', () => {
+  const js = fs.readFileSync(nodePath.join(process.cwd(), '..', 'js', 'reels.js'), 'utf8');
+  const block = /const CAST_HI = \{([^}]+)\}/.exec(js);
+  assert.ok(block, 'CAST_HI exists');
+  for (const id of CAST_IDS) assert.match(block![1], new RegExp(`\\b${id}: '[\\u0900-\\u097F]+'`), `${id} has a Devanagari name`);
+});

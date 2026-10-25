@@ -46,7 +46,7 @@ export default function DiagnosticsScreen() {
     <TrackerScreen title="Diagnostics" subtitle="Crash notes and screen counts, kept on this phone. You can read, delete or share them. Nothing is sent automatically.">
       <Card>
         <Text style={[Typography.body, { lineHeight: 20 }]}>FIN·OS has no crash-reporting or analytics service. If the app fails, a short note is written here with numbers, e-mails, links and IDs removed. Sharing is always your choice, through your phone's share sheet.</Text>
-        <Text style={[Typography.caption, { marginTop: 6 }]}>{`${hi ? 'ऐप' : 'App'} ${info.appVersion} · ${info.os} ${info.osVersion}`}</Text>
+        <Text style={[Typography.caption, { marginTop: 6 }]}>{`${hi ? 'ऐप' : 'App'} ${info.appVersion} · ${hi && info.os === 'web' ? 'वेब' : info.os} ${info.osVersion}`}</Text>
       </Card>
 
       <SectionLabel>CRASH NOTES</SectionLabel>

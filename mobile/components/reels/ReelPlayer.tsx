@@ -21,7 +21,7 @@ import { quizText, quizVerdictText } from '@/lib/reels/narration';
 import { speak, stopSpeaking } from '@/lib/reels/speech';
 import { useVoice } from '@/hooks/useVoice';
 import { Caption } from '@/components/reels/Caption';
-import { holdAtSceneEnd, withVoiceTiming } from '@/lib/reels/voice';
+import { advanceEarly, holdAtSceneEnd, withVoiceTiming } from '@/lib/reels/voice';
 import type { Reel, Topic } from '@/lib/reels/types';
 import type { Lang } from '@/lib/i18nCore';
 import { Colors, Radii, Spacing } from '@/constants/theme';
@@ -131,6 +131,12 @@ export function ReelPlayer({ reel, active, lang, sound, width, height, topInset 
   const busyRef = useRef(false); busyRef.current = voiceBusy;
   const endOfScene = startsOf[idx] + played.scenes[idx].ms;
   const endRef = useRef(0); endRef.current = endOfScene;
+  // The voice is the clock. A scene never ends before the voice has finished its sentence (holdAtSceneEnd), and when the voice finishes first the next scene
+  // follows after a breath, once the text has had its own reading time (advanceEarly): no cut-off voice, no dead air, no text running ahead of the voice.
+  const readEndRef = useRef(0); readEndRef.current = startsOf[idx] + Math.min(played.scenes[idx].ms, reel.scenes[idx]?.ms ?? played.scenes[idx].ms);
+  const doneAtRef = useRef(0);                                            // when the voice finished this scene's sentence by itself (0 until it does)
+  useEffect(() => { doneAtRef.current = 0; }, [idx, playing, sheetOpen, poking, sound, active]);
+  useEffect(() => { if (voiceBusy) doneAtRef.current = 0; else if (voice.progress >= 0.99 && doneAtRef.current === 0) doneAtRef.current = Date.now(); }, [voiceBusy, voice.progress]);
 
   // A reel with a beat stops at the end of its beat scene (once the voice has finished its sentence) and waits for the person (or for the beat to reveal itself).
   useEffect(() => { if (active && pokeAt !== null && !pokeDone && !poking && phase.atPoke && !(voiceBusy && !phase.pastPoke)) { setT(pokeAt); setPoking(true); } }, [active, pokeAt, pokeDone, poking, phase.atPoke, phase.pastPoke, voiceBusy, setT]);
@@ -142,6 +148,7 @@ export function ReelPlayer({ reel, active, lang, sound, width, height, topInset 
     return startFrameLoop(() => {
       const now = Date.now(); const dt = Math.min(120, now - last.current); last.current = now;      // a stalled frame never skips a scene
       const r = holdAtSceneEnd(clock.get(), dt, endRef.current, busyRef.current, heldRef.current);       // a slow voice is never cut off by the next scene
+      if (advanceEarly({ now, doneAt: doneAtRef.current, t: r.t, readEnd: readEndRef.current, sceneEnd: endRef.current, voiceBusy: busyRef.current })) { heldRef.current = 0; doneAtRef.current = 0; clock.set(Math.min(total, endRef.current), true); return; }
       heldRef.current = r.heldMs; clock.set(Math.min(total, r.t), r.t >= total);      // reaching the end always notifies, even inside the last frame, or the question would never come up
     }, { raf: cb => requestAnimationFrame(cb), caf: id => cancelAnimationFrame(id as number), now: Date.now, timer: { set: (cb, ms) => setTimeout(cb, ms), clear: id => clearTimeout(id as ReturnType<typeof setTimeout>) } });
   }, [active, playing, done, total, poking, sheetOpen, clock]);

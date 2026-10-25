@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { LIBRARY } from '../lib/reels/library.ts';
 import { DRAFT_REELS } from '../lib/reels/drafts.ts';
-import { LEAD_MS, MOOD_VOICE, TAIL_MS, captionMotion, chunks, holdAtSceneEnd, pickVoice, plan, speechText, withVoiceTiming, wordAt } from '../lib/reels/voice.ts';
+import { LEAD_MS, MAX_HOLD_MS, MOOD_VOICE, TAIL_MS, captionMotion, chunks, holdAtSceneEnd, pickVoice, plan, speechText, withVoiceTiming, wordAt } from '../lib/reels/voice.ts';
 import { learnSpeed, speedFor } from '../lib/reels/speech.ts';
 import { DEFAULT_VOICE_PREFS, PAUSE_SCALE, SPEEDS, VOICE_PREFS_KEY, parseVoicePrefs } from '../lib/reels/voicePrefs.ts';
 import { rankVoices } from '../lib/reels/voice.ts';
@@ -116,9 +116,9 @@ test('holdAtSceneEnd: the clock waits at the end of a scene until the voice is d
   assert.deepEqual(holdAtSceneEnd(1000, 40, 4000, true, 0), { t: 1040, heldMs: 0 });             // mid-scene: nothing special
   const h = holdAtSceneEnd(3980, 40, 4000, true, 0); assert.equal(h.t, 3999); assert.equal(h.heldMs, 40);   // at the end, voice busy: hold
   assert.deepEqual(holdAtSceneEnd(3980, 40, 4000, false, 0), { t: 4020, heldMs: 0 });             // voice finished: carry on
-  assert.equal(holdAtSceneEnd(3999, 40, 4000, true, 1600).t, 4039);                              // the cap is reached: carry on regardless
-  let t = 3960, held = 0, steps = 0; while (steps++ < 200) { const r = holdAtSceneEnd(t, 40, 4000, true, held); t = r.t; held = r.heldMs; if (t >= 4000) break; }
-  assert.ok(steps < 60 && held <= 1640);
+  assert.equal(holdAtSceneEnd(3999, 40, 4000, true, MAX_HOLD_MS).t, 4039);                      // the cap is reached: carry on regardless
+  let t = 3960, held = 0, steps = 0; while (steps++ < 400) { const r = holdAtSceneEnd(t, 40, 4000, true, held); t = r.t; if (t >= 4000) break; held = r.heldMs; }
+  assert.ok(steps < 200 && held <= MAX_HOLD_MS + 40);                                            // a voice that never says it is done holds the clock for the cap, then the reel goes on
 });
 
 test('learnSpeed: measured speech speed is folded in, and a stalled or silly reading is ignored', () => {

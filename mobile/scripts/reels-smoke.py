@@ -463,7 +463,7 @@ ROUTE_SCREENS = [
     ('Series: First Salary', '/learn/series/first-salary', {'en': 'First Salary', 'hi': '.'}),
     ('Reels health', '/learn/health', {'en': 'Reels health', 'hi': 'रील'}),
     ('What the reels know', '/learn/reels-data', {'en': 'What the reels know about you', 'hi': 'रील.*आपके बारे'}),
-    ('Diagnostics', '/diagnostics', {'en': 'Diagnostics', 'hi': 'डायग्नोस्टिक|Diagnostics'}),
+    ('Diagnostics', '/diagnostics', {'en': 'Diagnostics', 'hi': 'डायग्नॉस्टिक्स|डायग्नोस्टिक|Diagnostics'}),
 ]
 
 
@@ -941,9 +941,9 @@ def flow_health_and_diagnostics(s, rep, lang):
     rep.add('Settings -> Diagnostics', lang, 'entry', 'PASS' if reached else 'FAIL', '' if reached else f'{pg.url.replace(BASE, "")}: no Diagnostics row with Open on Settings')
     if not reached:
         s.goto('/diagnostics', wait=2000)
-    s.check('Diagnostics (from Settings)', expect={'en': 'Diagnostics', 'hi': 'डायग्नोस्टिक|Diagnostics'})
+    s.check('Diagnostics (from Settings)', expect={'en': 'Diagnostics', 'hi': 'डायग्नॉस्टिक्स|डायग्नोस्टिक|Diagnostics'})
     # the link to Reels health
-    link = pg.get_by_role('button', name=re.compile(r'Open reels health|रील.*सेहत|रील.*हेल्थ', re.I)).first
+    link = pg.get_by_role('button', name=re.compile(r'Open reels health|रील.*हाल|रील.*सेहत|रील.*हेल्थ', re.I)).first
     if link.count():
         link.click(); pg.wait_for_timeout(2000)
         rep.add('Diagnostics -> Reels health', lang, 'entry', 'PASS' if '/learn/health' in pg.url else 'FAIL', pg.url.replace(BASE, ''))

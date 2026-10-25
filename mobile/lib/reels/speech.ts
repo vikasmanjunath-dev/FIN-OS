@@ -8,7 +8,7 @@
 // Loaded on demand so the web preview and the node tests never need the native module, and every call is safe if it is missing.
 import type { Lang } from '@/lib/i18nCore';
 import type { Mood } from '@/lib/reels/types';
-import { DEFAULT_CPS, pickVoice, plan, rankVoices, setTuning, type VoiceInfo } from '@/lib/reels/voice';
+import { DEFAULT_CPS, plan, rankVoices, setTuning, utterance, type VoiceInfo } from '@/lib/reels/voice';
 import { DEFAULT_VOICE_PREFS, PAUSE_SCALE, type VoicePrefs } from '@/lib/reels/voicePrefs';
 import { loadVoicePrefs } from '@/lib/reels/voicePrefsStorage';
 
@@ -41,13 +41,6 @@ export async function listVoices(lang: Lang): Promise<(VoiceInfo & { score: numb
   const ranked = rankVoices(await installed(), lang);
   return ranked.map((v, i) => ({ ...v, recommended: i === 0 }));
 }
-async function voiceFor(lang: Lang): Promise<VoiceInfo | null> {
-  await prefsReady;
-  try {
-    const all = await installed(), wanted = prefs.voice[lang];
-    return (wanted && all.find(v => v.identifier === wanted)) || pickVoice(all, lang);
-  } catch { return null; }
-}
 
 const measuredCps: Partial<Record<Lang, number>> = {};
 /** Folds one measurement (characters spoken over the time it took, at the rate used) into a running average of this phone's voice. */
@@ -79,38 +72,48 @@ export function speakScene(o: SceneSpeech): Spoken {
   const s = speech(), id = ++current;
   try { void s?.stop(); } catch { /* nothing was speaking */ }                           // whatever was still being said stops before this scene begins
   const p = plan({ text: o.text, big: o.big, mood: o.mood, lang: o.lang, budgetMs: o.budgetMs, cps: speedFor(o.lang) });
-  if (!s) { return { cancel: () => {}, overrunMs: 0 }; }
+  if (!s) { const t0 = setTimeout(() => { if (id === current) o.onDone?.(); }, 0); return { cancel: () => clearTimeout(t0), overrunMs: 0 }; }       // no voice on this device: nothing to wait for
   const timers: ReturnType<typeof setTimeout>[] = [];
   const alive = () => id === current;
-  let spokenChars = 0, startedAt = 0, sawBoundary = false, finished = false, ticker: ReturnType<typeof setInterval> | null = null;
+  let spokeAt = 0, sawBoundary = false, finished = false, ticker: ReturnType<typeof setInterval> | null = null;
   let lastFrac = 0;
   const report = (frac: number) => { if (!alive()) return; const f = Math.min(1, Math.max(0, frac)); if (f < lastFrac) return; lastFrac = f; o.onProgress?.(f); };   // the lit word only ever moves forward
   const finish = () => { if (finished) return; finished = true; if (ticker) clearInterval(ticker); if (alive()) { report(1); o.onDone?.(); } };
 
-  const runChunk = async (i: number): Promise<void> => {
-    if (!alive()) return;
-    if (i >= p.chunks.length) { learnSpeed(o.lang, p.totalChars, Date.now() - startedAt - p.chunks.reduce((n, c) => n + c.pauseAfterMs, 0), p.chunks.reduce((n, c) => n + c.rate, 0) / p.chunks.length); finish(); return; }
-    const c = p.chunks[i], v = await voiceFor(o.lang);
-    if (!alive()) return;
-    const base = spokenChars;
+  // The whole scene is ONE utterance: one call to the phone's voice, so it keeps its own sentence rhythm and there is no start-up gap between phrases
+  // (each separate call costs 100 to 400 ms on a phone, which is what made the voice drift behind the text). If the chosen voice fails before it has said a
+  // word (a network voice with no network), the next best voice is tried once, and then the phone's default.
+  const u = utterance(p);
+  const say = async (attempt: number): Promise<void> => {
+    if (!alive() || finished) return;
+    const all = attempt < 2 ? await installed() : [];
+    const ranked = rankVoices(all, o.lang), wanted = prefs.voice[o.lang];
+    await prefsReady;
+    const v = attempt === 0 ? ((wanted && all.find(x => x.identifier === wanted)) || ranked[0] || null) : attempt === 1 ? (ranked.find(x => x.identifier !== (wanted ?? ranked[0]?.identifier)) ?? null) : null;
+    if (!alive() || finished) return;
+    let began = false;
     try {
-      s.speak(c.text, {
-        language: o.lang === 'hi' ? 'hi-IN' : 'en-IN', ...(v ? { voice: v.identifier } : {}), rate: c.rate, pitch: c.pitch,
-        onStart: () => { if (i === 0 && alive()) { startedAt = Date.now(); o.onStart?.(); } },
-        onBoundary: (e: { charIndex?: number }) => { if (alive() && typeof e?.charIndex === 'number') { sawBoundary = true; report((base + e.charIndex) / p.totalChars); } },
-        onDone: () => { spokenChars += c.text.length; report(spokenChars / p.totalChars); timers.push(setTimeout(() => { void runChunk(i + 1); }, c.pauseAfterMs)); },
-        onStopped: () => {}, onError: () => { spokenChars += c.text.length; timers.push(setTimeout(() => { void runChunk(i + 1); }, 60)); },
+      s.speak(u.text, {
+        language: o.lang === 'hi' ? 'hi-IN' : 'en-IN', ...(v ? { voice: v.identifier } : {}), rate: u.rate, pitch: u.pitch,
+        onStart: () => { began = true; if (alive()) { spokeAt = Date.now(); o.onStart?.(); } },
+        onBoundary: (e: { charIndex?: number }) => { if (alive() && typeof e?.charIndex === 'number') { sawBoundary = true; report(e.charIndex / u.text.length); } },
+        onDone: () => { if (spokeAt) learnSpeed(o.lang, u.text.length, Date.now() - spokeAt, u.rate); finish(); },
+        onStopped: () => {},
+        onError: () => { if (!began && attempt < 2) void say(attempt + 1); else finish(); },
       });
-    } catch { finish(); }
+    } catch { if (attempt < 2) void say(attempt + 1); else finish(); }
   };
 
-  // A short lead so the caption is on screen before the voice speaks; a clock keeps the progress moving on phones that give no word boundaries.
+  // A short lead so the caption is on screen before the voice speaks. On phones that give no word boundaries a clock keeps the lit word moving, at this
+  // phone's measured speed and counted from the moment the voice really began (not from our own call), so the lit word never runs ahead of the voice.
   timers.push(setTimeout(() => {
     if (!alive()) return;
-    startedAt = Date.now();
-    void runChunk(0);
-    ticker = setInterval(() => { if (alive() && !finished && !sawBoundary && startedAt && Date.now() - startedAt > 700) report(Math.min(0.97, (Date.now() - startedAt) / Math.max(1, p.estMs))); }, 90);
+    void say(0);
+    ticker = setInterval(() => { if (alive() && !finished && !sawBoundary && spokeAt && Date.now() - spokeAt > 500) report(Math.min(0.97, (Date.now() - spokeAt) / Math.max(1, p.estMs - p.leadMs))); }, 90);
   }, p.leadMs));
+  // A voice that never starts (no voices installed, a blocked engine) or never reports being done must not hold the reel: the clock stops waiting.
+  timers.push(setTimeout(() => { if (alive() && !finished && !spokeAt) finish(); }, p.leadMs + 3500));
+  timers.push(setTimeout(() => { if (alive() && !finished) finish(); }, p.leadMs + p.estMs * 2 + 4000));
 
   return { overrunMs: p.overrunMs, cancel: () => { if (current === id) current++; timers.forEach(clearTimeout); if (ticker) clearInterval(ticker); finished = true; try { void s.stop(); } catch { /* nothing to stop */ } } };
 }

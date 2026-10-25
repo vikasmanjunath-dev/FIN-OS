@@ -32,13 +32,13 @@ function Row({ e, learned }: { e: ManifestEntry; learned: Learned }) {
   return (
     <TouchableOpacity
       style={s.row} onPress={() => openLesson(e.id)} accessibilityRole="button"
-      accessibilityLabel={`${e.title}. ${translate(meta)}.${done ? ` ${translate('Learned.')}` : ''}${e.needsReview ? ` ${translate('Some passages are under fact-check.')}` : ''}`}>
+      accessibilityLabel={`${translate(e.title)}. ${translate(meta)}.${done ? ` ${translate('Learned.')}` : ''}${e.needsReview ? ` ${translate('Some passages are under fact-check.')}` : ''}`}>
       <View style={[s.tick, done && { backgroundColor: Colors.teal, borderColor: Colors.teal }]}>
         {done ? <Text style={s.tickTxt}>✓</Text> : null}
       </View>
       <View style={{ flex: 1 }}>
-        <LText style={s.title}>{e.title}</LText>
-        <LText style={Typography.caption}>{meta}{e.needsReview ? ' · under fact-check' : ''}</LText>
+        <LText style={s.title}>{translate(e.title)}</LText>
+        <LText style={Typography.caption}>{translate(meta)}{e.needsReview ? ` · ${translate('under fact-check')}` : ''}</LText>
       </View>
       <Text style={s.chev}>›</Text>
     </TouchableOpacity>
@@ -76,8 +76,8 @@ export default function LearnHome() {
       </Card>
 
       <TextInput
-        style={s.search} value={q} onChangeText={setQ} placeholder="Search lessons (SIP, RSI, insurance…)"
-        placeholderTextColor={Colors.textDim} accessibilityLabel="Search lessons" autoCorrect={false} returnKeyType="search"
+        style={s.search} value={q} onChangeText={setQ} placeholder={translate('Search lessons (SIP, RSI, insurance…)')}
+        placeholderTextColor={Colors.textDim} accessibilityLabel={translate('Search lessons')} autoCorrect={false} returnKeyType="search"
       />
 
       {hits ? (
@@ -101,7 +101,7 @@ export default function LearnHome() {
           ) : null}
           {cats.map(c => (
             <View key={c.id}>
-              <SectionLabel>{c.total ? `${c.title.toUpperCase()}  ·  ${c.learned}/${c.total}` : c.title.toUpperCase()}</SectionLabel>
+              <SectionLabel>{c.total ? `${translate(c.title).toUpperCase()}  ·  ${c.learned}/${c.total}` : translate(c.title).toUpperCase()}</SectionLabel>
               {c.total === 0 ? (
                 <TouchableOpacity style={s.row} onPress={() => setOpenWeb(v => !v)} accessibilityRole="button" accessibilityState={{ expanded: openWeb }}
                   accessibilityLabel={`${translate(`${lessonsOf(MANIFEST, c.id).length} interactive pages on the website.`)} ${translate(openWeb ? 'Hide the list.' : 'Show the list.')}`}>

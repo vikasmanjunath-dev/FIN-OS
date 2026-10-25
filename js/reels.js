@@ -336,10 +336,11 @@
   /** A person from the reel's story, in place of Mitra: a simple head and shoulders, tinted by name. */
   function personSvg(id) {
     let h = 0; for (const c of id) h = (h * 31 + c.charCodeAt(0)) % 360;
-    return `<svg viewBox="0 0 100 120" role="img" aria-label="${esc(id)}" focusable="false"><path d="M10 120 Q12 80 50 78 Q88 80 90 120 Z" fill="hsl(${h},50%,48%)"/><circle cx="50" cy="46" r="26" fill="#E4B58C"/>` +
+    return `<svg viewBox="0 0 100 120" role="img" aria-label="${esc(nameOf(id))}" focusable="false"><path d="M10 120 Q12 80 50 78 Q88 80 90 120 Z" fill="hsl(${h},50%,48%)"/><circle cx="50" cy="46" r="26" fill="#E4B58C"/>` +
       `<path d="M24 46 Q22 14 50 14 Q78 14 76 46 Q68 30 50 30 Q32 30 24 46 Z" fill="hsl(${h},30%,22%)"/><circle cx="41" cy="48" r="3" fill="#2B1B0C"/><circle cx="59" cy="48" r="3" fill="#2B1B0C"/><path d="M42 58 Q50 65 58 58" stroke="#2B1B0C" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`;
   }
-  const nameOf = (id) => id.charAt(0).toUpperCase() + id.slice(1);
+  const CAST_HI = { aarav: 'आरव', meera: 'मीरा', imran: 'इमरान', kavya: 'काव्या', rohan: 'रोहन', devika: 'देविका', neha: 'नेहा', dev: 'देव', arjun: 'अर्जुन', riya: 'रिया', kabir: 'कबीर', neel: 'नील', isha: 'ईशा', sana: 'सना' };
+  const nameOf = (id) => (lang === 'hi' && CAST_HI[id]) || id.charAt(0).toUpperCase() + id.slice(1);   // the figure's name is written in the page's language
 
   // ── one reel's player ───────────────────────────────────────────────────────────────────────────────────────
   const state = { season: null, stats: { v: 1, days: {} }, saved: [], pledges: [], stopEl: null, io: null, data: null, reels: [], players: [], active: -1, episode: null, today: '', seen: {}, days: [], feed: null, last: 0, drawAt: 0 };
