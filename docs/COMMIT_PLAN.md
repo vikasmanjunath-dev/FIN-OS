@@ -1,5 +1,7 @@
 # Commit plan: everything uncommitted as of 2026-10-16
 
+> **Superseded (22 Oct 2026).** Everything this file listed was committed between 16 and 21 Oct 2026. It is kept as a record of how the work was grouped; do not run the blocks again.
+
 Run each block from the shell, top to bottom. Every block starts with the `cd`. Nothing here has been run for you.
 
 Already in history (committed 10-14 / 10-15): security, Learn, insurance and funds, PULSE, release pack. Their *later* edits are in block 1 below.
@@ -30,7 +32,6 @@ mobile: harden app lock and backup after the trust-platform review
 Later edits to the lock, backup and alerts modules: PIN attempts are counted before the check,
 the lock fails closed, a damaged or hostile backup file is rejected without changing anything.
 
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
 EOF
 ```
 
@@ -83,7 +84,6 @@ substring sentiment ("ban" in "bank"), slow serial quotes, M&M encoding. New /ap
 /api/mf/history (AMFI NAVs via mfapi.in, cross-checked against AMFI's daily file), chart dates,
 news source status.
 
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
 EOF
 ```
 
@@ -190,7 +190,6 @@ Trust platform: crash notes, feedback, onboarding, erase flow, session hardening
 - Google sign-in (Supabase OAuth + PKCE) gated by EXPO_PUBLIC_GOOGLE_SIGNIN; unit-tested with
   fakes only, not run against a real project
 
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
 EOF
 ```
 
@@ -296,7 +295,6 @@ income bands or prints fixed advice; the forecast page no longer seeds a recorde
 savings rate from a prediction; benchmarking and report pages no longer show sample figures or
 an unsourced peer claim, and escape server text.
 
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
 EOF
 ```
 
@@ -464,7 +462,6 @@ static_audit.py skips dot-directories (it was scanning worktree copies).
 NOTE: the html/js files that carry the pins are staged by the next blocks (calculators/, then the
 js/html behaviour block); this commit holds sw.js, the audit and the injector.
 
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
 EOF
 ```
 
@@ -591,7 +588,6 @@ docs: release runbook, store listing draft and device test checklist
 Written by the release-pack pass. The store listing is a draft; the runbook lists what only the
 owner can do (accounts, signing, Supabase SQL, a real-device test).
 
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
 EOF
 ```
 
@@ -618,7 +614,6 @@ printed NaN or Infinity or froze the tab (a typo such as 2025 years). format() i
 a dash for a non-finite number; multipliers, ratios and growth rates guard their divisor; year
 loops are bounded to 100. These pages also carry the pinned Chart.js with integrity.
 
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
 EOF
 ```
 
@@ -753,7 +748,6 @@ Website: stop presenting invented figures as the person's own; escape stored tex
   check they are still the announced rates); equity LTCG wording 12.5% / Rs 1.25 L.
 - Stored nicknames, labels, notes and names are escaped before reaching innerHTML or value="".
 
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
 EOF
 ```
 
@@ -819,7 +813,6 @@ mobile: follow the website's NaN/Infinity guards, home-loan contract and insuran
   no assumed income of 50,000 in the coverage gaps
 - growth calculator rounds below 1 lakh like the page (regression test added)
 
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
 EOF
 ```
 
@@ -895,7 +888,6 @@ Integrate the October mobile features into the shared files
 - Remove unused expo-av; cache-file pattern for the calendar export.
 - Docs and the parity tracker updated (48 rows).
 
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
 EOF
 ```
 
@@ -957,7 +949,6 @@ Backend: income rows only, re-runnable SQL, honest endpoint docs
 - arya-ai/README.md lists every route in server.py, with the gold/silver "not MCX" and FX "not RBI"
   wording. Release runbook and store listing drafts are included.
 
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
 EOF
 ```
 
@@ -1008,7 +999,6 @@ Website: no invented headlines or figures, honest market labels, PPF 80C not dou
   longer shows the person's income. login.html: supabase-js pinned with integrity; submitting
   without the library no longer puts the password in the URL.
 
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
 EOF
 ```
 
@@ -1086,7 +1076,6 @@ individual readers. Shape-aware readers and row filters across 41 js files, plus
 tests are fixed at the cause: test_arya_lazy assumed an idle callback had already fired, and
 test_pwa_sw periodicsync depended on test order and a fixed 500 ms wait.
 
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
 EOF
 ```
 
@@ -1203,7 +1192,6 @@ failed read is never saved over the person's data.
   are validated; usePersisted types saved calculator inputs against their defaults
 - NaN guards: EPF/NPS dates, goal dates, fixed-income totals
 
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
 EOF
 ```
 
@@ -1270,7 +1258,6 @@ react-native / expo-constants. At the time of this commit about 30 reader cases 
 real defects in readers the hardening commit did not reach (for example loadCalendarSources on a
 throwing multiGet, and ids of 1e999). Do not treat npm test as green until they are fixed.
 
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
 EOF
 ```
 
@@ -1322,7 +1309,6 @@ widgets given landmark roles; kept as a diff because that file was owned by anot
 NOT applied). The pass was interrupted by a usage limit: the keyboard / focus-trap / 200% zoom
 checks were not completed and the tests have not been run to green after the last edits.
 
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
 EOF
 ```
 
@@ -1376,7 +1362,6 @@ README brought in line with the code (embedding model, chunking, cache TTL, rera
 prompt window, server and cache-key changes; personal and endpoint-signature benchmark tests.
 (Written from the diff summary only: check `git diff -- rag-engine` before committing.)
 
-Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
 EOF
 ```
 
