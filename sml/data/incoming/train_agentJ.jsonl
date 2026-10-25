@@ -1,0 +1,200 @@
+{"text": "how much did i save this month", "intent": "personal_money_summary"}
+{"text": "am i saving enough?", "intent": "personal_money_summary"}
+{"text": "whats my net worth right now", "intent": "personal_money_summary"}
+{"text": "income vs expenses for this month", "intent": "personal_money_summary"}
+{"text": "give me my overall money picture", "intent": "personal_money_summary"}
+{"text": "how am i doing financially", "intent": "personal_money_summary"}
+{"text": "what's my money score", "intent": "personal_money_summary"}
+{"text": "show my total balance across accounts", "intent": "personal_money_summary"}
+{"text": "did i save more than last month", "intent": "personal_money_summary"}
+{"text": "am i in surplus or deficit this month", "intent": "personal_money_summary"}
+{"text": "net worth update pls", "intent": "personal_money_summary"}
+{"text": "How healthy are my finances overall? Just want a quick snapshot", "intent": "personal_money_summary"}
+{"text": "what is my savings rate", "intent": "personal_money_summary"}
+{"text": "how much money do i have left after all expenses", "intent": "personal_money_summary"}
+{"text": "am i on track financially", "intent": "personal_money_summary"}
+{"text": "hw much did i sav this mnth", "intent": "personal_money_summary"}
+{"text": "is mahine kitni bachat hui", "intent": "personal_money_summary"}
+{"text": "meri net worth kitni hai abhi", "intent": "personal_money_summary"}
+{"text": "income aur kharcha ka hisab batao is month ka", "intent": "personal_money_summary"}
+{"text": "mera money score kya hai", "intent": "personal_money_summary"}
+{"text": "kya main kaafi save kar raha hu?", "intent": "personal_money_summary"}
+{"text": "overall mera paisa kaisa chal raha hai", "intent": "personal_money_summary"}
+{"text": "balance kitna bacha hai sab accounts mila ke", "intent": "personal_money_summary"}
+{"text": "is month kamai zyada hui ya kharcha", "intent": "personal_money_summary"}
+{"text": "savings rate btao yaar", "intent": "personal_money_summary"}
+{"text": "mere finances ka summary de do", "intent": "personal_money_summary"}
+{"text": "mahine ke end me kitna bachega", "intent": "personal_money_summary"}
+{"text": "kitna paisa hai mere paas total", "intent": "personal_money_summary"}
+{"text": "kya main financially theek hu", "intent": "personal_money_summary"}
+{"text": "pichle mahine se zyada bachaya kya is baar", "intent": "personal_money_summary"}
+{"text": "इस महीने कितनी बचत हुई", "intent": "personal_money_summary"}
+{"text": "मेरी नेट वर्थ कितनी है", "intent": "personal_money_summary"}
+{"text": "आमदनी और खर्च का हिसाब बताओ", "intent": "personal_money_summary"}
+{"text": "क्या मैं ज़रूरत भर बचा पा रहा हूँ?", "intent": "personal_money_summary"}
+{"text": "मेरा मनी स्कोर क्या है", "intent": "personal_money_summary"}
+{"text": "सब खातों में कुल कितना बैलेंस है", "intent": "personal_money_summary"}
+{"text": "मेरी आर्थिक स्थिति कैसी चल रही है", "intent": "personal_money_summary"}
+{"text": "इस महीने कमाई ज़्यादा रही या खर्चा", "intent": "personal_money_summary"}
+{"text": "मेरे पास कुल कितना पैसा है", "intent": "personal_money_summary"}
+{"text": "बचत दर कितनी है मेरी", "intent": "personal_money_summary"}
+{"text": "how much did i spend on food last month", "intent": "personal_spend_query"}
+{"text": "biggest transaction this month", "intent": "personal_spend_query"}
+{"text": "did I pay my Netflix twice?", "intent": "personal_spend_query"}
+{"text": "compare my grocery vs dining out spend", "intent": "personal_spend_query"}
+{"text": "what did i spend on swiggy in september", "intent": "personal_spend_query"}
+{"text": "total spent on fuel this year", "intent": "personal_spend_query"}
+{"text": "how much have i spent on shopping this week", "intent": "personal_spend_query"}
+{"text": "show me my top 5 expenses", "intent": "personal_spend_query"}
+{"text": "spending on amazon last 3 months", "intent": "personal_spend_query"}
+{"text": "did I get charged twice by Uber yesterday", "intent": "personal_spend_query"}
+{"text": "am I spending more on travel or entertainment", "intent": "personal_spend_query"}
+{"text": "what's my rent + utilities total for Oct", "intent": "personal_spend_query"}
+{"text": "how much went to EMIs this month", "intent": "personal_spend_query"}
+{"text": "my biggest purchase in august", "intent": "personal_spend_query"}
+{"text": "spend at Zomato vs Swiggy", "intent": "personal_spend_query"}
+{"text": "how much did i spend on medical in 2025", "intent": "personal_spend_query"}
+{"text": "is mahine khane pe kitna kharch kiya", "intent": "personal_spend_query"}
+{"text": "sabse bada kharcha kaunsa tha", "intent": "personal_spend_query"}
+{"text": "kya maine electricity bill do baar bhara?", "intent": "personal_spend_query"}
+{"text": "petrol pe kitna gaya pichle mahine", "intent": "personal_spend_query"}
+{"text": "grocery aur restaurant me kya zyada hai", "intent": "personal_spend_query"}
+{"text": "amazon pe kitna udaya maine is saal", "intent": "personal_spend_query"}
+{"text": "last week ka total kharcha batao", "intent": "personal_spend_query"}
+{"text": "Swiggy pe kitna kharch hua diwali ke time", "intent": "personal_spend_query"}
+{"text": "ola/uber pe kitna paisa gaya is mahine", "intent": "personal_spend_query"}
+{"text": "shopping pe kitna kharcha hua yaar", "intent": "personal_spend_query"}
+{"text": "mera subscription kharcha kitna hai", "intent": "personal_spend_query"}
+{"text": "rent ke baad sabse zyada paisa kahan gaya", "intent": "personal_spend_query"}
+{"text": "kal koi double payment hua kya", "intent": "personal_spend_query"}
+{"text": "mobile recharge pe saal bhar me kitna diya", "intent": "personal_spend_query"}
+{"text": "पिछले महीने खाने पर कितना खर्च हुआ", "intent": "personal_spend_query"}
+{"text": "सबसे बड़ा ट्रांज़ैक्शन कौन सा था", "intent": "personal_spend_query"}
+{"text": "क्या मैंने बिजली का बिल दो बार भरा?", "intent": "personal_spend_query"}
+{"text": "पेट्रोल पर इस साल कितना गया", "intent": "personal_spend_query"}
+{"text": "किराने और बाहर खाने में कौन ज़्यादा है", "intent": "personal_spend_query"}
+{"text": "अमेज़न पर इस महीने कितना खर्च किया", "intent": "personal_spend_query"}
+{"text": "इस हफ्ते का कुल खर्चा बताओ", "intent": "personal_spend_query"}
+{"text": "ज़ोमैटो पर सितंबर में कितना उड़ाया", "intent": "personal_spend_query"}
+{"text": "मेडिकल पर इस साल कितना खर्च हुआ", "intent": "personal_spend_query"}
+{"text": "दिवाली में यात्रा पर कितना पैसा लगा", "intent": "personal_spend_query"}
+{"text": "how is my emergency fund doing", "intent": "goal_status"}
+{"text": "will I reach my house down payment goal on time?", "intent": "goal_status"}
+{"text": "progress on retirement goal", "intent": "goal_status"}
+{"text": "how far am i from my car goal", "intent": "goal_status"}
+{"text": "is my education fund on track", "intent": "goal_status"}
+{"text": "how much more do i need for emergency fund", "intent": "goal_status"}
+{"text": "goal progress update", "intent": "goal_status"}
+{"text": "am I going to hit my 2030 target for the home", "intent": "goal_status"}
+{"text": "what percent of my goal is done", "intent": "goal_status"}
+{"text": "when will I complete my vacation fund at this pace", "intent": "goal_status"}
+{"text": "status of my kid's education corpus", "intent": "goal_status"}
+{"text": "how much have i saved toward the car so far", "intent": "goal_status"}
+{"text": "emergency fund kitna bana abhi tak", "intent": "goal_status"}
+{"text": "ghar ka goal kitna complete hua", "intent": "goal_status"}
+{"text": "kya mai retirement goal time pe pahunch jaunga?", "intent": "goal_status"}
+{"text": "car wale goal me kitna bacha hai", "intent": "goal_status"}
+{"text": "bachhe ki padhai ke goal ka status batao", "intent": "goal_status"}
+{"text": "goal me kitna paisa jama hua ab tak", "intent": "goal_status"}
+{"text": "kitna aur chahiye mujhe house ke liye", "intent": "goal_status"}
+{"text": "mere goals kaisa chal rahe hain", "intent": "goal_status"}
+{"text": "shaadi wale goal ka progress dikhao", "intent": "goal_status"}
+{"text": "goal time pe poora hoga kya", "intent": "goal_status"}
+{"text": "मेरा इमरजेंसी फंड कितना बना अब तक", "intent": "goal_status"}
+{"text": "घर वाले लक्ष्य में कितनी प्रगति हुई", "intent": "goal_status"}
+{"text": "क्या मैं रिटायरमेंट गोल समय पर पूरा कर पाऊँगा?", "intent": "goal_status"}
+{"text": "गाड़ी के लिए कितना जमा हो गया", "intent": "goal_status"}
+{"text": "बच्चों की पढ़ाई के फंड का स्टेटस बताओ", "intent": "goal_status"}
+{"text": "मेरे लक्ष्य कैसे चल रहे हैं", "intent": "goal_status"}
+{"text": "और कितना चाहिए घर के लिए", "intent": "goal_status"}
+{"text": "मेरा गोल कब तक पूरा होगा", "intent": "goal_status"}
+{"text": "how do i add a new goal", "intent": "app_help"}
+{"text": "where do I add a transaction", "intent": "app_help"}
+{"text": "how to link my bank account in the app", "intent": "app_help"}
+{"text": "can i talk to arya using voice?", "intent": "app_help"}
+{"text": "how do i export my data", "intent": "app_help"}
+{"text": "change language to hindi", "intent": "app_help"}
+{"text": "how to switch to dark mode", "intent": "app_help"}
+{"text": "where is the calculator in the app", "intent": "app_help"}
+{"text": "how to upload a bank statement", "intent": "app_help"}
+{"text": "how do I turn on notifications", "intent": "app_help"}
+{"text": "where can I see my goals tab", "intent": "app_help"}
+{"text": "how do i edit a transaction I added wrongly", "intent": "app_help"}
+{"text": "how to delete an account from the app", "intent": "app_help"}
+{"text": "is there a way to download my expense report as pdf", "intent": "app_help"}
+{"text": "how do i enable the money reels feature", "intent": "app_help"}
+{"text": "where is the settings page", "intent": "app_help"}
+{"text": "how to set a monthly budget in this app", "intent": "app_help"}
+{"text": "how do I add a second bank account", "intent": "app_help"}
+{"text": "how to change my profile name", "intent": "app_help"}
+{"text": "where do i find the net worth screen in fin-os", "intent": "app_help"}
+{"text": "transaction kaise add kare", "intent": "app_help"}
+{"text": "naya goal kaise banau app me", "intent": "app_help"}
+{"text": "voice se arya se baat kaise karu", "intent": "app_help"}
+{"text": "data export kaise kre", "intent": "app_help"}
+{"text": "app ki language hindi kaise kare", "intent": "app_help"}
+{"text": "dark theme kaha se on hoga", "intent": "app_help"}
+{"text": "calculator app me kahan hai", "intent": "app_help"}
+{"text": "statement upload karne ka tarika batao", "intent": "app_help"}
+{"text": "account kaise jodte hain isme", "intent": "app_help"}
+{"text": "galat entry delete kaise karu", "intent": "app_help"}
+{"text": "reels wala feature kaise on karu", "intent": "app_help"}
+{"text": "notification band karna hai kaise hoga", "intent": "app_help"}
+{"text": "budget set karne ka option kahan hai", "intent": "app_help"}
+{"text": "goal edit kaise karte hain", "intent": "app_help"}
+{"text": "pdf statement kaise daalu app me", "intent": "app_help"}
+{"text": "profile ka naam kaise badlu", "intent": "app_help"}
+{"text": "spending ka chart kahan dikhega app me", "intent": "app_help"}
+{"text": "app me mic wala button kahan hai", "intent": "app_help"}
+{"text": "नया गोल कैसे जोड़ूँ", "intent": "app_help"}
+{"text": "ट्रांज़ैक्शन कैसे जोड़ें", "intent": "app_help"}
+{"text": "आर्या से बोलकर बात कैसे करूँ", "intent": "app_help"}
+{"text": "डेटा एक्सपोर्ट कैसे करें", "intent": "app_help"}
+{"text": "ऐप की भाषा हिंदी कैसे करें", "intent": "app_help"}
+{"text": "डार्क मोड कहाँ से चालू होगा", "intent": "app_help"}
+{"text": "कैलकुलेटर ऐप में कहाँ है", "intent": "app_help"}
+{"text": "बैंक स्टेटमेंट कैसे अपलोड करूँ", "intent": "app_help"}
+{"text": "नया अकाउंट कैसे जोड़ूँ ऐप में", "intent": "app_help"}
+{"text": "गलत एंट्री कैसे हटाऊँ", "intent": "app_help"}
+{"text": "सेटिंग्स कहाँ हैं", "intent": "app_help"}
+{"text": "नोटिफिकेशन कैसे बंद करें", "intent": "app_help"}
+{"text": "open the FIRE calculator", "intent": "calculator_request"}
+{"text": "calculate EMI for 50 lakh at 9% for 20 years", "intent": "calculator_request"}
+{"text": "SIP of 10000 per month for 15 years at 12% how much will it become", "intent": "calculator_request"}
+{"text": "income tax on 18 lakh salary new regime", "intent": "calculator_request"}
+{"text": "compound interest on 5 lakh at 7% for 10 years", "intent": "calculator_request"}
+{"text": "run the retirement calculator with my numbers", "intent": "calculator_request"}
+{"text": "how much tax will I pay on 12.5 lakh income", "intent": "calculator_request"}
+{"text": "what's the maturity of FD 2 lakh 7.1% 5 years", "intent": "calculator_request"}
+{"text": "EMI nikalo 20 lakh 8.5% 15 saal", "intent": "calculator_request"}
+{"text": "25000 ki SIP 20 saal me kitna banega 12% pe", "intent": "calculator_request"}
+{"text": "15 lakh salary pe tax kitna lagega new regime me", "intent": "calculator_request"}
+{"text": "FIRE calculator kholo", "intent": "calculator_request"}
+{"text": "home loan EMI calculate karo 35 lakh 8.75 percent 25 saal", "intent": "calculator_request"}
+{"text": "PPF me 1.5 lakh saal ka 15 saal baad kitna milega", "intent": "calculator_request"}
+{"text": "lumpsum 5 lakh 10 saal 11% pe kitna hoga", "intent": "calculator_request"}
+{"text": "20 लाख का लोन 8.5% पर 15 साल की EMI निकालो", "intent": "calculator_request"}
+{"text": "एसआईपी कैलकुलेटर खोलो", "intent": "calculator_request"}
+{"text": "12 लाख की आमदनी पर टैक्स कितना लगेगा", "intent": "calculator_request"}
+{"text": "10 हज़ार महीने की SIP 10 साल में कितनी बनेगी 12% पर", "intent": "calculator_request"}
+{"text": "एफडी का मैच्योरिटी कैलकुलेटर चलाओ 3 लाख 7% 3 साल", "intent": "calculator_request"}
+{"text": "hi", "intent": "smalltalk"}
+{"text": "hello arya", "intent": "smalltalk"}
+{"text": "thanks!", "intent": "smalltalk"}
+{"text": "who are you", "intent": "smalltalk"}
+{"text": "tell me a joke", "intent": "smalltalk"}
+{"text": "good morning", "intent": "smalltalk"}
+{"text": "how are you doing today?", "intent": "smalltalk"}
+{"text": "namaste arya", "intent": "smalltalk"}
+{"text": "arya tum kaun ho", "intent": "smalltalk"}
+{"text": "shukriya yaar", "intent": "smalltalk"}
+{"text": "kaise ho", "intent": "smalltalk"}
+{"text": "ek joke sunao", "intent": "smalltalk"}
+{"text": "good morning arya", "intent": "smalltalk"}
+{"text": "thanks a lot buddy", "intent": "smalltalk"}
+{"text": "नमस्ते", "intent": "smalltalk"}
+{"text": "आप कौन हैं", "intent": "smalltalk"}
+{"text": "धन्यवाद आर्या", "intent": "smalltalk"}
+{"text": "कैसे हो", "intent": "smalltalk"}
+{"text": "कोई चुटकुला सुनाओ", "intent": "smalltalk"}
+{"text": "हेलो", "intent": "smalltalk"}

@@ -1,0 +1,57 @@
+{
+ "n_agreed": 224,
+ "n_with_number": 106,
+ "sweep": [
+  {
+   "theta": 0.0,
+   "precision": 0.364,
+   "recall": 0.118,
+   "false_flag_rate": 0.037,
+   "tp": 4,
+   "fp": 7,
+   "fn": 30,
+   "tn": 183
+  },
+  {
+   "theta": 0.15,
+   "precision": 0.2,
+   "recall": 0.118,
+   "false_flag_rate": 0.084,
+   "tp": 4,
+   "fp": 16,
+   "fn": 30,
+   "tn": 174
+  },
+  {
+   "theta": 0.25,
+   "precision": 0.192,
+   "recall": 0.147,
+   "false_flag_rate": 0.111,
+   "tp": 5,
+   "fp": 21,
+   "fn": 29,
+   "tn": 169
+  },
+  {
+   "theta": 0.35,
+   "precision": 0.158,
+   "recall": 0.176,
+   "false_flag_rate": 0.168,
+   "tp": 6,
+   "fp": 32,
+   "fn": 28,
+   "tn": 158
+  },
+  {
+   "theta": 0.5,
+   "precision": 0.121,
+   "recall": 0.206,
+   "false_flag_rate": 0.268,
+   "tp": 7,
+   "fp": 51,
+   "fn": 27,
+   "tn": 139
+  }
+ ],
+ "not_supported_with_number_share": 0.382
+}

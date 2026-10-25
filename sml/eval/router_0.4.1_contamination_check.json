@@ -1,0 +1,51 @@
+{
+ "router": "0.4.1",
+ "what": "test rows whose character 4-gram Jaccard with a training row is >= 0.7 (punctuation or one-word variants the exact-text dedupe cannot see); score with and without them",
+ "sets": {
+  "test_v2.jsonl": {
+   "n": 187,
+   "contaminated": 4,
+   "acc_all": 0.9465,
+   "acc_clean": 0.9454,
+   "f1_all": 0.9465,
+   "f1_clean": 0.9451,
+   "contaminated_wrong": 0
+  },
+  "test_v3.jsonl": {
+   "n": 251,
+   "contaminated": 5,
+   "acc_all": 0.9761,
+   "acc_clean": 0.9756,
+   "f1_all": 0.9761,
+   "f1_clean": 0.9758,
+   "contaminated_wrong": 0
+  },
+  "test_v4.jsonl": {
+   "n": 233,
+   "contaminated": 4,
+   "acc_all": 0.9871,
+   "acc_clean": 0.9869,
+   "f1_all": 0.987,
+   "f1_clean": 0.9865,
+   "contaminated_wrong": 0
+  },
+  "test_v5.jsonl": {
+   "n": 181,
+   "contaminated": 4,
+   "acc_all": 0.9613,
+   "acc_clean": 0.9661,
+   "f1_all": 0.9596,
+   "f1_clean": 0.9648,
+   "contaminated_wrong": 1
+  },
+  "test_v6.jsonl": {
+   "n": 217,
+   "contaminated": 1,
+   "acc_all": 0.9631,
+   "acc_clean": 0.963,
+   "f1_all": 0.9663,
+   "f1_clean": 0.9658,
+   "contaminated_wrong": 0
+  }
+ }
+}

@@ -1,0 +1,37 @@
+{
+ "model": "gemma3:12b-it-qat",
+ "n": 241,
+ "errors": 0,
+ "median_sec": 2.5,
+ "agreed": {
+  "precision": 0.647,
+  "recall": 0.324,
+  "false_flag_rate": 0.032,
+  "tp": 11,
+  "fp": 6,
+  "fn": 23,
+  "tn": 184
+ },
+ "labeler_A": {
+  "precision": 0.647,
+  "recall": 0.289,
+  "false_flag_rate": 0.03,
+  "tp": 11,
+  "fp": 6,
+  "fn": 27,
+  "tn": 197
+ },
+ "labeler_B": {
+  "precision": 0.647,
+  "recall": 0.229,
+  "false_flag_rate": 0.031,
+  "tp": 11,
+  "fp": 6,
+  "fn": 37,
+  "tn": 187
+ },
+ "verdict_counts": {
+  "supported": 224,
+  "unsupported": 17
+ }
+}

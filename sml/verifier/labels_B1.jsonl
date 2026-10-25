@@ -1,0 +1,120 @@
+{"idx": 0, "label": "supported", "why": "formula stated"}
+{"idx": 1, "label": "supported", "why": "example stated"}
+{"idx": 2, "label": "supported", "why": "stated"}
+{"idx": 3, "label": "contradicted", "why": "transfer/self-insure polarity reversed"}
+{"idx": 4, "label": "supported", "why": "stated"}
+{"idx": 5, "label": "supported", "why": "stated"}
+{"idx": 6, "label": "supported", "why": "stated"}
+{"idx": 7, "label": "supported", "why": "50% and 75L stated"}
+{"idx": 8, "label": "supported", "why": "professions listed"}
+{"idx": 9, "label": "supported", "why": "10% stated"}
+{"idx": 10, "label": "supported", "why": "range and rate stated"}
+{"idx": 11, "label": "supported", "why": "50K exclusive stated"}
+{"idx": 12, "label": "supported", "why": "NPS tracker covers 80CCD(1B)"}
+{"idx": 13, "label": "supported", "why": "100% stated"}
+{"idx": 14, "label": "supported", "why": "CM relief 100% stated"}
+{"idx": 15, "label": "supported", "why": "12.5% and 24 months stated"}
+{"idx": 16, "label": "supported", "why": "Gold ETF 24 months stated"}
+{"idx": 17, "label": "supported", "why": "three years stated"}
+{"idx": 18, "label": "supported", "why": "para 3.3 stated"}
+{"idx": 19, "label": "supported", "why": "effective Jan 1 2027"}
+{"idx": 20, "label": "unsupported", "why": "farmers not named in visible text"}
+{"idx": 21, "label": "supported", "why": "prior loans continue until maturity/renewal"}
+{"idx": 22, "label": "supported", "why": "sibling directions for other bank types exist"}
+{"idx": 23, "label": "supported", "why": "80D up to 1L, cover parents"}
+{"idx": 24, "label": "supported", "why": "additional 50K above 80C"}
+{"idx": 25, "label": "supported", "why": "80C limit 1.5 lakh"}
+{"idx": 26, "label": "unsupported", "why": "total 2L for NPS-related not stated"}
+{"idx": 27, "label": "supported", "why": "self and family 25000"}
+{"idx": 28, "label": "contradicted", "why": "1L only if both senior; else lower"}
+{"idx": 29, "label": "supported", "why": "parents above 60 appears 50K (truncated)"}
+{"idx": 30, "label": "supported", "why": "1L max with self and family"}
+{"idx": 31, "label": "supported", "why": "1L if both senior"}
+{"idx": 32, "label": "unsupported", "why": "5,000 per parent not visible in truncated evidence"}
+{"idx": 33, "label": "supported", "why": "15% stated"}
+{"idx": 34, "label": "supported", "why": "flat 4% stated"}
+{"idx": 35, "label": "supported", "why": "cess for healthcare education"}
+{"idx": 36, "label": "supported", "why": "20% flat stated"}
+{"idx": 37, "label": "supported", "why": "under 12 months short term"}
+{"idx": 38, "label": "supported", "why": "12.5% stated"}
+{"idx": 39, "label": "supported", "why": "1.25L stated"}
+{"idx": 40, "label": "supported", "why": "12 months stated"}
+{"idx": 41, "label": "supported", "why": "12 months, 12.5%"}
+{"idx": 42, "label": "contradicted", "why": "maturity gains tax free, not slab"}
+{"idx": 43, "label": "supported", "why": "best tax-efficient gold way"}
+{"idx": 44, "label": "unsupported", "why": "real estate period not shown; 8 yrs is SGB"}
+{"idx": 45, "label": "supported", "why": "SGB held to maturity tax free stated"}
+{"idx": 46, "label": "contradicted", "why": "evidence says no upper limit"}
+{"idx": 47, "label": "contradicted", "why": "no upper limit; 1L is 80D"}
+{"idx": 48, "label": "supported", "why": "~7% stated"}
+{"idx": 49, "label": "supported", "why": "7% appears in Tax Protocol"}
+{"idx": 50, "label": "supported", "why": "25% stated"}
+{"idx": 51, "label": "supported", "why": "only 80CCD(2) applies in new regime"}
+{"idx": 52, "label": "supported", "why": "stated"}
+{"idx": 53, "label": "supported", "why": "old regime only, except 80CCD(2)"}
+{"idx": 54, "label": "supported", "why": "roughly 14% stated"}
+{"idx": 55, "label": "unsupported", "why": "design-factor framing not stated"}
+{"idx": 56, "label": "supported", "why": "premium percentage not in evidence"}
+{"idx": 57, "label": "unsupported", "why": "FD lock-in absence not stated"}
+{"idx": 58, "label": "unsupported", "why": "FD lacking 80C not stated"}
+{"idx": 59, "label": "supported", "why": "80% over 10 years stated"}
+{"idx": 60, "label": "unsupported", "why": "source3 lacks the 80% figure"}
+{"idx": 61, "label": "supported", "why": "1% yearly commission stated"}
+{"idx": 62, "label": "unsupported", "why": "commission-in-expense-ratio not stated"}
+{"idx": 63, "label": "supported", "why": "30-40 lakh over 20 years"}
+{"idx": 64, "label": "supported", "why": "1% commission compounds"}
+{"idx": 65, "label": "supported", "why": "65L vs 50L stated"}
+{"idx": 66, "label": "supported", "why": "NAV defined, per unit value"}
+{"idx": 67, "label": "unsupported", "why": "assets minus liabilities not stated"}
+{"idx": 68, "label": "supported", "why": "stated"}
+{"idx": 69, "label": "supported", "why": "AUM total cash stated"}
+{"idx": 70, "label": "supported", "why": "AUM size differences in performance"}
+{"idx": 71, "label": "unsupported", "why": "liquidity/performance impact not stated"}
+{"idx": 72, "label": "supported", "why": "no savings rate info present"}
+{"idx": 73, "label": "supported", "why": "no FIN-OS FD rate in evidence"}
+{"idx": 74, "label": "unsupported", "why": "FIN-OS comparison tool not stated; news article only"}
+{"idx": 75, "label": "supported", "why": "up to 8.5% senior FD stated"}
+{"idx": 76, "label": "supported", "why": "7.2-7.5% stated"}
+{"idx": 77, "label": "supported", "why": "FD 6.5%, higher safety stated"}
+{"idx": 78, "label": "supported", "why": "lender vs owner stated"}
+{"idx": 79, "label": "unsupported", "why": "dividends/capital gains entitlement not stated"}
+{"idx": 80, "label": "supported", "why": "leverage definition stated"}
+{"idx": 81, "label": "supported", "why": "wealth destroyer, examples stated"}
+{"idx": 82, "label": "supported", "why": "80% interest stated"}
+{"idx": 83, "label": "supported", "why": "principal paid last"}
+{"idx": 84, "label": "supported", "why": "12 years stated"}
+{"idx": 85, "label": "supported", "why": "prepay cuts interest per source2"}
+{"idx": 86, "label": "supported", "why": "right to buy; strike/time loosely implied"}
+{"idx": 87, "label": "supported", "why": "call used when market goes up"}
+{"idx": 88, "label": "supported", "why": "right to sell; strike/time loosely implied"}
+{"idx": 89, "label": "supported", "why": "put for down market, insurance"}
+{"idx": 90, "label": "supported", "why": "buyer limited risk, unlimited reward table"}
+{"idx": 91, "label": "supported", "why": "1% move wipes capital"}
+{"idx": 92, "label": "supported", "why": "10k x100 =10L stated"}
+{"idx": 93, "label": "supported", "why": "1000 controls 1,00,000 stated"}
+{"idx": 94, "label": "supported", "why": "6 trillion/day stated"}
+{"idx": 95, "label": "supported", "why": "Forex Deep Dive states it"}
+{"idx": 96, "label": "supported", "why": "21M in all sources"}
+{"idx": 97, "label": "supported", "why": "fixed supply, store of value"}
+{"idx": 98, "label": "supported", "why": "digital gold/oil stated"}
+{"idx": 99, "label": "supported", "why": "exit from fiat, Ethereum apps stated"}
+{"idx": 100, "label": "supported", "why": "2.5% stated"}
+{"idx": 101, "label": "supported", "why": "slab rate stated"}
+{"idx": 102, "label": "supported", "why": "appreciation and tax-free at 8 years"}
+{"idx": 103, "label": "supported", "why": "20% making plus 3% GST"}
+{"idx": 104, "label": "unsupported", "why": "no-charges for digital gold not stated"}
+{"idx": 105, "label": "supported", "why": "issued by RBI stated"}
+{"idx": 106, "label": "supported", "why": "gold appreciation plus 2.5%"}
+{"idx": 107, "label": "supported", "why": "8 years, tax-free at maturity"}
+{"idx": 108, "label": "supported", "why": "stored energy stated"}
+{"idx": 109, "label": "supported", "why": "burning life hours stated"}
+{"idx": 110, "label": "supported", "why": "5-6% stated"}
+{"idx": 111, "label": "supported", "why": "4.45% and 5.0% stated"}
+{"idx": 112, "label": "supported", "why": "12-14%/roughly 14% stated"}
+{"idx": 113, "label": "supported", "why": "ICU bill, medical inflation stated loosely"}
+{"idx": 114, "label": "unsupported", "why": "15-18 years not stated; 55% over 20 yrs"}
+{"idx": 115, "label": "supported", "why": "1.7Cr vs 48L, 1.2Cr stated"}
+{"idx": 116, "label": "contradicted", "why": "1.2Cr loss misattributed to 2 months salary"}
+{"idx": 117, "label": "supported", "why": "1.7 Crores stated"}
+{"idx": 118, "label": "unsupported", "why": "assumptions not stated in evidence"}
+{"idx": 119, "label": "supported", "why": "10-12% stated"}

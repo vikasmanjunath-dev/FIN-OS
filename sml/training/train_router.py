@@ -48,17 +48,26 @@ def rules_predict(t: str) -> str:
 
 # ── features ────────────────────────────────────────────────────────────────────────────────────────────────
 def embed_texts(texts, cache_path: Path):
+    """Embeddings with an on-disk cache. The cache records which embedding model made the vectors: a cache from another
+    model is ignored (not silently reused), and a file without a tag is the mxbai-embed-large cache every version so far used."""
+    import config
     from embedding.encoder import embed_batch
+    model = config.EMBED_MODEL
     cache = {}
     if cache_path.exists():
-        z = np.load(cache_path, allow_pickle=True)
-        cache = dict(zip(z["keys"].tolist(), z["vecs"]))
+        z = np.load(cache_path, allow_pickle=False)
+        tagged = str(z["model"]) if "model" in z.files else "mxbai-embed-large"
+        if tagged == model:
+            cache = dict(zip(z["keys"].tolist(), z["vecs"]))
     key = lambda s: hashlib.sha1(s.encode()).hexdigest()
     todo = [t for t in dict.fromkeys(texts) if key(t) not in cache]
     for i in range(0, len(todo), 32):
         for t, v in zip(todo[i:i + 32], embed_batch(todo[i:i + 32])):
             cache[key(t)] = np.asarray(v, dtype=np.float32)
-    np.savez(cache_path, keys=np.array(list(cache.keys())), vecs=np.stack(list(cache.values())))
+    if todo or not cache_path.exists() or "model" not in np.load(cache_path, allow_pickle=False).files:
+        tmp = cache_path.with_name(cache_path.stem + ".tmp.npz")          # write beside, then replace: a crash cannot leave a half-written cache
+        np.savez(tmp, keys=np.array(list(cache.keys())), vecs=np.stack(list(cache.values())), model=np.array(model))
+        tmp.replace(cache_path)
     return np.stack([cache[key(t)] for t in texts])
 
 
@@ -100,7 +109,10 @@ def evaluate(name, y, p, proba=None):
 
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--version", default="0.1.0"); args = ap.parse_args()
+    ap = argparse.ArgumentParser(); ap.add_argument("--version", default="0.1.0"); ap.add_argument("--overwrite", action="store_true")
+    args = ap.parse_args()
+    if (ROOT / "sml" / "models" / "router" / args.version / "embed_lr.npz").exists() and not args.overwrite:
+        sys.exit(f"refusing to overwrite router {args.version}: it already has a model. Pick a new --version, or pass --overwrite on purpose.")
     tr, va, na = load("train.jsonl"), load("valid.jsonl"), load("natural_test.jsonl")
     X = {k: [r["text"] for r in v] for k, v in (("train", tr), ("valid", va), ("natural", na))}
     Y = {k: [r["intent"] for r in v] for k, v in (("train", tr), ("valid", va), ("natural", na))}

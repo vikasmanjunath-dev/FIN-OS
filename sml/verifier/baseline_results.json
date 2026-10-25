@@ -1,0 +1,205 @@
+{
+  "confusion_3way(true->pred)": {
+    "entailed": {
+      "unsupported": 96,
+      "contradicted": 21,
+      "entailed": 75
+    },
+    "contradicted": {
+      "contradicted": 153,
+      "unsupported": 34,
+      "entailed": 5
+    },
+    "unsupported": {
+      "contradicted": 43,
+      "unsupported": 143,
+      "entailed": 6
+    }
+  },
+  "per_class": {
+    "entailed": {
+      "precision": 0.872093023255814,
+      "recall": 0.390625,
+      "f1": 0.539568345323741,
+      "support": 192
+    },
+    "contradicted": {
+      "precision": 0.7050691244239631,
+      "recall": 0.796875,
+      "f1": 0.748166259168704,
+      "support": 192
+    },
+    "unsupported": {
+      "precision": 0.5238095238095238,
+      "recall": 0.7447916666666666,
+      "f1": 0.6150537634408603,
+      "support": 192
+    }
+  },
+  "headline_not_supported": {
+    "nli_alone": {
+      "tp": 373,
+      "fp": 117,
+      "fn": 11,
+      "tn": 75,
+      "precision": 0.7612244897959184,
+      "recall": 0.9713541666666666,
+      "f1": 0.8535469107551488,
+      "entailed_false_flag_rate": 0.609375
+    },
+    "numeric_alone": {
+      "tp": 50,
+      "fp": 0,
+      "fn": 334,
+      "tn": 192,
+      "precision": 1.0,
+      "recall": 0.13020833333333334,
+      "f1": 0.23041474654377883,
+      "entailed_false_flag_rate": 0.0
+    },
+    "combined_or": {
+      "tp": 373,
+      "fp": 117,
+      "fn": 11,
+      "tn": 75,
+      "precision": 0.7612244897959184,
+      "recall": 0.9713541666666666,
+      "f1": 0.8535469107551488,
+      "entailed_false_flag_rate": 0.609375
+    }
+  },
+  "contradicted_vs_entailed_only": {
+    "nli_alone": {
+      "precision": 0.6151315789473685,
+      "recall": 0.9739583333333334,
+      "n_pos": 192
+    },
+    "numeric_alone": {
+      "precision": 1.0,
+      "recall": 0.13020833333333334,
+      "n_pos": 192
+    },
+    "combined_or": {
+      "precision": 0.6151315789473685,
+      "recall": 0.9739583333333334,
+      "n_pos": 192
+    }
+  },
+  "recall_by_group": {
+    "unsupported": {
+      "nli": {
+        "recall": 0.96875,
+        "n": 192
+      },
+      "numeric": {
+        "recall": 0.13020833333333334,
+        "n": 192
+      },
+      "combined": {
+        "recall": 0.96875,
+        "n": 192
+      }
+    },
+    "contradicted_all": {
+      "nli": {
+        "recall": 0.9739583333333334,
+        "n": 192
+      },
+      "numeric": {
+        "recall": 0.13020833333333334,
+        "n": 192
+      },
+      "combined": {
+        "recall": 0.9739583333333334,
+        "n": 192
+      }
+    },
+    "contra_number": {
+      "nli": {
+        "recall": 0.9841269841269841,
+        "n": 63
+      },
+      "numeric": {
+        "recall": 0.3968253968253968,
+        "n": 63
+      },
+      "combined": {
+        "recall": 0.9841269841269841,
+        "n": 63
+      }
+    },
+    "contra_number_percent_or_rupee": {
+      "nli": {
+        "recall": 1.0,
+        "n": 22
+      },
+      "numeric": {
+        "recall": 0.9545454545454546,
+        "n": 22
+      },
+      "combined": {
+        "recall": 1.0,
+        "n": 22
+      }
+    },
+    "contra_number_other_kinds": {
+      "nli": {
+        "recall": 0.975609756097561,
+        "n": 41
+      },
+      "numeric": {
+        "recall": 0.0975609756097561,
+        "n": 41
+      },
+      "combined": {
+        "recall": 0.975609756097561,
+        "n": 41
+      }
+    },
+    "contra_polarity": {
+      "nli": {
+        "recall": 0.8857142857142857,
+        "n": 35
+      },
+      "numeric": {
+        "recall": 0.0,
+        "n": 35
+      },
+      "combined": {
+        "recall": 0.8857142857142857,
+        "n": 35
+      }
+    },
+    "contra_negation": {
+      "nli": {
+        "recall": 1.0,
+        "n": 94
+      },
+      "numeric": {
+        "recall": 0.0,
+        "n": 94
+      },
+      "combined": {
+        "recall": 1.0,
+        "n": 94
+      }
+    }
+  },
+  "nli_label_counts_by_true_class": {
+    "entailed": {
+      "neutral": 96,
+      "contradiction": 21,
+      "entailment": 75
+    },
+    "contradicted": {
+      "contradiction": 153,
+      "neutral": 34,
+      "entailment": 5
+    },
+    "unsupported": {
+      "contradiction": 43,
+      "neutral": 143,
+      "entailment": 6
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+ "model": "qwen3:14b",
+ "n": 241,
+ "errors": 0,
+ "median_sec": 0.8,
+ "agreed": {
+  "precision": 0.875,
+  "recall": 0.206,
+  "false_flag_rate": 0.005,
+  "tp": 7,
+  "fp": 1,
+  "fn": 27,
+  "tn": 189
+ },
+ "labeler_A": {
+  "precision": 0.875,
+  "recall": 0.184,
+  "false_flag_rate": 0.005,
+  "tp": 7,
+  "fp": 1,
+  "fn": 31,
+  "tn": 202
+ },
+ "labeler_B": {
+  "precision": 0.875,
+  "recall": 0.146,
+  "false_flag_rate": 0.005,
+  "tp": 7,
+  "fp": 1,
+  "fn": 41,
+  "tn": 192
+ },
+ "verdict_counts": {
+  "supported": 233,
+  "unsupported": 8
+ }
+}

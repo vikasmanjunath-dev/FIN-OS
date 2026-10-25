@@ -1517,8 +1517,11 @@ RULES (non-negotiable):
         }
       } catch (e) { console.warn('[PULSE] ranking skipped:', e); order = Object.keys(builders); reasons = {}; }
     }
-    const body = order.map(id => {
-      const html = builders[id]();
+    // W6 groundwork (sml/PLAN.md): with the local counter flag on, each widget is wrapped in a layout-neutral marker so
+    // impressions/taps can be counted by id. Off (default): the markup is exactly as before.
+    const _pc = (() => { try { return localStorage.getItem('finos_pulse_counters_on') === '1'; } catch { return false; } })();
+    const body = order.map((id, pos) => {
+      const html = _pc ? `<div data-pw="${id}" data-pos="${pos}" style="display:contents">${builders[id]()}</div>` : builders[id]();
       return reasons[id]
         ? `<div style="margin:12px 14px -4px;font-size:11px;line-height:1.5;color:#ffd93d">⭐ <b>${_pulseT('Recommended for you')}</b> — ${reasons[id]}</div>${html}`
         : html;
@@ -1712,16 +1715,94 @@ RULES (non-negotiable):
   })();
   let _smlLoading = null;
   function ensureSml() {
-    if (window.SmlNumericCheck && window.FinosFacts) return Promise.resolve();
+    if (window.SmlNumericCheck && window.FinosFacts && window.SmlRouterShadow && window.SmlPulseCounters && window.SmlReport) return Promise.resolve();
     if (_smlLoading) return _smlLoading;
-    const files = ['finos-facts.js', 'sml/normalizer.js', 'sml/numeric-check.js'];
-    _smlLoading = files.reduce((p, f) => p.then(() => new Promise(res => {
+    // ?v bumps force a fresh copy (the pages load these without a content hash). Independent files load in parallel;
+    // numeric-check needs normalizer first.
+    const load = f => new Promise(res => {
       const sc = document.createElement('script');
-      sc.src = _SML_BASE + f + '?v=1';
+      sc.src = _SML_BASE + f + '?v=3';
       sc.onload = sc.onerror = () => res();
       document.head.appendChild(sc);
-    })), Promise.resolve());
+    });
+    _smlLoading = Promise.all(['finos-facts.js', 'sml/router-shadow.js', 'sml/pulse-counters.js', 'sml/report.js', 'sml/normalizer.js'].map(load))
+      .then(() => load('sml/numeric-check.js'));
     return _smlLoading;
+  }
+
+  /* SML router, SHADOW mode (sml/PLAN.md W1). Default OFF: only when localStorage finos_sml_router_shadow === '1'.
+     Fire-and-forget, never awaited, never alters or delays an answer. Sends the message to the LOCAL rag-engine only;
+     stores counters only (SmlRouterShadow), never the text. */
+  function routerShadow(userText) {
+    try {
+      if (localStorage.getItem('finos_sml_router_shadow') !== '1') return;
+      let regexFlagged = false;
+      try {
+        const fl = (window.AryaGuardrails && window.AryaGuardrails.apply(userText, '').flags) || [];
+        regexFlagged = fl.indexOf('evasion_request') >= 0 || fl.indexOf('advice_requested') >= 0;
+      } catch (e) {}
+      Promise.race([ensureSml(), new Promise(r => setTimeout(r, 1500))])
+        .then(() => ragAPI('/api/route', { text: userText }, 15000))
+        .then(d => {
+          if (!window.SmlRouterShadow) return;
+          const st = window.SmlRouterShadow.loadStats(localStorage);
+          window.SmlRouterShadow.saveStats(localStorage, window.SmlRouterShadow.record(st, d && !d.error ? d : null, regexFlagged));
+        })
+        .catch(() => {});
+    } catch (e) {}
+  }
+  /* PULSE impression/tap counters, LOCAL ONLY (sml/PLAN.md W6 groundwork). Default OFF: only when localStorage
+     finos_pulse_counters_on === '1'. Counts widget ids and positions; no text, no amounts, no network. Nothing reads
+     the counters to change the PULSE order. */
+  function pulseCounters(container) {
+    try {
+      if (localStorage.getItem('finos_pulse_counters_on') !== '1') return;
+      ensureSml().then(() => {
+        const C = window.SmlPulseCounters; if (!C || !container) return;
+        const order = Array.from(container.querySelectorAll('[data-pw]')).map(n => n.getAttribute('data-pw'));
+        C.saveStats(localStorage, C.recordRender(C.loadStats(localStorage), order));
+        if (container.dataset.pcWired === '1') return;   // PULSE is rebuilt on a language change: wire the tap listener once, not once per render
+        container.dataset.pcWired = '1';
+        container.addEventListener('click', (ev) => {
+          try {
+            const w = ev.target && ev.target.closest && ev.target.closest('[data-pw]'); if (!w) return;
+            C.saveStats(localStorage, C.recordTap(C.loadStats(localStorage), w.getAttribute('data-pw'), parseInt(w.getAttribute('data-pos'), 10)));
+          } catch (e) {}
+        });
+      }).catch(() => {});
+    } catch (e) {}
+  }
+  function pulseStats() {
+    try {
+      const C = window.SmlPulseCounters; if (!C) return null;
+      const stats = C.loadStats(localStorage);
+      return { stats, summary: C.summary(stats), enabled: C.enabled(localStorage) };
+    } catch (e) { return null; }
+  }
+  /* Founder report over the two local counter sets (js/sml/report.js). Async because the SML modules load on demand.
+     smlReset() clears the counters only; the on/off flags are left alone. */
+  async function smlReport() {
+    try {
+      await ensureSml();
+      const Rp = window.SmlReport, R = window.SmlRouterShadow, P = window.SmlPulseCounters; if (!Rp) return null;
+      return Rp.build(R, R && R.loadStats(localStorage), P, P && P.loadStats(localStorage),
+        { router: localStorage.getItem('finos_sml_router_shadow') === '1', pulse: localStorage.getItem('finos_pulse_counters_on') === '1' });
+    } catch (e) { return null; }
+  }
+  async function smlReset() {
+    try {
+      await ensureSml();
+      const Rp = window.SmlReport; if (!Rp) return false;
+      Rp.resetKeys(window.SmlRouterShadow, window.SmlPulseCounters).forEach(k => localStorage.removeItem(k));
+      return true;
+    } catch (e) { return false; }
+  }
+  function routerStats() {
+    try {
+      const S = window.SmlRouterShadow; if (!S) return null;
+      const stats = S.loadStats(localStorage);
+      return { stats, summary: S.summary(stats), enabled: localStorage.getItem('finos_sml_router_shadow') === '1' };
+    } catch (e) { return null; }
   }
 
   async function fetchRagContext(userText) {
@@ -7438,6 +7519,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
         el.querySelectorAll('.asp-view-ask-btn').forEach(btn => {
           btn.addEventListener('click', () => handleAskBtn(btn));
         });
+        pulseCounters(el);
       }
     }
     // Animate rings after pulse renders
@@ -7518,6 +7600,8 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
       appendMessage('user', userText);
       _chatHistory.push({ role: 'user', text: userText });
     }
+
+    if (!isAutoInsight) routerShadow(userText);
 
     // Guardrail pre-check: clearly illegal requests (tax evasion, forged documents) never reach the model.
     if (!isAutoInsight && window.AryaGuardrails) {
@@ -8353,6 +8437,10 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
         if (r) r.click();
       }, 400); }, 500);
     },
+    routerStats:  routerStats,
+    pulseStats:   pulseStats,
+    smlReport:    smlReport,
+    smlReset:     smlReset,
     memory:       AryaMemoryDB,
     tools:        AgentTools,
     clearHistory: (pageKey) => {

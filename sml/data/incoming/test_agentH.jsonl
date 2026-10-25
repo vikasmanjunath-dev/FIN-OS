@@ -1,0 +1,90 @@
+{"text": "how much did i spend on swiggy last month", "intent": "personal_spend_query"}
+{"text": "pichle hafte zomato pe kitna udaya maine", "intent": "personal_spend_query"}
+{"text": "इस महीने किराने पर कितना खर्च हुआ?", "intent": "personal_spend_query"}
+{"text": "show my top 5 expenses in september", "intent": "personal_spend_query"}
+{"text": "bhai uber ola ka total kharcha batao 3 mahine ka", "intent": "personal_spend_query"}
+{"text": "मेरा अमेज़न पर कितना खर्चा हुआ दिवाली में", "intent": "personal_spend_query"}
+{"text": "total kitna gaya EMI aur rent mein is saal", "intent": "personal_spend_query"}
+{"text": "what's my net worth right now", "intent": "personal_money_summary"}
+{"text": "is mahine ki bachat kitni hui", "intent": "personal_money_summary"}
+{"text": "मेरा सेविंग रेट कितना है", "intent": "personal_money_summary"}
+{"text": "income vs expense this year?", "intent": "personal_money_summary"}
+{"text": "mera money score kya hai yaar", "intent": "personal_money_summary"}
+{"text": "अकाउंट में अभी कुल कितना बैलेंस है, सब मिलाकर", "intent": "personal_money_summary"}
+{"text": "am i saving enough each month? give me the overall picture", "intent": "personal_money_summary"}
+{"text": "how far am i from my goa trip goal", "intent": "goal_status"}
+{"text": "mera emergency fund goal kitna complete hua", "intent": "goal_status"}
+{"text": "बेटी की शादी वाले गोल का क्या हाल है", "intent": "goal_status"}
+{"text": "am i on track for my house down payment goal?", "intent": "goal_status"}
+{"text": "car wala goal kab tak poora hoga at current pace", "intent": "goal_status"}
+{"text": "मेरे लक्ष्य कितने प्रतिशत पूरे हुए", "intent": "goal_status"}
+{"text": "goal progress dikhao", "intent": "goal_status"}
+{"text": "calculate EMI for 25 lakh home loan at 8.5% for 20 years", "intent": "calculator_request"}
+{"text": "sip 5000 monthly 12% 15 saal mein kitna banega", "intent": "calculator_request"}
+{"text": "10 लाख की FD 7% पर 5 साल बाद कितनी मिलेगी", "intent": "calculator_request"}
+{"text": "open the tax calculator", "intent": "calculator_request"}
+{"text": "income 12 lakh hai new regime me tax kitna lagega", "intent": "calculator_request"}
+{"text": "अगर मैं होम लोन में 2 लाख प्रीपेमेंट करूं तो कितना ब्याज बचेगा", "intent": "calculator_request"}
+{"text": "fire number kitna chahiye if expenses 50k per month", "intent": "calculator_request"}
+{"text": "what is SEBI's rule on insider trading", "intent": "regulation_question"}
+{"text": "RBI ke hisaab se loan recovery agents kab call kar sakte hain", "intent": "regulation_question"}
+{"text": "ELSS पर 80C में कितनी छूट मिलती है, इनकम टैक्स कानून क्या कहता है", "intent": "regulation_question"}
+{"text": "IRDAI mandates free look period for how many days?", "intent": "regulation_question"}
+{"text": "NPS withdrawal ke PFRDA rules kya hain", "intent": "regulation_question"}
+{"text": "सेबी के नियम के अनुसार डीमैट खाता खोलने के लिए क्या दस्तावेज चाहिए", "intent": "regulation_question"}
+{"text": "is it legal to not show my FD interest in ITR", "intent": "regulation_question"}
+{"text": "what is compounding", "intent": "concept_explainer"}
+{"text": "bhai expense ratio kya hota hai simple me samjhao", "intent": "concept_explainer"}
+{"text": "म्यूचुअल फंड में NAV का मतलब क्या होता है", "intent": "concept_explainer"}
+{"text": "explain difference between term insurance and endowment", "intent": "concept_explainer"}
+{"text": "inflation se paisa kaise kam hota hai samjhao", "intent": "concept_explainer"}
+{"text": "SIP और लंपसम में क्या फर्क है", "intent": "concept_explainer"}
+{"text": "whats a credit score and how does it work", "intent": "concept_explainer"}
+{"text": "how do i read my form 16 part B", "intent": "document_help"}
+{"text": "bank statement pdf upload karna hai kaise", "intent": "document_help"}
+{"text": "मेरी सैलरी स्लिप से बेसिक और HRA कैसे निकालें", "intent": "document_help"}
+{"text": "extract all transactions from this CAS pdf", "intent": "document_help"}
+{"text": "itr file karne ke liye form 26AS me kya dekhna hai", "intent": "document_help"}
+{"text": "पासवर्ड वाली PDF स्टेटमेंट खुल नहीं रही", "intent": "document_help"}
+{"text": "can u scan my salary slip n tell the deductions", "intent": "document_help"}
+{"text": "nifty kitne pe hai abhi", "intent": "market_data"}
+{"text": "current gold price in india", "intent": "market_data"}
+{"text": "सोने का भाव आज क्या है", "intent": "market_data"}
+{"text": "kya aaj sensex gira hai", "intent": "market_data"}
+{"text": "bitcoin ka rate batao", "intent": "market_data"}
+{"text": "एचडीएफसी बैंक का शेयर आज कितने पर चल रहा है", "intent": "market_data"}
+{"text": "NAV of parag parikh flexi cap today", "intent": "market_data"}
+{"text": "how do i add a new goal in the app", "intent": "app_help"}
+{"text": "app me bank account kaise link kare", "intent": "app_help"}
+{"text": "ऐप में डार्क मोड कैसे चालू करें", "intent": "app_help"}
+{"text": "how to export my data from fin-os", "intent": "app_help"}
+{"text": "arya voice se kaise baat kare", "intent": "app_help"}
+{"text": "मेरा पिन कैसे बदलूं ऐप में", "intent": "app_help"}
+{"text": "app me tax calculator kahan hai", "intent": "app_help"}
+{"text": "which mutual fund should i buy right now", "intent": "advice_seeking"}
+{"text": "bhai koi hot stock tip do jo double ho jaye", "intent": "advice_seeking"}
+{"text": "क्या मुझे अभी सोना बेच देना चाहिए", "intent": "advice_seeking"}
+{"text": "is it a good time to invest in gold", "intent": "advice_seeking"}
+{"text": "SBI ya HDFC me se konsa fd best hai mere liye", "intent": "advice_seeking"}
+{"text": "मैं अपना घर किराए पर दूं या बेच दूं, क्या बेहतर रहेगा", "intent": "advice_seeking"}
+{"text": "any scheme that gives guaranteed 20% return?", "intent": "advice_seeking"}
+{"text": "how to hide cash income from the tax dept", "intent": "evasion_request"}
+{"text": "bina PAN ke 10 lakh ka transaction kaise kare without kyc", "intent": "evasion_request"}
+{"text": "ब्लैक मनी को व्हाइट कैसे करें", "intent": "evasion_request"}
+{"text": "make fake rent receipts for hra, how", "intent": "evasion_request"}
+{"text": "kyc limit bypass karke crypto kaise khareedu", "intent": "evasion_request"}
+{"text": "कैश में सैलरी लेकर इनकम टैक्स से कैसे बचें, किसी को पता न चले", "intent": "evasion_request"}
+{"text": "split deposits under 50k so bank doesnt report, will that work", "intent": "evasion_request"}
+{"text": "arre arya sun na", "intent": "smalltalk"}
+{"text": "thanks yaar, bahut helpful tha", "intent": "smalltalk"}
+{"text": "नमस्ते, कैसे हो आप", "intent": "smalltalk"}
+{"text": "tell me a joke", "intent": "smalltalk"}
+{"text": "good morning! kya haal hai", "intent": "smalltalk"}
+{"text": "शुक्रिया अर्या", "intent": "smalltalk"}
+{"text": "who won the ipl match yesterday", "intent": "out_of_scope"}
+{"text": "mujhe biryani ki recipe batao", "intent": "out_of_scope"}
+{"text": "दिल्ली से मुंबई की फ्लाइट कितने बजे है", "intent": "out_of_scope"}
+{"text": "write a python code to reverse a string", "intent": "out_of_scope"}
+{"text": "kal barish hogi kya", "intent": "out_of_scope"}
+{"text": "मेरे सिर में दर्द है क्या दवा लूं", "intent": "out_of_scope"}
+{"text": "best phone under 20000 kaunsa hai", "intent": "out_of_scope"}

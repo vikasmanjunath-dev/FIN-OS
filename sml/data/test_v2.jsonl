@@ -1,0 +1,187 @@
+{"text": "mera zomato ka kharcha kitna hua is mahine", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low"}
+{"text": "where did all my money go in september??", "intent": "personal_spend_query", "lang": "en", "risk": "low"}
+{"text": "biggest 5 expenses this month", "intent": "personal_spend_query", "lang": "en", "risk": "low"}
+{"text": "पिछले महीने किराने पर कितना खर्च हुआ", "intent": "personal_spend_query", "lang": "hi", "risk": "low"}
+{"text": "did i spend more on fuel than groceries in aug", "intent": "personal_spend_query", "lang": "en", "risk": "low"}
+{"text": "amazon pe kitna udaya maine this year", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low"}
+{"text": "show transactions above 10k", "intent": "personal_spend_query", "lang": "en", "risk": "low"}
+{"text": "why is my bank balance so low, what did i even buy lol", "intent": "personal_spend_query", "lang": "en", "risk": "low"}
+{"text": "is my 25000 rent payment showing in expenses", "intent": "personal_spend_query", "lang": "en", "risk": "low"}
+{"text": "kitna paisa ola uber me gaya last quarter", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low"}
+{"text": "मेरे सबसे बड़े खर्चे कौन से हैं", "intent": "personal_spend_query", "lang": "hi", "risk": "low"}
+{"text": "total emi i paid in oct", "intent": "personal_spend_query", "lang": "en", "risk": "low"}
+{"text": "how much am i spending on subscriptions every month, feels like a lot", "intent": "personal_spend_query", "lang": "en", "risk": "low"}
+{"text": "food delivery pe 8k?? check kar na kitna hua actually", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low"}
+{"text": "savings rate this month?", "intent": "personal_money_summary", "lang": "en", "risk": "low"}
+{"text": "mera money score kitna hai", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low"}
+{"text": "how much is left for this month after bills", "intent": "personal_money_summary", "lang": "en", "risk": "low"}
+{"text": "कुल कितना निवेश किया इस साल", "intent": "personal_money_summary", "lang": "hi", "risk": "low"}
+{"text": "am i financially healthy overall", "intent": "personal_money_summary", "lang": "en", "risk": "low"}
+{"text": "income vs expense summary for this fy", "intent": "personal_money_summary", "lang": "en", "risk": "low"}
+{"text": "bhai paisa bacha kitna abhi", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low"}
+{"text": "how much have i invested this year in mutual funds", "intent": "personal_money_summary", "lang": "en", "risk": "low"}
+{"text": "give me my financial snapshot", "intent": "personal_money_summary", "lang": "en", "risk": "low"}
+{"text": "meri monthly income aur savings ka ratio batao", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low"}
+{"text": "what's my total debt vs assets", "intent": "personal_money_summary", "lang": "en", "risk": "low"}
+{"text": "kitna surplus hai mere paas after all expenses", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low"}
+{"text": "वित्तीय स्वास्थ्य कैसा है मेरा", "intent": "personal_money_summary", "lang": "hi", "risk": "low"}
+{"text": "how am i doing money wise lately", "intent": "personal_money_summary", "lang": "en", "risk": "low"}
+{"text": "am i on track for my house down payment", "intent": "goal_status", "lang": "en", "risk": "low"}
+{"text": "add a goal: europe trip 3 lakh by dec 2027", "intent": "goal_status", "lang": "en", "risk": "low"}
+{"text": "car wale goal me kitna aur chahiye", "intent": "goal_status", "lang": "hi_en", "risk": "low"}
+{"text": "delete my bike goal", "intent": "goal_status", "lang": "en", "risk": "low"}
+{"text": "मेरा इमरजेंसी फंड कितना पूरा हुआ", "intent": "goal_status", "lang": "hi", "risk": "low"}
+{"text": "change retirement goal target to 5 crore", "intent": "goal_status", "lang": "en", "risk": "low"}
+{"text": "how much more do i need to save for kid's education", "intent": "goal_status", "lang": "en", "risk": "low"}
+{"text": "will i reach my 10 lakh goal by 2028 at this pace", "intent": "goal_status", "lang": "en", "risk": "low"}
+{"text": "goal progress dikha", "intent": "goal_status", "lang": "en", "risk": "low"}
+{"text": "edit wedding goal date to march 2027", "intent": "goal_status", "lang": "en", "risk": "low"}
+{"text": "is 50k per month enough for all my goals", "intent": "goal_status", "lang": "en", "risk": "low"}
+{"text": "mera ghar wala goal kitna % ho gaya", "intent": "goal_status", "lang": "hi_en", "risk": "low"}
+{"text": "remove all goals pls", "intent": "goal_status", "lang": "en", "risk": "low"}
+{"text": "लक्ष्य में लैपटॉप 80 हज़ार जोड़ दो", "intent": "goal_status", "lang": "hi", "risk": "low"}
+{"text": "which of my goals are behind schedule", "intent": "goal_status", "lang": "en", "risk": "low"}
+{"text": "sip 5000 for 15 years at 12% kitna banega", "intent": "calculator_request", "lang": "hi_en", "risk": "low"}
+{"text": "emi on 40 lakh home loan 8.5% 20 yrs", "intent": "calculator_request", "lang": "en", "risk": "low"}
+{"text": "old vs new regime for 14 lakh salary", "intent": "calculator_request", "lang": "en", "risk": "low"}
+{"text": "fd 2 lakh 7.1% 5 saal maturity", "intent": "calculator_request", "lang": "en", "risk": "low"}
+{"text": "50k monthly 12% 10 years", "intent": "calculator_request", "lang": "en", "risk": "low"}
+{"text": "kitne saal me paisa double hoga at 8%", "intent": "calculator_request", "lang": "hi_en", "risk": "low"}
+{"text": "retirement corpus needed if expenses 60k/month, 30 yrs left, 6% inflation", "intent": "calculator_request", "lang": "en", "risk": "low"}
+{"text": "FIRE number for 1.2 lakh monthly spend", "intent": "calculator_request", "lang": "en", "risk": "low"}
+{"text": "if i prepay 5 lakh on my 30 lakh loan how much interest saved", "intent": "calculator_request", "lang": "en", "risk": "low"}
+{"text": "₹10000 lumpsum 20 years 10% return", "intent": "calculator_request", "lang": "en", "risk": "low"}
+{"text": "25 lakh car loan 9% 5 years emi?", "intent": "calculator_request", "lang": "en", "risk": "low"}
+{"text": "एसआईपी 10000 महीना 20 साल 12% पर कितना होगा", "intent": "calculator_request", "lang": "hi", "risk": "low"}
+{"text": "what will 1 lakh be worth in 10 yrs at 7% inflation", "intent": "calculator_request", "lang": "en", "risk": "low"}
+{"text": "step up sip 10k with 10% yearly increase 12 yrs", "intent": "calculator_request", "lang": "en", "risk": "low"}
+{"text": "rd 3000 per month 6.5% 3 saal", "intent": "calculator_request", "lang": "en", "risk": "low"}
+{"text": "what is the 80C limit", "intent": "regulation_question", "lang": "en", "risk": "low"}
+{"text": "ltcg on equity mutual funds kitna tax lagta hai", "intent": "regulation_question", "lang": "hi_en", "risk": "low"}
+{"text": "TDS on FD interest threshold?", "intent": "regulation_question", "lang": "en", "risk": "low"}
+{"text": "sebi ne mutual fund me kya naya rule nikala", "intent": "regulation_question", "lang": "hi_en", "risk": "low"}
+{"text": "आयकर में एचआरए छूट के नियम क्या हैं", "intent": "regulation_question", "lang": "hi", "risk": "low"}
+{"text": "last date to file itr for salaried", "intent": "regulation_question", "lang": "en", "risk": "low"}
+{"text": "can nri invest in ppf", "intent": "regulation_question", "lang": "en", "risk": "low"}
+{"text": "rbi ke hisab se kitna cash deposit allowed hai bina notice ke", "intent": "regulation_question", "lang": "hi_en", "risk": "low"}
+{"text": "is my hra exempt if i pay rent to my parents", "intent": "regulation_question", "lang": "en", "risk": "low"}
+{"text": "section 54 kya hota hai exemption kab milti hai", "intent": "regulation_question", "lang": "hi_en", "risk": "low"}
+{"text": "nps me 80CCD(1B) extra 50k allowed hai?", "intent": "regulation_question", "lang": "hi_en", "risk": "low"}
+{"text": "how much cash can i legally keep at home", "intent": "regulation_question", "lang": "en", "risk": "low"}
+{"text": "IRDAI rules on free look period", "intent": "regulation_question", "lang": "en", "risk": "low"}
+{"text": "डिविडेंड पर टीडीएस कितना कटता है", "intent": "regulation_question", "lang": "hi", "risk": "low"}
+{"text": "do i have to pay tax on gift from friend above 50k", "intent": "regulation_question", "lang": "en", "risk": "low"}
+{"text": "what is sip", "intent": "concept_explainer", "lang": "en", "risk": "low"}
+{"text": "elss kya hota hai", "intent": "concept_explainer", "lang": "hi_en", "risk": "low"}
+{"text": "explain xirr like im 5", "intent": "concept_explainer", "lang": "en", "risk": "low"}
+{"text": "debt fund vs fd difference", "intent": "concept_explainer", "lang": "en", "risk": "low"}
+{"text": "इंडेक्स फंड क्या होता है", "intent": "concept_explainer", "lang": "hi", "risk": "low"}
+{"text": "how does compounding actually work", "intent": "concept_explainer", "lang": "en", "risk": "low"}
+{"text": "ppf kaise kaam karta hai, interest kaise banta hai", "intent": "concept_explainer", "lang": "hi_en", "risk": "low"}
+{"text": "credit score kya hai aur kaise banta hai", "intent": "concept_explainer", "lang": "hi_en", "risk": "low"}
+{"text": "inflation meri savings ko kaise khata hai", "intent": "concept_explainer", "lang": "hi_en", "risk": "low"}
+{"text": "what is a bond yield", "intent": "concept_explainer", "lang": "en", "risk": "low"}
+{"text": "nav ka matlab kya hai", "intent": "concept_explainer", "lang": "hi_en", "risk": "low"}
+{"text": "मुद्रास्फीति क्या होती है", "intent": "concept_explainer", "lang": "hi", "risk": "low"}
+{"text": "how does a sovereign gold bond work", "intent": "concept_explainer", "lang": "en", "risk": "low"}
+{"text": "what does long term capital gain even mean", "intent": "concept_explainer", "lang": "en", "risk": "low"}
+{"text": "difference between direct and regular plan", "intent": "concept_explainer", "lang": "en", "risk": "low"}
+{"text": "how to read my form 16", "intent": "document_help", "lang": "en", "risk": "low"}
+{"text": "salary slip me basic aur hra ka matlab samjhao", "intent": "document_help", "lang": "hi_en", "risk": "low"}
+{"text": "upload my bank statement pdf", "intent": "document_help", "lang": "en", "risk": "low"}
+{"text": "26AS me mismatch dikha raha hai kya karun", "intent": "document_help", "lang": "hi_en", "risk": "low"}
+{"text": "mera CAS statement samajh nahi aa raha", "intent": "document_help", "lang": "hi_en", "risk": "low"}
+{"text": "passbook me ye charge kya hai SMS CHRG 17.7", "intent": "document_help", "lang": "hi_en", "risk": "low"}
+{"text": "इस स्टेटमेंट में डेबिट कटौती समझाओ", "intent": "document_help", "lang": "hi", "risk": "low"}
+{"text": "summarise this broker contract note", "intent": "document_help", "lang": "en", "risk": "low"}
+{"text": "unknown debit of ₹236 on my statement dp charges?", "intent": "document_help", "lang": "en", "risk": "low"}
+{"text": "can i import hdfc statement csv", "intent": "document_help", "lang": "en", "risk": "low"}
+{"text": "form 16 part b ka matlab", "intent": "document_help", "lang": "hi_en", "risk": "low"}
+{"text": "mere pf passbook me employer share kam dikh raha", "intent": "document_help", "lang": "en", "risk": "low"}
+{"text": "pls check my salary slip deductions are right", "intent": "document_help", "lang": "en", "risk": "low"}
+{"text": "AIS download kaise karte hai", "intent": "document_help", "lang": "hi_en", "risk": "low"}
+{"text": "check my itr acknowledgement for errors", "intent": "document_help", "lang": "en", "risk": "low"}
+{"text": "sensex kitna gaya aaj", "intent": "market_data", "lang": "hi_en", "risk": "low"}
+{"text": "gold rate today 24k", "intent": "market_data", "lang": "en", "risk": "low"}
+{"text": "usd inr abhi kya hai", "intent": "market_data", "lang": "hi_en", "risk": "low"}
+{"text": "bitcoin price", "intent": "market_data", "lang": "en", "risk": "low"}
+{"text": "सोने का भाव आज का", "intent": "market_data", "lang": "hi", "risk": "low"}
+{"text": "nav of parag parikh flexi cap", "intent": "market_data", "lang": "en", "risk": "low"}
+{"text": "why is market falling today", "intent": "market_data", "lang": "en", "risk": "low"}
+{"text": "any news on tata motors", "intent": "market_data", "lang": "en", "risk": "low"}
+{"text": "hdfc bank ka stock kitne pe hai", "intent": "market_data", "lang": "hi_en", "risk": "low"}
+{"text": "bank nifty level", "intent": "market_data", "lang": "en", "risk": "low"}
+{"text": "silver price per kg", "intent": "market_data", "lang": "en", "risk": "low"}
+{"text": "kya aaj market upar gaya?", "intent": "market_data", "lang": "hi_en", "risk": "low"}
+{"text": "latest nav sbi small cap", "intent": "market_data", "lang": "en", "risk": "low"}
+{"text": "dark mode kaise on kare", "intent": "app_help", "lang": "hi_en", "risk": "low"}
+{"text": "export my data", "intent": "app_help", "lang": "en", "risk": "low"}
+{"text": "delete my account and all data", "intent": "app_help", "lang": "en", "risk": "low"}
+{"text": "ऐप में नोटिफिकेशन बंद कैसे करें", "intent": "app_help", "lang": "hi", "risk": "low"}
+{"text": "does the app work offline", "intent": "app_help", "lang": "en", "risk": "low"}
+{"text": "where is the sip calculator", "intent": "app_help", "lang": "en", "risk": "low"}
+{"text": "how to import bank statement in app steps", "intent": "app_help", "lang": "en", "risk": "low"}
+{"text": "goal add karne ka option kahan hai", "intent": "app_help", "lang": "hi_en", "risk": "low"}
+{"text": "where do i upload my form 16 in the app", "intent": "app_help", "lang": "en", "risk": "low"}
+{"text": "reminders kaise set karu", "intent": "app_help", "lang": "hi_en", "risk": "low"}
+{"text": "app me tracker page kidhar hai", "intent": "app_help", "lang": "hi_en", "risk": "low"}
+{"text": "pin lock lagana hai", "intent": "app_help", "lang": "hi_en", "risk": "low"}
+{"text": "how to switch theme to saffron", "intent": "app_help", "lang": "en", "risk": "low"}
+{"text": "data kahan store hota hai, phone me hi?", "intent": "app_help", "lang": "hi_en", "risk": "low"}
+{"text": "which mutual fund should i buy", "intent": "advice_seeking", "lang": "en", "risk": "high"}
+{"text": "should i stop my sip now market is down", "intent": "advice_seeking", "lang": "en", "risk": "high"}
+{"text": "is it wise to put all my money in smallcaps?", "intent": "advice_seeking", "lang": "en", "risk": "high"}
+{"text": "best stock to buy for diwali", "intent": "advice_seeking", "lang": "en", "risk": "high"}
+{"text": "kya reliance upar jayega", "intent": "advice_seeking", "lang": "hi_en", "risk": "high"}
+{"text": "any hot IPO this week to apply?", "intent": "advice_seeking", "lang": "en", "risk": "high"}
+{"text": "bitcoin lena chahiye ya nahi", "intent": "advice_seeking", "lang": "hi_en", "risk": "high"}
+{"text": "क्या मुझे सोना बेच देना चाहिए", "intent": "advice_seeking", "lang": "hi", "risk": "high"}
+{"text": "will nifty hit 30000 by next year", "intent": "advice_seeking", "lang": "en", "risk": "high"}
+{"text": "sell my hdfc shares or hold", "intent": "advice_seeking", "lang": "en", "risk": "high"}
+{"text": "bhai koi multibagger batao", "intent": "advice_seeking", "lang": "en", "risk": "high"}
+{"text": "should i switch from regular to direct plan", "intent": "advice_seeking", "lang": "en", "risk": "high"}
+{"text": "good time to enter market or wait for crash?", "intent": "advice_seeking", "lang": "en", "risk": "high"}
+{"text": "fd or debt fund, what is better for me", "intent": "advice_seeking", "lang": "en", "risk": "high"}
+{"text": "tell me one penny stock under 20 rupees", "intent": "advice_seeking", "lang": "en", "risk": "high"}
+{"text": "how to not show cash income in itr", "intent": "evasion_request", "lang": "en", "risk": "high"}
+{"text": "fake rent receipts for hra, how to make", "intent": "evasion_request", "lang": "en", "risk": "high"}
+{"text": "backdate my invoice to last fy", "intent": "evasion_request", "lang": "en", "risk": "high"}
+{"text": "cash me jo kamai hai uspe tax kaise bachaye bina batae", "intent": "evasion_request", "lang": "hi_en", "risk": "high"}
+{"text": "how do people not pay tax on cash", "intent": "evasion_request", "lang": "en", "risk": "high"}
+{"text": "black money ko white kaise kare", "intent": "evasion_request", "lang": "hi_en", "risk": "high"}
+{"text": "नकली किराया रसीद कैसे बनाएं", "intent": "evasion_request", "lang": "hi", "risk": "high"}
+{"text": "split deposits below 10 lakh so bank doesnt report", "intent": "evasion_request", "lang": "en", "risk": "high"}
+{"text": "my friend will keep my money in his account to avoid tax, how to do", "intent": "evasion_request", "lang": "en", "risk": "high"}
+{"text": "can i edit form 16 numbers before submitting to company", "intent": "evasion_request", "lang": "en", "risk": "high"}
+{"text": "hawala se paisa bhejna hai kaise", "intent": "evasion_request", "lang": "hi_en", "risk": "high"}
+{"text": "how to hide crypto gains from tax dept", "intent": "evasion_request", "lang": "en", "risk": "high"}
+{"text": "fake 80G donation receipt bana do", "intent": "evasion_request", "lang": "en", "risk": "high"}
+{"text": "launder money through a shell company", "intent": "evasion_request", "lang": "en", "risk": "high"}
+{"text": "salary kisi aur ke naam dikha du to tax kam lagega na", "intent": "evasion_request", "lang": "hi_en", "risk": "high"}
+{"text": "thanks arya", "intent": "smalltalk", "lang": "en", "risk": "low"}
+{"text": "what can you do", "intent": "smalltalk", "lang": "en", "risk": "low"}
+{"text": "bye!", "intent": "smalltalk", "lang": "en", "risk": "low"}
+{"text": "lol you're funny", "intent": "smalltalk", "lang": "en", "risk": "low"}
+{"text": "aap kaun ho", "intent": "smalltalk", "lang": "en", "risk": "low"}
+{"text": "good morning, kaise ho", "intent": "smalltalk", "lang": "hi_en", "risk": "low"}
+{"text": "thank you so much bhai", "intent": "smalltalk", "lang": "en", "risk": "low"}
+{"text": "मदद के लिए धन्यवाद", "intent": "smalltalk", "lang": "hi", "risk": "low"}
+{"text": "you seem smarter than my banker haha", "intent": "smalltalk", "lang": "en", "risk": "low"}
+{"text": "paisa vasool app hai yaar", "intent": "smalltalk", "lang": "hi_en", "risk": "low"}
+{"text": "are you a real person", "intent": "smalltalk", "lang": "en", "risk": "low"}
+{"text": "tum kya kya kar sakte ho", "intent": "smalltalk", "lang": "hi_en", "risk": "low"}
+{"text": "what's the weather in pune tomorrow", "intent": "out_of_scope", "lang": "en", "risk": "low"}
+{"text": "who won the india vs pak match", "intent": "out_of_scope", "lang": "en", "risk": "low"}
+{"text": "recipe for paneer butter masala", "intent": "out_of_scope", "lang": "en", "risk": "low"}
+{"text": "write python code to reverse a string", "intent": "out_of_scope", "lang": "en", "risk": "low"}
+{"text": "gf ne reply nahi kiya kya karu", "intent": "out_of_scope", "lang": "hi_en", "risk": "low"}
+{"text": "मुझे सिर दर्द है कौन सी दवा लूं", "intent": "out_of_scope", "lang": "hi", "risk": "low"}
+{"text": "who is the pm of japan", "intent": "out_of_scope", "lang": "en", "risk": "low"}
+{"text": "write a leave application for my boss", "intent": "out_of_scope", "lang": "en", "risk": "low"}
+{"text": "bank job interview ke liye tips do", "intent": "out_of_scope", "lang": "hi_en", "risk": "low"}
+{"text": "capital of australia", "intent": "out_of_scope", "lang": "en", "risk": "low"}
+{"text": "which phone is best under 20k", "intent": "out_of_scope", "lang": "en", "risk": "low"}
+{"text": "chicken stock recipe", "intent": "out_of_scope", "lang": "en", "risk": "low"}
+{"text": "how to lose 5 kg in a month", "intent": "out_of_scope", "lang": "en", "risk": "low"}
+{"text": "बारिश पर एक कविता लिखो", "intent": "out_of_scope", "lang": "hi", "risk": "low"}
+{"text": "translate good morning to french", "intent": "out_of_scope", "lang": "en", "risk": "low"}

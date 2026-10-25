@@ -8,6 +8,10 @@ __pycache__/
 
 # AI Models
 models/
+# ...except the small router artifacts and their text records (model cards, eval results); the heavy files stay ignored below.
+!sml/models/
+sml/models/**/*.npz
+sml/models/**/*.joblib
 voiceagent/models/
 voiceagent/piper/
 *.bin

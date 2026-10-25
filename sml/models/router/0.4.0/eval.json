@@ -1,0 +1,2570 @@
+{
+ "version": "0.4.0",
+ "counts": {
+  "train": 610,
+  "extra": 1374,
+  "valid": 185,
+  "dev": 145,
+  "nat1": 130,
+  "test2": 187,
+  "test3": 251,
+  "test4": 233,
+  "test5": 181,
+  "train_all": 1984,
+  "test": 317,
+  "all": 568
+ },
+ "chosen_on": "dev",
+ "results": {
+  "rules": {
+   "valid": {
+    "model": "rules",
+    "n": 185,
+    "accuracy": 0.195,
+    "acc_ci95": [
+     0.141,
+     0.249
+    ],
+    "macro_f1": 0.118,
+    "risk": {
+     "advice_seeking": {
+      "recall": 0.5,
+      "precision": 1.0
+     },
+     "evasion_request": {
+      "recall": 0.2,
+      "precision": 1.0
+     },
+     "high_risk_caught_by_any_guard": 0.435
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.0,
+     "personal_money_summary": 0.0,
+     "goal_status": 0.0,
+     "calculator_request": 0.0,
+     "regulation_question": 0.31,
+     "concept_explainer": 0.23,
+     "document_help": 0.0,
+     "market_data": 0.0,
+     "app_help": 0.0,
+     "advice_seeking": 0.67,
+     "evasion_request": 0.33,
+     "smalltalk": 0.0,
+     "out_of_scope": 0.0
+    },
+    "top_confusions": [
+     {
+      "n": 26,
+      "true": "personal_spend_query",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 22,
+      "true": "calculator_request",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 18,
+      "true": "regulation_question",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 18,
+      "true": "document_help",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 16,
+      "true": "market_data",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 13,
+      "true": "goal_status",
+      "pred": "concept_explainer"
+     }
+    ]
+   },
+   "dev": {
+    "model": "rules",
+    "n": 145,
+    "accuracy": 0.131,
+    "acc_ci95": [
+     0.083,
+     0.186
+    ],
+    "macro_f1": 0.084,
+    "risk": {
+     "advice_seeking": {
+      "recall": 0.214,
+      "precision": 1.0
+     },
+     "evasion_request": {
+      "recall": 0.308,
+      "precision": 1.0
+     },
+     "high_risk_caught_by_any_guard": 0.259
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.0,
+     "personal_money_summary": 0.0,
+     "goal_status": 0.0,
+     "calculator_request": 0.0,
+     "regulation_question": 0.12,
+     "concept_explainer": 0.15,
+     "document_help": 0.0,
+     "market_data": 0.0,
+     "app_help": 0.0,
+     "advice_seeking": 0.35,
+     "evasion_request": 0.47,
+     "smalltalk": 0.0,
+     "out_of_scope": 0.0
+    },
+    "top_confusions": [
+     {
+      "n": 14,
+      "true": "document_help",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 13,
+      "true": "regulation_question",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 13,
+      "true": "calculator_request",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 12,
+      "true": "personal_spend_query",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 12,
+      "true": "goal_status",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 11,
+      "true": "out_of_scope",
+      "pred": "concept_explainer"
+     }
+    ]
+   },
+   "nat1": {
+    "model": "rules",
+    "n": 130,
+    "accuracy": 0.108,
+    "acc_ci95": [
+     0.062,
+     0.162
+    ],
+    "macro_f1": 0.065,
+    "risk": {
+     "advice_seeking": {
+      "recall": 0.1,
+      "precision": 1.0
+     },
+     "evasion_request": {
+      "recall": 0.1,
+      "precision": 1.0
+     },
+     "high_risk_caught_by_any_guard": 0.1
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.0,
+     "personal_money_summary": 0.0,
+     "goal_status": 0.0,
+     "calculator_request": 0.0,
+     "regulation_question": 0.33,
+     "concept_explainer": 0.15,
+     "document_help": 0.0,
+     "market_data": 0.0,
+     "app_help": 0.0,
+     "advice_seeking": 0.18,
+     "evasion_request": 0.18,
+     "smalltalk": 0.0,
+     "out_of_scope": 0.0
+    },
+    "top_confusions": [
+     {
+      "n": 10,
+      "true": "smalltalk",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 10,
+      "true": "personal_spend_query",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 10,
+      "true": "personal_money_summary",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 10,
+      "true": "out_of_scope",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 10,
+      "true": "market_data",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 10,
+      "true": "goal_status",
+      "pred": "concept_explainer"
+     }
+    ]
+   },
+   "test2": {
+    "model": "rules",
+    "n": 187,
+    "accuracy": 0.118,
+    "acc_ci95": [
+     0.075,
+     0.166
+    ],
+    "macro_f1": 0.072,
+    "risk": {
+     "advice_seeking": {
+      "recall": 0.067,
+      "precision": 1.0
+     },
+     "evasion_request": {
+      "recall": 0.267,
+      "precision": 1.0
+     },
+     "high_risk_caught_by_any_guard": 0.167
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.0,
+     "personal_money_summary": 0.0,
+     "goal_status": 0.0,
+     "calculator_request": 0.0,
+     "regulation_question": 0.24,
+     "concept_explainer": 0.15,
+     "document_help": 0.0,
+     "market_data": 0.0,
+     "app_help": 0.0,
+     "advice_seeking": 0.12,
+     "evasion_request": 0.42,
+     "smalltalk": 0.0,
+     "out_of_scope": 0.0
+    },
+    "top_confusions": [
+     {
+      "n": 15,
+      "true": "out_of_scope",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 15,
+      "true": "goal_status",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 15,
+      "true": "document_help",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 15,
+      "true": "calculator_request",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 14,
+      "true": "personal_spend_query",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 14,
+      "true": "personal_money_summary",
+      "pred": "concept_explainer"
+     }
+    ]
+   },
+   "test3": {
+    "model": "rules",
+    "n": 251,
+    "accuracy": 0.116,
+    "acc_ci95": [
+     0.08,
+     0.155
+    ],
+    "macro_f1": 0.071,
+    "risk": {
+     "advice_seeking": {
+      "recall": 0.105,
+      "precision": 1.0
+     },
+     "evasion_request": {
+      "recall": 0.15,
+      "precision": 1.0
+     },
+     "high_risk_caught_by_any_guard": 0.128
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.0,
+     "personal_money_summary": 0.0,
+     "goal_status": 0.0,
+     "calculator_request": 0.0,
+     "regulation_question": 0.32,
+     "concept_explainer": 0.15,
+     "document_help": 0.0,
+     "market_data": 0.0,
+     "app_help": 0.0,
+     "advice_seeking": 0.19,
+     "evasion_request": 0.26,
+     "smalltalk": 0.0,
+     "out_of_scope": 0.0
+    },
+    "top_confusions": [
+     {
+      "n": 20,
+      "true": "personal_spend_query",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 20,
+      "true": "personal_money_summary",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 20,
+      "true": "goal_status",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 19,
+      "true": "out_of_scope",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 19,
+      "true": "market_data",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 19,
+      "true": "document_help",
+      "pred": "concept_explainer"
+     }
+    ]
+   },
+   "test4": {
+    "model": "rules",
+    "n": 233,
+    "accuracy": 0.133,
+    "acc_ci95": [
+     0.09,
+     0.176
+    ],
+    "macro_f1": 0.082,
+    "risk": {
+     "advice_seeking": {
+      "recall": 0.143,
+      "precision": 1.0
+     },
+     "evasion_request": {
+      "recall": 0.105,
+      "precision": 1.0
+     },
+     "high_risk_caught_by_any_guard": 0.125
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.0,
+     "personal_money_summary": 0.0,
+     "goal_status": 0.0,
+     "calculator_request": 0.0,
+     "regulation_question": 0.47,
+     "concept_explainer": 0.16,
+     "document_help": 0.0,
+     "market_data": 0.0,
+     "app_help": 0.0,
+     "advice_seeking": 0.25,
+     "evasion_request": 0.19,
+     "smalltalk": 0.0,
+     "out_of_scope": 0.0
+    },
+    "top_confusions": [
+     {
+      "n": 19,
+      "true": "goal_status",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 19,
+      "true": "document_help",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 19,
+      "true": "app_help",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 18,
+      "true": "personal_spend_query",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 18,
+      "true": "advice_seeking",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 17,
+      "true": "evasion_request",
+      "pred": "concept_explainer"
+     }
+    ]
+   },
+   "test5": {
+    "model": "rules",
+    "n": 181,
+    "accuracy": 0.127,
+    "acc_ci95": [
+     0.083,
+     0.177
+    ],
+    "macro_f1": 0.078,
+    "risk": {
+     "advice_seeking": {
+      "recall": 0.188,
+      "precision": 1.0
+     },
+     "evasion_request": {
+      "recall": 0.071,
+      "precision": 1.0
+     },
+     "high_risk_caught_by_any_guard": 0.133
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.0,
+     "personal_money_summary": 0.0,
+     "goal_status": 0.0,
+     "calculator_request": 0.0,
+     "regulation_question": 0.4,
+     "concept_explainer": 0.16,
+     "document_help": 0.0,
+     "market_data": 0.0,
+     "app_help": 0.0,
+     "advice_seeking": 0.32,
+     "evasion_request": 0.13,
+     "smalltalk": 0.0,
+     "out_of_scope": 0.0
+    },
+    "top_confusions": [
+     {
+      "n": 15,
+      "true": "document_help",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 15,
+      "true": "calculator_request",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 14,
+      "true": "personal_spend_query",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 14,
+      "true": "personal_money_summary",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 14,
+      "true": "app_help",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 13,
+      "true": "goal_status",
+      "pred": "concept_explainer"
+     }
+    ]
+   },
+   "test": {
+    "model": "rules",
+    "n": 317,
+    "accuracy": 0.114,
+    "acc_ci95": [
+     0.079,
+     0.148
+    ],
+    "macro_f1": 0.07,
+    "risk": {
+     "advice_seeking": {
+      "recall": 0.08,
+      "precision": 1.0
+     },
+     "evasion_request": {
+      "recall": 0.2,
+      "precision": 1.0
+     },
+     "high_risk_caught_by_any_guard": 0.14
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.0,
+     "personal_money_summary": 0.0,
+     "goal_status": 0.0,
+     "calculator_request": 0.0,
+     "regulation_question": 0.28,
+     "concept_explainer": 0.15,
+     "document_help": 0.0,
+     "market_data": 0.0,
+     "app_help": 0.0,
+     "advice_seeking": 0.15,
+     "evasion_request": 0.33,
+     "smalltalk": 0.0,
+     "out_of_scope": 0.0
+    },
+    "top_confusions": [
+     {
+      "n": 25,
+      "true": "out_of_scope",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 25,
+      "true": "goal_status",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 25,
+      "true": "document_help",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 25,
+      "true": "calculator_request",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 24,
+      "true": "personal_spend_query",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 24,
+      "true": "personal_money_summary",
+      "pred": "concept_explainer"
+     }
+    ]
+   },
+   "all": {
+    "model": "rules",
+    "n": 568,
+    "accuracy": 0.114,
+    "acc_ci95": [
+     0.09,
+     0.141
+    ],
+    "macro_f1": 0.071,
+    "risk": {
+     "advice_seeking": {
+      "recall": 0.091,
+      "precision": 1.0
+     },
+     "evasion_request": {
+      "recall": 0.178,
+      "precision": 1.0
+     },
+     "high_risk_caught_by_any_guard": 0.135
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.0,
+     "personal_money_summary": 0.0,
+     "goal_status": 0.0,
+     "calculator_request": 0.0,
+     "regulation_question": 0.3,
+     "concept_explainer": 0.15,
+     "document_help": 0.0,
+     "market_data": 0.0,
+     "app_help": 0.0,
+     "advice_seeking": 0.17,
+     "evasion_request": 0.3,
+     "smalltalk": 0.0,
+     "out_of_scope": 0.0
+    },
+    "top_confusions": [
+     {
+      "n": 45,
+      "true": "goal_status",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 44,
+      "true": "personal_spend_query",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 44,
+      "true": "personal_money_summary",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 44,
+      "true": "out_of_scope",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 44,
+      "true": "document_help",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 43,
+      "true": "calculator_request",
+      "pred": "concept_explainer"
+     }
+    ]
+   }
+  },
+  "tfidf_lr": {
+   "valid": {
+    "model": "tfidf_lr",
+    "n": 185,
+    "accuracy": 0.978,
+    "acc_ci95": [
+     0.957,
+     0.995
+    ],
+    "macro_f1": 0.964,
+    "risk": {
+     "advice_seeking": {
+      "recall": 1.0,
+      "precision": 0.947
+     },
+     "evasion_request": {
+      "recall": 1.0,
+      "precision": 1.0
+     },
+     "high_risk_caught_by_any_guard": 1.0
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 1.0,
+     "personal_money_summary": 0.92,
+     "goal_status": 0.96,
+     "calculator_request": 1.0,
+     "regulation_question": 1.0,
+     "concept_explainer": 0.98,
+     "document_help": 0.97,
+     "market_data": 1.0,
+     "app_help": 0.89,
+     "advice_seeking": 0.97,
+     "evasion_request": 1.0,
+     "smalltalk": 0.91,
+     "out_of_scope": 0.92
+    },
+    "top_confusions": [
+     {
+      "n": 1,
+      "true": "smalltalk",
+      "pred": "out_of_scope"
+     },
+     {
+      "n": 1,
+      "true": "goal_status",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 1,
+      "true": "concept_explainer",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 1,
+      "true": "app_help",
+      "pred": "document_help"
+     }
+    ]
+   },
+   "dev": {
+    "model": "tfidf_lr",
+    "n": 145,
+    "accuracy": 0.959,
+    "acc_ci95": [
+     0.924,
+     0.986
+    ],
+    "macro_f1": 0.955,
+    "risk": {
+     "advice_seeking": {
+      "recall": 0.929,
+      "precision": 1.0
+     },
+     "evasion_request": {
+      "recall": 0.923,
+      "precision": 1.0
+     },
+     "high_risk_caught_by_any_guard": 0.926
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 1.0,
+     "personal_money_summary": 0.95,
+     "goal_status": 1.0,
+     "calculator_request": 1.0,
+     "regulation_question": 1.0,
+     "concept_explainer": 0.92,
+     "document_help": 0.97,
+     "market_data": 0.82,
+     "app_help": 0.94,
+     "advice_seeking": 0.96,
+     "evasion_request": 0.96,
+     "smalltalk": 1.0,
+     "out_of_scope": 0.9
+    },
+    "top_confusions": [
+     {
+      "n": 1,
+      "true": "out_of_scope",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 1,
+      "true": "out_of_scope",
+      "pred": "market_data"
+     },
+     {
+      "n": 1,
+      "true": "market_data",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 1,
+      "true": "evasion_request",
+      "pred": "document_help"
+     },
+     {
+      "n": 1,
+      "true": "app_help",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 1,
+      "true": "advice_seeking",
+      "pred": "market_data"
+     }
+    ]
+   },
+   "nat1": {
+    "model": "tfidf_lr",
+    "n": 130,
+    "accuracy": 0.892,
+    "acc_ci95": [
+     0.838,
+     0.938
+    ],
+    "macro_f1": 0.887,
+    "risk": {
+     "advice_seeking": {
+      "recall": 1.0,
+      "precision": 0.714
+     },
+     "evasion_request": {
+      "recall": 0.8,
+      "precision": 0.8
+     },
+     "high_risk_caught_by_any_guard": 0.9
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.9,
+     "personal_money_summary": 0.91,
+     "goal_status": 0.89,
+     "calculator_request": 1.0,
+     "regulation_question": 0.95,
+     "concept_explainer": 0.78,
+     "document_help": 0.91,
+     "market_data": 1.0,
+     "app_help": 0.9,
+     "advice_seeking": 0.83,
+     "evasion_request": 0.8,
+     "smalltalk": 1.0,
+     "out_of_scope": 0.67
+    },
+    "top_confusions": [
+     {
+      "n": 2,
+      "true": "out_of_scope",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 2,
+      "true": "concept_explainer",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 1,
+      "true": "personal_spend_query",
+      "pred": "document_help"
+     },
+     {
+      "n": 1,
+      "true": "out_of_scope",
+      "pred": "personal_spend_query"
+     },
+     {
+      "n": 1,
+      "true": "out_of_scope",
+      "pred": "evasion_request"
+     },
+     {
+      "n": 1,
+      "true": "out_of_scope",
+      "pred": "app_help"
+     }
+    ]
+   },
+   "test2": {
+    "model": "tfidf_lr",
+    "n": 187,
+    "accuracy": 0.93,
+    "acc_ci95": [
+     0.888,
+     0.963
+    ],
+    "macro_f1": 0.931,
+    "risk": {
+     "advice_seeking": {
+      "recall": 1.0,
+      "precision": 0.833
+     },
+     "evasion_request": {
+      "recall": 0.933,
+      "precision": 1.0
+     },
+     "high_risk_caught_by_any_guard": 0.967
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.81,
+     "personal_money_summary": 0.84,
+     "goal_status": 0.97,
+     "calculator_request": 1.0,
+     "regulation_question": 0.97,
+     "concept_explainer": 1.0,
+     "document_help": 0.9,
+     "market_data": 1.0,
+     "app_help": 0.9,
+     "advice_seeking": 0.91,
+     "evasion_request": 0.97,
+     "smalltalk": 0.96,
+     "out_of_scope": 0.89
+    },
+    "top_confusions": [
+     {
+      "n": 3,
+      "true": "personal_spend_query",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 2,
+      "true": "out_of_scope",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 1,
+      "true": "smalltalk",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 1,
+      "true": "regulation_question",
+      "pred": "personal_spend_query"
+     },
+     {
+      "n": 1,
+      "true": "personal_money_summary",
+      "pred": "personal_spend_query"
+     },
+     {
+      "n": 1,
+      "true": "out_of_scope",
+      "pred": "app_help"
+     }
+    ]
+   },
+   "test3": {
+    "model": "tfidf_lr",
+    "n": 251,
+    "accuracy": 0.956,
+    "acc_ci95": [
+     0.928,
+     0.98
+    ],
+    "macro_f1": 0.956,
+    "risk": {
+     "advice_seeking": {
+      "recall": 1.0,
+      "precision": 0.826
+     },
+     "evasion_request": {
+      "recall": 1.0,
+      "precision": 0.952
+     },
+     "high_risk_caught_by_any_guard": 1.0
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.98,
+     "personal_money_summary": 0.97,
+     "goal_status": 1.0,
+     "calculator_request": 1.0,
+     "regulation_question": 0.9,
+     "concept_explainer": 0.95,
+     "document_help": 0.97,
+     "market_data": 0.97,
+     "app_help": 1.0,
+     "advice_seeking": 0.9,
+     "evasion_request": 0.98,
+     "smalltalk": 0.94,
+     "out_of_scope": 0.86
+    },
+    "top_confusions": [
+     {
+      "n": 2,
+      "true": "out_of_scope",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 1,
+      "true": "smalltalk",
+      "pred": "regulation_question"
+     },
+     {
+      "n": 1,
+      "true": "smalltalk",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 1,
+      "true": "regulation_question",
+      "pred": "out_of_scope"
+     },
+     {
+      "n": 1,
+      "true": "regulation_question",
+      "pred": "document_help"
+     },
+     {
+      "n": 1,
+      "true": "personal_money_summary",
+      "pred": "personal_spend_query"
+     }
+    ]
+   },
+   "test4": {
+    "model": "tfidf_lr",
+    "n": 233,
+    "accuracy": 0.987,
+    "acc_ci95": [
+     0.97,
+     1.0
+    ],
+    "macro_f1": 0.987,
+    "risk": {
+     "advice_seeking": {
+      "recall": 1.0,
+      "precision": 1.0
+     },
+     "evasion_request": {
+      "recall": 0.947,
+      "precision": 0.947
+     },
+     "high_risk_caught_by_any_guard": 0.975
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.97,
+     "personal_money_summary": 0.97,
+     "goal_status": 1.0,
+     "calculator_request": 1.0,
+     "regulation_question": 1.0,
+     "concept_explainer": 1.0,
+     "document_help": 1.0,
+     "market_data": 1.0,
+     "app_help": 0.98,
+     "advice_seeking": 1.0,
+     "evasion_request": 0.95,
+     "smalltalk": 1.0,
+     "out_of_scope": 0.97
+    },
+    "top_confusions": [
+     {
+      "n": 1,
+      "true": "personal_spend_query",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 1,
+      "true": "out_of_scope",
+      "pred": "evasion_request"
+     },
+     {
+      "n": 1,
+      "true": "evasion_request",
+      "pred": "app_help"
+     }
+    ]
+   },
+   "test5": {
+    "model": "tfidf_lr",
+    "n": 181,
+    "accuracy": 0.939,
+    "acc_ci95": [
+     0.901,
+     0.972
+    ],
+    "macro_f1": 0.937,
+    "risk": {
+     "advice_seeking": {
+      "recall": 1.0,
+      "precision": 0.941
+     },
+     "evasion_request": {
+      "recall": 1.0,
+      "precision": 0.778
+     },
+     "high_risk_caught_by_any_guard": 1.0
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.96,
+     "personal_money_summary": 0.93,
+     "goal_status": 1.0,
+     "calculator_request": 0.97,
+     "regulation_question": 0.97,
+     "concept_explainer": 1.0,
+     "document_help": 0.93,
+     "market_data": 0.92,
+     "app_help": 0.9,
+     "advice_seeking": 0.97,
+     "evasion_request": 0.88,
+     "smalltalk": 1.0,
+     "out_of_scope": 0.76
+    },
+    "top_confusions": [
+     {
+      "n": 2,
+      "true": "out_of_scope",
+      "pred": "evasion_request"
+     },
+     {
+      "n": 1,
+      "true": "regulation_question",
+      "pred": "evasion_request"
+     },
+     {
+      "n": 1,
+      "true": "personal_spend_query",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 1,
+      "true": "personal_money_summary",
+      "pred": "app_help"
+     },
+     {
+      "n": 1,
+      "true": "out_of_scope",
+      "pred": "market_data"
+     },
+     {
+      "n": 1,
+      "true": "out_of_scope",
+      "pred": "advice_seeking"
+     }
+    ]
+   },
+   "test": {
+    "model": "tfidf_lr",
+    "n": 317,
+    "accuracy": 0.915,
+    "acc_ci95": [
+     0.883,
+     0.946
+    ],
+    "macro_f1": 0.915,
+    "risk": {
+     "advice_seeking": {
+      "recall": 1.0,
+      "precision": 0.781
+     },
+     "evasion_request": {
+      "recall": 0.88,
+      "precision": 0.917
+     },
+     "high_risk_caught_by_any_guard": 0.94
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.85,
+     "personal_money_summary": 0.87,
+     "goal_status": 0.94,
+     "calculator_request": 1.0,
+     "regulation_question": 0.96,
+     "concept_explainer": 0.92,
+     "document_help": 0.91,
+     "market_data": 1.0,
+     "app_help": 0.9,
+     "advice_seeking": 0.88,
+     "evasion_request": 0.9,
+     "smalltalk": 0.98,
+     "out_of_scope": 0.81
+    },
+    "top_confusions": [
+     {
+      "n": 4,
+      "true": "out_of_scope",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 3,
+      "true": "personal_spend_query",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 2,
+      "true": "out_of_scope",
+      "pred": "app_help"
+     },
+     {
+      "n": 2,
+      "true": "goal_status",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 2,
+      "true": "concept_explainer",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 2,
+      "true": "app_help",
+      "pred": "document_help"
+     }
+    ]
+   },
+   "all": {
+    "model": "tfidf_lr",
+    "n": 568,
+    "accuracy": 0.933,
+    "acc_ci95": [
+     0.912,
+     0.952
+    ],
+    "macro_f1": 0.933,
+    "risk": {
+     "advice_seeking": {
+      "recall": 1.0,
+      "precision": 0.8
+     },
+     "evasion_request": {
+      "recall": 0.933,
+      "precision": 0.933
+     },
+     "high_risk_caught_by_any_guard": 0.966
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.91,
+     "personal_money_summary": 0.91,
+     "goal_status": 0.97,
+     "calculator_request": 1.0,
+     "regulation_question": 0.93,
+     "concept_explainer": 0.93,
+     "document_help": 0.93,
+     "market_data": 0.99,
+     "app_help": 0.94,
+     "advice_seeking": 0.89,
+     "evasion_request": 0.93,
+     "smalltalk": 0.96,
+     "out_of_scope": 0.83
+    },
+    "top_confusions": [
+     {
+      "n": 6,
+      "true": "out_of_scope",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 3,
+      "true": "personal_spend_query",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 3,
+      "true": "concept_explainer",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 2,
+      "true": "smalltalk",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 2,
+      "true": "personal_money_summary",
+      "pred": "personal_spend_query"
+     },
+     {
+      "n": 2,
+      "true": "out_of_scope",
+      "pred": "evasion_request"
+     }
+    ]
+   }
+  },
+  "embed_lr": {
+   "valid": {
+    "model": "embed_lr",
+    "n": 185,
+    "accuracy": 0.903,
+    "acc_ci95": [
+     0.854,
+     0.941
+    ],
+    "macro_f1": 0.888,
+    "risk": {
+     "advice_seeking": {
+      "recall": 0.889,
+      "precision": 0.8
+     },
+     "evasion_request": {
+      "recall": 1.0,
+      "precision": 0.833
+     },
+     "high_risk_caught_by_any_guard": 0.913
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.89,
+     "personal_money_summary": 0.8,
+     "goal_status": 0.96,
+     "calculator_request": 0.93,
+     "regulation_question": 1.0,
+     "concept_explainer": 0.89,
+     "document_help": 0.88,
+     "market_data": 0.93,
+     "app_help": 0.67,
+     "advice_seeking": 0.84,
+     "evasion_request": 0.91,
+     "smalltalk": 0.83,
+     "out_of_scope": 1.0
+    },
+    "top_confusions": [
+     {
+      "n": 3,
+      "true": "personal_spend_query",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 2,
+      "true": "market_data",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 2,
+      "true": "document_help",
+      "pred": "app_help"
+     },
+     {
+      "n": 1,
+      "true": "smalltalk",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 1,
+      "true": "personal_spend_query",
+      "pred": "goal_status"
+     },
+     {
+      "n": 1,
+      "true": "personal_spend_query",
+      "pred": "advice_seeking"
+     }
+    ]
+   },
+   "dev": {
+    "model": "embed_lr",
+    "n": 145,
+    "accuracy": 0.89,
+    "acc_ci95": [
+     0.834,
+     0.938
+    ],
+    "macro_f1": 0.866,
+    "risk": {
+     "advice_seeking": {
+      "recall": 0.929,
+      "precision": 0.812
+     },
+     "evasion_request": {
+      "recall": 0.846,
+      "precision": 1.0
+     },
+     "high_risk_caught_by_any_guard": 0.963
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.96,
+     "personal_money_summary": 0.8,
+     "goal_status": 0.91,
+     "calculator_request": 0.93,
+     "regulation_question": 0.97,
+     "concept_explainer": 1.0,
+     "document_help": 0.96,
+     "market_data": 0.84,
+     "app_help": 0.8,
+     "advice_seeking": 0.87,
+     "evasion_request": 0.92,
+     "smalltalk": 0.57,
+     "out_of_scope": 0.74
+    },
+    "top_confusions": [
+     {
+      "n": 2,
+      "true": "smalltalk",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 2,
+      "true": "out_of_scope",
+      "pred": "market_data"
+     },
+     {
+      "n": 2,
+      "true": "evasion_request",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 1,
+      "true": "personal_spend_query",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 1,
+      "true": "personal_money_summary",
+      "pred": "calculator_request"
+     },
+     {
+      "n": 1,
+      "true": "out_of_scope",
+      "pred": "smalltalk"
+     }
+    ]
+   },
+   "nat1": {
+    "model": "embed_lr",
+    "n": 130,
+    "accuracy": 0.946,
+    "acc_ci95": [
+     0.908,
+     0.985
+    ],
+    "macro_f1": 0.946,
+    "risk": {
+     "advice_seeking": {
+      "recall": 1.0,
+      "precision": 0.833
+     },
+     "evasion_request": {
+      "recall": 0.8,
+      "precision": 1.0
+     },
+     "high_risk_caught_by_any_guard": 0.9
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.95,
+     "personal_money_summary": 0.95,
+     "goal_status": 1.0,
+     "calculator_request": 1.0,
+     "regulation_question": 0.95,
+     "concept_explainer": 0.8,
+     "document_help": 1.0,
+     "market_data": 0.9,
+     "app_help": 1.0,
+     "advice_seeking": 0.91,
+     "evasion_request": 0.89,
+     "smalltalk": 1.0,
+     "out_of_scope": 0.95
+    },
+    "top_confusions": [
+     {
+      "n": 2,
+      "true": "concept_explainer",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 1,
+      "true": "personal_spend_query",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 1,
+      "true": "out_of_scope",
+      "pred": "market_data"
+     },
+     {
+      "n": 1,
+      "true": "market_data",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 1,
+      "true": "evasion_request",
+      "pred": "regulation_question"
+     },
+     {
+      "n": 1,
+      "true": "evasion_request",
+      "pred": "concept_explainer"
+     }
+    ]
+   },
+   "test2": {
+    "model": "embed_lr",
+    "n": 187,
+    "accuracy": 0.909,
+    "acc_ci95": [
+     0.866,
+     0.947
+    ],
+    "macro_f1": 0.908,
+    "risk": {
+     "advice_seeking": {
+      "recall": 0.933,
+      "precision": 0.875
+     },
+     "evasion_request": {
+      "recall": 0.867,
+      "precision": 1.0
+     },
+     "high_risk_caught_by_any_guard": 0.9
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.92,
+     "personal_money_summary": 0.83,
+     "goal_status": 0.93,
+     "calculator_request": 1.0,
+     "regulation_question": 0.84,
+     "concept_explainer": 0.94,
+     "document_help": 0.9,
+     "market_data": 0.96,
+     "app_help": 0.86,
+     "advice_seeking": 0.9,
+     "evasion_request": 0.93,
+     "smalltalk": 0.86,
+     "out_of_scope": 0.94
+    },
+    "top_confusions": [
+     {
+      "n": 2,
+      "true": "regulation_question",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 2,
+      "true": "personal_spend_query",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 1,
+      "true": "smalltalk",
+      "pred": "out_of_scope"
+     },
+     {
+      "n": 1,
+      "true": "smalltalk",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 1,
+      "true": "smalltalk",
+      "pred": "app_help"
+     },
+     {
+      "n": 1,
+      "true": "personal_money_summary",
+      "pred": "out_of_scope"
+     }
+    ]
+   },
+   "test3": {
+    "model": "embed_lr",
+    "n": 251,
+    "accuracy": 0.837,
+    "acc_ci95": [
+     0.789,
+     0.88
+    ],
+    "macro_f1": 0.839,
+    "risk": {
+     "advice_seeking": {
+      "recall": 0.947,
+      "precision": 0.692
+     },
+     "evasion_request": {
+      "recall": 0.8,
+      "precision": 0.842
+     },
+     "high_risk_caught_by_any_guard": 0.872
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.89,
+     "personal_money_summary": 0.9,
+     "goal_status": 0.78,
+     "calculator_request": 0.84,
+     "regulation_question": 0.85,
+     "concept_explainer": 0.74,
+     "document_help": 0.89,
+     "market_data": 0.89,
+     "app_help": 0.89,
+     "advice_seeking": 0.8,
+     "evasion_request": 0.82,
+     "smalltalk": 0.88,
+     "out_of_scope": 0.72
+    },
+    "top_confusions": [
+     {
+      "n": 3,
+      "true": "out_of_scope",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 2,
+      "true": "smalltalk",
+      "pred": "out_of_scope"
+     },
+     {
+      "n": 2,
+      "true": "smalltalk",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 2,
+      "true": "regulation_question",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 2,
+      "true": "goal_status",
+      "pred": "calculator_request"
+     },
+     {
+      "n": 2,
+      "true": "document_help",
+      "pred": "concept_explainer"
+     }
+    ]
+   },
+   "test4": {
+    "model": "embed_lr",
+    "n": 233,
+    "accuracy": 0.91,
+    "acc_ci95": [
+     0.871,
+     0.944
+    ],
+    "macro_f1": 0.911,
+    "risk": {
+     "advice_seeking": {
+      "recall": 0.952,
+      "precision": 0.769
+     },
+     "evasion_request": {
+      "recall": 0.842,
+      "precision": 0.941
+     },
+     "high_risk_caught_by_any_guard": 0.95
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.94,
+     "personal_money_summary": 0.94,
+     "goal_status": 0.94,
+     "calculator_request": 0.91,
+     "regulation_question": 0.88,
+     "concept_explainer": 0.93,
+     "document_help": 0.94,
+     "market_data": 0.9,
+     "app_help": 0.93,
+     "advice_seeking": 0.85,
+     "evasion_request": 0.89,
+     "smalltalk": 0.92,
+     "out_of_scope": 0.86
+    },
+    "top_confusions": [
+     {
+      "n": 2,
+      "true": "smalltalk",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 2,
+      "true": "evasion_request",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 2,
+      "true": "document_help",
+      "pred": "app_help"
+     },
+     {
+      "n": 1,
+      "true": "regulation_question",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 1,
+      "true": "regulation_question",
+      "pred": "calculator_request"
+     },
+     {
+      "n": 1,
+      "true": "regulation_question",
+      "pred": "advice_seeking"
+     }
+    ]
+   },
+   "test5": {
+    "model": "embed_lr",
+    "n": 181,
+    "accuracy": 0.901,
+    "acc_ci95": [
+     0.856,
+     0.939
+    ],
+    "macro_f1": 0.9,
+    "risk": {
+     "advice_seeking": {
+      "recall": 0.875,
+      "precision": 0.933
+     },
+     "evasion_request": {
+      "recall": 0.929,
+      "precision": 0.765
+     },
+     "high_risk_caught_by_any_guard": 0.9
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.96,
+     "personal_money_summary": 0.83,
+     "goal_status": 0.96,
+     "calculator_request": 0.97,
+     "regulation_question": 0.9,
+     "concept_explainer": 0.94,
+     "document_help": 0.93,
+     "market_data": 0.96,
+     "app_help": 0.89,
+     "advice_seeking": 0.9,
+     "evasion_request": 0.84,
+     "smalltalk": 0.91,
+     "out_of_scope": 0.72
+    },
+    "top_confusions": [
+     {
+      "n": 2,
+      "true": "advice_seeking",
+      "pred": "out_of_scope"
+     },
+     {
+      "n": 1,
+      "true": "smalltalk",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 1,
+      "true": "regulation_question",
+      "pred": "out_of_scope"
+     },
+     {
+      "n": 1,
+      "true": "regulation_question",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 1,
+      "true": "personal_spend_query",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 1,
+      "true": "personal_money_summary",
+      "pred": "regulation_question"
+     }
+    ]
+   },
+   "test": {
+    "model": "embed_lr",
+    "n": 317,
+    "accuracy": 0.924,
+    "acc_ci95": [
+     0.896,
+     0.953
+    ],
+    "macro_f1": 0.925,
+    "risk": {
+     "advice_seeking": {
+      "recall": 0.96,
+      "precision": 0.857
+     },
+     "evasion_request": {
+      "recall": 0.84,
+      "precision": 1.0
+     },
+     "high_risk_caught_by_any_guard": 0.9
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.93,
+     "personal_money_summary": 0.88,
+     "goal_status": 0.96,
+     "calculator_request": 1.0,
+     "regulation_question": 0.88,
+     "concept_explainer": 0.88,
+     "document_help": 0.94,
+     "market_data": 0.94,
+     "app_help": 0.92,
+     "advice_seeking": 0.91,
+     "evasion_request": 0.91,
+     "smalltalk": 0.93,
+     "out_of_scope": 0.94
+    },
+    "top_confusions": [
+     {
+      "n": 3,
+      "true": "personal_spend_query",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 2,
+      "true": "regulation_question",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 2,
+      "true": "evasion_request",
+      "pred": "regulation_question"
+     },
+     {
+      "n": 2,
+      "true": "concept_explainer",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 1,
+      "true": "smalltalk",
+      "pred": "out_of_scope"
+     },
+     {
+      "n": 1,
+      "true": "smalltalk",
+      "pred": "concept_explainer"
+     }
+    ]
+   },
+   "all": {
+    "model": "embed_lr",
+    "n": 568,
+    "accuracy": 0.886,
+    "acc_ci95": [
+     0.859,
+     0.91
+    ],
+    "macro_f1": 0.887,
+    "risk": {
+     "advice_seeking": {
+      "recall": 0.955,
+      "precision": 0.778
+     },
+     "evasion_request": {
+      "recall": 0.822,
+      "precision": 0.925
+     },
+     "high_risk_caught_by_any_guard": 0.888
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.91,
+     "personal_money_summary": 0.89,
+     "goal_status": 0.88,
+     "calculator_request": 0.93,
+     "regulation_question": 0.87,
+     "concept_explainer": 0.82,
+     "document_help": 0.92,
+     "market_data": 0.92,
+     "app_help": 0.9,
+     "advice_seeking": 0.86,
+     "evasion_request": 0.87,
+     "smalltalk": 0.9,
+     "out_of_scope": 0.85
+    },
+    "top_confusions": [
+     {
+      "n": 4,
+      "true": "regulation_question",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 4,
+      "true": "personal_spend_query",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 3,
+      "true": "smalltalk",
+      "pred": "out_of_scope"
+     },
+     {
+      "n": 3,
+      "true": "smalltalk",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 3,
+      "true": "out_of_scope",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 3,
+      "true": "evasion_request",
+      "pred": "regulation_question"
+     }
+    ]
+   }
+  },
+  "chosen_blend": {
+   "valid": {
+    "model": "chosen_blend",
+    "n": 185,
+    "accuracy": 0.984,
+    "acc_ci95": [
+     0.962,
+     1.0
+    ],
+    "macro_f1": 0.972,
+    "risk": {
+     "advice_seeking": {
+      "recall": 1.0,
+      "precision": 0.947
+     },
+     "evasion_request": {
+      "recall": 1.0,
+      "precision": 1.0
+     },
+     "high_risk_caught_by_any_guard": 1.0
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 1.0,
+     "personal_money_summary": 1.0,
+     "goal_status": 1.0,
+     "calculator_request": 1.0,
+     "regulation_question": 1.0,
+     "concept_explainer": 1.0,
+     "document_help": 0.97,
+     "market_data": 0.97,
+     "app_help": 0.89,
+     "advice_seeking": 0.97,
+     "evasion_request": 1.0,
+     "smalltalk": 0.91,
+     "out_of_scope": 0.92
+    },
+    "top_confusions": [
+     {
+      "n": 1,
+      "true": "smalltalk",
+      "pred": "out_of_scope"
+     },
+     {
+      "n": 1,
+      "true": "market_data",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 1,
+      "true": "app_help",
+      "pred": "document_help"
+     }
+    ]
+   },
+   "dev": {
+    "model": "chosen_blend",
+    "n": 145,
+    "accuracy": 0.979,
+    "acc_ci95": [
+     0.952,
+     1.0
+    ],
+    "macro_f1": 0.977,
+    "risk": {
+     "advice_seeking": {
+      "recall": 0.929,
+      "precision": 1.0
+     },
+     "evasion_request": {
+      "recall": 1.0,
+      "precision": 1.0
+     },
+     "high_risk_caught_by_any_guard": 0.963
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 1.0,
+     "personal_money_summary": 0.95,
+     "goal_status": 1.0,
+     "calculator_request": 1.0,
+     "regulation_question": 1.0,
+     "concept_explainer": 0.96,
+     "document_help": 1.0,
+     "market_data": 0.94,
+     "app_help": 0.94,
+     "advice_seeking": 0.96,
+     "evasion_request": 1.0,
+     "smalltalk": 1.0,
+     "out_of_scope": 0.95
+    },
+    "top_confusions": [
+     {
+      "n": 1,
+      "true": "out_of_scope",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 1,
+      "true": "app_help",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 1,
+      "true": "advice_seeking",
+      "pred": "market_data"
+     }
+    ]
+   },
+   "nat1": {
+    "model": "chosen_blend",
+    "n": 130,
+    "accuracy": 0.931,
+    "acc_ci95": [
+     0.885,
+     0.969
+    ],
+    "macro_f1": 0.931,
+    "risk": {
+     "advice_seeking": {
+      "recall": 1.0,
+      "precision": 0.833
+     },
+     "evasion_request": {
+      "recall": 0.9,
+      "precision": 1.0
+     },
+     "high_risk_caught_by_any_guard": 0.95
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.9,
+     "personal_money_summary": 0.91,
+     "goal_status": 0.95,
+     "calculator_request": 1.0,
+     "regulation_question": 1.0,
+     "concept_explainer": 0.8,
+     "document_help": 0.95,
+     "market_data": 0.95,
+     "app_help": 0.9,
+     "advice_seeking": 0.91,
+     "evasion_request": 0.95,
+     "smalltalk": 1.0,
+     "out_of_scope": 0.89
+    },
+    "top_confusions": [
+     {
+      "n": 2,
+      "true": "concept_explainer",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 1,
+      "true": "personal_spend_query",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 1,
+      "true": "out_of_scope",
+      "pred": "personal_spend_query"
+     },
+     {
+      "n": 1,
+      "true": "out_of_scope",
+      "pred": "app_help"
+     },
+     {
+      "n": 1,
+      "true": "market_data",
+      "pred": "concept_explainer"
+     },
+     {
+      "n": 1,
+      "true": "goal_status",
+      "pred": "personal_money_summary"
+     }
+    ]
+   },
+   "test2": {
+    "model": "chosen_blend",
+    "n": 187,
+    "accuracy": 0.947,
+    "acc_ci95": [
+     0.909,
+     0.973
+    ],
+    "macro_f1": 0.947,
+    "risk": {
+     "advice_seeking": {
+      "recall": 1.0,
+      "precision": 0.938
+     },
+     "evasion_request": {
+      "recall": 0.933,
+      "precision": 1.0
+     },
+     "high_risk_caught_by_any_guard": 0.967
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.89,
+     "personal_money_summary": 0.87,
+     "goal_status": 0.97,
+     "calculator_request": 1.0,
+     "regulation_question": 1.0,
+     "concept_explainer": 1.0,
+     "document_help": 0.9,
+     "market_data": 1.0,
+     "app_help": 0.87,
+     "advice_seeking": 0.97,
+     "evasion_request": 0.97,
+     "smalltalk": 0.96,
+     "out_of_scope": 0.93
+    },
+    "top_confusions": [
+     {
+      "n": 2,
+      "true": "personal_spend_query",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 1,
+      "true": "smalltalk",
+      "pred": "app_help"
+     },
+     {
+      "n": 1,
+      "true": "personal_money_summary",
+      "pred": "personal_spend_query"
+     },
+     {
+      "n": 1,
+      "true": "out_of_scope",
+      "pred": "app_help"
+     },
+     {
+      "n": 1,
+      "true": "out_of_scope",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 1,
+      "true": "goal_status",
+      "pred": "personal_money_summary"
+     }
+    ]
+   },
+   "test3": {
+    "model": "chosen_blend",
+    "n": 251,
+    "accuracy": 0.964,
+    "acc_ci95": [
+     0.94,
+     0.984
+    ],
+    "macro_f1": 0.964,
+    "risk": {
+     "advice_seeking": {
+      "recall": 1.0,
+      "precision": 0.826
+     },
+     "evasion_request": {
+      "recall": 1.0,
+      "precision": 0.952
+     },
+     "high_risk_caught_by_any_guard": 1.0
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.98,
+     "personal_money_summary": 0.97,
+     "goal_status": 1.0,
+     "calculator_request": 1.0,
+     "regulation_question": 0.95,
+     "concept_explainer": 0.95,
+     "document_help": 1.0,
+     "market_data": 0.95,
+     "app_help": 1.0,
+     "advice_seeking": 0.9,
+     "evasion_request": 0.98,
+     "smalltalk": 0.94,
+     "out_of_scope": 0.91
+    },
+    "top_confusions": [
+     {
+      "n": 1,
+      "true": "smalltalk",
+      "pred": "regulation_question"
+     },
+     {
+      "n": 1,
+      "true": "smalltalk",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 1,
+      "true": "personal_money_summary",
+      "pred": "personal_spend_query"
+     },
+     {
+      "n": 1,
+      "true": "out_of_scope",
+      "pred": "market_data"
+     },
+     {
+      "n": 1,
+      "true": "out_of_scope",
+      "pred": "evasion_request"
+     },
+     {
+      "n": 1,
+      "true": "out_of_scope",
+      "pred": "advice_seeking"
+     }
+    ]
+   },
+   "test4": {
+    "model": "chosen_blend",
+    "n": 233,
+    "accuracy": 0.983,
+    "acc_ci95": [
+     0.966,
+     0.996
+    ],
+    "macro_f1": 0.983,
+    "risk": {
+     "advice_seeking": {
+      "recall": 1.0,
+      "precision": 1.0
+     },
+     "evasion_request": {
+      "recall": 0.947,
+      "precision": 0.947
+     },
+     "high_risk_caught_by_any_guard": 0.975
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.97,
+     "personal_money_summary": 0.97,
+     "goal_status": 1.0,
+     "calculator_request": 1.0,
+     "regulation_question": 1.0,
+     "concept_explainer": 1.0,
+     "document_help": 0.97,
+     "market_data": 1.0,
+     "app_help": 0.95,
+     "advice_seeking": 1.0,
+     "evasion_request": 0.95,
+     "smalltalk": 1.0,
+     "out_of_scope": 0.97
+    },
+    "top_confusions": [
+     {
+      "n": 1,
+      "true": "personal_spend_query",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 1,
+      "true": "out_of_scope",
+      "pred": "evasion_request"
+     },
+     {
+      "n": 1,
+      "true": "evasion_request",
+      "pred": "app_help"
+     },
+     {
+      "n": 1,
+      "true": "document_help",
+      "pred": "app_help"
+     }
+    ]
+   },
+   "test5": {
+    "model": "chosen_blend",
+    "n": 181,
+    "accuracy": 0.95,
+    "acc_ci95": [
+     0.917,
+     0.978
+    ],
+    "macro_f1": 0.948,
+    "risk": {
+     "advice_seeking": {
+      "recall": 1.0,
+      "precision": 0.941
+     },
+     "evasion_request": {
+      "recall": 1.0,
+      "precision": 0.875
+     },
+     "high_risk_caught_by_any_guard": 1.0
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.96,
+     "personal_money_summary": 0.93,
+     "goal_status": 1.0,
+     "calculator_request": 0.97,
+     "regulation_question": 1.0,
+     "concept_explainer": 1.0,
+     "document_help": 0.93,
+     "market_data": 0.92,
+     "app_help": 0.9,
+     "advice_seeking": 0.97,
+     "evasion_request": 0.93,
+     "smalltalk": 1.0,
+     "out_of_scope": 0.82
+    },
+    "top_confusions": [
+     {
+      "n": 1,
+      "true": "personal_spend_query",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 1,
+      "true": "personal_money_summary",
+      "pred": "app_help"
+     },
+     {
+      "n": 1,
+      "true": "out_of_scope",
+      "pred": "market_data"
+     },
+     {
+      "n": 1,
+      "true": "out_of_scope",
+      "pred": "evasion_request"
+     },
+     {
+      "n": 1,
+      "true": "out_of_scope",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 1,
+      "true": "document_help",
+      "pred": "evasion_request"
+     }
+    ]
+   },
+   "test": {
+    "model": "chosen_blend",
+    "n": 317,
+    "accuracy": 0.94,
+    "acc_ci95": [
+     0.912,
+     0.965
+    ],
+    "macro_f1": 0.941,
+    "risk": {
+     "advice_seeking": {
+      "recall": 1.0,
+      "precision": 0.893
+     },
+     "evasion_request": {
+      "recall": 0.92,
+      "precision": 1.0
+     },
+     "high_risk_caught_by_any_guard": 0.96
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.89,
+     "personal_money_summary": 0.88,
+     "goal_status": 0.96,
+     "calculator_request": 1.0,
+     "regulation_question": 1.0,
+     "concept_explainer": 0.92,
+     "document_help": 0.92,
+     "market_data": 0.98,
+     "app_help": 0.88,
+     "advice_seeking": 0.94,
+     "evasion_request": 0.96,
+     "smalltalk": 0.98,
+     "out_of_scope": 0.91
+    },
+    "top_confusions": [
+     {
+      "n": 3,
+      "true": "personal_spend_query",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 2,
+      "true": "out_of_scope",
+      "pred": "app_help"
+     },
+     {
+      "n": 2,
+      "true": "goal_status",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 2,
+      "true": "concept_explainer",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 2,
+      "true": "app_help",
+      "pred": "document_help"
+     },
+     {
+      "n": 1,
+      "true": "smalltalk",
+      "pred": "app_help"
+     }
+    ]
+   },
+   "all": {
+    "model": "chosen_blend",
+    "n": 568,
+    "accuracy": 0.951,
+    "acc_ci95": [
+     0.933,
+     0.967
+    ],
+    "macro_f1": 0.951,
+    "risk": {
+     "advice_seeking": {
+      "recall": 1.0,
+      "precision": 0.863
+     },
+     "evasion_request": {
+      "recall": 0.956,
+      "precision": 0.977
+     },
+     "high_risk_caught_by_any_guard": 0.978
+    },
+    "per_intent_f1": {
+     "personal_spend_query": 0.93,
+     "personal_money_summary": 0.92,
+     "goal_status": 0.98,
+     "calculator_request": 1.0,
+     "regulation_question": 0.98,
+     "concept_explainer": 0.93,
+     "document_help": 0.96,
+     "market_data": 0.96,
+     "app_help": 0.93,
+     "advice_seeking": 0.93,
+     "evasion_request": 0.97,
+     "smalltalk": 0.96,
+     "out_of_scope": 0.91
+    },
+    "top_confusions": [
+     {
+      "n": 3,
+      "true": "personal_spend_query",
+      "pred": "personal_money_summary"
+     },
+     {
+      "n": 3,
+      "true": "concept_explainer",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 2,
+      "true": "personal_money_summary",
+      "pred": "personal_spend_query"
+     },
+     {
+      "n": 2,
+      "true": "out_of_scope",
+      "pred": "app_help"
+     },
+     {
+      "n": 2,
+      "true": "out_of_scope",
+      "pred": "advice_seeking"
+     },
+     {
+      "n": 2,
+      "true": "goal_status",
+      "pred": "personal_money_summary"
+     }
+    ]
+   }
+  }
+ },
+ "tfidf_C": 20,
+ "tfidf_dev_macro_f1": 0.955,
+ "embed_C": 5,
+ "embed_dev_macro_f1": 0.866,
+ "ensemble_embed_weight": 0.5,
+ "guard_threshold": {
+  "chosen_on_dev": 0.15,
+  "rule": "regex OR high-risk probability mass >= threshold",
+  "met_dev_recall_99": true
+ },
+ "guard": {
+  "dev": {
+   "recall": 1.0,
+   "false_alarm_rate": 0.068,
+   "n_risky": 27,
+   "n_benign": 118
+  },
+  "nat1": {
+   "recall": 1.0,
+   "false_alarm_rate": 0.1,
+   "n_risky": 20,
+   "n_benign": 110
+  },
+  "test2": {
+   "recall": 1.0,
+   "false_alarm_rate": 0.096,
+   "n_risky": 30,
+   "n_benign": 157
+  },
+  "test3": {
+   "recall": 1.0,
+   "false_alarm_rate": 0.113,
+   "n_risky": 39,
+   "n_benign": 212
+  },
+  "test4": {
+   "recall": 1.0,
+   "false_alarm_rate": 0.021,
+   "n_risky": 40,
+   "n_benign": 193
+  },
+  "test5": {
+   "recall": 1.0,
+   "false_alarm_rate": 0.093,
+   "n_risky": 30,
+   "n_benign": 151
+  },
+  "test": {
+   "recall": 1.0,
+   "false_alarm_rate": 0.097,
+   "n_risky": 50,
+   "n_benign": 267
+  },
+  "all": {
+   "recall": 1.0,
+   "false_alarm_rate": 0.104,
+   "n_risky": 89,
+   "n_benign": 479
+  }
+ },
+ "guard_curve_test": [
+  {
+   "thr": 0.1,
+   "recall": 1.0,
+   "false_alarm_rate": 0.187,
+   "n_risky": 50,
+   "n_benign": 267
+  },
+  {
+   "thr": 0.2,
+   "recall": 1.0,
+   "false_alarm_rate": 0.049,
+   "n_risky": 50,
+   "n_benign": 267
+  },
+  {
+   "thr": 0.3,
+   "recall": 0.98,
+   "false_alarm_rate": 0.019,
+   "n_risky": 50,
+   "n_benign": 267
+  },
+  {
+   "thr": 0.4,
+   "recall": 0.98,
+   "false_alarm_rate": 0.011,
+   "n_risky": 50,
+   "n_benign": 267
+  },
+  {
+   "thr": 0.5,
+   "recall": 0.9,
+   "false_alarm_rate": 0.004,
+   "n_risky": 50,
+   "n_benign": 267
+  }
+ ],
+ "guard_curve_test3": [
+  {
+   "thr": 0.1,
+   "recall": 1.0,
+   "false_alarm_rate": 0.184,
+   "n_risky": 39,
+   "n_benign": 212
+  },
+  {
+   "thr": 0.2,
+   "recall": 1.0,
+   "false_alarm_rate": 0.066,
+   "n_risky": 39,
+   "n_benign": 212
+  },
+  {
+   "thr": 0.3,
+   "recall": 1.0,
+   "false_alarm_rate": 0.028,
+   "n_risky": 39,
+   "n_benign": 212
+  },
+  {
+   "thr": 0.4,
+   "recall": 1.0,
+   "false_alarm_rate": 0.014,
+   "n_risky": 39,
+   "n_benign": 212
+  },
+  {
+   "thr": 0.5,
+   "recall": 0.949,
+   "false_alarm_rate": 0.0,
+   "n_risky": 39,
+   "n_benign": 212
+  }
+ ],
+ "lang_accuracy_test": {
+  "hi_en": 0.963,
+  "hi": 0.937,
+  "en": 0.949
+ },
+ "gates": {
+  "macro_f1_target_0.95": {
+   "value": 0.951,
+   "met": true
+  },
+  "high_risk_recall_target_0.99": {
+   "value": 1.0,
+   "met": true
+  }
+ },
+ "gates_test5": {
+  "macro_f1_target_0.95": {
+   "value": 0.948,
+   "met": false
+  },
+  "high_risk_recall_target_0.99": {
+   "value": 1.0,
+   "met": true
+  }
+ }
+}

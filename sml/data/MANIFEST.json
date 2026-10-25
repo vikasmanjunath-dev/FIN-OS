@@ -19,12 +19,73 @@
  "counts": {
   "train": 610,
   "valid_template_heldout": 185,
-  "natural_test": 130
+  "natural_test": 130,
+  "dev": 424,
+  "test_v2": 187,
+  "train_extra": 1354,
+  "test_v3": 251,
+  "test_v4": 233,
+  "test_v5": 181,
+  "test_v6": 217
  },
  "sha256": {
   "train.jsonl": "b1e47f1103feeba5506a536aefc8d761b3bd629e78590bcbd5355ab6fa5a8b8c",
   "valid.jsonl": "688e0511c4deb60c960a6f880b82d4cee66f9e1b89d39652fad3c64ee97cb9e9",
-  "natural_test.jsonl": "149d86ddddad56e349cfc719ea30ef6d18db5e4f20e62c6c5afee796a776527b"
+  "natural_test.jsonl": "149d86ddddad56e349cfc719ea30ef6d18db5e4f20e62c6c5afee796a776527b",
+  "dev.jsonl": "970b48a97fc64707cc0aea2baa575eaf9fb4549b94ef312aa77cd2ec37d22715",
+  "test_v2.jsonl": "cfe7ae62cadef36bf937bb83cab4c3400a4bac82ef55bab573a3d2e5df47d486",
+  "train_extra.jsonl": "9e8fb6476b9cf36a57b99bb56691409b71b26fda43aaa01b5f151c851b5f12fe",
+  "test_v3.jsonl": "c9d724ebcc2d37dff43a59271125d016baecc568a07f4e56e02f67e9633c3819",
+  "test_v4.jsonl": "efc612464d8d88381c0cb66aed6d3fd3e7736a8a4aade1ce2125e035a29c6163",
+  "test_v5.jsonl": "2785e5e4ccb1ea577f5e5eac00f123c0cf635ca7b0ba32761f9a2d1d5de67ca3",
+  "test_v6.jsonl": "5be8e26e5f4aec8c693fa360fa13c8fb7f54cd22859fbf6c60b25304bf7207cc"
  },
- "notes": "valid holds out whole templates; natural_test is hand-written and must never be used for training or threshold tuning. Synthetic text only; no personal data."
+ "notes": "valid holds out whole templates; natural_test is hand-written and must never be used for training or threshold tuning. Synthetic text only; no personal data.",
+ "incoming_report": {
+  "dropped": {
+   "test3": {
+    "bad_rows": 0,
+    "duplicates": 9,
+    "kept": 251
+   },
+   "test": {
+    "bad_rows": 0,
+    "duplicates": 8,
+    "kept": 187
+   },
+   "dev": {
+    "bad_rows": 0,
+    "duplicates": 32,
+    "kept": 163
+   },
+   "test4": {
+    "bad_rows": 0,
+    "duplicates": 37,
+    "kept": 233
+   },
+   "test5": {
+    "bad_rows": 0,
+    "duplicates": 19,
+    "kept": 181
+   },
+   "dev2": {
+    "bad_rows": 0,
+    "duplicates": 19,
+    "kept": 301
+   },
+   "test6": {
+    "bad_rows": 0,
+    "duplicates": 43,
+    "kept": 217
+   },
+   "dev_near_dup_of_test": 40,
+   "train_extra": {
+    "bad_rows": 0,
+    "duplicates": 90,
+    "near_duplicates_of_heldout": 66,
+    "kept": 1354
+   }
+  }
+ },
+ "notes_v2": "dev/test_v2/train_extra written by three independent agents blind to this repo's data and to each other (Oct 2026); test_v2 is the independent held-out set."
 }

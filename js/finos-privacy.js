@@ -40,7 +40,7 @@
 
     { id: 'ai', kind: 'local', hosts: ['localhost', '127.0.0.1', '[::1]'], title: 'AI features on your own computer',
       purpose: 'Arya and the explainers talk to a language model and helper services that run on your own machine (for example Ollama on port 11434).',
-      sent: 'Your questions and the financial context Arya needs, sent to a service on the same computer. It does not leave your machine.', personal: true, optional: true,
+      sent: 'Your questions and the financial context Arya needs, sent to a service on the same computer. It does not leave your machine. If you switch on the optional router test mode, each message you type is also sent to that local service to be classified; only anonymous counters are kept in the browser, never the message.', personal: true, optional: true,
       control: 'Only works if you run those services yourself. Nothing is sent anywhere if you do not.' },
 
     { id: 'assets', kind: 'asset', hosts: ['fonts.googleapis.com', 'fonts.gstatic.com', 'cdn.jsdelivr.net', 'cdnjs.cloudflare.com', 'unpkg.com', 'cdn.tailwindcss.com', 'code.jquery.com'], title: 'Fonts, charts and code libraries',

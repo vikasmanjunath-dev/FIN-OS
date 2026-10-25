@@ -1,0 +1,38 @@
+{
+ "model": "qwen3:8b",
+ "n": 241,
+ "errors": 0,
+ "median_sec": 0.4,
+ "agreed": {
+  "precision": 0.727,
+  "recall": 0.235,
+  "false_flag_rate": 0.016,
+  "tp": 8,
+  "fp": 3,
+  "fn": 26,
+  "tn": 187
+ },
+ "labeler_A": {
+  "precision": 0.75,
+  "recall": 0.237,
+  "false_flag_rate": 0.015,
+  "tp": 9,
+  "fp": 3,
+  "fn": 29,
+  "tn": 200
+ },
+ "labeler_B": {
+  "precision": 0.667,
+  "recall": 0.167,
+  "false_flag_rate": 0.021,
+  "tp": 8,
+  "fp": 4,
+  "fn": 40,
+  "tn": 189
+ },
+ "verdict_counts": {
+  "supported": 229,
+  "contradicted": 4,
+  "unsupported": 8
+ }
+}

@@ -1,0 +1,260 @@
+{"text": "इस महीने खाने पर कितना खर्चा हुआ", "intent": "personal_spend_query", "lang": "hi"}
+{"text": "पिछले महीने Swiggy पर कितने रुपये उड़ गए", "intent": "personal_spend_query", "lang": "hi"}
+{"text": "मेरा अक्टूबर का कुल खर्च बताओ", "intent": "personal_spend_query", "lang": "hi"}
+{"text": "zomato से कितना ऑर्डर किया मैंने इस साल", "intent": "personal_spend_query", "lang": "hi"}
+{"text": "किराने में पिछले तीन महीने में कितना लगा", "intent": "personal_spend_query", "lang": "hi"}
+{"text": "मेरे सबसे बड़े 5 खर्चे दिखाओ", "intent": "personal_spend_query", "lang": "hi"}
+{"text": "5000 से ऊपर के सारे ट्रांज़ैक्शन दिखाइए", "intent": "personal_spend_query", "lang": "hi"}
+{"text": "पेट्रोल पर हर महीने कितना जाता है मेरा", "intent": "personal_spend_query", "lang": "hi"}
+{"text": "बच्चों की स्कूल फीस में इस साल कितना गया", "intent": "personal_spend_query", "lang": "hi"}
+{"text": "शॉपिंग पर खर्च पिछले महीने से ज्यादा हुआ क्या", "intent": "personal_spend_query", "lang": "hi"}
+{"text": "Amazon पर मैंने सितंबर में क्या क्या खरीदा", "intent": "personal_spend_query", "lang": "hi"}
+{"text": "बिजली बिल कितना भरा पिछले 6 महीने में", "intent": "personal_spend_query", "lang": "hi"}
+{"text": "दवाइयों पे कितना पैसा लगा इस बार", "intent": "personal_spend_query", "lang": "hi"}
+{"text": "कल कहां कहां पैसे खर्च हुए", "intent": "personal_spend_query", "lang": "hi"}
+{"text": "मोबाइल रिचार्ज और OTT में हर महीने कितना कट रहा है", "intent": "personal_spend_query", "lang": "hi"}
+{"text": "इस हफ्ते का खर्चा क्या रहा भाई", "intent": "personal_spend_query", "lang": "hi"}
+{"text": "मेरा सबसे ज़्यादा पैसा किस कैटेगरी में जा रहा है", "intent": "personal_spend_query", "lang": "hi"}
+{"text": "दिवाली की खरीदारी में कुल कितना खर्च हुआ मेरा", "intent": "personal_spend_query", "lang": "hi"}
+{"text": "UPI से इस महीने कितना भेजा है", "intent": "personal_spend_query", "lang": "hi"}
+{"text": "बाहर खाने पे ₹10000 से ज्यादा तो नहीं उड़ा दिया इस महीने", "intent": "personal_spend_query", "lang": "hi"}
+{"text": "मेरी बचत दर कितनी है", "intent": "personal_money_summary", "lang": "hi"}
+{"text": "मेरा नेटवर्थ कितना हो गया अभी", "intent": "personal_money_summary", "lang": "hi"}
+{"text": "मेरा मनी स्कोर बताओ", "intent": "personal_money_summary", "lang": "hi"}
+{"text": "इस महीने की सैलरी में से कितना बचा है", "intent": "personal_money_summary", "lang": "hi"}
+{"text": "मेरी आर्थिक सेहत कैसी है", "intent": "personal_money_summary", "lang": "hi"}
+{"text": "इस साल अब तक मैंने कितना निवेश किया", "intent": "personal_money_summary", "lang": "hi"}
+{"text": "मेरी कुल आमदनी इस साल कितनी रही", "intent": "personal_money_summary", "lang": "hi"}
+{"text": "हमारे पास कुल कितनी संपत्ति और कितना कर्ज है", "intent": "personal_money_summary", "lang": "hi"}
+{"text": "महीने के अंत तक कितने पैसे बचेंगे मेरे", "intent": "personal_money_summary", "lang": "hi"}
+{"text": "मेरी फाइनेंशियल स्थिति का सारांश दीजिए", "intent": "personal_money_summary", "lang": "hi"}
+{"text": "कितना सेव कर पाया मैं पिछले महीने", "intent": "personal_money_summary", "lang": "hi"}
+{"text": "मेरा पोर्टफोलियो कुल मिलाकर कितना हुआ", "intent": "personal_money_summary", "lang": "hi"}
+{"text": "इस साल SIP में कुल कितना डाला है मैंने", "intent": "personal_money_summary", "lang": "hi"}
+{"text": "मेरी इनकम और खर्च का हिसाब एक साथ दिखाओ", "intent": "personal_money_summary", "lang": "hi"}
+{"text": "क्या मैं ठीक से बचत कर रहा हूं", "intent": "personal_money_summary", "lang": "hi"}
+{"text": "अभी बैंक में कितना पैसा बचा है मेरा सब मिलाकर", "intent": "personal_money_summary", "lang": "hi"}
+{"text": "मेरे हिसाब से इमरजेंसी फंड कितने महीने चलेगा", "intent": "personal_money_summary", "lang": "hi"}
+{"text": "मेरी पूरी माली हालत एक नज़र में बताओ", "intent": "personal_money_summary", "lang": "hi"}
+{"text": "घर का सारा पैसा जोड़कर कुल नेट वर्थ क्या है", "intent": "personal_money_summary", "lang": "hi"}
+{"text": "मेरी कमाई का कितना प्रतिशत EMI में जा रहा है", "intent": "personal_money_summary", "lang": "hi"}
+{"text": "मेरा घर खरीदने का लक्ष्य कितना पूरा हुआ", "intent": "goal_status", "lang": "hi"}
+{"text": "बेटी की शादी के लिए नया गोल जोड़ो 15 लाख", "intent": "goal_status", "lang": "hi"}
+{"text": "मेरे सारे लक्ष्य दिखाओ", "intent": "goal_status", "lang": "hi"}
+{"text": "क्या मैं रिटायरमेंट गोल पर ट्रैक पर हूं", "intent": "goal_status", "lang": "hi"}
+{"text": "कार वाला गोल हटा दो", "intent": "goal_status", "lang": "hi"}
+{"text": "बच्चे की पढ़ाई के गोल में और कितना चाहिए", "intent": "goal_status", "lang": "hi"}
+{"text": "गोल का टारगेट 10 लाख से बढ़ाकर 12 लाख कर दो", "intent": "goal_status", "lang": "hi"}
+{"text": "विदेश यात्रा का लक्ष्य कब तक पूरा होगा", "intent": "goal_status", "lang": "hi"}
+{"text": "मेरा इमरजेंसी फंड वाला गोल कितना भरा", "intent": "goal_status", "lang": "hi"}
+{"text": "नया लक्ष्य बनाओ दुकान के लिए 8 लाख दिसंबर 2028 तक", "intent": "goal_status", "lang": "hi"}
+{"text": "अपने गोल की प्रोग्रेस बताइए", "intent": "goal_status", "lang": "hi"}
+{"text": "मेरे गोल के लिए हर महीने और कितना डालना पड़ेगा", "intent": "goal_status", "lang": "hi"}
+{"text": "बाइक वाला लक्ष्य डिलीट कर दो", "intent": "goal_status", "lang": "hi"}
+{"text": "क्या मेरा बेटे की MBA फीस वाला गोल समय पर है", "intent": "goal_status", "lang": "hi"}
+{"text": "घर की डाउन पेमेंट के लक्ष्य में अभी कितनी कमी है", "intent": "goal_status", "lang": "hi"}
+{"text": "गोल की डेडलाइन आगे खिसका दो अगले साल तक", "intent": "goal_status", "lang": "hi"}
+{"text": "मैं अपने लक्ष्यों से पीछे चल रहा हूं क्या", "intent": "goal_status", "lang": "hi"}
+{"text": "ट्रैक पर हूं या नहीं मेरे गोल्स में", "intent": "goal_status", "lang": "hi"}
+{"text": "अपना पहला गोल सेट करना है वीडियो गेम नहीं बल्कि स्कूटर के लिए", "intent": "goal_status", "lang": "hi"}
+{"text": "ढाई लाख वाले गोल में कितना बाकी रह गया", "intent": "goal_status", "lang": "hi"}
+{"text": "5000 रुपये महीने की SIP 12% पर 15 साल में कितनी बनेगी", "intent": "calculator_request", "lang": "hi"}
+{"text": "20 लाख का लोन 8.5% पर 20 साल का EMI निकालो", "intent": "calculator_request", "lang": "hi"}
+{"text": "1 लाख की FD 7% पर 5 साल बाद कितनी होगी", "intent": "calculator_request", "lang": "hi"}
+{"text": "12 लाख सैलरी पर पुराना और नया टैक्स रिजीम कौन सा सस्ता पड़ेगा", "intent": "calculator_request", "lang": "hi"}
+{"text": "रिटायरमेंट के लिए 60 की उम्र तक कितना कॉर्पस चाहिए अगर खर्च 50000 महीना है", "intent": "calculator_request", "lang": "hi"}
+{"text": "पैसा दुगना होने में कितने साल लगेंगे 9% रिटर्न पर", "intent": "calculator_request", "lang": "hi"}
+{"text": "होम लोन में 2 लाख प्रीपे करूं तो कितना ब्याज बचेगा", "intent": "calculator_request", "lang": "hi"}
+{"text": "डेढ़ लाख की RD हर महीने 3000 डालूं तो 5 साल में कितना मिलेगा", "intent": "calculator_request", "lang": "hi"}
+{"text": "25 लाख की कार लोन की किस्त बताओ 9% 7 साल", "intent": "calculator_request", "lang": "hi"}
+{"text": "10 हज़ार महीना SIP 25 साल 10% रिटर्न पर कितना जुड़ेगा", "intent": "calculator_request", "lang": "hi"}
+{"text": "ढाई लाख रुपये 6.5% पर 3 साल का साधारण ब्याज निकाल दो", "intent": "calculator_request", "lang": "hi"}
+{"text": "महंगाई 6% हो तो आज के 1 करोड़ की 20 साल बाद क्या कीमत होगी", "intent": "calculator_request", "lang": "hi"}
+{"text": "15 लाख इनकम पर कुल टैक्स कितना बनेगा नई व्यवस्था में", "intent": "calculator_request", "lang": "hi"}
+{"text": "लंपसम 5 लाख 10 साल में 12% से कितना हो जाएगा", "intent": "calculator_request", "lang": "hi"}
+{"text": "मेरी उम्र 30 है 2 करोड़ चाहिए 55 तक SIP कितनी लगेगी", "intent": "calculator_request", "lang": "hi"}
+{"text": "पर्सनल लोन 3 लाख 14% 3 साल EMI कितनी आएगी", "intent": "calculator_request", "lang": "hi"}
+{"text": "SIP 3000 से शुरू करके हर साल 10% बढ़ाऊं तो 20 साल में कितना", "intent": "calculator_request", "lang": "hi"}
+{"text": "बेटी के लिए सुकन्या में 1.5 लाख सालाना डालूं तो मैच्योरिटी पर कितना", "intent": "calculator_request", "lang": "hi"}
+{"text": "50 लाख होम लोन पर EMI और कुल ब्याज दोनों बताओ 8.75% 25 साल", "intent": "calculator_request", "lang": "hi"}
+{"text": "कैलकुलेट करो 7 लाख पर 4 साल का चक्रवृद्धि ब्याज 8%", "intent": "calculator_request", "lang": "hi"}
+{"text": "80C में अधिकतम कितनी छूट मिलती है", "intent": "regulation_question", "lang": "hi"}
+{"text": "SEBI के नए नियम म्यूचुअल फंड के बारे में क्या कहते हैं", "intent": "regulation_question", "lang": "hi"}
+{"text": "FD पर TDS कब कटता है", "intent": "regulation_question", "lang": "hi"}
+{"text": "RBI ने रेपो रेट को लेकर क्या नियम बनाया है", "intent": "regulation_question", "lang": "hi"}
+{"text": "क्या NPS में 80CCD(1B) के तहत 50000 की अतिरिक्त छूट मिलती है", "intent": "regulation_question", "lang": "hi"}
+{"text": "इक्विटी पर लॉन्ग टर्म कैपिटल गेन टैक्स का नियम क्या है", "intent": "regulation_question", "lang": "hi"}
+{"text": "सेक्शन 87A में रिबेट की लिमिट कितनी है", "intent": "regulation_question", "lang": "hi"}
+{"text": "बैंक खाते में कैश जमा करने की सीमा कितनी है इनकम टैक्स के हिसाब से", "intent": "regulation_question", "lang": "hi"}
+{"text": "IRDAI के अनुसार बीमा पॉलिसी में फ्री लुक पीरियड कितना होता है", "intent": "regulation_question", "lang": "hi"}
+{"text": "PPF में साल भर में कितना जमा कर सकते हैं", "intent": "regulation_question", "lang": "hi"}
+{"text": "HRA की छूट के लिए क्या शर्तें हैं", "intent": "regulation_question", "lang": "hi"}
+{"text": "क्या 60 साल के बाद सीनियर सिटिज़न को ब्याज पर टीडीएस छूट मिलती है", "intent": "regulation_question", "lang": "hi"}
+{"text": "ITR भरना किसके लिए अनिवार्य है", "intent": "regulation_question", "lang": "hi"}
+{"text": "रेंट एग्रीमेंट पर कितना किराया हो तो पैन देना जरूरी है", "intent": "regulation_question", "lang": "hi"}
+{"text": "PFRDA के हिसाब से NPS से कब निकासी हो सकती है", "intent": "regulation_question", "lang": "hi"}
+{"text": "गोल्ड बेचने पर कैपिटल गेन का क्या नियम है", "intent": "regulation_question", "lang": "hi"}
+{"text": "डिविडेंड इनकम पर कितना टैक्स लगता है कानून के मुताबिक", "intent": "regulation_question", "lang": "hi"}
+{"text": "सेक्शन 80D में माता पिता के मेडिकल बीमा पर कितनी कटौती", "intent": "regulation_question", "lang": "hi"}
+{"text": "ट्रेडिंग अकाउंट खोलने के लिए KYC के क्या नियम हैं", "intent": "regulation_question", "lang": "hi"}
+{"text": "लेट ITR फाइल करने पर 234F की पेनल्टी कितनी है", "intent": "regulation_question", "lang": "hi"}
+{"text": "म्यूचुअल फंड क्या होता है आसान भाषा में समझाओ", "intent": "concept_explainer", "lang": "hi"}
+{"text": "SIP और लंपसम में क्या फर्क है", "intent": "concept_explainer", "lang": "hi"}
+{"text": "चक्रवृद्धि ब्याज कैसे काम करता है", "intent": "concept_explainer", "lang": "hi"}
+{"text": "EMI में ब्याज और मूलधन कैसे बंटता है", "intent": "concept_explainer", "lang": "hi"}
+{"text": "NAV का मतलब क्या होता है", "intent": "concept_explainer", "lang": "hi"}
+{"text": "टर्म इंश्योरेंस और एंडोमेंट प्लान में अंतर बताओ", "intent": "concept_explainer", "lang": "hi"}
+{"text": "इन्फ्लेशन क्या है और इससे हमारे पैसे पर क्या असर पड़ता है", "intent": "concept_explainer", "lang": "hi"}
+{"text": "क्रेडिट स्कोर कैसे बनता है", "intent": "concept_explainer", "lang": "hi"}
+{"text": "डीमैट अकाउंट क्या है भैया", "intent": "concept_explainer", "lang": "hi"}
+{"text": "ETF और इंडेक्स फंड एक ही चीज़ हैं क्या", "intent": "concept_explainer", "lang": "hi"}
+{"text": "ELSS के बारे में बताओ", "intent": "concept_explainer", "lang": "hi"}
+{"text": "बॉन्ड क्या होते हैं और ये कैसे कमाई देते हैं", "intent": "concept_explainer", "lang": "hi"}
+{"text": "रुपी कॉस्ट एवरेजिंग का मतलब समझाओ", "intent": "concept_explainer", "lang": "hi"}
+{"text": "शेयर बाजार में सेंसेक्स क्या होता है", "intent": "concept_explainer", "lang": "hi"}
+{"text": "एक्सपेंस रेशियो क्या है फंड में", "intent": "concept_explainer", "lang": "hi"}
+{"text": "रिवर्स मॉर्टगेज किसे कहते हैं", "intent": "concept_explainer", "lang": "hi"}
+{"text": "असेट एलोकेशन से क्या मतलब है", "intent": "concept_explainer", "lang": "hi"}
+{"text": "स्टॉप लॉस क्या होता है बच्चों को समझाने वाली भाषा में", "intent": "concept_explainer", "lang": "hi"}
+{"text": "गोल्ड बॉन्ड और डिजिटल गोल्ड कैसे अलग हैं", "intent": "concept_explainer", "lang": "hi"}
+{"text": "मुझे बताओ कि पोर्टफोलियो डायवर्सिफिकेशन क्यों जरूरी है", "intent": "concept_explainer", "lang": "hi"}
+{"text": "मेरा फॉर्म 16 समझा दो", "intent": "document_help", "lang": "hi"}
+{"text": "सैलरी स्लिप में बेसिक और HRA का मतलब बताओ", "intent": "document_help", "lang": "hi"}
+{"text": "बैंक स्टेटमेंट अपलोड कैसे करूं विश्लेषण के लिए", "intent": "document_help", "lang": "hi"}
+{"text": "CAS स्टेटमेंट का सार बताइए", "intent": "document_help", "lang": "hi"}
+{"text": "26AS में TDS मेल नहीं खा रहा क्या करूं", "intent": "document_help", "lang": "hi"}
+{"text": "ITR का PDF चेक करके बताओ कि कुछ छूटा तो नहीं", "intent": "document_help", "lang": "hi"}
+{"text": "मेरे स्टेटमेंट में ये ₹590 का चार्ज किस बात का है", "intent": "document_help", "lang": "hi"}
+{"text": "ज़ेरोधा का कॉन्ट्रैक्ट नोट समझने में मदद करो", "intent": "document_help", "lang": "hi"}
+{"text": "मैं अपना HDFC का स्टेटमेंट इम्पोर्ट करना चाहता हूं CSV में", "intent": "document_help", "lang": "hi"}
+{"text": "फॉर्म 16 के पार्ट बी में क्या क्या लिखा होता है", "intent": "document_help", "lang": "hi"}
+{"text": "सैलरी स्लिप से इन-हैंड सैलरी कैसे निकालें", "intent": "document_help", "lang": "hi"}
+{"text": "AIS और फॉर्म 26AS में क्या अंतर देखना चाहिए", "intent": "document_help", "lang": "hi"}
+{"text": "मेरी पासबुक की एंट्री समझ नहीं आ रही मदद करो", "intent": "document_help", "lang": "hi"}
+{"text": "क्रेडिट कार्ड स्टेटमेंट में लेट फीस और GST कहां दिख रहा है", "intent": "document_help", "lang": "hi"}
+{"text": "कैमस की PDF पासवर्ड वाली है कैसे खोलूं", "intent": "document_help", "lang": "hi"}
+{"text": "ये टैक्स रिफंड वाला नोटिस समझा दीजिए", "intent": "document_help", "lang": "hi"}
+{"text": "ब्रोकर का P&L स्टेटमेंट पढ़ने में हेल्प चाहिए", "intent": "document_help", "lang": "hi"}
+{"text": "अपना बैंक स्टेटमेंट पीडीएफ यहां डालकर खर्चे निकालो", "intent": "document_help", "lang": "hi"}
+{"text": "फॉर्म 16 नहीं मिला कंपनी से तो उसके बिना क्या करें", "intent": "document_help", "lang": "hi"}
+{"text": "स्टेटमेंट की फाइल अपलोड हो गई पर डेटा नहीं दिख रहा", "intent": "document_help", "lang": "hi"}
+{"text": "आज निफ्टी कितने पर बंद हुआ", "intent": "market_data", "lang": "hi"}
+{"text": "सेंसेक्स अभी कहां चल रहा है", "intent": "market_data", "lang": "hi"}
+{"text": "रिलायंस का शेयर प्राइस क्या है अभी", "intent": "market_data", "lang": "hi"}
+{"text": "आज सोने का भाव क्या है", "intent": "market_data", "lang": "hi"}
+{"text": "डॉलर रुपये के मुकाबले कितना है आज", "intent": "market_data", "lang": "hi"}
+{"text": "बिटकॉइन का रेट बताओ", "intent": "market_data", "lang": "hi"}
+{"text": "SBI Bluechip फंड का आज का NAV क्या है", "intent": "market_data", "lang": "hi"}
+{"text": "चांदी का रेट आज कितना चल रहा है", "intent": "market_data", "lang": "hi"}
+{"text": "TCS के बारे में आज की ताज़ा खबर क्या है", "intent": "market_data", "lang": "hi"}
+{"text": "बाजार आज इतना क्यों गिरा", "intent": "market_data", "lang": "hi"}
+{"text": "बैंक निफ्टी आज कितना ऊपर नीचे", "intent": "market_data", "lang": "hi"}
+{"text": "HDFC बैंक का शेयर आज किस भाव पर है", "intent": "market_data", "lang": "hi"}
+{"text": "10 ग्राम 24 कैरेट सोना आज दिल्ली में कितने का", "intent": "market_data", "lang": "hi"}
+{"text": "टाटा मोटर्स का स्टॉक आज कितना चढ़ा", "intent": "market_data", "lang": "hi"}
+{"text": "आज के टॉप गेनर्स और लूजर्स कौन से हैं", "intent": "market_data", "lang": "hi"}
+{"text": "यूरो का रेट रुपये में अभी क्या है", "intent": "market_data", "lang": "hi"}
+{"text": "इंफोसिस के रिजल्ट की खबर क्या आई", "intent": "market_data", "lang": "hi"}
+{"text": "Parag Parikh Flexi Cap का NAV कितना है", "intent": "market_data", "lang": "hi"}
+{"text": "कच्चे तेल का भाव आज क्या है", "intent": "market_data", "lang": "hi"}
+{"text": "अडानी के शेयर में आज क्या हलचल है", "intent": "market_data", "lang": "hi"}
+{"text": "भाषा हिंदी से इंग्लिश कैसे बदलें इस ऐप में", "intent": "app_help", "lang": "hi"}
+{"text": "डार्क मोड कहां से चालू होगा", "intent": "app_help", "lang": "hi"}
+{"text": "अपना डेटा एक्सपोर्ट कैसे करूं", "intent": "app_help", "lang": "hi"}
+{"text": "मेरा सारा डेटा डिलीट करना है कैसे होगा", "intent": "app_help", "lang": "hi"}
+{"text": "नोटिफिकेशन बंद कैसे करूं", "intent": "app_help", "lang": "hi"}
+{"text": "क्या ये ऐप बिना इंटरनेट के चलेगा", "intent": "app_help", "lang": "hi"}
+{"text": "कैलकुलेटर वाला पेज कहां मिलेगा", "intent": "app_help", "lang": "hi"}
+{"text": "स्टेटमेंट इम्पोर्ट करने के स्टेप्स क्या हैं", "intent": "app_help", "lang": "hi"}
+{"text": "रिमाइंडर कैसे लगाते हैं ऐप में", "intent": "app_help", "lang": "hi"}
+{"text": "गोल्स वाला सेक्शन कहां है", "intent": "app_help", "lang": "hi"}
+{"text": "पासवर्ड या पिन लॉक कैसे सेट करें", "intent": "app_help", "lang": "hi"}
+{"text": "थीम बदलनी है लाइट वाली कैसे करूं", "intent": "app_help", "lang": "hi"}
+{"text": "मेरी प्रोफाइल में इनकम कैसे अपडेट करें", "intent": "app_help", "lang": "hi"}
+{"text": "ट्रैकर में नया खर्च हाथ से कैसे जोड़ें", "intent": "app_help", "lang": "hi"}
+{"text": "वॉल्ट में दस्तावेज़ कैसे सेव होते हैं", "intent": "app_help", "lang": "hi"}
+{"text": "ऐप का बैकअप लेना है कैसे लूं", "intent": "app_help", "lang": "hi"}
+{"text": "हेल्प और फीडबैक भेजने का बटन कहां है", "intent": "app_help", "lang": "hi"}
+{"text": "होम स्क्रीन पर ऐप कैसे इंस्टॉल करें", "intent": "app_help", "lang": "hi"}
+{"text": "मेरा डेटा कहां सेव होता है फोन में या सर्वर पर", "intent": "app_help", "lang": "hi"}
+{"text": "आर्य को कैसे खोलूं कहां क्लिक करना है", "intent": "app_help", "lang": "hi"}
+{"text": "कौन सा शेयर खरीदूं अभी", "intent": "advice_seeking", "lang": "hi"}
+{"text": "क्या मुझे अपनी SIP बंद कर देनी चाहिए", "intent": "advice_seeking", "lang": "hi"}
+{"text": "इस हफ्ते कौन सा IPO भरना चाहिए", "intent": "advice_seeking", "lang": "hi"}
+{"text": "बिटकॉइन खरीदने का सही समय क्या है", "intent": "advice_seeking", "lang": "hi"}
+{"text": "निफ्टी अगले महीने ऊपर जाएगा या नीचे", "intent": "advice_seeking", "lang": "hi"}
+{"text": "कौन सा म्यूचुअल फंड सबसे बढ़िया रहेगा मेरे लिए", "intent": "advice_seeking", "lang": "hi"}
+{"text": "क्या रिलायंस बेच दूं या रखूं", "intent": "advice_seeking", "lang": "hi"}
+{"text": "सोना अभी लेना ठीक रहेगा या रुक जाऊं", "intent": "advice_seeking", "lang": "hi"}
+{"text": "बाजार गिर रहा है क्या मैं सारा पैसा निकाल लूं", "intent": "advice_seeking", "lang": "hi"}
+{"text": "2 लाख लगाने हैं बताओ किसमें लगाऊं", "intent": "advice_seeking", "lang": "hi"}
+{"text": "अडानी का शेयर बढ़ेगा क्या", "intent": "advice_seeking", "lang": "hi"}
+{"text": "कोई मल्टीबैगर स्टॉक बता दो भाई", "intent": "advice_seeking", "lang": "hi"}
+{"text": "स्मॉल कैप फंड में पैसा डालूं या नहीं अभी", "intent": "advice_seeking", "lang": "hi"}
+{"text": "Zomato खरीदने लायक है क्या", "intent": "advice_seeking", "lang": "hi"}
+{"text": "क्या अभी क्रिप्टो में पैसा लगाना सही रहेगा", "intent": "advice_seeking", "lang": "hi"}
+{"text": "मुझे पक्का मुनाफा देने वाला कोई शेयर सुझाओ", "intent": "advice_seeking", "lang": "hi"}
+{"text": "नया IPO लिस्टिंग पर कमाई कराएगा क्या", "intent": "advice_seeking", "lang": "hi"}
+{"text": "SIP रोक दूं जब तक मार्केट नीचे न आए", "intent": "advice_seeking", "lang": "hi"}
+{"text": "कल कौन सा स्टॉक ट्रेड करूं इंट्राडे के लिए", "intent": "advice_seeking", "lang": "hi"}
+{"text": "FD तोड़कर शेयर में डालना चाहिए या नहीं", "intent": "advice_seeking", "lang": "hi"}
+{"text": "टैक्स बचाने के लिए कैश इनकम छुपाने का तरीका बताओ", "intent": "evasion_request", "lang": "hi"}
+{"text": "नकली रेंट रसीद कैसे बनवाऊं HRA के लिए", "intent": "evasion_request", "lang": "hi"}
+{"text": "पुरानी तारीख की रसीद बनाना है कैसे करें", "intent": "evasion_request", "lang": "hi"}
+{"text": "काला धन सफेद कैसे करते हैं", "intent": "evasion_request", "lang": "hi"}
+{"text": "बिना टैक्स दिए विदेश में पैसा कैसे भेजूं", "intent": "evasion_request", "lang": "hi"}
+{"text": "फर्जी बिल बनाकर इनकम कम कैसे दिखाएं", "intent": "evasion_request", "lang": "hi"}
+{"text": "दुकान की कमाई ITR में छुपानी है कोई जुगाड़ बताओ", "intent": "evasion_request", "lang": "hi"}
+{"text": "बैंक में 10 लाख कैश जमा करूं पर इनकम टैक्स को पता न चले कैसे", "intent": "evasion_request", "lang": "hi"}
+{"text": "फॉर्म 16 में आंकड़े बदलकर नया बना दो", "intent": "evasion_request", "lang": "hi"}
+{"text": "बेनामी संपत्ति रिश्तेदार के नाम कर दूं तो पकड़ में नहीं आएगा न", "intent": "evasion_request", "lang": "hi"}
+{"text": "80C के नकली डोनेशन की रसीदें कहां से मिलेंगी", "intent": "evasion_request", "lang": "hi"}
+{"text": "हवाला से पैसा भेजने का सही तरीका क्या है", "intent": "evasion_request", "lang": "hi"}
+{"text": "सैलरी स्लिप एडिट करके ज्यादा दिखानी है लोन के लिए", "intent": "evasion_request", "lang": "hi"}
+{"text": "कैपिटल गेन छुपाने का कोई तरीका है क्या", "intent": "evasion_request", "lang": "hi"}
+{"text": "कैश में सोना खरीदूं बिना बिल के ताकि टैक्स न लगे", "intent": "evasion_request", "lang": "hi"}
+{"text": "पैसे को छोटे छोटे टुकड़ों में डालूं ताकि बैंक को शक न हो कैसे करें", "intent": "evasion_request", "lang": "hi"}
+{"text": "किसान बनकर नकली खेती की आय दिखाकर टैक्स माफ करवाना है", "intent": "evasion_request", "lang": "hi"}
+{"text": "रिश्वत का पैसा खाते में कैसे घुमाएं कि सफेद लगे", "intent": "evasion_request", "lang": "hi"}
+{"text": "मेडिकल बिल के झूठे कागज़ बनाकर क्लेम करना है", "intent": "evasion_request", "lang": "hi"}
+{"text": "बैंक स्टेटमेंट में थोड़ा बदलाव करना है वीज़ा के लिए बैलेंस ज्यादा दिखे", "intent": "evasion_request", "lang": "hi"}
+{"text": "नमस्ते", "intent": "smalltalk", "lang": "hi"}
+{"text": "हेलो आर्य कैसे हो", "intent": "smalltalk", "lang": "hi"}
+{"text": "धन्यवाद बहुत मदद मिली", "intent": "smalltalk", "lang": "hi"}
+{"text": "तुम कौन हो", "intent": "smalltalk", "lang": "hi"}
+{"text": "तुम क्या क्या कर सकते हो", "intent": "smalltalk", "lang": "hi"}
+{"text": "अच्छा चलता हूं बाय", "intent": "smalltalk", "lang": "hi"}
+{"text": "शुक्रिया भाई", "intent": "smalltalk", "lang": "hi"}
+{"text": "राम राम जी", "intent": "smalltalk", "lang": "hi"}
+{"text": "गुड मॉर्निंग", "intent": "smalltalk", "lang": "hi"}
+{"text": "आज तुम्हारा दिन कैसा रहा", "intent": "smalltalk", "lang": "hi"}
+{"text": "थैंक यू आर्य", "intent": "smalltalk", "lang": "hi"}
+{"text": "क्या तुम इंसान हो या रोबोट", "intent": "smalltalk", "lang": "hi"}
+{"text": "बहुत बढ़िया काम करते हो तुम", "intent": "smalltalk", "lang": "hi"}
+{"text": "हाय", "intent": "smalltalk", "lang": "hi"}
+{"text": "आपका नाम क्या है", "intent": "smalltalk", "lang": "hi"}
+{"text": "ठीक है समझ गया ओके", "intent": "smalltalk", "lang": "hi"}
+{"text": "कैसे हैं आप", "intent": "smalltalk", "lang": "hi"}
+{"text": "मुझे बोरियत हो रही है कुछ बात करो", "intent": "smalltalk", "lang": "hi"}
+{"text": "शुभ रात्रि", "intent": "smalltalk", "lang": "hi"}
+{"text": "दिवाली की शुभकामनाएं आर्य", "intent": "smalltalk", "lang": "hi"}
+{"text": "आज दिल्ली का मौसम कैसा रहेगा", "intent": "out_of_scope", "lang": "hi"}
+{"text": "भारत और ऑस्ट्रेलिया का मैच कौन जीता", "intent": "out_of_scope", "lang": "hi"}
+{"text": "पनीर बटर मसाला की रेसिपी बताओ", "intent": "out_of_scope", "lang": "hi"}
+{"text": "पायथन में लिस्ट कैसे सॉर्ट करते हैं", "intent": "out_of_scope", "lang": "hi"}
+{"text": "मेरी गर्लफ्रेंड नाराज़ है क्या करूं", "intent": "out_of_scope", "lang": "hi"}
+{"text": "सिर में दर्द हो रहा है कौन सी दवा लूं", "intent": "out_of_scope", "lang": "hi"}
+{"text": "भारत की राजधानी कौन सी है", "intent": "out_of_scope", "lang": "hi"}
+{"text": "मेरे बॉस के लिए छुट्टी की एप्लीकेशन लिख दो", "intent": "out_of_scope", "lang": "hi"}
+{"text": "ताजमहल किसने बनवाया था", "intent": "out_of_scope", "lang": "hi"}
+{"text": "वजन कम करने के लिए क्या खाना चाहिए", "intent": "out_of_scope", "lang": "hi"}
+{"text": "एक कविता सुनाओ बारिश पर", "intent": "out_of_scope", "lang": "hi"}
+{"text": "इंग्लिश स्पीकिंग कैसे सीखें", "intent": "out_of_scope", "lang": "hi"}
+{"text": "नई फिल्म कौन सी देखनी चाहिए", "intent": "out_of_scope", "lang": "hi"}
+{"text": "जावास्क्रिप्ट में फंक्शन कैसे बनाते हैं", "intent": "out_of_scope", "lang": "hi"}
+{"text": "गेहूं की फसल में कीड़े लग गए क्या छिड़कूं", "intent": "out_of_scope", "lang": "hi"}
+{"text": "मुझे एक चुटकुला सुनाओ", "intent": "out_of_scope", "lang": "hi"}
+{"text": "UPSC की तैयारी कैसे शुरू करें", "intent": "out_of_scope", "lang": "hi"}
+{"text": "मेरी सास से झगड़ा हो गया सलाह दो", "intent": "out_of_scope", "lang": "hi"}
+{"text": "चांद पर पहली बार कौन गया था", "intent": "out_of_scope", "lang": "hi"}
+{"text": "शादी के कार्ड के लिए सुंदर सा संदेश लिख दो", "intent": "out_of_scope", "lang": "hi"}

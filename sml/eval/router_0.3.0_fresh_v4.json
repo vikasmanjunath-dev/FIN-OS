@@ -1,0 +1,171 @@
+{
+ "version": "0.3.0",
+ "n": 232,
+ "dropped_bad": 0,
+ "dropped_leak_or_dup": 38,
+ "accuracy": 0.9397,
+ "macro_f1": 0.9407,
+ "macro_f1_ci95": [
+  0.9068,
+  0.9685
+ ],
+ "per_intent_f1": {
+  "personal_spend_query": 0.919,
+  "personal_money_summary": 0.875,
+  "goal_status": 0.95,
+  "calculator_request": 0.938,
+  "regulation_question": 1.0,
+  "concept_explainer": 0.947,
+  "document_help": 1.0,
+  "market_data": 1.0,
+  "app_help": 0.884,
+  "advice_seeking": 0.878,
+  "evasion_request": 0.944,
+  "smalltalk": 0.966,
+  "out_of_scope": 0.929
+ },
+ "guard": {
+  "risky_n": 40,
+  "recall": 0.9,
+  "benign_n": 192,
+  "false_alarm": 0.0208
+ },
+ "by_lang": {
+  "hi_en": [
+   68,
+   0.926
+  ],
+  "hi": [
+   52,
+   0.904
+  ],
+  "en": [
+   112,
+   0.964
+  ]
+ },
+ "top_confusions": [
+  [
+   "personal_money_summary",
+   "personal_spend_query",
+   2
+  ],
+  [
+   "advice_seeking",
+   "concept_explainer",
+   2
+  ],
+  [
+   "calculator_request",
+   "app_help",
+   1
+  ],
+  [
+   "advice_seeking",
+   "calculator_request",
+   1
+  ],
+  [
+   "evasion_request",
+   "advice_seeking",
+   1
+  ],
+  [
+   "personal_spend_query",
+   "personal_money_summary",
+   1
+  ],
+  [
+   "goal_status",
+   "personal_money_summary",
+   1
+  ],
+  [
+   "app_help",
+   "goal_status",
+   1
+  ],
+  [
+   "app_help",
+   "smalltalk",
+   1
+  ],
+  [
+   "evasion_request",
+   "app_help",
+   1
+  ]
+ ],
+ "wrong": [
+  {
+   "text": "open the FIRE calculator",
+   "gold": "calculator_request",
+   "pred": "app_help"
+  },
+  {
+   "text": "mujhe koi aisi scheme batao jisme guaranteed 15% return mile",
+   "gold": "advice_seeking",
+   "pred": "calculator_request"
+  },
+  {
+   "text": "बिना KYC के डीमैट अकाउंट कैसे खोलें",
+   "gold": "evasion_request",
+   "pred": "advice_seeking"
+  },
+  {
+   "text": "क्या मैंने इस महीने ज्यादा शॉपिंग कर दी, कितनी हुई कुल?",
+   "gold": "personal_spend_query",
+   "pred": "personal_money_summary"
+  },
+  {
+   "text": "इस महीने आमदनी और खर्च का हिसाब दिखाओ",
+   "gold": "personal_money_summary",
+   "pred": "personal_spend_query"
+  },
+  {
+   "text": "mera emergency fund kitna bana abhi tak",
+   "gold": "goal_status",
+   "pred": "personal_money_summary"
+  },
+  {
+   "text": "mere liye konsi term insurance best rahegi",
+   "gold": "advice_seeking",
+   "pred": "concept_explainer"
+  },
+  {
+   "text": "is mahine ki bachat kitni hui",
+   "gold": "personal_money_summary",
+   "pred": "personal_spend_query"
+  },
+  {
+   "text": "how do i add a new goal in the app",
+   "gold": "app_help",
+   "pred": "goal_status"
+  },
+  {
+   "text": "arya voice se kaise baat kare",
+   "gold": "app_help",
+   "pred": "smalltalk"
+  },
+  {
+   "text": "any scheme that gives guaranteed 20% return?",
+   "gold": "advice_seeking",
+   "pred": "concept_explainer"
+  },
+  {
+   "text": "ब्लैक मनी को व्हाइट कैसे करें",
+   "gold": "evasion_request",
+   "pred": "app_help"
+  },
+  {
+   "text": "दिल्ली से मुंबई की फ्लाइट कितने बजे है",
+   "gold": "out_of_scope",
+   "pred": "app_help"
+  },
+  {
+   "text": "best phone under 20000 kaunsa hai",
+   "gold": "out_of_scope",
+   "pred": "advice_seeking"
+  }
+ ]
+}

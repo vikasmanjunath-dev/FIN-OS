@@ -1,0 +1,38 @@
+{
+  "seed": 20261025,
+  "per_class_target": 1200,
+  "evidence_chars": 600,
+  "pages": 148,
+  "pages_train": 97,
+  "pages_test": 51,
+  "splits": {
+    "train": {
+      "rows": 2226,
+      "by_label": {
+        "entailed": 742,
+        "contradicted": 742,
+        "unsupported": 742
+      },
+      "contradicted_by_change_type": {
+        "negation": 355,
+        "number": 294,
+        "polarity": 93
+      },
+      "sha256": "670626136bc05f2ab7de1c53c57a80b83ea469aeea48d1e665d2e1f2cbabe7a0"
+    },
+    "test": {
+      "rows": 576,
+      "by_label": {
+        "entailed": 192,
+        "contradicted": 192,
+        "unsupported": 192
+      },
+      "contradicted_by_change_type": {
+        "number": 63,
+        "negation": 94,
+        "polarity": 35
+      },
+      "sha256": "8151eafb76d7da43a05b338a6026e45db9789beabe235e86211746ebfa8ff369"
+    }
+  }
+}
