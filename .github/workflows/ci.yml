@@ -36,7 +36,7 @@ jobs:
       - name: Static audits + search index
         run: npm run check
       - name: JS unit tests
-        run: node --test tests/*.test.js
+        run: node --test tests/*.test.js sml/tests/js/*.test.js
       - name: Backend / audit / CAS pytest
         run: python -m pytest tests/test_health_score.py tests/test_rules.py tests/test_static_audit.py tests/test_cas_import.py -q
 
