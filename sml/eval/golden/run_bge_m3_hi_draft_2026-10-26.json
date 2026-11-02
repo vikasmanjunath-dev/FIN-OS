@@ -1,0 +1,252 @@
+{
+ "summary": {
+  "n": 40,
+  "recall@1": 0.7,
+  "recall@3": 0.875,
+  "recall@5": 0.9,
+  "recall@5_ci95": [
+   0.7695,
+   0.9604
+  ],
+  "by_category_recall@5": {
+   "app": [
+    3,
+    1.0
+   ],
+   "debt": [
+    5,
+    0.6
+   ],
+   "equity": [
+    2,
+    1.0
+   ],
+   "insurance": [
+    6,
+    0.833
+   ],
+   "mutual_funds": [
+    3,
+    1.0
+   ],
+   "other": [
+    1,
+    1.0
+   ],
+   "principle": [
+    3,
+    1.0
+   ],
+   "regulation": [
+    12,
+    0.917
+   ],
+   "tax": [
+    5,
+    1.0
+   ]
+  }
+ },
+ "items": [
+  {
+   "id": "H1-01",
+   "category": "tax",
+   "rank": 1
+  },
+  {
+   "id": "H1-02",
+   "category": "tax",
+   "rank": 1
+  },
+  {
+   "id": "H1-03",
+   "category": "tax",
+   "rank": 1
+  },
+  {
+   "id": "H1-04",
+   "category": "mutual_funds",
+   "rank": 2
+  },
+  {
+   "id": "H1-05",
+   "category": "mutual_funds",
+   "rank": 2
+  },
+  {
+   "id": "H1-06",
+   "category": "equity",
+   "rank": 1
+  },
+  {
+   "id": "H1-07",
+   "category": "tax",
+   "rank": 3
+  },
+  {
+   "id": "H1-08",
+   "category": "app",
+   "rank": 1
+  },
+  {
+   "id": "H1-09",
+   "category": "principle",
+   "rank": 1
+  },
+  {
+   "id": "H1-10",
+   "category": "principle",
+   "rank": 3
+  },
+  {
+   "id": "H1-11",
+   "category": "regulation",
+   "rank": 2
+  },
+  {
+   "id": "H1-12",
+   "category": "insurance",
+   "rank": 1
+  },
+  {
+   "id": "H1-13",
+   "category": "regulation",
+   "rank": null
+  },
+  {
+   "id": "H1-14",
+   "category": "regulation",
+   "rank": 1
+  },
+  {
+   "id": "H1-15",
+   "category": "regulation",
+   "rank": 1
+  },
+  {
+   "id": "H1-16",
+   "category": "insurance",
+   "rank": 1
+  },
+  {
+   "id": "H1-17",
+   "category": "insurance",
+   "rank": null
+  },
+  {
+   "id": "H1-18",
+   "category": "regulation",
+   "rank": 1
+  },
+  {
+   "id": "H1-19",
+   "category": "equity",
+   "rank": 1
+  },
+  {
+   "id": "H1-20",
+   "category": "app",
+   "rank": 1
+  },
+  {
+   "id": "H3-01",
+   "category": "insurance",
+   "rank": 1
+  },
+  {
+   "id": "H3-02",
+   "category": "regulation",
+   "rank": 2
+  },
+  {
+   "id": "H3-03",
+   "category": "regulation",
+   "rank": 2
+  },
+  {
+   "id": "H3-04",
+   "category": "regulation",
+   "rank": 1
+  },
+  {
+   "id": "H3-05",
+   "category": "insurance",
+   "rank": 1
+  },
+  {
+   "id": "H3-06",
+   "category": "debt",
+   "rank": null
+  },
+  {
+   "id": "H3-07",
+   "category": "debt",
+   "rank": null
+  },
+  {
+   "id": "H3-08",
+   "category": "mutual_funds",
+   "rank": 1
+  },
+  {
+   "id": "H3-09",
+   "category": "principle",
+   "rank": 1
+  },
+  {
+   "id": "H3-10",
+   "category": "debt",
+   "rank": 1
+  },
+  {
+   "id": "H3-11",
+   "category": "regulation",
+   "rank": 1
+  },
+  {
+   "id": "H3-12",
+   "category": "regulation",
+   "rank": 1
+  },
+  {
+   "id": "H3-13",
+   "category": "debt",
+   "rank": 1
+  },
+  {
+   "id": "H3-14",
+   "category": "debt",
+   "rank": 5
+  },
+  {
+   "id": "H3-15",
+   "category": "tax",
+   "rank": 1
+  },
+  {
+   "id": "H3-16",
+   "category": "regulation",
+   "rank": 1
+  },
+  {
+   "id": "H3-17",
+   "category": "app",
+   "rank": 1
+  },
+  {
+   "id": "H3-18",
+   "category": "other",
+   "rank": 1
+  },
+  {
+   "id": "H3-19",
+   "category": "insurance",
+   "rank": 1
+  },
+  {
+   "id": "H3-20",
+   "category": "regulation",
+   "rank": 1
+  }
+ ]
+}

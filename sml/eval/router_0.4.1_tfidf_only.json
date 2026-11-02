@@ -1,0 +1,415 @@
+{
+ "version": "0.4.1",
+ "protocol": "Is a TF-IDF-only router (no embeddings, so it can run in the browser) good enough? ROADMAP C18 / Gate J inputs.",
+ "tfidf_C": 100,
+ "threshold_chosen_on_dev_with_prerefit_head": 0.1,
+ "threshold_met_dev_recall_99": true,
+ "dev_prerefit_guard": {
+  "risky_n": 146,
+  "caught": 145,
+  "recall": 0.9932,
+  "benign_n": 278,
+  "false_alarms": 25,
+  "false_alarm_rate": 0.0899
+ },
+ "pre_refit": {
+  "dev": {
+   "n": 424,
+   "accuracy": 0.9458,
+   "macro_f1": 0.9396,
+   "by_lang": {
+    "en": [
+     190,
+     0.942
+    ],
+    "hi": [
+     82,
+     0.927
+    ],
+    "hi_en": [
+     152,
+     0.961
+    ]
+   },
+   "guard": {
+    "risky_n": 146,
+    "caught": 145,
+    "recall": 0.9932,
+    "benign_n": 278,
+    "false_alarms": 25,
+    "false_alarm_rate": 0.0899
+   },
+   "blend_macro_f1_for_reference": 0.96
+  },
+  "natural_test": {
+   "n": 130,
+   "accuracy": 0.8769,
+   "macro_f1": 0.8729,
+   "by_lang": {
+    "en": [
+     98,
+     0.847
+    ],
+    "hi_en": [
+     32,
+     0.969
+    ]
+   },
+   "guard": {
+    "risky_n": 20,
+    "caught": 20,
+    "recall": 1.0,
+    "benign_n": 110,
+    "false_alarms": 16,
+    "false_alarm_rate": 0.1455
+   },
+   "blend_macro_f1_for_reference": 0.93
+  },
+  "test_v2": {
+   "n": 187,
+   "accuracy": 0.9305,
+   "macro_f1": 0.9311,
+   "by_lang": {
+    "en": [
+     119,
+     0.924
+    ],
+    "hi": [
+     19,
+     0.947
+    ],
+    "hi_en": [
+     49,
+     0.939
+    ]
+   },
+   "guard": {
+    "risky_n": 30,
+    "caught": 30,
+    "recall": 1.0,
+    "benign_n": 157,
+    "false_alarms": 9,
+    "false_alarm_rate": 0.0573
+   }
+  },
+  "test_v3": {
+   "n": 251,
+   "accuracy": 0.9562,
+   "macro_f1": 0.9555,
+   "by_lang": {
+    "en": [
+     95,
+     0.958
+    ],
+    "hi": [
+     76,
+     0.934
+    ],
+    "hi_en": [
+     80,
+     0.975
+    ]
+   },
+   "guard": {
+    "risky_n": 39,
+    "caught": 39,
+    "recall": 1.0,
+    "benign_n": 212,
+    "false_alarms": 16,
+    "false_alarm_rate": 0.0755
+   }
+  },
+  "test_v4": {
+   "n": 233,
+   "accuracy": 0.9871,
+   "macro_f1": 0.987,
+   "by_lang": {
+    "en": [
+     112,
+     0.991
+    ],
+    "hi": [
+     53,
+     0.962
+    ],
+    "hi_en": [
+     68,
+     1.0
+    ]
+   },
+   "guard": {
+    "risky_n": 40,
+    "caught": 39,
+    "recall": 0.975,
+    "benign_n": 193,
+    "false_alarms": 5,
+    "false_alarm_rate": 0.0259
+   }
+  },
+  "test_v5": {
+   "n": 181,
+   "accuracy": 0.9337,
+   "macro_f1": 0.9318,
+   "by_lang": {
+    "en": [
+     72,
+     0.958
+    ],
+    "hi": [
+     45,
+     0.933
+    ],
+    "hi_en": [
+     64,
+     0.906
+    ]
+   },
+   "guard": {
+    "risky_n": 30,
+    "caught": 30,
+    "recall": 1.0,
+    "benign_n": 151,
+    "false_alarms": 12,
+    "false_alarm_rate": 0.0795
+   }
+  },
+  "test_v6": {
+   "n": 217,
+   "accuracy": 0.9539,
+   "macro_f1": 0.9562,
+   "by_lang": {
+    "en": [
+     79,
+     1.0
+    ],
+    "hi": [
+     42,
+     0.929
+    ],
+    "hi_en": [
+     96,
+     0.927
+    ]
+   },
+   "guard": {
+    "risky_n": 53,
+    "caught": 53,
+    "recall": 1.0,
+    "benign_n": 164,
+    "false_alarms": 10,
+    "false_alarm_rate": 0.061
+   }
+  }
+ },
+ "shipped_head": {
+  "dev": {
+   "n": 424,
+   "accuracy": 1.0,
+   "macro_f1": 1.0,
+   "by_lang": {
+    "en": [
+     190,
+     1.0
+    ],
+    "hi": [
+     82,
+     1.0
+    ],
+    "hi_en": [
+     152,
+     1.0
+    ]
+   },
+   "guard": {
+    "risky_n": 146,
+    "caught": 146,
+    "recall": 1.0,
+    "benign_n": 278,
+    "false_alarms": 0,
+    "false_alarm_rate": 0.0
+   }
+  },
+  "natural_test": {
+   "n": 130,
+   "accuracy": 0.9,
+   "macro_f1": 0.8968,
+   "by_lang": {
+    "en": [
+     98,
+     0.888
+    ],
+    "hi_en": [
+     32,
+     0.938
+    ]
+   },
+   "guard": {
+    "risky_n": 20,
+    "caught": 19,
+    "recall": 0.95,
+    "benign_n": 110,
+    "false_alarms": 14,
+    "false_alarm_rate": 0.1273
+   }
+  },
+  "test_v2": {
+   "n": 187,
+   "accuracy": 0.9358,
+   "macro_f1": 0.9362,
+   "by_lang": {
+    "en": [
+     119,
+     0.924
+    ],
+    "hi": [
+     19,
+     0.947
+    ],
+    "hi_en": [
+     49,
+     0.959
+    ]
+   },
+   "guard": {
+    "risky_n": 30,
+    "caught": 30,
+    "recall": 1.0,
+    "benign_n": 157,
+    "false_alarms": 11,
+    "false_alarm_rate": 0.0701
+   }
+  },
+  "test_v3": {
+   "n": 251,
+   "accuracy": 0.9641,
+   "macro_f1": 0.964,
+   "by_lang": {
+    "en": [
+     95,
+     0.968
+    ],
+    "hi": [
+     76,
+     0.947
+    ],
+    "hi_en": [
+     80,
+     0.975
+    ]
+   },
+   "guard": {
+    "risky_n": 39,
+    "caught": 39,
+    "recall": 1.0,
+    "benign_n": 212,
+    "false_alarms": 14,
+    "false_alarm_rate": 0.066
+   }
+  },
+  "test_v4": {
+   "n": 233,
+   "accuracy": 0.9871,
+   "macro_f1": 0.987,
+   "by_lang": {
+    "en": [
+     112,
+     0.991
+    ],
+    "hi": [
+     53,
+     0.962
+    ],
+    "hi_en": [
+     68,
+     1.0
+    ]
+   },
+   "guard": {
+    "risky_n": 40,
+    "caught": 39,
+    "recall": 0.975,
+    "benign_n": 193,
+    "false_alarms": 2,
+    "false_alarm_rate": 0.0104
+   }
+  },
+  "test_v5": {
+   "n": 181,
+   "accuracy": 0.9558,
+   "macro_f1": 0.9535,
+   "by_lang": {
+    "en": [
+     72,
+     0.986
+    ],
+    "hi": [
+     45,
+     0.956
+    ],
+    "hi_en": [
+     64,
+     0.922
+    ]
+   },
+   "guard": {
+    "risky_n": 30,
+    "caught": 30,
+    "recall": 1.0,
+    "benign_n": 151,
+    "false_alarms": 11,
+    "false_alarm_rate": 0.0728
+   }
+  },
+  "test_v6": {
+   "n": 217,
+   "accuracy": 0.9585,
+   "macro_f1": 0.9622,
+   "by_lang": {
+    "en": [
+     79,
+     1.0
+    ],
+    "hi": [
+     42,
+     0.929
+    ],
+    "hi_en": [
+     96,
+     0.938
+    ]
+   },
+   "guard": {
+    "risky_n": 53,
+    "caught": 53,
+    "recall": 1.0,
+    "benign_n": 164,
+    "false_alarms": 10,
+    "false_alarm_rate": 0.061
+   }
+  }
+ },
+ "size_bytes": {
+  "tfidf_head.json_raw": 758326,
+  "tfidf_head.json_gzip": 105054,
+  "tfidf_head.npz_float32_compressed": 830585,
+  "sum_gzip_like": 935639,
+  "within_1MB_gzipped": true
+ },
+ "quantisation_vs_float32_head_on_all_rows": {
+  "float16": {
+   "max_prob_diff": 0.0003,
+   "decision_parity": 1.0,
+   "coef_json_gzip_bytes": null
+  },
+  "round3": {
+   "max_prob_diff": 0.00046,
+   "decision_parity": 1.0,
+   "coef_json_gzip_bytes": 455016
+  },
+  "round2": {
+   "max_prob_diff": 0.0045,
+   "decision_parity": 1.0,
+   "coef_json_gzip_bytes": 288526
+  }
+ }
+}

@@ -13,3 +13,5 @@
 
 **Honest reading** Macro-F1 gate 0.95: met on the point estimate, but the CI lower bound is below it, and the pre-refit model scores 0.948. Guard recall 30/30 on test_v5 has a weak lower bound (n=30, about 0.88 at 95%). The guard false-alarm rate is the problem: 9.3-10% at the dev-chosen 0.15, against a target of 3-5%. Test_v5 curve for information only (NOT a basis for choosing, that would be tuning on the confirmatory set): thr 0.2 -> 5.3%, 0.3 -> 2.0%, all with 30/30 recall. The threshold must be re-chosen on a NEW dev set and confirmed on a further fresh set before any active use.
 **Still true** all text is agent-written; real messages from shadow mode (needs 300+) are the real test. Hashes: `sml/data/MANIFEST.json`.
+
+**Reproducibility record (F9):** embeddings from Ollama `mxbai-embed-large:latest`, image digest `468836162de7` (2026-10-25). Checksums of the artifacts: `SHA256SUMS` in this folder (the `.npz` and `.joblib` files are git-ignored; retrain with `train_router_v2.py --version X`, which reproduced 0.4.1 exactly on 2026-10-25, TRACKER H4). If the embedding digest changes, expect different vectors and re-verify.

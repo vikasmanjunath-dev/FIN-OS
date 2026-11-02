@@ -21,6 +21,9 @@ FORMAT: line 1 = the single sentence from the context that answers the question,
 Then 1-2 sentences answering the question using ONLY facts stated in that quoted sentence (do not borrow numbers from other sentences).
 If sources conflict, state both with dates. Use ₹ L/Cr/K formatting. HARD LIMIT: 3 sentences besides the quote."""
 
+SYSTEM_PROMPT_MARK = SYSTEM_PROMPT + """
+In each source, the sentence between « and » is the one closest to the question. Take a figure or fact from the sentence that actually states it, and never combine numbers from different sentences."""
+
 ANSWER_TEMPLATE = """{system_prompt}
 
 RETRIEVED CONTEXT:
@@ -97,12 +100,29 @@ def select_window(text: str, query: str, max_chars: int = _MAX_CHUNK_CHARS) -> s
     return "…" + text[s:s + max_chars]
 
 
+def mark_best_sentence(window: str, query: str) -> str:
+    """B17 experiment (RAG_PROMPT_VARIANT=mark): wrap the sentence of `window` that matches the most distinct query terms in « ». Unchanged when there is
+    only one sentence or no term matches, so short chunks and unrelated windows cost nothing."""
+    terms = _query_terms(query)
+    parts = re.split(r"(?<=[.!?])\s+|\n+", window)
+    parts = [p for p in parts if p.strip()]
+    if len(parts) < 2 or not terms:
+        return window
+    scores = [sum(1 for t in terms if t in p.lower()) for p in parts]
+    best = max(range(len(parts)), key=lambda i: (scores[i], -i))
+    if scores[best] < 1:
+        return window
+    return window.replace(parts[best], "«" + parts[best] + "»", 1)
+
+
 def build_context_block(chunks: list[dict], query: str = "") -> str:
     lines = []
     for i, c in enumerate(chunks, start=1):
         payload = c["payload"]
         title = payload.get("doc_title", "Unknown source")
         text = select_window(payload.get("text", ""), query)
+        if getattr(config, "PROMPT_VARIANT", "base") == "mark":
+            text = mark_best_sentence(text, query)
         lines.append(f"[SOURCE_{i}] ({title})\n{text}")
     return "\n\n".join(lines) if lines else "(no relevant context retrieved)"
 
@@ -115,7 +135,7 @@ def build_prompt(query: str, chunks: list[dict], history: list[dict] | None = No
         else "(no prior conversation)"
     )
     return ANSWER_TEMPLATE.format(
-        system_prompt=(SYSTEM_PROMPT_QUOTE if getattr(config, "PROMPT_VARIANT", "base") == "quote" else SYSTEM_PROMPT),
+        system_prompt={"quote": SYSTEM_PROMPT_QUOTE, "mark": SYSTEM_PROMPT_MARK}.get(getattr(config, "PROMPT_VARIANT", "base"), SYSTEM_PROMPT),
         context_block=build_context_block(chunks, query),
         history_block=history_block,
         query=query,

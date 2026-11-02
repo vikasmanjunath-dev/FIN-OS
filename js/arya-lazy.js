@@ -15,7 +15,7 @@
   'use strict';
   if (window.AryaSidebar || window._aryaLazy) return;
   var me = document.currentScript;
-  var src = me && me.src ? me.src.replace(/arya-lazy\.js(\?.*)?$/, 'arya-sidebar-panel.js?v=4') : '../js/arya-sidebar-panel.js?v=4';
+  var src = me && me.src ? me.src.replace(/arya-lazy\.js(\?.*)?$/, 'arya-sidebar-panel.js?v=10') : '../js/arya-sidebar-panel.js?v=10';
   var coreSrc = me && me.src ? me.src.replace(/arya-lazy\.js(\?.*)?$/, 'finos-taxcore.js') : '../js/finos-taxcore.js';
   var loading = null;
   var IDLE_MS = 2500;
@@ -52,7 +52,7 @@
     };
   }
   var stub = {};
-  ['open', 'close', 'showChart', 'closeChart', 'ask', 'runAgent', 'clearHistory', 'routerStats', 'pulseStats', 'smlReport', 'smlReset'].forEach(function (m) { stub[m] = forward(m); });
+  ['open', 'close', 'showChart', 'closeChart', 'ask', 'runAgent', 'clearHistory', 'routerStats', 'pulseStats', 'smlReport', 'smlExport', 'smlSamples', 'smlRows', 'smlRowsExport', 'smlSamplesRemove', 'smlSamplesClear', 'smlSamplesExport', 'smlReset'].forEach(function (m) { stub[m] = forward(m); });
   window.AryaSidebar = stub;
   window._aryaLazy = { load: load, isLoaded: function () { return window.AryaSidebar !== stub; } };
 

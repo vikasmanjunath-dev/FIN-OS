@@ -27,7 +27,7 @@ rag-engine/
 │   └── pii.py          ← PII scrubber (removes names, Aadhaar, PAN, phone)
 │
 ├── embedding/
-│   └── encoder.py      ← Ollama /api/embed: mxbai-embed-large (1024-dim), batches of 32
+│   └── encoder.py      ← Ollama /api/embed: bge-m3 since Oct 26 2026 (1024-dim; was mxbai-embed-large, still used by the SML router), batches of 32
 │
 ├── storage/
 │   ├── qdrant_store.py ← Qdrant vector DB operations (upsert, search, delete)
@@ -55,7 +55,7 @@ User query
 Query cache check (Redis, 1-hour TTL)  →  cache hit → return immediately
     ↓
 Parallel retrieval
-  ├── Dense: Qdrant cosine similarity (mxbai-embed-large, top-10)
+  ├── Dense: Qdrant cosine similarity (bge-m3, top-10)
   └── Sparse: SQLite FTS5 BM25 (top-10)
     ↓
 RRF fusion (Reciprocal Rank Fusion)
@@ -127,7 +127,7 @@ PII scrub (presidio; PAN / Aadhaar / phone patterns, score_threshold 0.5)
     ↓
 Chunk (350 tokens / 70 overlap for finos_page; 1,200-char hard cap)
     ↓
-Embed (mxbai-embed-large via Ollama, batch 32, 1024-dim)
+Embed (bge-m3 via Ollama, batch 32, 1024-dim)
     ↓
 Upsert to Qdrant (content_hash stored; full re-index deletes finos_page first)
     ↓
@@ -172,7 +172,7 @@ QDRANT_HOST=localhost
 QDRANT_PORT=6333
 REDIS_HOST=localhost
 REDIS_PORT=6379
-EMBED_MODEL=mxbai-embed-large   # set in config.py; 1024-dim
+EMBED_MODEL=bge-m3   # config.py default (env RAG_EMBED_MODEL); collection finos_chunks_bge_m3 (env RAG_COLLECTION); 1024-dim
 ```
 
 ### Start everything

@@ -184,11 +184,11 @@ def section_tests() -> str:
     for label, d in (("rag-engine/evaluation", RAG / "evaluation"), ("tests", ROOT / "tests")):
         files = sorted(d.glob("test_*.py"))
         rows.append([f"pytest files, {label}/", len(files), sum(_count_py_tests(f) for f in files)])
-    js = sorted((ROOT / "tests").glob("*.test.js"))
+    js = sorted((ROOT / "tests").glob("*.test.js")) + sorted((ROOT / "sml" / "tests" / "js").glob("*.test.js"))
     js_cases = 0
     for f in js:
         js_cases += len(re.findall(r"^\s*(?:test|it)\(", f.read_text(encoding="utf-8", errors="replace"), re.M))
-    rows.append(["JS test files, tests/*.test.js", len(js), f"{js_cases} (test()/it() calls)"])
+    rows.append(["JS test files, tests/ + sml/tests/js/", len(js), f"{js_cases} (test()/it() calls)"])
     return table(["kind", "files", "test functions"], rows)
 
 

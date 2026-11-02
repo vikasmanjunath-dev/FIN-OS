@@ -21,7 +21,7 @@ SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_KEY", "")
 
 # ── Ollama ───────────────────────────────────────────────────────────────
 OLLAMA_BASE_URL = "http://localhost:11434"
-EMBED_MODEL = "mxbai-embed-large"
+EMBED_MODEL = os.environ.get("RAG_EMBED_MODEL", "bge-m3")   # ADOPTED 2026-10-26 (TRACKER B21; was mxbai-embed-large). Rollback: RAG_EMBED_MODEL=mxbai-embed-large RAG_COLLECTION=finos_chunks. The collection below must hold vectors from the SAME model
 EMBED_DIM = 1024
 UTILITY_MODEL = "qwen3:8b"     # query rewrite / HyDE — Phase 2+
 # Measured on this M5 (24GB, likely base chip — see docs/RAG_HARDWARE.md "Measured
@@ -35,7 +35,7 @@ GENERATION_MODEL = os.environ.get("RAG_GENERATION_MODEL", "qwen3:8b")   # env ov
 # ── Qdrant ───────────────────────────────────────────────────────────────
 QDRANT_HOST = "localhost"
 QDRANT_PORT = 6333
-COLLECTION_NAME = "finos_chunks"
+COLLECTION_NAME = os.environ.get("RAG_COLLECTION", "finos_chunks_bge_m3")   # ADOPTED 2026-10-26: bge-m3 vectors; the old mxbai collection `finos_chunks` is kept as the rollback and is no longer written to
 
 # ── Redis (Phase 2+) ─────────────────────────────────────────────────────
 REDIS_HOST = "localhost"
@@ -83,6 +83,7 @@ PERSONAL_POOL_K = int(os.environ.get("RAG_PERSONAL_POOL_K", "4"))
 NEWS_DEMOTION = float(os.environ.get("RAG_NEWS_DEMOTION", "1.0"))
 # Prompt variant (Oct 25 2026): "base" = current prompt; "quote" = the model first copies the ONE sentence that answers the
 # question (with its [SOURCE_N]) and then answers from that sentence only. Measured 90/112 vs 95-96, so "base" stays.
+# "mark" (B17): the sentence of each context window that best matches the question is wrapped in « » and the prompt says to take facts from the sentence that states them.
 PROMPT_VARIANT = os.environ.get("RAG_PROMPT_VARIANT", "base")
 NUM_PREDICT = int(os.environ.get("RAG_NUM_PREDICT", "170" if PROMPT_VARIANT == "quote" else "120"))
 RETRIEVE_DENSE_K = int(os.environ.get("RAG_RETRIEVE_K", "10"))
@@ -115,4 +116,4 @@ SERVER_PORT = 7476
 def pipeline_signature() -> str:
     """Everything that changes what a query returns, for the Redis cache key (Oct 25 2026: the key held only
     PIPELINE_VERSION, so flipping an env tunable such as RAG_NEWS_DEMOTION would have served stale cached answers)."""
-    return (f"{PIPELINE_VERSION}|w{RERANK_WINDOW_CHARS}|k{RETRIEVE_DENSE_K}-{RETRIEVE_SPARSE_K}|pq{PERSONAL_QUOTA}-{PERSONAL_POOL_K}|pp{PERSONAL_PRIOR}|nd{NEWS_DEMOTION}|pv{PROMPT_VARIANT}|np{NUM_PREDICT}|gm{GENERATION_MODEL}|pk{PROMPT_TOP_K}|pc{PROMPT_CHUNK_CHARS}")
+    return (f"{PIPELINE_VERSION}|w{RERANK_WINDOW_CHARS}|k{RETRIEVE_DENSE_K}-{RETRIEVE_SPARSE_K}|pq{PERSONAL_QUOTA}-{PERSONAL_POOL_K}|pp{PERSONAL_PRIOR}|nd{NEWS_DEMOTION}|pv{PROMPT_VARIANT}|np{NUM_PREDICT}|gm{GENERATION_MODEL}|pk{PROMPT_TOP_K}|pc{PROMPT_CHUNK_CHARS}|em{EMBED_MODEL}|co{COLLECTION_NAME}")
