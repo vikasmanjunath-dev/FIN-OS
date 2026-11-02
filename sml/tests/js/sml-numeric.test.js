@@ -1,9 +1,9 @@
-// Run: node --test tests/sml-numeric.test.js
+// Run: node --test sml/tests/js/sml-numeric.test.js
 // SmlNormalizer (Indian numbers / language / months) + SmlNumericCheck (answer figures must come from evidence).
 const test = require('node:test');
 const assert = require('node:assert');
-const N = require('../js/sml/normalizer.js');
-const C = require('../js/sml/numeric-check.js');
+const N = require('../../../js/sml/normalizer.js');
+const C = require('../../../js/sml/numeric-check.js');
 
 const amounts = (t) => N.parseAmount(t).map((a) => a.value_inr);
 const one = (t) => { const a = N.parseAmount(t); assert.strictEqual(a.length, 1, `expected exactly one amount in ${JSON.stringify(t)}, got ${JSON.stringify(a)}`); return a[0]; };
@@ -384,7 +384,7 @@ test('modules are pure and dual-mode: no network / storage / system clock, and l
   const fs = require('node:fs');
   const path = require('node:path');
   const vm = require('node:vm');
-  const dir = path.join(__dirname, '..', 'js', 'sml');
+  const dir = path.join(__dirname, '..', '..', '..', 'js', 'sml');
   const srcs = ['normalizer.js', 'numeric-check.js'].map((f) => fs.readFileSync(path.join(dir, f), 'utf8'));
   for (const src of srcs) {
     const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');

@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const C = require('../js/sml/pulse-counters.js');
+const C = require('../../../js/sml/pulse-counters.js');
 
 const mem = () => { const m = {}; return { getItem: (k) => (k in m ? m[k] : null), setItem: (k, v) => { m[k] = String(v); }, _m: m }; };
 
