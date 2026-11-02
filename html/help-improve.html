@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Help improve Arya | FIN-OS</title>
+<style>
+:root{--bg:#fff;--fg:#1b1f24;--mut:#5b6573;--line:#d6dbe1;--card:#f6f8fa;--acc:#0969da;--bad:#cf222e;--warn:#9a6700}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9aa7b4;--line:#30363d;--card:#161b22;--acc:#58a6ff;--bad:#f85149;--warn:#d29922}}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,sans-serif}
+main{max-width:760px;margin:0 auto;padding:16px 16px 48px}
+h1{font-size:1.4rem;margin:8px 0} h2{font-size:1.1rem;margin:24px 0 8px}
+.draft{border:2px dashed var(--warn);border-radius:10px;padding:10px 12px;margin:12px 0;color:var(--warn);font-weight:600}
+.box{border:1px solid var(--line);border-radius:10px;background:var(--card);padding:12px 14px;margin:12px 0}
+.mut{color:var(--mut)} ul{padding-left:20px} li{margin:4px 0}
+button{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:10px 14px;font-size:1rem;cursor:pointer;min-height:44px}
+button.sec{background:transparent;color:var(--acc);border:1px solid var(--acc)} button.del{background:transparent;color:var(--bad);border:1px solid var(--bad);padding:4px 10px;min-height:32px}
+label.sw{display:flex;gap:10px;align-items:flex-start;font-weight:600;min-height:44px}
+.ex{display:flex;gap:10px;justify-content:space-between;align-items:flex-start;border-top:1px solid var(--line);padding:8px 0}
+.ex:first-child{border-top:0} .ex q{quotes:none;word-break:break-word}
+.lang button{margin-right:8px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+<h1>Help improve Arya (optional)</h1>
+<div class="draft" role="note">DRAFT. The wording below is not approved yet. This page is not linked from anywhere in FIN-OS and nothing on it is active until the founder approves the text.</div>
+
+<div class="lang" role="group" aria-label="Language"><button class="sec" id="en" type="button">English</button><button class="sec" id="hi" type="button">हिन्दी</button></div>
+
+<section id="t-en" class="box">
+<p><b>If you switch this on, Arya keeps short examples of some of your questions on this device, so you can send them to us if you choose.</b></p>
+<ul>
+<li><b>What is kept:</b> only questions that Arya's on-device check marked as possibly asking for a personal investment decision or something illegal. Numbers, amounts, e-mail addresses, UPI IDs and similar details are blanked out before anything is saved. At most 50 examples.</li>
+<li><b>Where:</b> only in this browser, on this device. <b>Nothing is sent automatically, ever.</b></li>
+<li><b>Names are not found automatically.</b> Please read each example below and delete any that contain a name or anything personal before you send a file.</li>
+<li><b>What we do with a file you send:</b> check where Arya gets things wrong and improve it. We keep examples for 90 days (draft), never sell them and never use them for ads.</li>
+<li><b>Delete:</b> delete one example, or all of them, below at any time. Switching this off stops saving; delete the examples to remove them.</li>
+</ul>
+</section>
+<section id="t-hi" class="box" hidden lang="hi">
+<p><b>इसे चालू करने पर Arya आपके कुछ सवालों के छोटे उदाहरण इसी डिवाइस पर रखता है, ताकि आप चाहें तो उन्हें हमें भेज सकें।</b></p>
+<ul>
+<li><b>क्या रखा जाता है:</b> सिर्फ़ वे सवाल जिन्हें Arya की डिवाइस पर चलने वाली जाँच ने "निजी निवेश सलाह माँगने वाला" या "गैरकानूनी" माना। नंबर, रकम, ई-मेल, UPI ID जैसी जानकारी सहेजने से पहले मिटा दी जाती है। अधिकतम 50 उदाहरण।</li>
+<li><b>कहाँ:</b> सिर्फ़ इसी ब्राउज़र में, इसी डिवाइस पर। <b>अपने-आप कुछ भी कभी नहीं भेजा जाता।</b></li>
+<li><b>नाम अपने-आप नहीं मिटते।</b> फ़ाइल भेजने से पहले नीचे हर उदाहरण पढ़ें और जिसमें नाम या कोई निजी बात हो उसे मिटा दें।</li>
+<li><b>भेजी गई फ़ाइल का हम क्या करते हैं:</b> देखते हैं कि Arya कहाँ गलती करता है और उसे सुधारते हैं। उदाहरण 90 दिन रखे जाते हैं (मसौदा), कभी बेचे नहीं जाते और विज्ञापन में इस्तेमाल नहीं होते।</li>
+<li><b>मिटाना:</b> नीचे किसी भी समय एक या सभी उदाहरण मिटा सकते हैं। इसे बंद करने से सहेजना रुकता है; उदाहरण हटाने के लिए उन्हें मिटाएँ।</li>
+</ul>
+<p class="mut">(यह हिन्दी पाठ मसौदा है; किसी हिन्दी जानकार से जँचवाना बाकी है।)</p>
+</section>
+
+<section class="box">
+<label class="sw"><input type="checkbox" id="consent"> <span>Keep redacted examples on this device (and let Arya check my questions on this device to find them)</span></label>
+<p class="mut" id="state" aria-live="polite"></p>
+</section>
+
+<h2>Examples kept on this device <span class="mut" id="count"></span></h2>
+<div class="box"><div id="list"></div><p class="mut" id="empty">Nothing is kept right now.</p></div>
+<p>
+<button id="dl" type="button">Download a file to send</button>
+<button id="clear" type="button" class="sec">Delete all examples</button>
+</p>
+<p class="mut" id="sendnote">The file is created on your device only when you press the button. Send it yourself to the FIN-OS team; the address will be added here before this page is used. <b>Nothing is sent automatically by this page.</b></p>
+</main>
+<script src="../js/sml/sample-capture.js"></script>
+<script>
+(function () {
+  'use strict';
+  var C = window.SmlSampleCapture, st;
+  try { st = window.localStorage; st.getItem('x'); } catch (e) { st = null; }
+  var elConsent = document.getElementById('consent'), elList = document.getElementById('list'), elEmpty = document.getElementById('empty'), elCount = document.getElementById('count'), elState = document.getElementById('state');
+  var SETBY = 'finos_sml_flagged_setby';                 // which helper flags this page switched on, so switching off restores only those
+  function get(k) { try { return st.getItem(k); } catch (e) { return null; } }
+  function set(k, v) { try { st.setItem(k, v); } catch (e) {} }
+  function del(k) { try { st.removeItem(k); } catch (e) {} }
+  function render() {
+    var on = !!st && C.flagged.enabled(st); elConsent.checked = on; elConsent.disabled = !st;
+    elState.textContent = !st ? 'This browser blocks local storage, so nothing can be kept.' : (on ? 'On: examples are being kept on this device.' : 'Off: nothing is being kept.');
+    var rows = st ? C.flagged.list(st) : []; elList.textContent = '';
+    rows.forEach(function (r) {
+      var d = document.createElement('div'); d.className = 'ex';
+      var q = document.createElement('q'); q.textContent = r.text + '  (' + r.day + ')';
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'del'; b.textContent = 'Delete'; b.setAttribute('aria-label', 'Delete this example');
+      b.addEventListener('click', function () { C.flagged.remove(st, r.id); render(); });
+      d.appendChild(q); d.appendChild(b); elList.appendChild(d);
+    });
+    elEmpty.hidden = rows.length > 0; elCount.textContent = rows.length ? '(' + rows.length + ' of 50)' : '';
+    document.getElementById('dl').disabled = !rows.length; document.getElementById('clear').disabled = !rows.length;
+  }
+  elConsent.addEventListener('change', function () {
+    if (!st) return;
+    if (elConsent.checked) {
+      var by = [];
+      ['finos_sml_router_shadow', 'finos_sml_router_local'].forEach(function (k) { if (get(k) !== '1') { set(k, '1'); by.push(k); } });
+      set(SETBY, JSON.stringify(by)); set(C.flagged.FLAG, '1');
+    } else {
+      del(C.flagged.FLAG);
+      try { (JSON.parse(get(SETBY) || '[]') || []).forEach(del); } catch (e) {} del(SETBY);
+    }
+    render();
+  });
+  document.getElementById('clear').addEventListener('click', function () { if (st && window.confirm('Delete all examples kept on this device?')) { C.flagged.clear(st); render(); } });
+  document.getElementById('dl').addEventListener('click', function () {
+    if (!st) return;
+    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(C.flaggedFile(st), null, 1)], { type: 'application/json' })); a.download = 'arya_examples.json'; a.click();
+  });
+  function lang(l) { document.getElementById('t-en').hidden = l !== 'en'; document.getElementById('t-hi').hidden = l !== 'hi'; }
+  document.getElementById('en').addEventListener('click', function () { lang('en'); }); document.getElementById('hi').addEventListener('click', function () { lang('hi'); });
+  render();
+})();
+</script>
+</body>
+</html>
