@@ -287,6 +287,17 @@ A failed job (e.g., the real fork-crash bug hit during this build, see [RAG_PHAS
 
 ---
 
+## ✅ `POST /api/route` — BUILT (Oct 2026, SML router, shadow mode)
+
+Body `{"text": "<one user message>"}`. Returns the intent router's decision: `{"router_version","intent","confidence","risk","high_risk_mass","needs_guard","top3"}` (13 intents; `risk` is `high` for `advice_seeking` and `evasion_request`; `needs_guard` is true when the predicted class is one of those or their probability mass reaches the version's threshold: 0.20 for 0.4.1, 0.35 for 0.5.1). The default version is `DEFAULT_VERSION` in `sml/runtime/router_predict.py` (0.4.1). Local only, no auth, no user id.
+
+- **Privacy:** the message is never logged, printed, cached or stored; only the intent and `needs_guard` go to the Prometheus counter `rag_router_decisions_total`. Failures answer `503 {"error": "router unavailable (<ExceptionName>)"}` with no stack trace. Blank text answers `422`. Text beyond 500 characters is cut before it is embedded.
+- **Cost:** about 33 ms per call (the Ollama embedding is almost all of it); a 4 s client timeout was raised to 15 s because the call is fire-and-forget.
+- **Who calls it:** the Arya panel, only when the browser flag `finos_sml_router_shadow` = '1' (default off). It changes no answer; the browser keeps counters, never the text. The flow is declared in `js/finos-privacy.js` (the `ai` entry).
+- Tests: `rag-engine/evaluation/test_route_endpoint.py`. Evidence and measurements: `sml/TRACKER.md`.
+
+---
+
 ## ✅ `POST /api/search` — BUILT, verified (Phase 1)
 
 Raw vector search only — no BM25, no RRF, no rerank, no generation. Mostly superseded by `/api/query` for real use; kept for debugging retrieval quality in isolation.

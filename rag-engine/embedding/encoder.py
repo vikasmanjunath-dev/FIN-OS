@@ -13,8 +13,8 @@ _BATCH_SIZE = 32
 _TIMEOUT = httpx.Timeout(60.0)
 
 
-def embed_batch(texts: list[str]) -> list[list[float]]:
-    """Embed a list of texts in batches of 32 via Ollama. Returns one vector per input text."""
+def embed_batch(texts: list[str], model: str | None = None) -> list[list[float]]:
+    """Embed a list of texts in batches of 32 via Ollama. Returns one vector per input text. `model` defaults to config.EMBED_MODEL; the SML router passes the model it was trained on."""
     if not texts:
         return []
 
@@ -24,7 +24,7 @@ def embed_batch(texts: list[str]) -> list[list[float]]:
             batch = texts[i : i + _BATCH_SIZE]
             resp = client.post(
                 f"{config.OLLAMA_BASE_URL}/api/embed",
-                json={"model": config.EMBED_MODEL, "input": batch},
+                json={"model": model or config.EMBED_MODEL, "input": batch},
             )
             resp.raise_for_status()
             data = resp.json()
