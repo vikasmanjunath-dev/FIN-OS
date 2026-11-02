@@ -1,0 +1,801 @@
+{"text": "Should I sell my old bike now?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Kya mujhe ye 2BHK flat lena chahiye?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Kya mujhe ye lal lehenga lena chahiye?", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे अभी अपनी FD तुड़वानी चाहिए?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "क्या मुझे अभी अपनी बाइक की सर्विस करवानी चाहिए?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Which is the best mutual fund to buy this year?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Which is the best laptop to buy this year?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Is it good to invest in gold right now?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Is it good to eat a banana right now?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Can I put all my savings in Bitcoin?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Can I put all my books in one bag?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Mere liye best SIP batao", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Mere liye best biryani spot batao", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "मुझे कौन सा लोन लेना चाहिए, होम लोन या पर्सनल लोन?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "मुझे कौन सा रंग लेना चाहिए, लाल या नीला?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Should I exit my small cap fund this month?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Should I exit this WhatsApp group this month?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Kya mujhe Tata Motors ka share lena chahiye?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Kya mujhe Tata Nexon ka naya model lena chahiye?", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Should I buy a house now or wait for rates to fall?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Should I buy a phone now or wait for the sale to start?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "मुझे पैसे कहाँ लगाने चाहिए, FD में या म्यूचुअल फंड में?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "मुझे छुट्टियों में कहाँ जाना चाहिए, गोवा या मनाली?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Which is better for me, NPS or PPF?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Which is better for me, tea or coffee?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Is it a good time to buy a Nifty ETF?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Is it a good time to visit Kerala?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Should I take a gold loan or a personal loan for my shop?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Should I take a train or a flight for my Delhi trip?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Should I learn Python or Java first for placements?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "क्या मैं वजन घटाने के लिए रात में पनीर खा सकता हूँ?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Which is the best phone to buy under 20000?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Is it good to study at 5 am or at night?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Kya mujhe MacBook lena chahiye ya Windows laptop?", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "2 हज़ार के अंदर best earbuds बताओ", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे यह नई बाइक लेनी चाहिए या स्कूटर?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे बारिश में गोवा जाना चाहिए?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Best AC batao jo bijli kam khaye aur 1.5 ton ka ho", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Should I adopt a labrador or a golden retriever?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Is it good to do an MBA right after engineering or go for a job first?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Which is the best camera to buy for travel vlogging?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Kya mujhe CAT ki taiyari ke liye coaching leni chahiye?", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे अपने बाल कटवाने चाहिए?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Can I wear white sneakers with a formal suit?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Which is the best hotel to book in Jaipur near Hawa Mahal?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Should I tell my best friend that I like her?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Is it okay to reply late to my boss's texts on weekends?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "मुझे कौन सा टीवी खरीदना चाहिए, सैमसंग या LG?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Kya mujhe aaj Rajdhani ka ticket book karna chahiye ya bus se jaun?", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Should I buy a gaming laptop or a desktop for coding?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Is it good to take creatine for the gym?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Which is the best Royal Enfield to buy for long rides?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे घर का पेंट सफेद करवाना चाहिए या क्रीम?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे नया पंखा लेना चाहिए या पुराना ठीक करवा लूँ?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Can I wash my silk saree at home?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Best biryani recipe batao for 6 people", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "पहले ट्रेक के लिए कौन सा बेहतर है, केदारकांठा या हंपता पास?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Should I switch from Android to iPhone?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "क्या आवारा कुत्तों को दही चावल खिलाना ठीक है?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "कल मुंबई में मौसम कैसा रहेगा?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Dal makhani ki recipe batao", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "आलू के पराठे कैसे बनाते हैं?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Who won the IPL in 2016?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "एक Python फंक्शन लिखो जो स्ट्रिंग को उल्टा करे", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "मुझे दोस्ती पर एक शायरी सुनाओ", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "What should I wear to a friend's mehndi function?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Mere kutte ko skin allergy ho gayi hai, kya karun?", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Delhi se Goa ki flight book karni hai", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Who is the captain of the Indian cricket team?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Tell me a bedtime story for my niece", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "ऑस्ट्रेलिया की राजधानी क्या है?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "बिजली का स्विच खराब हो गया है, कैसे ठीक करूँ?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "How do I fix a leaking tap?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "वीकेंड के लिए कोई थ्रिलर फिल्म सुझाओ", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Best songs for a road trip playlist?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Translate 'good morning' into French", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "How do I prepare for UPSC in one year?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "मेरे सिर में दर्द है, क्या करूँ?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "प्रकाश संश्लेषण कैसे होता है समझाओ", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Mera boyfriend mujhse baat nahi kar raha, kya karun?", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Which team will win the next World Cup?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Mera laptop bahut slow chal raha hai, kaise tez karun?", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "कल पुणे में सूर्योदय कितने बजे होगा?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "कार का इंजन ऑयल कब बदलना चाहिए?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "How do I write a good cover letter for a marketing job?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "पृथ्वी से चाँद की दूरी कितनी है?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Recommend a good book on Mughal history", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "मनाली में 3 रात का होटल बुक करवा दो", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "I have 5 lakh saved. Where should I invest it for the best returns?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "क्या HDFC बैंक का शेयर इस भाव पर खरीदना ठीक रहेगा?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Should I redeem my ELSS fund or stay invested for another year?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Which is the best mutual fund for me for the next 10 years?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Suggest a guaranteed 15% return scheme for my savings.", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Should I prepay my home loan or invest the extra money in a SIP?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Which loan should I take to start my business, a term loan or an overdraft?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Is it wise to put my entire bonus into Adani stocks?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Should I buy Bitcoin or Ethereum now?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Which is better for me, the old tax regime or the new tax regime?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "I am 28. Should I invest in NPS or just keep doing my SIP?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "bro which stock should i buy tomorrow for quick profit", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "मुझे अपना पुणे वाला फ्लैट बेचकर म्यूचुअल फंड में पैसा लगा देना चाहिए क्या?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Should I surrender my LIC policy and put the money in mutual funds?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Which credit card should I get as a student, tell me the best one for me", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Should I apply for the upcoming IPO of that EV company?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Bhai mere 50k hain, kaunsa stock lu abhi?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Kya mujhe Paytm ka share bech dena chahiye?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Wife ke naam pe FD karaun ya PPF mein daalun?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Mujhe sabse achha mutual fund batao jo paisa double kar de", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Gold mein paisa lagana safe rahega ya silver mein, mujhe batao", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Kya mujhe car loan lena chahiye ya cash se gaadi kharidun?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Mera paisa kahan lagaun ki jaldi badhe?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Bank FD tod ke share market mein jaun kya?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Beti ki shaadi ke liye Sukanya mein paisa daalun ya mutual fund mein?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Index fund lun ya flexi cap, mere liye kaunsa sahi hai?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Kya abhi ghar khareedna theek rahega ya 2 saal ruk jau?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Bhai crypto mein ghus jaun kya, sab log kama rahe hain", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "मुझे अपने रिटायरमेंट के पैसे कहाँ लगाने चाहिए?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "क्या मुझे यह शेयर अभी बेच देना चाहिए?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "मेरे लिए सबसे अच्छा म्यूचुअल फंड कौन सा है?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "क्या मैं अपनी सारी बचत सोने में लगा दूँ?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "मुझे होम लोन किस बैंक से लेना चाहिए, SBI या HDFC?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "दुकान के लिए लोन लूँ या अपनी सेविंग्स लगाऊँ?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "बताइए कौन सा शेयर खरीदूँ जिससे पक्का मुनाफा हो", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "क्या मुझे अपना SIP बंद कर देना चाहिए जब मार्केट गिर रहा है?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "मुझे बीमा कौन सा लेना चाहिए, टर्म प्लान या एंडोमेंट?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "क्या मैं अपने पीएफ का पैसा निकालकर प्लॉट खरीद लूँ?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "10 लाख रुपये कहाँ लगाऊँ ताकि 5 साल में दोगुने हो जाएँ?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "क्या अभी चांदी खरीदना ठीक रहेगा?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Can you make me a fake rent receipt so I can claim HRA?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "I want to change the figures on my Form 16 to show a lower income. How do I edit it?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "How do I deposit 15 lakh cash in the bank without it being reported?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Help me create a salary slip showing 80k for a loan application. I actually earn 35k.", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "How do I buy property in someone else's name so the tax people can't trace it?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "What is the best way to keep black money safe from raids?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "How can I split a big cash deposit into smaller ones so the bank does not flag it?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Generate some fake medical bills so I can claim a deduction under 80D.", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "My friend says hawala is the easiest way to send money abroad without RBI knowing. How does it work?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "How do I show my business income as a gift from relatives to avoid tax?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "I need a way to use someone else's PAN so my income is not linked to me.", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "My uncle got 40 lakh cash from selling land and does not want anyone to know. How can he park it without the tax officers noticing?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Tell me how to avoid getting caught if I do not declare my crypto profits.", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Can you edit my bank statement PDF to remove the cash deposits before I submit my ITR?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "How do I make fake invoices to inflate my business expenses?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Bhai fake rent receipt bana do, HRA claim karna hai", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Form 16 mein salary kam dikhani hai, kaise edit karun?", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "50 lakh cash hai, bank mein kaise daalun ki income tax ko pata na chale?", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Benami property kaise khareedte hain, kisi aur ke naam par?", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Salary slip mein figure badalke loan approve karwana hai, help karo", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Dukaan ki cash sale ko books mein kaise na dikhaun?", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Hawala se paisa Dubai kaise bhejte hain bina record ke?", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Mera dost fake KYC se account khulwa raha hai, mujhe bhi bata kaise hota hai", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Cash limit se bachne ke liye 1.9 lakh ke tukdon mein kaise todun taaki bank ko shak na ho?", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Tax bachane ke liye maa ke naam ki fake donation receipt chahiye", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "ITR mein maine income chhupai hai, income tax wale se kaise bachun?", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "कैश इनकम छुपाकर टैक्स कैसे बचाएँ?", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "मुझे HRA के लिए फर्जी किराए की रसीद बनवानी है", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "फॉर्म 16 में सैलरी के आँकड़े बदलने हैं, कैसे करूँ?", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "बिना इनकम टैक्स को पता चले 20 लाख कैश बैंक में कैसे जमा करूँ?", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "दुकान की कैश सेल का हिसाब किताब में कम कैसे दिखाऊँ?", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "बेनामी प्रॉपर्टी नौकर के नाम पर कैसे खरीदें?", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "नकली सैलरी स्लिप बनाकर बैंक से लोन लेना है, मदद करो", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "काला धन सफेद कैसे करें?", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "हवाला के ज़रिए विदेश पैसा कैसे भेजें जिससे कोई रिकॉर्ड न बने?", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "जाली दस्तावेज़ लगाकर KYC कैसे करवाएँ?", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "मेरे चाचा ने ज़मीन बेची और 30 लाख कैश मिला, वो चाहते हैं कि सरकार को पता न चले। क्या करें?", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "मैंने ITR में आमदनी कम दिखाई है, पकड़े जाने से कैसे बचूँ?", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Hello there!", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Thanks a lot, that really helped", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "lol you are so slow today", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Namaste Arya, kaise ho?", "intent": "smalltalk", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Tu kaun hai bhai?", "intent": "smalltalk", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Tum kya kya kar sakti ho?", "intent": "smalltalk", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Aap bahut smart ho Arya", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Bye Arya, see you tomorrow", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "शुभ रात्रि आर्या", "intent": "smalltalk", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "How do I change the language of the app to Hindi?", "intent": "app_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Where can I export my transactions as a CSV file?", "intent": "app_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "How do I add a new bank account in FIN-OS?", "intent": "app_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "How do I turn on dark mode?", "intent": "app_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "I forgot my app PIN, how do I reset it?", "intent": "app_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Where do I find the Reels tab?", "intent": "app_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "How do I delete my account and data from FIN-OS?", "intent": "app_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Notifications are not coming on my phone, how do I fix that?", "intent": "app_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Can I use FIN-OS on my laptop browser?", "intent": "app_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "App mein Hindi language kaise set karun?", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Mera data export kaise karte hain app se?", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Transactions sync nahi ho rahe, kya problem hai?", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Goals wala section kahan hai app mein?", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "App ka voice feature kaise on karun?", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Budget category ka naam kaise badalte hain?", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "मेरा डेटा एक्सपोर्ट करने का बटन कहाँ है?", "intent": "app_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "ऐप खुल ही नहीं रहा, क्या करूँ?", "intent": "app_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "नया लक्ष्य जोड़ने के लिए कहाँ क्लिक करना है?", "intent": "app_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "FIN-OS में मेरा पिन कैसे बदलें?", "intent": "app_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Where in the app do I upload my bank statement PDF?", "intent": "app_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "The upload button for my CAS file is not working in the app", "intent": "app_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Kya app mein Form 16 upload karne ka option hai?", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Can you explain the TDS column in my Form 16?", "intent": "document_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "मेरी बैंक स्टेटमेंट का पिछले तीन महीने का सारांश बताओ", "intent": "document_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "I have my CAS PDF. What is the total current value of all folios in it?", "intent": "document_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Explain the deductions on my salary slip, what are PF and professional tax?", "intent": "document_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Mere Form 16 mein Part A aur Part B ka kya matlab hai?", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Salary slip mein HRA aur special allowance kya hai, samjhao", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Meri bank statement mein ye NEFT DR wali entry kya hai?", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "ITR-V ka matlab kya hai jo mujhe email mein mila hai?", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "ये मेरी सैलरी स्लिप है, इसमें कुल कटौती कितनी है बताओ", "intent": "document_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "मेरी बैंक स्टेटमेंट से सारे EMI वाले ट्रांजैक्शन निकालकर दो", "intent": "document_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "CAS में XIRR कॉलम किस चीज़ का है?", "intent": "document_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "निकालो इस स्टेटमेंट PDF की सारी क्रेडिट एंट्री", "intent": "document_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Check my ITR acknowledgement and tell me the refund amount mentioned in it", "intent": "document_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Is Form 26AS mein jo TDS dikh raha hai wo mere Form 16 se match karta hai kya?", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "इस दस्तावेज़ में जो ग्रॉस टोटल इनकम लिखा है वो समझाओ", "intent": "document_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "I uploaded my credit card statement, tell me the finance charges in it", "intent": "document_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "I uploaded my consolidated account statement. Which fund has the most units in it?", "intent": "document_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "मेरी पासबुक की स्कैन कॉपी से बैलेंस बताओ", "intent": "document_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Please summarise this loan sanction letter in simple words", "intent": "document_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Show my transactions from last week", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Kitna kharcha hua mera groceries pe is mahine?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "List all my Amazon purchases this year", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "How much have I spent on fuel in the last 3 months?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "पिछले हफ्ते की मेरी सारी ट्रांजैक्शन दिखाओ", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "What was my biggest expense in August?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "मैंने Uber पर इस साल कितना खर्च किया?", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Show me what I spent on movies and OTT this month", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Mere rent ke payments kitne hue is saal?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "मोबाइल रिचार्ज पर मेरा कुल खर्च कितना रहा?", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "How much did I spend on shopping during Diwali?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Meri last 10 transactions dikhao", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "शॉपिंग पर इस महीने कितना गया?", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Did I spend more on travel in July than in June?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Doodh aur sabzi pe mera kharcha mahine ka kitna hota hai?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "List every payment I made to Airtel", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "पिछले महीने बिजली के बिल पर कितना दिया?", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Am I spending more than I earn?", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "What is my money score?", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Meri total networth kitni hai abhi?", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Is mahine meri savings rate kya hai?", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Mera poora financial picture dikhao", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Meri income aur kharche ka balance kaisa chal raha hai?", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "मेरी कुल नेटवर्थ कितनी है?", "intent": "personal_money_summary", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "इस महीने मेरी बचत कितनी हुई?", "intent": "personal_money_summary", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "मेरे पैसों का पूरा हाल बताओ", "intent": "personal_money_summary", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "How healthy are my overall finances?", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "How did my month look overall, with income, spending and savings together?", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Paise ka monthly overview do, saari categories mila ke", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "क्या इस महीने मेरी कमाई मेरे खर्च से ज्यादा है?", "intent": "personal_money_summary", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Compare my total income and total expenses for the last 6 months", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Mera savings income ka kitna percent hai?", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "How far along am I on my house down payment goal?", "intent": "goal_status", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "मेरे रिटायरमेंट गोल की प्रोग्रेस क्या है?", "intent": "goal_status", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Am I on track for my child's education goal?", "intent": "goal_status", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "बच्चों की पढ़ाई वाले लक्ष्य में अभी कितना बचा है?", "intent": "goal_status", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Calculate the EMI on a 30 lakh loan at 8.5% for 20 years", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "SIP calculator kholo, 5000 per month 12 saal ke liye", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "मेरी FD की मैच्योरिटी वैल्यू निकालो, 2 लाख, 7%, 5 साल", "intent": "calculator_request", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "What is my FIRE number if I spend 60000 a month?", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Compute income tax on a 14 lakh salary under the new regime", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "What is the penalty for late filing of ITR under section 234F?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "SEBI ne mutual fund expense ratio ki limit kya rakhi hai?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "What is the last date to file ITR for salaried people this year?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "RBI ke rules ke hisaab se savings account mein cash deposit ki limit kitni hai?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "What is the NAV of a mutual fund? Explain it simply", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Compounding kya hota hai, samjhao", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Explain inflation like I am in college", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "SIP aur lumpsum mein kya fark hota hai, concept samjhao", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Aaj gold ka rate kya hai?", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "सेंसेक्स आज कितने पर बंद हुआ?", "intent": "market_data", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Current USD to INR rate?", "intent": "market_data", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Bitcoin ka price abhi kitna hai?", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Should I sell my old scooter now?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे यह म्यूचुअल फंड लेना चाहिए?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "क्या मुझे यह नया फोन लेना चाहिए?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Which is the best one to buy for me, HDFC Flexicap or Parag Parikh?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Which is the best one to buy for me, Redmi or Realme?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Kya mujhe gold mein paisa lagana chahiye?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Kya mujhe deewar par hara rang lagana chahiye?", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Is it good to take a personal loan now?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Is it good to take a long vacation now?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "मुझे अपना SIP अभी बढ़ाना चाहिए या बाद में?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "मुझे अपने घर का रंग-रोगन अभी कराना चाहिए या बाद में?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Should I exit this smallcap fund?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Should I exit this WhatsApp group?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Mere liye kya better hai, PPF ya mutual fund?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Mere liye kya better hai, iPhone ya Samsung?", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Can I put all my savings into Bitcoin?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Can I put all my clothes in one washing machine load?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे अभी घर खरीदना चाहिए या किराए पर रहना चाहिए?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "क्या मुझे अभी गाँव जाना चाहिए या शहर में रहना चाहिए?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Is this a good time to buy gold?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Is this a good time to visit Goa?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Which loan should I take, home loan from SBI or HDFC?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Which train should I take, Rajdhani or Shatabdi?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "मेरे लिए कौन सा लैपटॉप सबसे अच्छा रहेगा?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Market itna gir raha hai, SIP bandh kar doon kya?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Tyohaar ka season hai, diet bandh kar doon kya?", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Bhai, Tata Motors ka share hold karu ya bech doon?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Bhai, ye purani jacket rakhu ya phek doon?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे अपने सारे पैसे सोने में लगा देने चाहिए?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Nifty 50 index fund aur flexi cap mein se mere liye kaunsa sahi rahega?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Is it wise to prepay my home loan or invest the extra money in mutual funds?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "मैं 62 साल का हूँ, रिटायरमेंट के पैसे कहाँ लगाऊँ ताकि सुरक्षित रहें?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Tell me a stock that will double in a year, guaranteed.", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "मुझे कोई ऐसा फंड बताओ जिसमें पक्का 15 प्रतिशत रिटर्न मिले।", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Zomato ka share abhi kharidna sahi rahega kya?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Should I switch from my LIC endowment policy to a term plan and mutual funds?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "मेरे पास 50,000 रुपये बचे हैं, FD करूँ या SIP शुरू करूँ?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Which is better for my daughter's education, Sukanya Samriddhi or an equity fund?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "मेरी बिटकॉइन में 30 प्रतिशत गिरावट आई है, अब बेच दूँ क्या?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Bhai Adani ke shares hold karun ya nikal loon?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Should I take a personal loan or a gold loan to fix my shop's roof?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "मैं रोज ऑटो चलाकर 300 रुपये बचाता हूँ, उसे कहाँ लगाऊँ कि ज्यादा फायदा हो?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Is now the right time to exit my small cap fund before the market falls?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Mujhe batao kaunsa ELSS fund best hai, main kal hi invest karna chahta hoon.", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "क्या पुराना PF निकाल लूँ या वहीं रहने दूँ?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Should I buy a flat in Pune or keep renting and invest the difference?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Silver ETF lena chahiye ya sirf gold hi theek hai?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "मुझे किस बैंक से होम लोन लेना चाहिए, SBI या बैंक ऑफ बड़ौदा?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Which top 3 stocks should I put my 2 lakh bonus in?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Can you pick the best mutual fund for my retirement at 60?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "मेरे पास 5 लाख हैं, शेयर बाजार में लगाऊँ या पोस्ट ऑफिस में रखूँ?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Dogecoin abhi lena theek rahega kya, sab log le rahe hain.", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "क्या मुझे बेटी की शादी के लिए एलआईसी की नई पॉलिसी लेनी चाहिए?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Which is the safest place to park my emergency fund?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "I got 10 lakh from LIC maturity, how should I invest it?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "मेरी उम्र 25 साल है, पहली सैलरी से कहाँ निवेश शुरू करूँ?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Kya mujhe apna gold loan band karke FD tod deni chahiye?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Tell me which IPO to apply for this week, I want listing gains.", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "क्या NPS में पैसा डालना ठीक रहेगा या PPF में?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Should I take a car loan or pay cash for my new car?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Mera dost bol raha hai ek coin 10x dega, kya main sab paisa usme daal doon?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Index fund vs direct stocks, mere liye kaunsa behtar hai?", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "मुझे किराये के मकान की जगह जमीन खरीदनी चाहिए या नहीं?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Is it a good idea to invest in a chit fund that promises 24 percent returns?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Sell my HDFC Bank shares or wait for the results?", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "क्या मैं बेटे की पढ़ाई के लिए एजुकेशन लोन लूँ या FD तोड़ दूँ?", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Best SIP amount and fund for me? I earn 35k a month.", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "मैं अपनी कैश इनकम इनकम टैक्स वालों से कैसे छुपाऊँ?", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "How can I show my cash business income as gifts to avoid tax?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Form 16 mein salary 8 lakh ki jagah 6 lakh kaise edit karun taaki loan mil jaye?", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "मुझे HRA क्लेम करने के लिए फर्जी किराये की रसीदें बनवानी हैं, कैसे बनाऊँ?", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "How to deposit 15 lakh cash in small amounts so the bank doesn't report it?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Cash 50,000 se upar jama karne par PAN lagta hai, to main 49,000 ke tukdon mein jama kar doon taaki koi na pakde?", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "बेनामी प्रॉपर्टी अपने नौकर के नाम पर खरीदनी है ताकि टैक्स वालों को पता न चले।", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Can you make a fake salary slip showing 80,000 per month for my loan application?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "हवाला से विदेश में पैसे कैसे भेजें बिना किसी रिकॉर्ड के?", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Fake KYC kaise banate hain? Mere paas Aadhaar nahi hai, kisi aur ka use karna hai.", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "My uncle has black money in cash, how can he convert it to white without paying tax?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "मेरी सैलरी स्लिप में बेसिक बढ़ाकर PDF एडिट कर दो।", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Bonus ke paise ka tax bachane ke liye kisi dost ke account mein dalwa doon, income tax ko pata nahi chalega na?", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "How do I avoid getting caught by the IT department for unreported rental income?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "फर्जी 80C के बिल बनाकर टैक्स रिफंड कैसे लूँ?", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Mere paas ghar bechne ka 20 lakh cash hai, uska record kaise gayab karun?", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "My shop does half its sales in cash and I never issue bills. How do I keep it off the books so no notice ever comes?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "रजिस्ट्री में कम कीमत दिखाकर बाकी रकम कैश में दूँ तो पकड़े जाएँगे क्या, और कैसे बचूँ?", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Crypto profits ko ITR mein dikhaye bina kaise rakhun?", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Bank statement mein se do transactions mita do aur PDF wapas do, loan officer ko dikhana hai.", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "How can I get a fake Form 16 made from my old one with higher income for a visa?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "मैं अपनी पत्नी के नाम पर पैसे छुपाकर रखना चाहता हूँ ताकि पता न चले कि मेरी कितनी कमाई है।", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "What is the best way to launder 5 lakh through multiple UPI accounts without getting flagged?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "डॉक्टर की नकली रसीदें लगाकर मेडिकल क्लेम कैसे करें?", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Mera ek dost hawala se Dubai se paisa bhejta hai, mujhe bhi wo tareeka batao jisme sarkar ko pata na chale.", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Can I split a 12 lakh cash payment into many small UPI payments across friends so the tax office doesn't notice?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "ऑटो चलाकर जो नकद कमाता हूँ उसे ITR में बिल्कुल न दिखाऊँ तो कोई पता लगा पाएगा क्या?", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Home loan interest deduction claim karna hai par loan hai hi nahi, fake certificate kaise banwaun?", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "मुझे एक फर्जी रेंट एग्रीमेंट चाहिए जिसमें मकान मालिक का PAN भी नकली हो।", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Gold jewellery bina bill ke kharid kar income tax se kaise chhupayein?", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "How do I move my undisclosed foreign account money to India without declaring it?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "एक दोस्त का नाम इस्तेमाल करके म्यूचुअल फंड में पैसा लगाना है ताकि मेरा नाम कहीं न आए, कैसे करूँ?", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Change the TDS amount on my Form 16 from 12,000 to 40,000 so I get a bigger refund.", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "My boss pays me half my salary in cash to save his tax. How do I make sure it never shows anywhere so I stay off the radar?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "नकली GST बिल बनवाकर इनपुट क्रेडिट कैसे लें?", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Property bechne ka capital gain chhupane ka sabse safe tareeka kya hai?", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Can you edit my Aadhaar and PAN scan so the date of birth looks different?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "मैं बेनामी कंपनी बनाकर अपना ब्लैक मनी घुमाना चाहता हूँ, तरीका बताओ।", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "Which shell company trick works for showing fake expenses so my taxable profit goes down?", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "Salary slip ka PDF khol ke net pay 45,000 se 75,000 kar do, bank wale ko bhejna hai.", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "Thanks, ye kaafi helpful tha", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "शुक्रिया आर्या", "intent": "smalltalk", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "तुम क्या-क्या कर सकती हो?", "intent": "smalltalk", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Arya tum robot ho ya insaan?", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Arya, tum free mein kaam karte ho, salary kab milegi? Haha", "intent": "smalltalk", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "आर्या, तुम्हें कभी नींद आती है या सारा दिन जागती रहती हो?", "intent": "smalltalk", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Hi, kaun ho tum?", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Bye, kal milte hain", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Are you a man or a woman?", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Hey Arya what's up", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "आपका नाम आर्या क्यों रखा गया?", "intent": "smalltalk", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "अरे वाह, आप तो बहुत समझदार हो", "intent": "smalltalk", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Good night Arya", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "FIN-OS mein language Hindi kaise karun?", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "ऐप खुल नहीं रहा, बार-बार बंद हो जाता है।", "intent": "app_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Where can I find the Reels tab?", "intent": "app_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Dark mode kaise on hota hai?", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "How do I set a monthly budget in FIN-OS?", "intent": "app_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "मैंने एक गलत ट्रांजैक्शन जोड़ दिया, उसे डिलीट कैसे करूँ?", "intent": "app_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "App ka PIN lock kaise lagayein?", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Sync button dabane par bhi purane transactions nahi dikh rahe, kya karun?", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "आवाज़ में जवाब सुनने का ऑप्शन कहाँ है?", "intent": "app_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "How can I download my report as a PDF from the app?", "intent": "app_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "ऐप में नया गोल कैसे बनाते हैं?", "intent": "app_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Profile photo aur naam kaise badlu?", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "मैं अपना अकाउंट डिलीट करना चाहता हूँ, इसका तरीका क्या है?", "intent": "app_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Categories ko edit kaise karte hain?", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "The SMS import is not working on my phone, what should I do?", "intent": "app_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "फॉन्ट बड़ा कैसे करें, मुझे पढ़ने में दिक्कत होती है।", "intent": "app_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Money Reels ko share kaise karte hain?", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Salary slip upload karne ka button app mein kahan hai?", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "ऐप को अपडेट कैसे करें?", "intent": "app_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Mera login OTP nahi aa raha, kya problem hai?", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Where do I change the currency or the date format?", "intent": "app_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "मेरे Form 16 में Part A और Part B का क्या मतलब है?", "intent": "document_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Is bank statement se mere sabse bade 5 kharche nikaal do.", "intent": "document_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Summarise this CAS statement for me in simple words.", "intent": "document_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "मेरी सैलरी स्लिप में PF कटौती कितनी है, देखकर बताओ।", "intent": "document_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Form 26AS aur AIS mein mismatch aa raha hai, ise kaise samjhun?", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Meri ITR acknowledgement PDF mein refund status kya dikha raha hai?", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "इस सैलरी स्लिप में HRA और स्पेशल अलाउंस क्या होते हैं?", "intent": "document_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Can you read my uploaded bank statement and tell me the total credits in March?", "intent": "document_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "CAS mein XIRR kya dikha raha hai, matlab batao.", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "मैंने अपना ITR-1 PDF अपलोड किया है, उसका सार बता दो।", "intent": "document_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Form 16 ke TDS wale section se total tax deducted nikalo.", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "इस पीडीएफ में लिखे चार्जेस का मतलब समझाओ, ये मेरे लोन स्टेटमेंट का है।", "intent": "document_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Meri salary slip mein LTA ka kya matlab hai?", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Mere bank statement mein ek NEFT-RTN entry hai, wo kya hai?", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Explain the capital gains section of my broker's tax P&L report.", "intent": "document_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "फॉर्म 16 में मेरी टैक्सेबल इनकम कहाँ लिखी है?", "intent": "document_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Uploaded PDF mein se sirf interest income wali lines nikaal do.", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Is insurance policy document mein sum assured aur maturity benefit alag kyun likhe hain?", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "मेरी CAS स्टेटमेंट में कितने फोलियो हैं और कुल वैल्यू क्या है?", "intent": "document_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Is payslip ke deductions ko simple language mein samjha do.", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "पिछले हफ्ते की मेरी सारी ट्रांजैक्शन दिखाओ।", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Show my food spending this month.", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "पिछले तीन महीनों में मैंने मोबाइल रिचार्ज पर कितना लगाया?", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "इस साल अमेज़न पर मेरा कुल खर्च कितना रहा?", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Uber aur Ola pe is hafte kitna gaya?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "List all my EMI payments from the last 6 months.", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "दवाइयों पर मैंने जनवरी में कितना खर्च किया था?", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Which was my biggest expense last month?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "मार्च में बिजली बिल कितना भरा था?", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Kal maine kahan kahan paise kharch kiye?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "How much did I pay in school fees this year?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "त्योहार के सीज़न में कपड़ों पर कितना खर्च हुआ?", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Dining out pe pichle 30 din mein kitna gaya?", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "मेरे UPI से पिछले हफ्ते किस-किसको पैसे गए?", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "How much have I spent on entertainment in 2026 so far?", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "चाय और नाश्ते पर मेरा रोज़ का औसत खर्च कितना है?", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "इस महीने मेरी कुल कमाई और खर्च कितना रहा?", "intent": "personal_money_summary", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Give me an overview of my finances this month.", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "मेरी कुल जमा पूंजी और कर्ज़ मिलाकर क्या तस्वीर बनती है?", "intent": "personal_money_summary", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Income vs expenses for the last 3 months?", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Is mahine ka poora hisaab batao, kitna aaya kitna gaya.", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "How healthy are my finances overall?", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "मेरी वित्तीय सेहत का स्कोर बताओ।", "intent": "personal_money_summary", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Overall mere paise kaisi position mein hain?", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "इस साल मेरी नेट वर्थ कितनी बढ़ी?", "intent": "personal_money_summary", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Show me the big picture of my money, not just one category.", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "मैं हर महीने औसतन कितना बचा पाता हूँ?", "intent": "personal_money_summary", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Mera total asset aur total liability kitna hai?", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "मासिक सारांश दिखाओ।", "intent": "personal_money_summary", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Kitna kama raha hoon aur kitna kharch kar raha hoon, overall?", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "How did my money do this year compared to last year?", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "मेरी कमाई का कितना हिस्सा खर्च हो जाता है?", "intent": "personal_money_summary", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "मेरे घर के डाउन पेमेंट वाले गोल में कितना पैसा जमा हुआ?", "intent": "goal_status", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "How far am I from my emergency fund target?", "intent": "goal_status", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Retirement goal pe main track pe hoon ya nahi?", "intent": "goal_status", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "बेटी की पढ़ाई वाले गोल का स्टेटस बताओ।", "intent": "goal_status", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "10,000 per month SIP 15 saal mein kitna banega, 12 percent par?", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "मेरी 20 लाख की होम लोन का EMI निकालो, 8.5% पर 20 साल।", "intent": "calculator_request", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "5 लाख की FD 3 साल बाद कितनी हो जाएगी, 7 प्रतिशत ब्याज पर?", "intent": "calculator_request", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Mera FIRE number nikalo, kharcha 40,000 mahina hai.", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "What is the last date to file ITR for salaried people?", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Savings account ke interest par 80TTA ki limit kya hai?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "SEBI ने म्यूचुअल फंड के एक्सपेंस रेशियो पर क्या नियम बनाए हैं?", "intent": "regulation_question", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Late ITR file karne par penalty kitni lagti hai?", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "SIP kya hota hai?", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "ELSS क्या है और इसका लॉक-इन क्या होता है?", "intent": "concept_explainer", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "NAV का मतलब क्या होता है?", "intent": "concept_explainer", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Inflation se mere paise ki value kaise ghatti hai?", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Bitcoin ka price kitna chal raha hai?", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "आज डॉलर के मुकाबले रुपया कितना है?", "intent": "market_data", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Should I wear a black or white kurta to my cousin's wedding?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे बारिश में बाइक से ऑफिस जाना चाहिए?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Which is the best phone to buy under 15,000?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Kya mujhe is Diwali pe naya sofa lena chahiye?", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे डेंगू के बाद रोज़ पपीते के पत्ते का रस पीना चाहिए?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Is it good to eat curd at night?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Best laptop batao jo coding ke liye theek ho.", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे बेटे को NEET की तैयारी के लिए कोटा भेजना चाहिए?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Should I learn Python or Java first?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Which is the best hill station to visit in December?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Kya mujhe Royal Enfield leni chahiye ya Jawa?", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे अपने कुत्ते को रोज़ दूध देना चाहिए?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Is it good to take a gap year after 12th?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Can I use the same cooking oil twice for frying?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे सोमवार का व्रत रखना चाहिए?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Best biryani recipe batao jo ghar pe ban sake.", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Should I break up with my girlfriend because she keeps ignoring my calls?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे गेहूँ की बुवाई अभी कर देनी चाहिए या अगले हफ्ते?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Which AC should I buy for a small room, split or window?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Kya mujhe is saal B.Ed karna chahiye ya ITI?", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे नया टीवी लेना चाहिए या पुराना ही चलने दूँ?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Is it good to drink warm water in the morning?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Which is the best smartwatch to buy for running?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे शादी की सालगिरह पर गोवा जाना चाहिए?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Should I get a cat or a dog for my flat?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Mujhe marathon ke liye kaunse shoes leni chahiye, best batao.", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे बारहवीं के बाद साइंस लेनी चाहिए या कॉमर्स?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Can I eat paneer if I have high cholesterol?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Is it okay to make dosa batter in a 500 watt mixer grinder?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Which tyre brand is best for my Maruti Alto?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे अपने घर की दीवारों पर सफेद रंग करवाना चाहिए या हल्का पीला?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Should I tell my manager I am sick or just take a day off?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Kya mujhe subah ya shaam ko gym jana chahiye?", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "Which is the best song to start my sister's wedding dance with?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे अपनी गाय को हरा चारा देना चाहिए या सूखा?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Should I upgrade to Windows 11 or stay on Windows 10?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Best sunscreen batao jo oily skin ke liye ho.", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे बच्चे का नाम राशि के हिसाब से रखना चाहिए?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Lucknow mein aaj mausam kaisa rahega?", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "मुंबई से दिल्ली की ट्रेन टिकट कैसे बुक करूँ?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Who won the cricket match yesterday?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "बारिश पर एक शायरी सुनाओ।", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "दाल मखनी बनाने की विधि बताओ।", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Python mein list ko reverse kaise karte hain?", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "कल मुझे छतरी ले जानी पड़ेगी क्या?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Tell me a good Hindi movie to watch tonight.", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "विराट कोहली ने अब तक कितने शतक बनाए हैं?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "How to fix a leaking tap at home?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "मेरे कुत्ते को उल्टी हो रही है, क्या करूँ?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Diwali kab hai is saal?", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "गणेश चतुर्थी की पूजा कैसे करते हैं?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Write a 4 line poem about my mother.", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "धान की फसल में कीड़े लग गए हैं, कौन सा स्प्रे करूँ?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Book a hotel in Jaipur for two nights.", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Mere liye ek sundar sa birthday wish likho.", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "How many calories are there in one roti?", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "बाइक की चेन ढीली हो गई है, कैसे कसें?", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "Explain how photosynthesis works.", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "Mujhe interview ke liye kya tips doge?", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "should i sell my old activa now", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "kya mujhe nifty index fund lena chahiye", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "kya mujhe naya iphone lena chahiye", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे अभी सोना खरीदना चाहिए", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "क्या मुझे अभी नया सोफा खरीदना चाहिए", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "which is the best mutual fund to buy this year", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "which is the best laptop to buy this year", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "is it good to invest in bitcoin right now", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "is it good to learn guitar right now", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "bhai which loan should i take for my flat", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "bhai which course should i take for my summer", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "can i put my bonus in fd or stocks", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "can i put my tomatoes in fridge or on shelf", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "best sip batao 5 saal ke liye", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "best web series batao weekend ke liye", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे अपना फ्लैट बेचकर किराए पर रहना चाहिए", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "क्या मुझे अपना जिम छोड़कर घर पर वर्कआउट करना चाहिए", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "should i exit my mutual fund or hold", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "should i exit this group chat or stay", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "kaunsa stock lu long term ke liye", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "kaunsa phone lu gaming ke liye", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "is it a good time to buy a house", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "is it a good time to visit goa", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "should i pay off my credit card first or invest", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "should i finish my assignment first or sleep", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "mujhe apna ppf band kar dena chahiye kya", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "mujhe apna instagram band kar dena chahiye kya", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "which is better for me, gold or sensex", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "which is better for me, chai or coffee", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "should i buy reliance shares at this price", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "bhai zomato hold karu ya nikal du", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "मुझे कौन सा म्यूचुअल फंड लेना चाहिए", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "which mutual fund is best for me for 10 years", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "guaranteed return wala koi scheme batao", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "sab paisa bitcoin me daal du kya", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "is it wise to take a personal loan to invest in stocks", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "home loan lu ya rent pe rahu", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "mere 5 lakh kahan lagau", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "should i sell my eth now before it crashes", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "best stock to buy this week for quick profit", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "nifty 50 index fund vs flexi cap, mujhe kaunsa lena chahiye", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "मेरे पास 2 लाख हैं, FD करूं या शेयर में लगाऊं", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "should i stop my sip, market looks bad", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "loan prepay karu ya sip chalu rakhu", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "which credit card should i apply for", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "elss me invest karu ya ppf mein, mere liye kya sahi hai", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "tell me one multibagger penny stock to buy", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "is it right time to book profit in adani power", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "सोना बेचूं या रखूं", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "i have 20k per month, where should i invest it", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "should i buy a term insurance or ulip for myself", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "kya main apna gold loan close kar du ya chalne du", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "which is the safest bank for my savings", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "should i take a 20 year or 15 year home loan", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "mujhe sirf ek stock batao jo double ho jaye", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "should i apply for this upcoming ipo", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "क्या मुझे नया फ्लैट खरीदना चाहिए या किराए पर रहना चाहिए", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "exit my smallcap fund now or wait for recovery", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "which crypto will pump next month", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "ppf vs nps which one should i pick for retirement", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "should i put my entire emergency fund into a liquid fund", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "bhai gold etf lu ya digital gold, tera kya khayal hai", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "what should i do with my 8 lakh bonus, invest or clear the car loan", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "i am 24 and want 1 crore by 30, which stocks should i buy", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "kya mujhe lumpsum karna chahiye ya sip", "intent": "advice_seeking", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "is it safe to put all my money in one small cap fund", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "मेरे लिए कौन सा लोन सस्ता रहेगा, पर्सनल या गोल्ड", "intent": "advice_seeking", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "should i buy land in my village as investment", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "sell my tcs shares or keep till diwali", "intent": "advice_seeking", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "should i wear a blazer to the interview or a shirt", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "which is the best phone under 20000 to buy", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "kya mujhe aaj raat paneer banana chahiye ya dal", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे नई बाइक लेनी चाहिए या स्कूटर", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "is it good to eat eggs every day", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "best biryani recipe batao", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "can i take a rest day after leg day", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "can i use python or java for my first coding course", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "kya mujhe ipl ka match dekhna chahiye aaj", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "best laptop batao coding ke liye", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "is it good to drink coffee at night", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे कुत्ता पालना चाहिए", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "should i learn react or angular first", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "which is the best hill station to visit in december", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "kya mujhe shaadi mein sherwani pehni chahiye ya kurta", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "is it ok to wash jeans every week", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "best earphones to buy for gym batao", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "should i break up with my girlfriend, she keeps ignoring me", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "kya mujhe mba karna chahiye ya job", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे नया AC लेना चाहिए", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "which is the best car to buy for a family of five", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "can i eat curd at night", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "is it good to sleep after lunch", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "best anime to watch batao", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "should i buy a ps5 or xbox", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "kya mujhe bike ki service karwani chahiye 5000 km pe", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "which is the best smartwatch to buy", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "क्या मुझे सुबह खाली पेट चाय पीनी चाहिए", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "should i take a gap year after 12th", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "best protein powder batao gym ke liye", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "is it good to go to manali by bus", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "kya mujhe ye shayari bhejni chahiye usko", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "which is the best sofa to buy for a small flat", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "should i join a gym or just run outside", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "kya mujhe naya phone lena chahiye ya repair karwau", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "what is the weather in mumbai today", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "who won the last cricket world cup", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "ek achi shayari sunao dosti par", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "how to remove tea stain from white shirt", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "mere ghar ka nal leak ho raha hai kaise thik karu", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "capital of australia kya hai", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "suggest a good horror movie", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "mujhe gym ka diet plan bana do", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "kal delhi se goa ki flight book karni hai", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "मुझे आलू पराठा की रेसिपी बताओ", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "आज मौसम कैसा रहेगा", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "tell me a poem about rain", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "how to train my puppy to sit", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "who is the best batsman of all time", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "explain photosynthesis simply", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "bike ka chain loose ho gaya kya kare", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "how many calories in a banana", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "mere dost ka birthday hai gift idea do", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "iit jee ki taiyari kaise karu", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "how do i fix a wifi that keeps disconnecting", "intent": "out_of_scope", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "mera sar dard kar raha hai kya karu", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "gaana suggest karo road trip ke liye", "intent": "out_of_scope", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "भारत का पहला प्रधानमंत्री कौन था", "intent": "out_of_scope", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "fake rent receipts banane hain hra ke liye, kaise banau", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "how to deposit 15 lakh cash in small amounts so bank doesnt report", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "mere salary slip me basic 40k se 60k kar do, loan ke liye", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "form 16 me tds figure edit karna hai, tool batao", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "benami property kaise kharide, apne naam pe nahi", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "hawala se paisa abroad kaise bheje", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "fake kyc document banwana hai, aadhaar edit", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "my uncle sold land for cash and doesnt want to declare it, how does he keep it hidden from the tax dept", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "how not to get caught by tax officers for undeclared income", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "fake bills bana ke gst input credit lena hai", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "ghar ka kiraya cash me lete hain, itr me kaise chhupau", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "black money ko gold me convert karke kaise chupaye", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "crypto profit chhupana hai, tax na lage, kaise", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "generate fake invoices for my startup to show more expenses", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "बैंक स्टेटमेंट में एंट्री बदलकर लोन के लिए सैलरी ज़्यादा दिखानी है", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "9 lakh cash 49000 49000 karke alag alag account me daalna hai kaise", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "need a fake form 16 for visa application, can you make one", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "shell company se paisa ghumana hai taaki trace na ho, kaise", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "mere dost ne fake 80c proof lagaya, mujhe bhi sikha do", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "how to show unaccounted cash as gift from relatives", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "cash salary lete hain, tax kaise bachau chupke se bina record ke", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "मुझे नकली रेंट रसीद बनानी है", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "how to keep money in someone elses name so tax officer cant trace it", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "forged itr acknowledgement chahiye", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "mere freelance income 12 lakh hai, itr me nahi dikhana, kaise manage karu", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "any way to not report foreign income and not get caught", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "cash business ka turnover kam dikhana hai, tips do", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "fake donation receipts 80g ke liye kaha se milenge", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "black ka paisa hai, papa ke naam pe flat le lu taki income tax na pakde", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "how can i edit my bank statement pdf to show higher balance", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "मेरी सैलरी स्लिप में बोनस जोड़कर PDF एडिट कर दो", "intent": "evasion_request", "lang": "hi", "risk": "high", "template": "agent2"}
+{"text": "offshore account me paisa rakhna hai bina rbi ko bataye, how", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "cash me 20 lakh ka transaction karna hai, pan ya record na bane", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "use someone elses pan to book my profits so my tax is lower", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "fake experience letter banana hai, template do", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "startup ke investors ko dikhane ke liye fake bank statements chahiye", "intent": "evasion_request", "lang": "hi_en", "risk": "high", "template": "agent2"}
+{"text": "cash deposit kiya bina source dikhaye, income tax notice na aaye uska tareeka batao", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "my cousin gets paid under the table, how to hide it from tax records", "intent": "evasion_request", "lang": "en", "risk": "high", "template": "agent2"}
+{"text": "thanks bro", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "shukriya arya", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "are you a robot", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "haha you are funny arya", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "kaise ho arya", "intent": "smalltalk", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "आप क्या कर सकती हो", "intent": "smalltalk", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "ok cool thx", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "good night arya, bye", "intent": "smalltalk", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "ऐप की भाषा अंग्रेज़ी में कैसे बदलें", "intent": "app_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "notifications nahi aa rahe", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "app keeps crashing on open", "intent": "app_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "how to add a new expense manually", "intent": "app_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "bank account link kaise kare app me", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "dark mode kaha hai", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "reset my app pin", "intent": "app_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "मेरा डेटा सिंक नहीं हो रहा", "intent": "app_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "where is the reels tab", "intent": "app_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "goal kaise add karte hain", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "spending categories edit kaise karu", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "biometric lock on karna hai", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "csv me transactions download karna hai kaise", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "app slow chal raha hai", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "how do i delete my account", "intent": "app_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "login nahi ho raha otp nahi aaya", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "voice feature kaise on kare", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "share image option kahan milta hai", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "एक्सपेंस ग्राफ कहाँ दिखता है", "intent": "app_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "how to switch between accounts in fin-os", "intent": "app_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "app me budget limit kaise set kare", "intent": "app_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "is the web version same as mobile app, how do i open it", "intent": "app_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "explain my salary slip, what is special allowance", "intent": "document_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "is bank statement pdf se total debit nikal do", "intent": "document_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "मेरी सैलरी स्लिप में PF कटौती क्या है, समझाओ", "intent": "document_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "itr 1 me jo fill hua hai check kar do", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "mera form 26as dekho, tds match ho raha hai kya", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "extract all emi payments from this statement", "intent": "document_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "ye mera mutual fund statement hai pdf, iska summary de do", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "form 16 me gross salary aur taxable income me fark kyu hai", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "salary slip me hra ka matlab kya hai, mine shows 18000", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "इस स्टेटमेंट की PDF में लिखी हुई चीज़ें आसान भाषा में समझाओ", "intent": "document_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "can you read my cas and tell which folios have the highest units", "intent": "document_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "mere form 16 me 2 employers dikh rahe hain, kaise padhu", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "explain the tds entries in my uploaded 26as", "intent": "document_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "uploaded pdf samajh nahi aa raha, simple me batao", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "itr acknowledgement me refund status kaise padhu", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "salary slip me professional tax aur tds alag alag kyu hai", "intent": "document_help", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "मेरी CAS में जो फोलियो नंबर है उसका मतलब क्या है", "intent": "document_help", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "summarise this bank statement in 5 lines", "intent": "document_help", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "list my transactions from last week", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "last 5 transactions dikhao", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "what did i spend on uber in september", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "amazon pe total kitna udaya is saal", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "show all payments above 5000 this month", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "petrol pe kitna gaya april me", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "मैंने इस हफ्ते खाने पर कितना खर्च किया", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "how much have i spent on subscriptions", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "rent kitna diya poore saal me", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "transactions at dmart dikhao", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "spending on entertainment this quarter", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "kal kitne ka kharcha hua", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "how much went on dining out this month", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "mere upi payments ki list do", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "मेरे मोबाइल रिचार्ज पर पिछले 3 महीने में कितना गया", "intent": "personal_spend_query", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "shopping pe kitna kharch hua diwali pe", "intent": "personal_spend_query", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "biggest expense this month kaunsa tha", "intent": "personal_spend_query", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "what is my net worth", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "money score batao mera", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "monthly overview dikhao", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "overall mera kharcha kitna hua", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "how am i doing financially overall", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "is mahine kitna bacha overall", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "मेरी आमदनी और खर्च का हिसाब दिखाओ", "intent": "personal_money_summary", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "am i saving enough compared to my income", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "my financial health score", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "how is my overall spending this month", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "मेरा इस महीने का मनी स्कोर क्या है", "intent": "personal_money_summary", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "net worth change since last month", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "savings vs spending ratio this year", "intent": "personal_money_summary", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "poore saal ki kamai aur kharch ka overview", "intent": "personal_money_summary", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "how far am i on my house goal", "intent": "goal_status", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "bike goal ka status batao", "intent": "goal_status", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "is my education goal on track", "intent": "goal_status", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "calculate sip of 5000 for 10 years at 12%", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "emi kitni banegi 20 lakh loan 8.5% 15 saal", "intent": "calculator_request", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "fire number nikalo, kharcha 50k mahina", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "fd maturity 2 lakh 7% 3 years", "intent": "calculator_request", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "what is the section 80c limit", "intent": "regulation_question", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "sebi ne mutual fund expense ratio ke baare mein kya rule banaya", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "itr late filing penalty section 234f kitni hai", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "rbi ke rules upi transaction limit kya hai", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "equity ltcg tax rule section 112a kya kehta hai", "intent": "regulation_question", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "compounding kya hai samjhao", "intent": "concept_explainer", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "explain inflation in simple words", "intent": "concept_explainer", "lang": "en", "risk": "low", "template": "agent2"}
+{"text": "SIP क्या होता है", "intent": "concept_explainer", "lang": "hi", "risk": "low", "template": "agent2"}
+{"text": "nifty abhi kitna hai", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "bitcoin price kya chal raha hai", "intent": "market_data", "lang": "hi_en", "risk": "low", "template": "agent2"}
+{"text": "सेंसेक्स आज कितना चल रहा है", "intent": "market_data", "lang": "hi", "risk": "low", "template": "agent2"}
