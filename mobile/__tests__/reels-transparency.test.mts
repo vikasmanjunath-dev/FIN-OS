@@ -56,7 +56,7 @@ function rich(): ReelsKnowledge {
     watched: { 'emergency-fund': { at: '2026-10-14T09:00:00.000Z', correct: true }, 'cash-flow': { at: '2026-10-15T09:00:00.000Z', correct: false } },
     days: ['2026-10-14', '2026-10-15'],
     nudge: { enabled: true, hour: 18 }, notify: { ...DEFAULT_NOTIFY, weekly: true, followups: true },
-    moveReminders: [{ reelId: 'start-early', at: '2026-10-25T20:00', href: '/tools/calc/sip', label: { en: 'Open the SIP calculator', hi: 'SIP कैलकुलेटर खोलें' } }],
+    moveReminders: [{ reelId: 'start-early', at: '2099-10-25T20:00', href: '/tools/calc/sip', label: { en: 'Open the SIP calculator', hi: 'SIP कैलकुलेटर खोलें' } }],
     voice: { speed: 0.85, style: 'steady', pauses: 'long', voice: { en: 'en-IN-x-abc' } }, mine: { ...MINE },
   };
 }
