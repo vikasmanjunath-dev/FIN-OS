@@ -1721,7 +1721,7 @@ RULES (non-negotiable):
     // numeric-check needs normalizer first.
     const load = f => new Promise(res => {
       const sc = document.createElement('script');
-      sc.src = _SML_BASE + f + '?v=9';
+      sc.src = _SML_BASE + f + '?v=10';
       sc.onload = sc.onerror = () => res();
       document.head.appendChild(sc);
     });
@@ -1788,6 +1788,10 @@ RULES (non-negotiable):
       if (!_routerLast || _routerLast.seq !== seq) { bump('late'); return replyText; }
       const g = window.AryaGuardrails;
       const flags = (g && g.apply(userText, '').flags) || [];
+      if (localStorage.getItem('finos_sml_router_steer') === '1' && window.SmlRouterAdvisory.steer) {   // steer level (F3), default OFF
+        const st = window.SmlRouterAdvisory.steer(_routerLast.decision, flags, replyText, document.documentElement.lang);
+        if (st.note) { bump('shown'); return window.SmlRouterAdvisory.append(replyText, st.note); }
+      }
       const r = window.SmlRouterAdvisory.decide(_routerLast.decision, flags, replyText, g && g.NOTES && g.NOTES.advice_requested);
       if (r.reason === 'shown' || r.reason === 'own_disclaimer') bump(r.reason);
       return r.note ? window.SmlRouterAdvisory.append(replyText, r.note) : replyText;

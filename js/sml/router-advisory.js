@@ -35,5 +35,20 @@
     return note ? r.replace(/\s+$/, '') + '\n\n' + note : r;
   }
 
-  return { VERSION: '1.0', decide, append };
+  const STEER = {
+    en: "I can't help with ways around tax or legal rules. I can explain the legal options instead.",
+    hi: 'मैं टैक्स या क़ानूनी नियमों को टालने के तरीक़े नहीं बता सकती। चाहें तो मैं क़ानूनी विकल्प समझा सकती हूँ।'
+  };
+  /** Steer level (flag-gated by the caller, default OFF): for a router-only evasion_request add ONE fixed redirect line; never edits the model's words. */
+  function steer(decision, regexFlags, replyText, lang) {
+    if (!decision || typeof decision !== 'object' || decision.error) return { note: null, reason: 'no_decision' };
+    if (decision.intent !== 'evasion_request' || !decision.needs_guard) return { note: null, reason: 'not_evasion' };
+    const flags = Array.isArray(regexFlags) ? regexFlags : [];
+    if (flags.indexOf('evasion_request') >= 0) return { note: null, reason: 'regex_already_flagged' };
+    const t = STEER[lang === 'hi' ? 'hi' : 'en'];
+    if (String(replyText == null ? '' : replyText).indexOf(t.slice(0, 30)) >= 0) return { note: null, reason: 'already_present' };
+    return { note: t, reason: 'steer_shown' };
+  }
+
+  return { VERSION: '1.1', decide, append, steer, STEER };
 });
