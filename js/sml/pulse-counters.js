@@ -80,9 +80,34 @@
     return 'PULSE counters: ' + s.renders + ' renders, ' + taps + ' taps' + (best.length ? ' | most tapped per view: ' + best.join(', ') : '');
   }
 
+  /* G5 event ring buffer, so an offline replay of "would a learned order have been tapped more" is possible (aggregate counters cannot support it).
+     One entry per PULSE render ({k:'r', d:day, o:[widget ids in shown order, max 12]}) and per tap ({k:'t', d:day, i:id, p:position}). Widget ids and positions only, no text,
+     no user data; capped to the newest MAX_EVENTS; same opt-in flag as the counters; never sent anywhere. */
+  const LOG_KEY = 'finos_pulse_events';
+  const MAX_EVENTS = 800, MAX_ORDER = 12;
+  const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+  function day(now) { return new Date(Number.isFinite(now) ? now : Date.now()).toISOString().slice(0, 10); }
+  function cleanEvent(e) {
+    if (!e || typeof e !== 'object' || !DAY_RE.test(e.d)) return null;
+    if (e.k === 'r' && Array.isArray(e.o)) return { k: 'r', d: e.d, o: e.o.filter((id) => typeof id === 'string' && ID_RE.test(id)).slice(0, MAX_ORDER) };
+    if (e.k === 't' && typeof e.i === 'string' && ID_RE.test(e.i) && Number.isFinite(e.p) && e.p >= 0 && e.p < 100) return { k: 't', d: e.d, i: e.i, p: Math.floor(e.p) };
+    return null;
+  }
+  function cleanLog(log) { return (Array.isArray(log) ? log : []).map(cleanEvent).filter(Boolean).slice(-MAX_EVENTS); }
+  function logRender(log, order, now) {
+    const l = cleanLog(log); const e = cleanEvent({ k: 'r', d: day(now), o: order });
+    if (e && e.o.length) l.push(e); return l.slice(-MAX_EVENTS);
+  }
+  function logTap(log, id, pos, now) {
+    const l = cleanLog(log); const e = cleanEvent({ k: 't', d: day(now), i: id, p: pos });
+    if (e) l.push(e); return l.slice(-MAX_EVENTS);
+  }
+  function loadLog(storage) { try { return cleanLog(JSON.parse(storage.getItem(LOG_KEY))); } catch (e) { return []; } }
+  function saveLog(storage, log) { try { storage.setItem(LOG_KEY, JSON.stringify(cleanLog(log))); return true; } catch (e) { return false; } }
+
   function enabled(storage) { try { return storage.getItem(FLAG + '_on') === '1'; } catch (e) { return false; } }
   function loadStats(storage) { try { return clean(JSON.parse(storage.getItem(KEY))); } catch (e) { return emptyStats(Date.now()); } }
   function saveStats(storage, stats) { try { storage.setItem(KEY, JSON.stringify(clean(stats))); return true; } catch (e) { return false; } }
 
-  return { VERSION: '1.0', KEY, FLAG_KEY: FLAG + '_on', TOP, emptyStats, recordRender, recordTap, summary, enabled, loadStats, saveStats };
+  return { VERSION: '1.0', KEY, FLAG_KEY: FLAG + '_on', TOP, emptyStats, recordRender, recordTap, summary, enabled, loadStats, saveStats, LOG_KEY, MAX_EVENTS, logRender, logTap, loadLog, saveLog, cleanLog };
 });

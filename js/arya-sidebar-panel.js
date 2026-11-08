@@ -1803,17 +1803,21 @@ RULES (non-negotiable):
         const C = window.SmlPulseCounters; if (!C || !container) return;
         const order = Array.from(container.querySelectorAll('[data-pw]')).map(n => n.getAttribute('data-pw'));
         C.saveStats(localStorage, C.recordRender(C.loadStats(localStorage), order));
+        if (C.logRender) C.saveLog(localStorage, C.logRender(C.loadLog(localStorage), order));
         if (container.dataset.pcWired === '1') return;   // PULSE is rebuilt on a language change: wire the tap listener once, not once per render
         container.dataset.pcWired = '1';
         container.addEventListener('click', (ev) => {
           try {
             const w = ev.target && ev.target.closest && ev.target.closest('[data-pw]'); if (!w) return;
             C.saveStats(localStorage, C.recordTap(C.loadStats(localStorage), w.getAttribute('data-pw'), parseInt(w.getAttribute('data-pos'), 10)));
+            if (C.logTap) C.saveLog(localStorage, C.logTap(C.loadLog(localStorage), w.getAttribute('data-pw'), parseInt(w.getAttribute('data-pos'), 10)));
           } catch (e) {}
         });
       }).catch(() => {});
     } catch (e) {}
   }
+  /* G5: the local PULSE event log (widget ids, positions, days; no text) for an offline replay. Console: JSON.stringify(await AryaSidebar.pulseEvents()). Nothing leaves the browser. */
+  async function pulseEvents() { try { await ensureSml(); const C = window.SmlPulseCounters; return C && C.loadLog ? C.loadLog(localStorage) : null; } catch (e) { return null; } }
   function pulseStats() {
     try {
       const C = window.SmlPulseCounters; if (!C) return null;
@@ -8508,6 +8512,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
     },
     routerStats:  routerStats,
     pulseStats:   pulseStats,
+    pulseEvents:  pulseEvents,
     smlReport:    smlReport,
     smlExport:    smlExport,
     smlSamples:   smlSamples,

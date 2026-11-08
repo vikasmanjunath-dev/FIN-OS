@@ -54,7 +54,7 @@
   }
 
   function resetKeys(R, P) {
-    return [R && R.KEY, P && P.KEY].filter(Boolean);
+    return [R && R.KEY, P && P.KEY, P && P.LOG_KEY].filter(Boolean);   // P.LOG_KEY: the G5 event ring buffer
   }
 
   function exportCounters(R, rs, P, ps, flags, now) {
