@@ -1,6 +1,6 @@
 # SML working plan and log
 
-Single place for: where we are, what is being built next, how each item is accepted, what only the founder can unblock, and what was decided. Companion to the "FIN-OS SML Blueprint" Claude Doc (strategy, Parts 0-18); this file is the execution layer. Update it in the same change as the work. Last updated: 2026-10-26.
+Single place for: where we are, what is being built next, how each item is accepted, what only the founder can unblock, and what was decided. Companion to the "FIN-OS SML Blueprint" Claude Doc (strategy, Parts 0-18); this file is the execution layer. Update it in the same change as the work. Last updated: 2026-11-08.
 
 Full route from today's verified state to the end state (phases, gates, blockers, data plan, timeline): [ROADMAP.md](ROADMAP.md).
 
@@ -10,11 +10,11 @@ Full route from today's verified state to the end state (phases, gates, blockers
 |---|---|---|
 | RAG engine | Healthy; 123 pages + SEBI/RBI/IRDAI/PFRDA + news indexed (~2,000 chunks); worker auto-restarts; Ollama has NUM_PARALLEL=2, KEEP_ALIVE=30m | `docs/RAG_STATUS.md` (generated), `docs/RAG_PHASES.md` Phase 9 |
 | Public benchmark | 95-96/112 (about 85%; was 76/100 at baseline, 93 before the reranker window) | `rag-engine/evaluation/benchmark.py` |
-| Personalized benchmark | 38/41 on the latest run (39 on the run before, same three failures PD-05, PG-04, PL-01: run noise), zero cross-user leaks | `rag-engine/evaluation/benchmark_personal.py` |
+| Personalized benchmark | 40/41 on 2026-11-08 (only PD-05 fails; earlier runs 38-39/41 with PG-04 and PL-01 also failing: run noise), isolation 5/5, zero cross-user leaks | `rag-engine/evaluation/benchmark_personal.py` |
 | Router 0.4.1 (shadow default) | Recall-first: sealed test_v7 (983 messages) recall 333/333 (lower bound 0.991), macro-F1 0.9448, but note-level false alarm 11.85% (gate 5%). Shadow mode only; NOT an active guard (F3) | `sml/models/router/0.4.1/MODEL_CARD.md`, TRACKER C14-C19 |
 | Router 0.5.1 (candidate) | Trained on 801 extra rows and an enlarged dev; sealed test_v8 (846 messages, scored once): macro-F1 0.9506 (CI 0.932-0.964), false alarm 4.85%, recall 347/351 with lower bound 0.974 (gate 0.98, missed by 0.006). Recall bound >= 0.98 and false alarm <= 5% cannot both hold at one threshold, so note vs steer/block levels need different thresholds (F3) | `sml/models/router/0.5.1/MODEL_CARD.md`, TRACKER C20-C22 |
 | Number checker + facts gaps | Live in Arya, fail-open, loaded on demand | `js/sml/*`, `js/finos-facts.js`, 67 tests |
-| Regression tests | 650 JS tests and 109 python tests (sml + rag-engine evaluation); `sml/scripts/verify.sh` runs everything and the model checksums | TRACKER bottom, section 6 |
+| Regression tests | 641 JS tests pass (6 skipped) and 105 python tests pass (4 skipped; `test_namespace_isolation` needs Qdrant to answer), measured 2026-11-08 on a clean checkout; `sml/scripts/verify.sh` runs everything and the model checksums | TRACKER bottom, section 6 |
 
 Known weak points: router app_help/document_help and spend/summary confusions; generation still does its own arithmetic (benchmark PD-05); public pages can outrank a person's own "not provided" facts (PX-01); 20 of the original 100 benchmark questions still fail; everything the router learned from is author- or agent-written.
 
@@ -96,12 +96,12 @@ Compare mxbai-embed-large with bge-m3 and Qwen3-Embedding-0.6B on recall@5 over 
 | F3 | Which levels the router may drive (note / steer / block), the acceptable false-alarm rate per level (measured on 0.5.1: threshold 0.20 -> recall bound 0.982 but 11% false alarms; 0.35 -> 4.9% / bound 0.974; 0.50 -> 2.8%), and the go-ahead to leave shadow mode. Also: switch the default from 0.4.1 to 0.5.1? | W1 exit | Stays shadow, default 0.4.1 |
 | F4 | Second person to review boundary labels (review pack ready: `review_pack/` in the notes folder, 195 rows, ~1-2 h; Hindi/Hinglish pack of 104 rows for a Hindi reader, N2) | W4 | Author labels only |
 | F5 | Topology D1 (recommended: on-device-first hybrid), reference devices D7 | W7 | Server path only |
-| F6 | Approve model downloads for the bake-off | W8 | Skipped |
+| F6 | DONE 2026-10-26: downloads approved, bake-off run, bge-m3 adopted (TRACKER B14, B21, B22) | n/a | n/a |
 | F7 | Counsel on the 10.9 questions | Public launch | Education-only design stays |
 | F8 | Free some memory (a security scanner, a VM and a qemu process were the largest users per `top`; swap was ~25 GB) | Speed of everything | Queries stay 2-3x slower |
 | N1 | DONE 2026-10-26 (built, default off): `finos_sml_samples` keeps up to 100 redacted messages in your browser only; you turn it on, preview, delete, export by hand | Reviewing disagreements: counters hold no text | n/a |
 | N3 | DONE 2026-10-26: the small pickle-free router files are no longer ignored and the predictor falls back to the tracked TF-IDF export, so a fresh clone works; `*.joblib` stays ignored | n/a | n/a |
-| N4 | Commit the work (message in the notes folder) | Everything sits in one checkout | Risk stays open |
+| N4 | PARTLY DONE: the work is committed on `sml/router-0.5-bge-m3` and PR #3 is open, mergeable, CI green; what is left is the merge (TRACKER M3) and PR #4 (draft) | Everything depends on one open PR | Work stays off the base branch |
 
 ## 5. Risks being managed
 - Overfitting to agent-written text: mitigated by independent writers, fresh test sets, leakage tests; real messages are the real fix (W4).
@@ -158,3 +158,5 @@ Never commit from the assistant; commit messages carry no AI attribution (founde
 **2026-10-26 sealed sets and router 0.5.1:** test_v7 (983 messages, six blind writers) judged 0.4.1: recall 333/333 but false alarm 11.85% (non-finance "should I / which is best" read as advice). New train data (801 rows) and a larger dev set gave 0.5.1; sealed test_v8 (846 messages): F1 0.9506, false alarm 4.85%, recall bound 0.974 vs 0.98. Threshold curve shows the recall/false-alarm trade-off is the model's; levels need separate thresholds (F3). Also built: report v2, labelling guide + review tool, figures table + consistency check (stale property-tax notes flagged for a CA), categoriser harness. TRACKER C17-C22, G4, K2, D10, I1.
 
 **2026-10-25 C16:** shadow mode now uses router 0.4.1 (predictor default; counters record `by_version`). Collect for a week, then `await AryaSidebar.smlReport()`.
+
+**2026-11-02 to 2026-11-08 PRs and docs:** PR #3 (router 0.5.1, bge-m3, verifier study, Arya opt-in modules) and PR #4 (help-improve draft, not linked) opened; three CI-only fixes made `fast` and `browser` pass; documentation refreshed (TRACKER section M): one test baseline, chunk count 2,109, stale F6 / N4 rows, `sml/docs/README.md` index. Next: founder merges PR #3 (M3), then F3-F5 / F7 as before.
