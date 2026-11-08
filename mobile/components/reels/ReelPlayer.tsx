@@ -22,6 +22,8 @@ import { speak, stopSpeaking } from '@/lib/reels/speech';
 import { useVoice } from '@/hooks/useVoice';
 import { Caption } from '@/components/reels/Caption';
 import { advanceEarly, holdAtSceneEnd, withVoiceTiming } from '@/lib/reels/voice';
+import { clipDurations } from '@/lib/reels/clips';
+import { hasClip } from '@/lib/reels/clipplayer';
 import type { Reel, Topic } from '@/lib/reels/types';
 import type { Lang } from '@/lib/i18nCore';
 import { Colors, Radii, Spacing } from '@/constants/theme';
@@ -71,7 +73,7 @@ export function ReelPlayer({ reel, active, lang, sound, width, height, topInset 
   const quizH = useRef(0), whyY = useRef(0), mainEnd = useRef(0);        // where the verdict and the main buttons sit in the question screen, to scroll them into view after the answer
   // With the voice on, the reel plays as a copy whose scenes are as long as the voice needs; the clock, the beat's pause point, the progress
   // segments and the jumps all follow that copy, so the caption, the picture and the voice change scene together. Content stays on `reel`.
-  const played = useMemo(() => (sound ? withVoiceTiming(reel, lang) : reel), [reel, lang, sound]);
+  const played = useMemo(() => (sound ? withVoiceTiming(reel, lang, undefined, clipDurations(reel.id, lang, reel.scenes.length).map((m, i) => (m !== null && hasClip(reel.id, lang, i) ? m : null))) : reel), [reel, lang, sound]);
   const total = totalMs(played);
   const startsOf = useMemo(() => sceneStarts(played), [played]);
   const msOf = useMemo(() => played.scenes.map(x => x.ms), [played]);
@@ -122,7 +124,7 @@ export function ReelPlayer({ reel, active, lang, sound, width, height, topInset 
 
   const idx = phase.idx;
   const sc = played.scenes[idx], bigText = sc.big?.[lang];
-  const heard = useVoice({ key: `${reel.id}:${idx}:${lang}`, text: sc.say[lang], big: bigText, mood: sc.mood, lang, budgetMs: sc.ms, enabled: active && sound && playing && !done && !poking && !sheetOpen });
+  const heard = useVoice({ key: `${reel.id}:${idx}:${lang}`, text: sc.say[lang], big: bigText, mood: sc.mood, lang, budgetMs: sc.ms, clip: { reelId: reel.id, scene: idx }, enabled: active && sound && playing && !done && !poking && !sheetOpen });
   const replayRef = useRef(heard.replay); replayRef.current = heard.replay;
   const replay = useCallback(() => replayRef.current(), []);                  // the same function every render, so the pill row can be memoised
   const voice = { ...heard, replay };

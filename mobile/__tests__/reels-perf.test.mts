@@ -313,7 +313,7 @@ test('the keep-the-same behaviours are still there: the clock rules, the beat st
   assert.match(player, /holdAtSceneEnd\(clock\.get\(\), dt, endRef\.current, busyRef\.current, heldRef\.current\)/);
   assert.match(player, /Math\.min\(120, now - last\.current\)/);
   assert.match(player, /phase\.atPoke && !\(voiceBusy && !phase\.pastPoke\)/);
-  assert.match(player, /withVoiceTiming\(reel, lang\)/);
+  assert.match(player, /withVoiceTiming\(reel, lang[,)]/);
   assert.match(player, /PanResponder\.create/); assert.match(player, /delayLongPress=\{450\}/); assert.match(player, /dbl/);
   assert.match(player, /onAccessibilityAction=\{e => jump\(/);
   assert.match(player, /setT\(0\); setPlaying\(true\)/);

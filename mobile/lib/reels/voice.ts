@@ -179,6 +179,12 @@ export function utterance(p: { chunks: { text: string; rate: number; pitch: numb
  * whichever is more). The reel's clock, scene starts, pauses for a beat and progress segments all follow from these lengths, so the caption, the picture and
  * the voice change scene together and the voice is never cut off.
  */
-export function withVoiceTiming<R extends { scenes: { ms: number; say: Record<Lang, string>; big?: Record<Lang, string>; mood: Mood }[] }>(reel: R, lang: Lang, cps?: number): R {
-  return { ...reel, scenes: reel.scenes.map(sc => { const p = plan({ text: sc.say[lang], big: sc.big?.[lang], mood: sc.mood, lang, budgetMs: sc.ms, cps }); return p.overrunMs > 0 ? { ...sc, ms: sc.ms + Math.ceil(p.overrunMs / 100) * 100 } : sc; }) };
+export function withVoiceTiming<R extends { scenes: { ms: number; say: Record<Lang, string>; big?: Record<Lang, string>; mood: Mood }[] }>(reel: R, lang: Lang, cps?: number, clipMs?: (number | null)[]): R {
+  // A scene with a recorded clip is exactly as long as its recording (lead + clip + breath); the others are estimated for the phone's voice.
+  return { ...reel, scenes: reel.scenes.map((sc, i) => {
+    const c = clipMs?.[i];
+    if (typeof c === 'number' && c > 0) { const ms = Math.max(sc.ms, Math.ceil((LEAD_MS + c + TAIL_MS) / 100) * 100); return ms === sc.ms ? sc : { ...sc, ms }; }
+    const p = plan({ text: sc.say[lang], big: sc.big?.[lang], mood: sc.mood, lang, budgetMs: sc.ms, cps });
+    return p.overrunMs > 0 ? { ...sc, ms: sc.ms + Math.ceil(p.overrunMs / 100) * 100 } : sc;
+  }) };
 }
