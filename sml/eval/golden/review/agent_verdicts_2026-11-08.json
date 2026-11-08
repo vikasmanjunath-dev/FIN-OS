@@ -1,0 +1,207 @@
+{
+ "schema": "finos-golden-review/1",
+ "reviewer": "agents sonnet+opus, both agreed (not native speakers)",
+ "reviewed_at": "2026-11-08",
+ "items": {
+  "H1-01": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H1-02": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H1-03": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H1-04": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H1-05": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H1-06": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H1-07": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H1-08": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H1-09": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H1-10": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H1-11": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H1-12": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H1-13": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H1-14": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H1-15": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H1-16": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H1-17": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H1-18": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H1-19": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H1-20": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H3-01": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H3-02": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H3-03": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H3-04": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H3-05": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H3-06": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H3-07": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H3-08": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H3-09": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H3-10": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H3-11": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H3-12": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H3-13": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H3-14": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H3-15": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H3-16": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H3-17": {
+   "verdict": "wrong_gold",
+   "also_answers": [],
+   "note": "Passage names 25x rule but does not explain calculation."
+  },
+  "H3-18": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H3-19": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  },
+  "H3-20": {
+   "verdict": "correct",
+   "also_answers": [],
+   "note": ""
+  }
+ }
+}
