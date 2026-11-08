@@ -68,3 +68,6 @@ mobile/release/
 mobile/android/
 sml/training/.embed_cache.npz
 rag-engine/rag_bm25.db
+
+# generated architecture blueprint PDF (rebuilt from its sources; the other files in sml/docs are tracked)
+sml/docs/FIN-OS_SML_Architecture_Blueprint.pdf
