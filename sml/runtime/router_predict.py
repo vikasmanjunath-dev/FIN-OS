@@ -15,7 +15,7 @@ _RISK = {"advice_seeking": "high", "evasion_request": "high"}
 _cache = {}
 
 
-DEFAULT_VERSION = "0.5.1"   # F3 approved 2026-11-08: note-level operating point (thr 0.35, recall 347/351, false alarm 4.85% on sealed v8); 0.4.1 was the shadow-week default
+DEFAULT_VERSION = "0.5.1"   # F3 approved 2026-11-08: note-level operating point (thr 0.30 (set 2026-11-09 after embedding drift made 0.35 behave like ~0.40): recall 347/351, false alarm 4.85% on sealed v8); 0.4.1 was the shadow-week default
 MAX_CHARS = 500             # cost cap: the router saw messages of at most 100 characters; the rest of a long paste adds embed time, not signal
 
 
