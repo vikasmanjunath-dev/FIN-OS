@@ -53,8 +53,8 @@
     return { text: lines.join('\n'), ready: total >= GATE };
   }
 
-  function resetKeys(R, P) {
-    return [R && R.KEY, P && P.KEY, P && P.LOG_KEY].filter(Boolean);   // P.LOG_KEY: the G5 event ring buffer
+  function resetKeys(R, P, X) {
+    return [R && R.KEY, P && P.KEY, P && P.LOG_KEY, X && X.LOG_KEY].filter(Boolean);   // P.LOG_KEY: the G5 event ring buffer; X.LOG_KEY: the exploration log (T1.5)
   }
 
   function exportCounters(R, rs, P, ps, flags, now) {

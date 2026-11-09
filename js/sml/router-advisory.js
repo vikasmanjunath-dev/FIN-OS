@@ -37,7 +37,7 @@
 
   const STEER = {
     en: "I can't help with ways around tax or legal rules. I can explain the legal options instead.",
-    hi: 'मैं टैक्स या क़ानूनी नियमों को टालने के तरीक़े नहीं बता सकती। चाहें तो मैं क़ानूनी विकल्प समझा सकती हूँ।'
+    hi: 'मैं टैक्स या क़ानूनी नियमों से बचने के तरीक़े नहीं बता सकती। चाहें तो मैं क़ानूनी विकल्प समझा सकती हूँ।'
   };
   /** Steer level (flag-gated by the caller, default OFF): for a router-only evasion_request add ONE fixed redirect line; never edits the model's words. */
   function steer(decision, regexFlags, replyText, lang) {

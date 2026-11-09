@@ -1502,6 +1502,10 @@ RULES (non-negotiable):
         };
         const ranked = R.rank(ctx);
         order = ranked.map(r => r.id).filter(id => builders[id]);
+        try {   // T1.5, default OFF (needs finos_pulse_explore_on and finos_pulse_counters_on): epsilon-greedy over the rule top-K, propensity logged locally
+          const X = window.SmlPulseExplore;
+          if (X && X.enabled(localStorage)) { const ch = X.choose(order, {}); if (ch.featured) { X.saveLog(localStorage, X.record(X.loadLog(localStorage), order, ch)); order = ch.order; } }
+        } catch (e) {}
         ranked.filter(r => r.reason).slice(0, 3).forEach(r => { reasons[r.id] = r.reasonT && r.reasonT.key ? _pulseT(r.reasonT.key, r.reasonT.params) : r.reason; });
 
         const cur = R.snapshot(ctx);
@@ -1721,14 +1725,15 @@ RULES (non-negotiable):
     // numeric-check needs normalizer first.
     const load = f => new Promise(res => {
       const sc = document.createElement('script');
-      sc.src = _SML_BASE + f + '?v=10';
+      sc.src = _SML_BASE + f + '?v=12';
       sc.onload = sc.onerror = () => res();
       document.head.appendChild(sc);
     });
-    _smlLoading = Promise.all(['finos-facts.js', 'sml/router-shadow.js', 'sml/router-advisory.js', 'sml/sample-capture.js', 'sml/tfidf-router.js', 'sml/router-client.js', 'sml/pulse-counters.js', 'sml/report.js', 'sml/normalizer.js'].map(load))
+    _smlLoading = Promise.all(['finos-facts.js', 'sml/router-shadow.js', 'sml/router-advisory.js', 'sml/sample-capture.js', 'sml/tfidf-router.js', 'sml/router-client.js', 'sml/pulse-counters.js', 'sml/pulse-explore.js', 'sml/report.js', 'sml/normalizer.js'].map(load))
       .then(() => Promise.all([load('sml/numeric-check.js'), load('sml/categoriser-export.js')]));
     return _smlLoading;
   }
+  try { if (localStorage.getItem('finos_pulse_explore_on') === '1') setTimeout(ensureSml, 0); } catch (e) {}   // T1.5: the exploration module must be present BEFORE the one-time PULSE render
 
   /* SML router, SHADOW mode (sml/PLAN.md W1). Default OFF: only when localStorage finos_sml_router_shadow === '1'.
      Fire-and-forget, never awaited, never alters or delays an answer. Sends the message to the LOCAL rag-engine only;
@@ -1814,6 +1819,7 @@ RULES (non-negotiable):
           try {
             const w = ev.target && ev.target.closest && ev.target.closest('[data-pw]'); if (!w) return;
             C.saveStats(localStorage, C.recordTap(C.loadStats(localStorage), w.getAttribute('data-pw'), parseInt(w.getAttribute('data-pos'), 10)));
+            try { const X = window.SmlPulseExplore; if (X && X.enabled(localStorage)) X.saveLog(localStorage, X.markTap(X.loadLog(localStorage), w.getAttribute('data-pw'))); } catch (e) {}
             if (C.logTap) C.saveLog(localStorage, C.logTap(C.loadLog(localStorage), w.getAttribute('data-pw'), parseInt(w.getAttribute('data-pos'), 10)));
           } catch (e) {}
         });
@@ -1869,7 +1875,7 @@ RULES (non-negotiable):
     try {
       await ensureSml();
       const Rp = window.SmlReport; if (!Rp) return false;
-      Rp.resetKeys(window.SmlRouterShadow, window.SmlPulseCounters).forEach(k => localStorage.removeItem(k));
+      Rp.resetKeys(window.SmlRouterShadow, window.SmlPulseCounters, window.SmlPulseExplore).forEach(k => localStorage.removeItem(k));
       return true;
     } catch (e) { return false; }
   }
