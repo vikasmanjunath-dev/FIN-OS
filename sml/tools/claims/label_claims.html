@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Label claims (verifier gate set)</title>
+<style>
+:root{--bg:#fff;--fg:#1b1f24;--mut:#5b6573;--line:#d6dbe1;--card:#f6f8fa;--ok:#1a7f37;--bad:#cf222e;--warn:#9a6700;--acc:#0969da}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9aa7b4;--line:#30363d;--card:#161b22;--ok:#3fb950;--bad:#f85149;--warn:#d29922;--acc:#58a6ff}}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+header{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px;z-index:2}
+main{max-width:1100px;margin:0 auto;padding:12px 16px 80px}
+h1{font-size:1.1rem;margin:0 0 4px} .mut{color:var(--mut);font-size:.9rem}
+.bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden;margin:6px 0} .bar i{display:block;height:100%;background:var(--acc)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px} @media (max-width:800px){.cols{grid-template-columns:1fr}}
+.card{border:1px solid var(--line);border-radius:10px;background:var(--card);padding:12px 14px}
+.claim{font-size:1.2rem;font-weight:600;margin:6px 0}
+.q{color:var(--mut)} .src{border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:8px 10px;margin:8px 0;white-space:pre-wrap;word-break:break-word;font-size:.95rem}
+.src b{color:var(--acc)} mark{background:rgba(210,153,34,.35);color:inherit}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+button{border:0;border-radius:8px;padding:12px 16px;font-size:1rem;cursor:pointer;min-height:48px;color:#fff}
+#bS{background:var(--ok)} #bN{background:var(--bad)} #bU{background:var(--warn)} button.sec{background:transparent;color:var(--acc);border:1px solid var(--acc)}
+kbd{border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:.8rem;background:var(--bg);color:var(--fg)}
+.cur{font-weight:600} .tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:0 8px;font-size:.78rem;color:var(--mut);margin-right:6px}
+#setup{max-width:760px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header>
+<h1>Label claims for the verifier gate set</h1>
+<div class="mut" id="top">Choose the claims file to begin. Everything stays in this browser; nothing is sent anywhere.</div>
+<div class="bar" aria-hidden="true"><i id="barfill" style="width:0"></i></div>
+<div class="mut" id="stats"></div>
+</header>
+<main>
+<section id="setup" class="card">
+<p><b>What you are judging.</b> Each card shows one sentence from an answer the engine gave (the <b>claim</b>) next to the passages it was given (the <b>sources</b>). Decide whether the claim is <b>supported</b> by those passages.</p>
+<ul>
+<li><b>Supported</b> (key <kbd>1</kbd> or <kbd>S</kbd>): the passages state it, or it is a plain restatement of what they state. Numbers must match.</li>
+<li><b>Not supported</b> (key <kbd>2</kbd> or <kbd>N</kbd>): the passages contradict it, or do not state it (an invented detail, a number taken from a different fact, a rule stretched beyond what the text says).</li>
+<li><b>Unsure</b> (key <kbd>3</kbd> or <kbd>U</kbd>): you cannot tell. These are not counted toward the 300.</li>
+</ul>
+<p class="mut">Judge only against the passages shown, not against what you know to be true in general. Nothing is pre-filled. <kbd>Backspace</kbd> or <kbd>Z</kbd> undoes the last label, <kbd>&larr;</kbd> / <kbd>&rarr;</kbd> move without labelling. Progress is saved in this browser after every click; use <b>Download labels</b> to keep a file.</p>
+<p><label>Claims file (<code>sml/verifier/pool_claims.jsonl</code>): <input type="file" id="pool" accept=".jsonl,.json,.txt"></label></p>
+<p><label>Resume from a labels file (optional): <input type="file" id="resume" accept=".jsonl,.json,.txt"></label></p>
+<p id="msg" class="mut" role="status"></p>
+</section>
+<section id="work" hidden>
+<div class="cols">
+<div class="card"><div><span class="tag" id="pos"></span></div><div class="q" id="question"></div><div class="claim" id="claim" lang=""></div>
+<div class="btns"><button id="bS" type="button">Supported <kbd>1</kbd></button><button id="bN" type="button">Not supported <kbd>2</kbd></button><button id="bU" type="button">Unsure <kbd>3</kbd></button></div>
+<div class="btns"><button class="sec" id="bP" type="button">&larr; Previous</button><button class="sec" id="bX" type="button">Next &rarr;</button><button class="sec" id="bZ" type="button">Undo <kbd>Z</kbd></button></div>
+<div class="mut" id="cur"></div></div>
+<div class="card"><b>Sources the engine was given</b><div id="sources"></div></div>
+</div>
+<p><button class="sec" id="dl" type="button">Download labels (JSONL)</button> <button class="sec" id="reset" type="button">Start over (delete my labels)</button></p>
+</section>
+</main>
+<script src="labeling-core.js"></script>
+<script>
+(function () {
+  'use strict';
+  var L = window.ClaimLabeling, st = null, sig = '';
+  var $ = function (id) { return document.getElementById(id); };
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) {} return null; }
+  function key() { return 'finos_claim_labels_' + sig; }
+  function save() { store(key(), JSON.stringify({ labels: st.labels, cursor: st.cursor })); }
+  function esc(t) { var d = document.createElement('div'); d.textContent = t == null ? '' : String(t); return d.innerHTML; }
+  function render() {
+    var p = L.progress(st), r = st.rows[st.cursor];
+    $('barfill').style.width = Math.round(100 * p.gate.decided_toward_target / p.gate.labelled_target) + '%';
+    $('top').textContent = p.decided + ' decided of the 300 needed (' + p.labelled + ' labelled of ' + p.total + ' in this file)';
+    $('stats').textContent = 'Supported ' + p.mix.supported + ' | Not supported ' + p.mix.not_supported + ' (' + Math.min(p.mix.not_supported, 100) + ' of the 100 needed) | Unsure ' + p.mix.unsure + (p.gate.met ? ' | GATE SIZE REACHED' : '');
+    $('pos').textContent = 'claim ' + (st.cursor + 1) + ' of ' + p.total; $('question').textContent = 'Question asked: ' + (r.question || '');
+    $('claim').textContent = r.claim; $('claim').lang = /[ऀ-ॿ]/.test(r.claim) ? 'hi' : 'en';
+    var cur = st.labels[r.claim_id]; $('cur').textContent = cur ? 'Your label for this claim: ' + cur.replace('_', ' ') : 'Not labelled yet.'; $('cur').className = 'mut' + (cur ? ' cur' : '');
+    var src = $('sources'); src.textContent = '';
+    r.evidence.forEach(function (e, i) { var d = document.createElement('div'); d.className = 'src'; d.innerHTML = '<b>Source ' + (i + 1) + '</b> &middot; ' + esc(e.title) + '<br>' + esc(e.text); src.appendChild(d); });
+  }
+  function act(label) { var r = st.rows[st.cursor]; if (L.setLabel(st, r.claim_id, label)) { L.next(st); save(); render(); } }
+  function start(rows) {
+    sig = L.signature(rows); var saved = null; try { saved = JSON.parse(store(key()) || 'null'); } catch (e) {}
+    st = L.create(rows, saved);
+    if (window.__pendingLabels) { Object.keys(window.__pendingLabels).forEach(function (k) { if (!st.labels[k] && rows.some(function (r) { return r.claim_id === k; })) st.labels[k] = window.__pendingLabels[k]; }); window.__pendingLabels = null; }
+    $('setup').hidden = true; $('work').hidden = false; save(); render();
+  }
+  $('pool').addEventListener('change', function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    f.text().then(function (t) { var r = L.parseJsonl(t); $('msg').textContent = r.rows.length + ' claims loaded' + (r.errors.length ? ', ' + r.errors.length + ' bad lines skipped' : '') + '.'; if (r.rows.length) start(r.rows); });
+  });
+  $('resume').addEventListener('change', function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    f.text().then(function (t) { var x = L.parseLabels(t); if (st) { Object.keys(x.labels).forEach(function (k) { if (!st.labels[k] && st.rows.some(function (r) { return r.claim_id === k; })) st.labels[k] = x.labels[k]; }); save(); render(); } else { window.__pendingLabels = x.labels; $('msg').textContent = Object.keys(x.labels).length + ' labels read; now choose the claims file.'; } });
+  });
+  $('bS').onclick = function () { act('supported'); }; $('bN').onclick = function () { act('not_supported'); }; $('bU').onclick = function () { act('unsure'); };
+  $('bP').onclick = function () { L.prev(st); save(); render(); }; $('bX').onclick = function () { L.jump(st, Math.min(st.rows.length - 1, st.cursor + 1)); save(); render(); };
+  $('bZ').onclick = function () { if (L.undo(st)) { save(); render(); } };
+  $('dl').onclick = function () { var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([L.toJsonl(st) + '\n'], { type: 'application/x-ndjson' })); a.download = 'claim_labels.jsonl'; a.click(); };
+  $('reset').onclick = function () { if (window.confirm('Delete all your labels for this file? This cannot be undone (download them first if you want a copy).')) { st.labels = {}; st.history = []; st.cursor = 0; save(); render(); } };
+  document.addEventListener('keydown', function (e) {
+    if (!st || e.ctrlKey || e.metaKey || e.altKey || /input|textarea/i.test((e.target || {}).tagName || '')) return;
+    var k = e.key.toLowerCase();
+    if (k === '1' || k === 's') act('supported'); else if (k === '2' || k === 'n') act('not_supported'); else if (k === '3' || k === 'u') act('unsure');
+    else if (k === 'z' || k === 'backspace') { if (L.undo(st)) { save(); render(); } e.preventDefault(); }
+    else if (k === 'arrowleft') { L.prev(st); save(); render(); } else if (k === 'arrowright') { L.jump(st, Math.min(st.rows.length - 1, st.cursor + 1)); save(); render(); }
+  });
+})();
+</script>
+</body>
+</html>

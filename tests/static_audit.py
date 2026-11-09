@@ -32,7 +32,7 @@ CANONICAL_ORDER = ["design-tokens.css", "base.css", "layout.css", "components.cs
 # Names that design-tokens.css owns — a local re-declaration shadows the real theme.
 SHARED_TOKENS = ["--text-primary", "--text-secondary", "--bg-main", "--bg-surface", "--card-shadow"]
 # Pages that are deliberately self-contained (own design system / sub-apps / redirects).
-TOKEN_EXEMPT_DIRS = {"Porfolio Analyser", "TradeJournal", "News1", "voiceagent", "_archive", "node_modules", "mobile", "docs"}
+TOKEN_EXEMPT_DIRS = {"Porfolio Analyser", "TradeJournal", "News1", "voiceagent", "_archive", "node_modules", "mobile", "docs", "sml"}   # sml: self-contained offline review / labelling tools, not site pages (the links, ids, js and secrets audits still scan them)
 SKIP_DIRS = {"node_modules", ".venv", "__pycache__", "_archive", ".git", "dist", "output"}  # output = generated reports
 
 LINK_RE = re.compile(r'<(?:a|link|script|img|source|iframe)\b[^>]*?\b(?:href|src)\s*=\s*["\']([^"\']+)["\']', re.I)

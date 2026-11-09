@@ -1715,41 +1715,83 @@ RULES (non-negotiable):
   })();
   let _smlLoading = null;
   function ensureSml() {
-    if (window.SmlNumericCheck && window.FinosFacts && window.SmlRouterShadow && window.SmlPulseCounters && window.SmlReport) return Promise.resolve();
+    if (window.SmlNumericCheck && window.FinosFacts && window.SmlRouterShadow && window.SmlPulseCounters && window.SmlReport && window.SmlRouterAdvisory && window.SmlSampleCapture && window.SmlCategoriserExport && window.SmlTfidfRouter && window.SmlRouterClient) return Promise.resolve();
     if (_smlLoading) return _smlLoading;
     // ?v bumps force a fresh copy (the pages load these without a content hash). Independent files load in parallel;
     // numeric-check needs normalizer first.
     const load = f => new Promise(res => {
       const sc = document.createElement('script');
-      sc.src = _SML_BASE + f + '?v=3';
+      sc.src = _SML_BASE + f + '?v=9';
       sc.onload = sc.onerror = () => res();
       document.head.appendChild(sc);
     });
-    _smlLoading = Promise.all(['finos-facts.js', 'sml/router-shadow.js', 'sml/pulse-counters.js', 'sml/report.js', 'sml/normalizer.js'].map(load))
-      .then(() => load('sml/numeric-check.js'));
+    _smlLoading = Promise.all(['finos-facts.js', 'sml/router-shadow.js', 'sml/router-advisory.js', 'sml/sample-capture.js', 'sml/tfidf-router.js', 'sml/router-client.js', 'sml/pulse-counters.js', 'sml/report.js', 'sml/normalizer.js'].map(load))
+      .then(() => Promise.all([load('sml/numeric-check.js'), load('sml/categoriser-export.js')]));
     return _smlLoading;
   }
 
   /* SML router, SHADOW mode (sml/PLAN.md W1). Default OFF: only when localStorage finos_sml_router_shadow === '1'.
      Fire-and-forget, never awaited, never alters or delays an answer. Sends the message to the LOCAL rag-engine only;
      stores counters only (SmlRouterShadow), never the text. */
+  /* Where the router decision comes from. Default: the local rag-engine (POST /api/route). With localStorage finos_sml_router_local === '1' (default OFF) the TF-IDF half of
+     the router runs IN THIS BROWSER (js/sml/tfidf-router.js, model file downloaded once from this site, about 0.5 MB compressed) and the server is only the fallback while the
+     file loads or if anything fails. See js/sml/router-client.js; the on-device head is a recall-first signal, labelled router_version 0.4.1-tfidf. */
+  let _routerClient = null;
+  function routeDecision(text) {
+    const viaServer = () => ragAPI('/api/route', { text }, 15000).then(d => (d && !d.error ? { decision: d, via: 'server' } : { decision: null, via: null }));
+    try {
+      if (localStorage.getItem('finos_sml_router_local') !== '1' || !window.SmlRouterClient || !window.SmlTfidfRouter) return viaServer();
+      if (!_routerClient) {
+        _routerClient = window.SmlRouterClient.create({
+          tfidf: window.SmlTfidfRouter,
+          loadModel: () => fetch(_SML_BASE + 'sml/models/tfidf-router-0.4.1.web.json').then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }),
+          remote: (t) => ragAPI('/api/route', { text: t }, 15000),
+        });
+      }
+      return _routerClient.decide(text);
+    } catch (e) { return viaServer(); }
+  }
+  let _routerSeq = 0, _routerLast = null;          // _routerLast = { seq, decision }: the most recent router answer, read (never awaited) by routerAdvisory()
   function routerShadow(userText) {
     try {
-      if (localStorage.getItem('finos_sml_router_shadow') !== '1') return;
+      if (localStorage.getItem('finos_sml_router_shadow') !== '1') return 0;
+      const seq = ++_routerSeq;
       let regexFlagged = false;
       try {
         const fl = (window.AryaGuardrails && window.AryaGuardrails.apply(userText, '').flags) || [];
         regexFlagged = fl.indexOf('evasion_request') >= 0 || fl.indexOf('advice_requested') >= 0;
       } catch (e) {}
       Promise.race([ensureSml(), new Promise(r => setTimeout(r, 1500))])
-        .then(() => ragAPI('/api/route', { text: userText }, 15000))
-        .then(d => {
+        .then(() => routeDecision(userText))
+        .then(r => {
+          const ok = r && r.decision ? r.decision : null;
+          _routerLast = { seq, decision: ok };
           if (!window.SmlRouterShadow) return;
           const st = window.SmlRouterShadow.loadStats(localStorage);
-          window.SmlRouterShadow.saveStats(localStorage, window.SmlRouterShadow.record(st, d && !d.error ? d : null, regexFlagged));
+          window.SmlRouterShadow.saveStats(localStorage, window.SmlRouterShadow.recordVia(window.SmlRouterShadow.record(st, ok, regexFlagged), r && r.via));
+          // N1 (default off, device-local): with finos_sml_samples === '1' a REDACTED copy of the message is kept in this browser only, for the founder to review.
+          if (window.SmlSampleCapture) window.SmlSampleCapture.add(localStorage, userText, { pred: ok && ok.intent, guard: ok && ok.needs_guard, regex: regexFlagged });
+          // Opt-in, user-facing (page html/help-improve.html; default off): a REDACTED copy of a message the classifier flagged, kept on this device only until the person deletes it or downloads a file to send themselves.
+          if (window.SmlSampleCapture && ok && ok.needs_guard) window.SmlSampleCapture.flagged.add(localStorage, userText, { pred: ok.intent, guard: true, regex: regexFlagged });
         })
         .catch(() => {});
-    } catch (e) {}
+      return seq;
+    } catch (e) { return 0; }
+  }
+  /* Soft router advisory (ROADMAP E8). Default OFF: needs BOTH localStorage finos_sml_router_shadow === '1' and finos_sml_router_advisory === '1'.
+     At final-answer time it looks at the router decision for THIS message (never waits for it) and, only for a router-only advice request that the model has not
+     already disclaimed, appends the existing "not a SEBI-registered adviser" note. It never blocks and never edits the model's words. Counters only. */
+  function routerAdvisory(seq, userText, replyText) {
+    try {
+      if (!seq || localStorage.getItem('finos_sml_router_advisory') !== '1' || !window.SmlRouterAdvisory) return replyText;
+      const bump = (reason) => { if (window.SmlRouterShadow) window.SmlRouterShadow.saveStats(localStorage, window.SmlRouterShadow.recordAdvisory(window.SmlRouterShadow.loadStats(localStorage), reason)); };
+      if (!_routerLast || _routerLast.seq !== seq) { bump('late'); return replyText; }
+      const g = window.AryaGuardrails;
+      const flags = (g && g.apply(userText, '').flags) || [];
+      const r = window.SmlRouterAdvisory.decide(_routerLast.decision, flags, replyText, g && g.NOTES && g.NOTES.advice_requested);
+      if (r.reason === 'shown' || r.reason === 'own_disclaimer') bump(r.reason);
+      return r.note ? window.SmlRouterAdvisory.append(replyText, r.note) : replyText;
+    } catch (e) { return replyText; }
   }
   /* PULSE impression/tap counters, LOCAL ONLY (sml/PLAN.md W6 groundwork). Default OFF: only when localStorage
      finos_pulse_counters_on === '1'. Counts widget ids and positions; no text, no amounts, no network. Nothing reads
@@ -1789,6 +1831,32 @@ RULES (non-negotiable):
         { router: localStorage.getItem('finos_sml_router_shadow') === '1', pulse: localStorage.getItem('finos_pulse_counters_on') === '1' });
     } catch (e) { return null; }
   }
+  /* Counters as one plain object for offline analysis (js/sml/report.js exportCounters): counters only, rebuilt through each module's whitelist.
+     Console: JSON.stringify(await AryaSidebar.smlExport()). Nothing leaves the browser; the founder decides what to do with the JSON. */
+  async function smlExport() {
+    try {
+      await ensureSml();
+      const Rp = window.SmlReport, R = window.SmlRouterShadow, P = window.SmlPulseCounters; if (!Rp || !Rp.exportCounters) return null;
+      return Rp.exportCounters(R, R && R.loadStats(localStorage), P, P && P.loadStats(localStorage),
+        { router: localStorage.getItem('finos_sml_router_shadow') === '1', pulse: localStorage.getItem('finos_pulse_counters_on') === '1' });
+    } catch (e) { return null; }
+  }
+  /* N1 sample capture, console API (all local; the founder previews, deletes, exports by hand). See js/sml/sample-capture.js. */
+  async function smlSamples() { try { await ensureSml(); return window.SmlSampleCapture ? window.SmlSampleCapture.list(localStorage) : null; } catch (e) { return null; } }
+  async function smlSamplesRemove(id) { try { await ensureSml(); return window.SmlSampleCapture ? window.SmlSampleCapture.remove(localStorage, id) : 0; } catch (e) { return 0; } }
+  async function smlSamplesClear() { try { await ensureSml(); return window.SmlSampleCapture ? window.SmlSampleCapture.clear(localStorage) : false; } catch (e) { return false; } }
+  async function smlSamplesExport() { try { await ensureSml(); return window.SmlSampleCapture ? window.SmlSampleCapture.exportJsonl(localStorage) : null; } catch (e) { return null; } }
+  /* I2 (default off, device-local): redacted, labelled transaction rows for the categoriser, built from this browser's own transactions. Needs
+     localStorage finos_sml_rows === '1'. Preview with smlRows(); the file (smlRowsExport) is passed on by hand. See js/sml/categoriser-export.js. */
+  async function smlRows(source) {
+    try {
+      await ensureSml();
+      const X = window.SmlCategoriserExport; if (!X || !X.enabled(localStorage)) return null;
+      let raw = []; try { raw = JSON.parse(localStorage.getItem('finos_transactions') || '[]'); } catch (e) {}
+      return X.buildRows(raw, { source });
+    } catch (e) { return null; }
+  }
+  async function smlRowsExport(source) { const r = await smlRows(source); return r ? window.SmlCategoriserExport.toJsonl(r.rows) : null; }
   async function smlReset() {
     try {
       await ensureSml();
@@ -7601,7 +7669,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
       _chatHistory.push({ role: 'user', text: userText });
     }
 
-    if (!isAutoInsight) routerShadow(userText);
+    const _rseq = isAutoInsight ? 0 : routerShadow(userText);
 
     // Guardrail pre-check: clearly illegal requests (tax evasion, forged documents) never reach the model.
     if (!isAutoInsight && window.AryaGuardrails) {
@@ -7709,6 +7777,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
       }, numPredict, taskType);
       speaker.flush(finalText);           // say whatever's left (no trailing punctuation, last fragment, etc.)
       if (window.AryaGuardrails) finalText = window.AryaGuardrails.apply(isAutoInsight ? '' : userText, finalText).text;   // adds a note on buy/sell calls, guarantees, predictions
+      if (_rseq) finalText = routerAdvisory(_rseq, userText, finalText);          // optional, default off: the router-only advice note (E8)
       // Numeric check (js/sml/numeric-check.js): when the answer leans on retrieved sources, any figure that appears in
       // neither those sources, the user's own context nor their question is flagged. We ADD a caution; we never edit or
       // remove the model's text. Skipped when nothing was retrieved (nothing to verify against) and fail-open.
@@ -8440,6 +8509,13 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
     routerStats:  routerStats,
     pulseStats:   pulseStats,
     smlReport:    smlReport,
+    smlExport:    smlExport,
+    smlSamples:   smlSamples,
+    smlRows:      smlRows,
+    smlRowsExport: smlRowsExport,
+    smlSamplesRemove: smlSamplesRemove,
+    smlSamplesClear:  smlSamplesClear,
+    smlSamplesExport: smlSamplesExport,
     smlReset:     smlReset,
     memory:       AryaMemoryDB,
     tools:        AgentTools,

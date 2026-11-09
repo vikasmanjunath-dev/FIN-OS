@@ -26,7 +26,11 @@
   "test_v3": 251,
   "test_v4": 233,
   "test_v5": 181,
-  "test_v6": 217
+  "test_v6": 217,
+  "test_v7": 983,
+  "train_extra2": 801,
+  "dev3": 381,
+  "test_v8": 846
  },
  "sha256": {
   "train.jsonl": "b1e47f1103feeba5506a536aefc8d761b3bd629e78590bcbd5355ab6fa5a8b8c",
@@ -38,7 +42,11 @@
   "test_v3.jsonl": "c9d724ebcc2d37dff43a59271125d016baecc568a07f4e56e02f67e9633c3819",
   "test_v4.jsonl": "efc612464d8d88381c0cb66aed6d3fd3e7736a8a4aade1ce2125e035a29c6163",
   "test_v5.jsonl": "2785e5e4ccb1ea577f5e5eac00f123c0cf635ca7b0ba32761f9a2d1d5de67ca3",
-  "test_v6.jsonl": "5be8e26e5f4aec8c693fa360fa13c8fb7f54cd22859fbf6c60b25304bf7207cc"
+  "test_v6.jsonl": "5be8e26e5f4aec8c693fa360fa13c8fb7f54cd22859fbf6c60b25304bf7207cc",
+  "test_v7.jsonl": "815d07aa1f17e48dcc2e9cb438f68036a8378b1ca617c760702f1246c5379889",
+  "train_extra2.jsonl": "a3d7ddeee383ecf6402e2dfb9ba3ce47a7928d5b982d5e24141bf422e639fbff",
+  "dev3.jsonl": "672a29744dcaa3e812292028a271349c37915be56011c668d18431be7c2ef97a",
+  "test_v8.jsonl": "c93568e412f120bb437d90e28c47703404e285051012c6b02ccd9fdbcdac7571"
  },
  "notes": "valid holds out whole templates; natural_test is hand-written and must never be used for training or threshold tuning. Synthetic text only; no personal data.",
  "incoming_report": {
@@ -84,6 +92,30 @@
     "duplicates": 90,
     "near_duplicates_of_heldout": 66,
     "kept": 1354
+   },
+   "test7": {
+    "bad_rows": 0,
+    "duplicates_of_any_set_or_train": 40,
+    "near_duplicates_of_train": 22,
+    "kept": 983
+   },
+   "train_extra2": {
+    "bad_rows": 0,
+    "duplicates": 55,
+    "near_duplicates_of_heldout": 43,
+    "kept": 801
+   },
+   "dev3": {
+    "bad_rows": 0,
+    "duplicates": 25,
+    "near_duplicates_of_train_or_heldout": 44,
+    "kept": 381
+   },
+   "test8": {
+    "bad_rows": 0,
+    "duplicates_of_any_set_or_train": 63,
+    "near_duplicates_of_train_or_other_sets": 111,
+    "kept": 846
    }
   }
  },

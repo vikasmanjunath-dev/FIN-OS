@@ -8,10 +8,11 @@ __pycache__/
 
 # AI Models
 models/
-# ...except the small router artifacts and their text records (model cards, eval results); the heavy files stay ignored below.
+# ...except the router's small, pickle-free files and their text records (cards, eval results, checksums, .npz heads, tf-idf export); only the pickle (*.joblib) and the 3.7 MB browser file stay ignored (decision N3).
 !sml/models/
-sml/models/**/*.npz
 sml/models/**/*.joblib
+sml/models/**/tfidf_head.web.json
+js/sml/models/*.web.json
 voiceagent/models/
 voiceagent/piper/
 *.bin
@@ -66,3 +67,7 @@ mobile/release/
 # Generated native project (expo prebuild) and local caches
 mobile/android/
 sml/training/.embed_cache.npz
+rag-engine/rag_bm25.db
+
+# generated architecture blueprint PDF (rebuilt from its sources; the other files in sml/docs are tracked)
+sml/docs/FIN-OS_SML_Architecture_Blueprint.pdf
