@@ -147,7 +147,7 @@ test('voice settings: a saved choice is parsed safely, kept in range, and never 
   assert.deepEqual(parseVoicePrefs(null), DEFAULT_VOICE_PREFS);
   assert.deepEqual(parseVoicePrefs('{broken'), DEFAULT_VOICE_PREFS);
   const ok = parseVoicePrefs(JSON.stringify({ speed: 1.15, style: 'steady', pauses: 'long', voice: { en: 'com.apple.voice.enhanced.en-IN.Rishi', hi: 'hi-in-x-hia-local' } }));
-  assert.deepEqual(ok, { speed: 1.15, style: 'steady', pauses: 'long', voice: { en: 'com.apple.voice.enhanced.en-IN.Rishi', hi: 'hi-in-x-hia-local' } });
+  assert.deepEqual(ok, { speed: 1.15, style: 'steady', pauses: 'long', voice: { en: 'com.apple.voice.enhanced.en-IN.Rishi', hi: 'hi-in-x-hia-local' }, source: 'recorded' });
   assert.equal(parseVoicePrefs(JSON.stringify({ speed: 9 })).speed, 1.3); assert.equal(parseVoicePrefs(JSON.stringify({ speed: -1 })).speed, 0.7); assert.equal(parseVoicePrefs(JSON.stringify({ speed: 'fast' })).speed, 1);
   assert.deepEqual(parseVoicePrefs(JSON.stringify({ style: 'shouting', pauses: 'forever', voice: { en: '<script>', hi: 5 } })), DEFAULT_VOICE_PREFS);
   assert.deepEqual(SPEEDS.map(s => s.value), [0.85, 1, 1.15]);

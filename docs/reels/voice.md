@@ -31,3 +31,15 @@ With sound on (the speaker button in the reels top bar), the phone's voice now r
 - With sound on, a scene that has a clip is exactly `lead 180 ms + clip + breath 320 ms` long (`withVoiceTiming(..., clipMs)`, `sceneMsForClip`), the clip plays after the lead (`lib/reels/clipplayer.ts`, expo-audio), and the lit word follows the recording through `clipProgress` (exact at phrase ends). A scene with no clip uses the phone's voice as before. Measured in the web preview: clip 0 of `guess-sip` to clip 1 started 6,313 ms apart against 6,273 ms planned.
 - Size: about 21 KB a clip. All 180 live reels are recorded (1,892 clips, English and Hindi, about 45 MB in the bundle; `assets/voice/manifest.json` lists every clip). `guess-sip` was the pilot; listen to a sample of the rest before shipping. The speed setting in Reel voice does not change recorded clips (they are fixed); the phone-voice settings still apply to scenes without clips.
 - Needs `expo-audio` (added; a dev-client rebuild is needed on a phone, Expo Go includes it).
+
+### Voice engines and sources (added after the pilot)
+
+- `npm run reels:voiceover` engines: `say` (the Mac's voices, offline; current clips: Rishi for English, Lekha for Hindi), `piper` (free offline neural voices; needs `piper-tts` and the voice files in `~/.cache/finos-piper/`), `google` (Cloud Text-to-Speech, `GOOGLE_TTS_API_KEY` in the environment) and `elevenlabs` (`ELEVENLABS_API_KEY`). `--dry` prints how many characters would be sent (about 142,600 for everything).
+- Samples of the Mac voices to compare: `docs/voice-samples/`.
+- The Reel voice screen has a "Voice source" choice: Recorded (default) or Phone voice (the phone's own voices with the speed and style settings).
+- The preview pane must be on screen for the reel clock to run (a hidden pane freezes `requestAnimationFrame`); `/tmp/clipsync.py`-style checks in a headless browser measured scene starts within about 100 ms of each recording's end plus the 320 ms breath, in both languages.
+- Dev servers: the clips make the dev server heavy; `npm start` and `npm run web` set a larger Node heap.
+
+
+## Web voice (Nov 9 2026)
+The website's feed (`html/reels.html`) plays the app's recorded clips when the person turns Voice on (🔊 button on each reel; off by default, remembered under `finos_session_reels_web_voice`). The clip is the scene's clock, so words and voice cannot drift; a clip that does not start within 3 s is dropped and the scene runs on its written length. Files: `assets/reels-voice/*.m4a` (44 MB, live reels only, fetched one scene at a time, never precached) and `js/reels-voice.json` (clip lengths). Refresh both after recording: `cd mobile && node --import ./__tests__/register-aliases.mjs scripts/export-reels-voice-web.mts`. `tests/reels-web.test.js` checks files, list and reels agree. Checked headless in Chromium (English and Hindi): each clip starts with its scene, no page errors.
