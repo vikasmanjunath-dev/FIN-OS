@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
 
 /** One tool or tracker as a quiet list row: icon, name, one line of what it does or shows, a chevron. Replaces the loud two-column colour tiles
@@ -39,7 +40,7 @@ export function StatRow({ label, value, sub, accent = Colors.cyan, icon, onPress
 
 const s = StyleSheet.create({
   stat: { maxWidth: '38%', textAlign: 'right', fontSize: 16, fontWeight: '800' },
-  statLong: { fontSize: 13, fontWeight: '700' },
+  statLong: { fontSize: 12, fontWeight: '600', maxWidth: '27%' },
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, minHeight: 64, paddingVertical: Spacing.sm, paddingHorizontal: Spacing.md, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: Colors.border },
   icon: { width: 40, height: 40, borderRadius: Radii.md, alignItems: 'center', justifyContent: 'center' },
   iconTxt: { fontSize: 20 },

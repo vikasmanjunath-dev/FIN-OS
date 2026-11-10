@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 import type { HoldingView } from '@/lib/holdings';
 import { holdingKey } from '@/lib/holdings';

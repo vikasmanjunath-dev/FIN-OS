@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router } from 'expo-router';
 import { TrackerScreen, Card, SectionLabel } from '@/components/TrackerUI';
 import { EquityChart, Notice, Tile, Chips, NOT_ADVICE, profitColor, useJournal, s } from '@/components/JournalUI';

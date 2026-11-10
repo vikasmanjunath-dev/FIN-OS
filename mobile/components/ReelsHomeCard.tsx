@@ -1,5 +1,8 @@
 import React, { useMemo } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { LIBRARY } from '@/lib/reels/library';
+import { dueCount } from '@/lib/reels/recall';
+import { StyleSheet, Text, View } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
 import { ToolRow } from '@/components/ToolRow';
 import { useLang } from '@/lib/i18n';
@@ -30,10 +33,11 @@ export function ReelsHomeCard({ j, open }: { j: ReturnType<typeof useReelsJourne
       resting: j.resting,
       everDone: j.streak > 0 || j.best > 0 || Object.keys(j.watched).length > 0,
       pledges: j.profile.pledges?.length ?? 0,
+      due: dueCount(j.watched, LIBRARY, now, j.profile.known),
       celebrate: r ? { title: r.title, growth: isGrowthReceipt(r.receipt) } : m ? { title: m.title, growth: isGrowthMilestone(m.id) } : null,
       strain: j.signals.strain,
     }, now);
-  }, [j.loaded, j.ranked, j.todays, j.watched, j.streak, j.resting, j.best, j.profile.pledges, j.profile.start, j.receipts, j.milestones, j.signals.strain]);
+  }, [j.loaded, j.ranked, j.todays, j.watched, j.streak, j.resting, j.best, j.profile.pledges, j.profile.known, j.profile.start, j.receipts, j.milestones, j.signals.strain]);
 
   if (!card) {
     return (
@@ -63,6 +67,11 @@ export function ReelsHomeCard({ j, open }: { j: ReturnType<typeof useReelsJourne
       {card.celebrate ? (
         <TouchableOpacity activeOpacity={0.8} onPress={() => open('/learn/reels')} accessibilityRole="button" accessibilityLabel={card.celebrate[lang]} style={s.line}>
           <Text style={[s.lineTxt, { color: Colors.gold }]}>{card.celebrate[lang]}</Text>
+        </TouchableOpacity>
+      ) : null}
+      {card.review ? (
+        <TouchableOpacity activeOpacity={0.8} onPress={() => open('/learn/review')} accessibilityRole="button" accessibilityLabel={card.review[lang]} style={s.line}>
+          <Text style={s.lineTxt}>{card.review[lang]}  ›</Text>
         </TouchableOpacity>
       ) : null}
       {card.moves ? (

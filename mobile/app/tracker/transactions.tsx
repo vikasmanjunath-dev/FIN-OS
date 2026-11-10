@@ -1,7 +1,11 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform, ScrollView } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert, Platform, ScrollView } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
+import { useBigText, bigSeg } from '@/hooks/useBigText';
+import { useToast } from '@/components/ui/Toast';
 import { router } from 'expo-router';
 import { useTransactions } from '@/hooks/useTransactions';
+import { hapticWarning } from '@/lib/haptics';
 import { useQuickLog } from '@/hooks/useQuickLog';
 import { useRecurring } from '@/hooks/useRecurring';
 import { QuickLogChips, CAT_ICON } from '@/components/QuickLogChips';
@@ -30,6 +34,8 @@ const dayLabel = (iso: string, today: string, yesterday: string) =>
   : new Date(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10)).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
 
 export default function TransactionsScreen() {
+  const toast = useToast();
+  const big = useBigText();
   const { txns, loaded, add, update, remove } = useTransactions();
   const quick = useQuickLog(6);
   const { items: recurring, add: addRecurring } = useRecurring();
@@ -53,7 +59,6 @@ export default function TransactionsScreen() {
   const [date, setDate] = useState(today);
   const [editing, setEditing] = useState<IndexedTxn | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [repeat, setRepeat] = useState(false);
   const scroller = useRef<ScrollView>(null);
@@ -70,13 +75,13 @@ export default function TransactionsScreen() {
   const submit = async () => {
     if (busy) return;
     const v = validateEntry({ amount, date, label }, new Date());
-    if (!v.ok) return setError(v.error);
+    if (!v.ok) { hapticWarning(); return setError(v.error); }
     setError(null); setBusy(true);
     try {
       const entry = { date: v.date, amount: v.amount, kind, category: kind === 'expense' ? category : kind === 'saving' ? SAVINGS_CATEGORY : kind === 'transfer' ? TRANSFER_CATEGORY : INCOME_CATEGORY, label: v.label };
       if (editing) {
         const ok = await update(editing.id, entry);
-        setNotice(ok ? 'Changes saved' : 'That entry no longer exists');
+        toast.show({ text: ok ? 'Changes saved' : 'That entry no longer exists', tone: ok ? 'success' : 'warning' });
       } else {
         await add(entry);
         let extra = '';
@@ -90,11 +95,10 @@ export default function TransactionsScreen() {
             extra = ` · repeats on the ${ordinal(day)}${day > 28 ? ' (or last day)' : ''} each month`;
           }
         }
-        setNotice(`Added ${inr(v.amount)}${kind === 'expense' ? ` · ${category}` : kind === 'income' ? ' income' : kind === 'saving' ? ' invested' : ' transfer'}${extra}`);
+        toast.show({ text: `Added ${inr(v.amount)}${kind === 'expense' ? ` · ${category}` : kind === 'income' ? ' income' : kind === 'saving' ? ' invested' : ' transfer'}${extra}`, tone: 'success' });
         setMonth(v.date.slice(0, 7)); setVisibleCount(TRANSACTION_PAGE_SIZE); // jump to where the new entry lives
       }
       reset();
-      setTimeout(() => setNotice(null), 2500);
     } catch {
       setError("Couldn't save — storage may be full or unavailable.");
     } finally {
@@ -162,9 +166,9 @@ export default function TransactionsScreen() {
             <TouchableOpacity accessibilityRole="button" onPress={reset} hitSlop={10}><Text style={s.cancel}>Cancel</Text></TouchableOpacity>
           </View>
         )}
-        <View style={s.seg}>
+        <View style={[s.seg, { flexWrap: 'wrap' }]}>
           {KINDS.map(x => (
-            <TouchableOpacity key={x.kind} style={[s.segBtn, kind === x.kind && { backgroundColor: x.color + '22', borderColor: x.color + '66' }]}
+            <TouchableOpacity key={x.kind} style={[s.segBtn, big && bigSeg, kind === x.kind && { backgroundColor: x.color + '22', borderColor: x.color + '66' }]}
               onPress={() => { setKind(x.kind); if (x.kind !== 'expense') setError(null); }} accessibilityRole="button" accessibilityState={{ selected: kind === x.kind }}>
               <Text style={[s.segTxt, kind === x.kind && { color: x.color, fontWeight: '800' }]}>{x.label}</Text>
             </TouchableOpacity>
@@ -215,7 +219,6 @@ export default function TransactionsScreen() {
         )}
 
         {error && <Text style={s.error} accessibilityLiveRegion="polite">{error}</Text>}
-        {notice && <Text style={s.notice} accessibilityLiveRegion="polite">✓ {notice}</Text>}
 
         <TouchableOpacity style={[s.submit, { backgroundColor: editing ? Colors.cyan : k.color }, busy && { opacity: 0.6 }]} onPress={submit} disabled={busy} accessibilityRole="button">
           <Text style={s.submitTxt}>{editing ? 'Save changes' : k.verb}</Text>

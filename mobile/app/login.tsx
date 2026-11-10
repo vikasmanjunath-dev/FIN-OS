@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator,
-  KeyboardAvoidingView, Platform,
-} from 'react-native';
+import { View, Text, TextInput, StyleSheet, ScrollView, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router } from 'expo-router';
 import { useAuth } from '@/hooks/useAuth';
 import { googleSignInStatus } from '@/lib/googleAuth';

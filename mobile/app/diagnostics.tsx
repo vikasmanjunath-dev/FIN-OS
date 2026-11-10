@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
+import { View, Text, StyleSheet, Alert, Platform } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router, useFocusEffect } from 'expo-router';
 import { TrackerScreen, Card, SectionLabel } from '@/components/TrackerUI';
 import { CheckRow, Collapsible, Bullet } from '@/components/CalcUI';

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Platform, Share, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Platform, Share, Alert } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { useFocusEffect } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TrackerScreen, Card, SectionLabel } from '@/components/TrackerUI';

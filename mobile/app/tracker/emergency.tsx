@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
+import { useBigText, bigSeg } from '@/hooks/useBigText';
 import { router } from 'expo-router';
 import { useTrackers } from '@/hooks/useTrackers';
 import { TrackerScreen, Card, SectionLabel, Bar, Stat, MoneyField, inr } from '@/components/TrackerUI';
@@ -14,6 +16,7 @@ const INSTRUMENTS = [
 ];
 
 export default function EmergencyScreen() {
+  const big = useBigText();
   const { data, computed, save } = useTrackers();
   const e = computed.emergency;
   const color = LEVEL_COLOR[e.status.level];
@@ -45,9 +48,9 @@ export default function EmergencyScreen() {
         <MoneyField icon="🛡️" label="Emergency fund balance" sub="Savings + liquid funds + short FDs set aside for this" value={data.emergencyFund} onCommit={v => save({ emergencyFund: v })} />
         <View style={{ paddingTop: Spacing.md }}>
           <Text style={s.fieldLabel}>Target cover</Text>
-          <View style={s.seg}>
+          <View style={[s.seg, { flexWrap: 'wrap' }]}>
             {[3, 6, 12].map(m => (
-              <TouchableOpacity key={m} style={[s.segBtn, e.target === m && s.segOn]} onPress={() => save({ emergencyTarget: m })} accessibilityRole="button" accessibilityState={{ selected: e.target === m }}>
+              <TouchableOpacity key={m} style={[s.segBtn, big && bigSeg, e.target === m && s.segOn]} onPress={() => save({ emergencyTarget: m })} accessibilityRole="button" accessibilityState={{ selected: e.target === m }}>
                 <Text style={[s.segTxt, e.target === m && s.segTxtOn]}>{m} months</Text>
               </TouchableOpacity>
             ))}

@@ -1,8 +1,6 @@
 import React, { useRef, useCallback, useState } from 'react';
-import {
-  View, Text, StyleSheet, FlatList, TextInput,
-  TouchableOpacity, KeyboardAvoidingView, Platform, Pressable,
-} from 'react-native';
+import { View, Text, StyleSheet, FlatList, TextInput, KeyboardAvoidingView, Keyboard, Platform } from 'react-native';
+import { Tap, TouchableOpacity } from '@/components/ui/Tap';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
@@ -15,6 +13,7 @@ import { contextBase } from '@/lib/reels/ask';
 import { aryaPrefill, parseAryaParams, PREFILL_NOTE, PREFILL_NOTE_MINE } from '@/lib/reels/aryaLink';
 import { loadMine } from '@/lib/reels/mine';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
+import { useTabBarSpace } from '@/hooks/useTabBarSpace';
 
 // The first four are answered on the phone from your own records (no connection needed); the rest go to Arya online.
 const SUGGESTED = [
@@ -27,6 +26,13 @@ const SUGGESTED = [
 ];
 
 export default function AryaScreen() {
+  const tabSpace = useTabBarSpace();
+  const [kbUp, setKbUp] = React.useState(false);
+  React.useEffect(() => {
+    const a = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () => setKbUp(true));
+    const b = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () => setKbUp(false));
+    return () => { a.remove(); b.remove(); };
+  }, []);
   const insets = useSafeAreaInsets();
   const { messages, isStreaming, send, stop, clear } = useAryaChat();
   const [input, setInput] = React.useState('');
@@ -70,7 +76,7 @@ export default function AryaScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.root}
+      style={[styles.root, { paddingBottom: kbUp ? 0 : tabSpace }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 0}   // where this view starts below the top of the screen (the old 88 was a guess)
     >
@@ -86,21 +92,21 @@ export default function AryaScreen() {
           </View>
         </View>
         <View style={{ flexDirection: 'row', gap: Spacing.md }}>
-          <Pressable accessibilityRole="button" accessibilityLabel="What Arya remembers and what it will be told" onPress={() => router.push('/pulse/memory' as any)} hitSlop={12}>
+          <Tap accessibilityRole="button" accessibilityLabel="What Arya remembers and what it will be told" onPress={() => router.push('/pulse/memory' as any)} hitSlop={12}>
             <Text style={styles.clearBtn}>Memory</Text>
-          </Pressable>
-          <Pressable accessibilityRole="button" accessibilityLabel="Clear the conversation" onPress={() => { Haptics.selectionAsync(); clear(); }} hitSlop={12}>
+          </Tap>
+          <Tap accessibilityRole="button" accessibilityLabel="Clear the conversation" onPress={() => { Haptics.selectionAsync(); clear(); }} hitSlop={12}>
             <Text style={styles.clearBtn}>Clear</Text>
-          </Pressable>
+          </Tap>
         </View>
       </View>
 
       <View style={styles.tabsWrap}>
         <AryaTabs current="chat" />
-        <Pressable accessibilityRole="switch" accessibilityState={{ checked: toolsOn }} accessibilityLabel={toolsOn ? 'Arya tools are on. Switch them off' : 'Arya tools are off. Switch them on'} onPress={toggleTools} style={styles.toolsRow}>
+        <Tap accessibilityRole="switch" accessibilityState={{ checked: toolsOn }} accessibilityLabel={toolsOn ? 'Arya tools are on. Switch them off' : 'Arya tools are off. Switch them on'} onPress={toggleTools} style={styles.toolsRow}>
           <Text style={styles.toolsTxt}>{toolsOn ? '🔧 Tools on: Arya may read your records or look up public prices, and shows every call.' : '🔧 Tools off: Arya answers in words only and reads nothing.'}</Text>
           <Text style={styles.toolsLink}>{toolsOn ? 'Turn off' : 'Turn on'}</Text>
-        </Pressable>
+        </Tap>
       </View>
 
       {/* ── Messages ── */}

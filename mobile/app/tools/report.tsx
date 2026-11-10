@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, TouchableOpacity, Share, Platform, StyleSheet } from 'react-native';
+import { View, Text, Share, Platform, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { TrackerScreen, Card, SectionLabel } from '@/components/TrackerUI';
 import { CheckRow, Collapsible, Bullet } from '@/components/CalcUI';
 import { useTrackers } from '@/hooks/useTrackers';

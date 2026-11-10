@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
+import { View, Text, StyleSheet, Alert, Platform } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router, useFocusEffect } from 'expo-router';
 import { TrackerScreen, Card, SectionLabel } from '@/components/TrackerUI';
 import { CheckRow } from '@/components/CalcUI';
@@ -37,7 +38,7 @@ export default function FeedbackScreen() {
 
   return (
     <TrackerScreen title="Feedback" subtitle="Tell us what to fix. It is saved on this phone first, with amounts, numbers, e-mails and links removed.">
-      <FeedbackPrompt question="How is FIN·OS working for you?" onSaved={load} />
+      <FeedbackPrompt page="feedback" question="How is FIN·OS working for you?" onSaved={load} />
 
       <SectionLabel>YOUR SAVED FEEDBACK</SectionLabel>
       <Card>

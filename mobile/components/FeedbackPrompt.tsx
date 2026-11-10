@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
 import { MAX_COMMENT, OUTCOME, TOPICS, TOPIC_LABELS, type Topic } from '@/lib/feedback';
 import { saveFeedback, sendLatest } from '@/lib/feedbackStorage';

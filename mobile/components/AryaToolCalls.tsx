@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import type { ToolStep } from '@/lib/aryaAgent';
 import { stamp } from '@/lib/aryaToolbox';
 import { Colors, Radii } from '@/constants/theme';
+import { Tap } from '@/components/ui/Tap';
 
 const MARK = { running: '…', done: '✓', failed: '✕', skipped: '–' } as const;
 const WORD = { running: 'running', done: 'done', failed: 'failed', skipped: 'not run' } as const;
@@ -18,7 +19,7 @@ export function AryaToolCalls({ steps, compact = false }: { steps: ToolStep[]; c
         const on = open === st.id;
         return (
           <View key={st.id} style={s.item}>
-            <Pressable accessibilityRole="button" accessibilityLabel={`${st.label}, ${WORD[st.status]}, ${st.where === 'phone' ? 'on this phone' : 'through the Arya server'}. ${on ? 'Hide' : 'Show'} details`}
+            <Tap accessibilityRole="button" accessibilityLabel={`${st.label}, ${WORD[st.status]}, ${st.where === 'phone' ? 'on this phone' : 'through the Arya server'}. ${on ? 'Hide' : 'Show'} details`}
               onPress={() => setOpen(on ? null : st.id)} style={s.row}>
               <Text style={[s.mark, st.status === 'failed' && { color: Colors.red }, st.status === 'done' && { color: Colors.teal }]}>{MARK[st.status]}</Text>
               <View style={{ flex: 1 }}>
@@ -26,7 +27,7 @@ export function AryaToolCalls({ steps, compact = false }: { steps: ToolStep[]; c
                 <Text style={s.args}>{st.args}</Text>
               </View>
               <Text style={s.time}>{stamp(st.endedAt ?? st.startedAt).split(', ')[1]}</Text>
-            </Pressable>
+            </Tap>
             {on || compact === false && st.status !== 'done' && st.note ? (
               <View style={s.detail}>
                 <Text style={s.dline}>Status: {WORD[st.status]}{st.endedAt ? `, ${Math.max(0, st.endedAt - st.startedAt)} ms` : ''}</Text>

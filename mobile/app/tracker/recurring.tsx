@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Switch, StyleSheet, Alert, Platform, ScrollView } from 'react-native';
+import { View, Text, TextInput, Switch, StyleSheet, Alert, Platform, ScrollView } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
+import { useBigText, bigSeg } from '@/hooks/useBigText';
 import { useRecurring } from '@/hooks/useRecurring';
 import { Recurring, describeSchedule, nextDueDate } from '@/lib/recurring';
 import { CATEGORIES, Kind, SAVINGS_CATEGORY, INCOME_CATEGORY, canonicalCategory, MAX_AMOUNT, ymd } from '@/lib/budget';
@@ -16,6 +18,7 @@ const KINDS: { kind: Kind; label: string; color: string }[] = [
 const niceDate = (iso: string) => new Date(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10)).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 
 export default function RecurringScreen() {
+  const big = useBigText();
   const { items, loaded, add, update, remove } = useRecurring();
   const now = new Date();
 
@@ -97,9 +100,9 @@ export default function RecurringScreen() {
             <TouchableOpacity accessibilityRole="button" onPress={reset} hitSlop={10}><Text style={s.cancel}>Cancel</Text></TouchableOpacity>
           </View>
         )}
-        <View style={s.seg}>
+        <View style={[s.seg, { flexWrap: 'wrap' }]}>
           {KINDS.map(x => (
-            <TouchableOpacity key={x.kind} style={[s.segBtn, kind === x.kind && { backgroundColor: x.color + '22', borderColor: x.color + '66' }]} onPress={() => setKind(x.kind)}
+            <TouchableOpacity key={x.kind} style={[s.segBtn, big && bigSeg, kind === x.kind && { backgroundColor: x.color + '22', borderColor: x.color + '66' }]} onPress={() => setKind(x.kind)}
               accessibilityRole="button" accessibilityState={{ selected: kind === x.kind }}>
               <Text style={[s.segTxt, kind === x.kind && { color: x.color, fontWeight: '800' }]}>{x.label}</Text>
             </TouchableOpacity>

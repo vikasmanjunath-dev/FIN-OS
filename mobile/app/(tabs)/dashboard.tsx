@@ -1,10 +1,11 @@
 import { Nudges } from '@/components/Nudges';
 import { AlertBell } from '@/components/AlertBell';
 import React, { useCallback } from 'react';
-import {
-  ScrollView, View, Text, StyleSheet, RefreshControl,
-  TouchableOpacity, Pressable,
-} from 'react-native';
+import { ScrollView, View, Text, StyleSheet, RefreshControl } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { Reveal } from '@/components/ui/Reveal';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { Tap, TouchableOpacity } from '@/components/ui/Tap';
 import { LinearGradient } from '@/components/Gradient';
 import { router, useFocusEffect } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -22,7 +23,8 @@ import { ToolRow, StatRow } from '@/components/ToolRow';
 import { PersonaStrip } from '@/components/PersonaStrip';
 import { GREETING, buildStrip, dayPart, firstName, streakLine, type PersonaPrefs } from '@/lib/persona';
 import { loadPersonaPrefs, savePersonaPrefs } from '@/lib/personaStorage';
-import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
+import { Colors, Spacing, Radii, Typography, Type } from '@/constants/theme';
+import { useTabBarSpace } from '@/hooks/useTabBarSpace';
 
 function IndexPill({ symbol, price, changePct }: { symbol: string; price: number; changePct: number | null }) {
   const known = changePct != null;
@@ -40,8 +42,9 @@ function IndexPill({ symbol, price, changePct }: { symbol: string; price: number
 }
 
 export default function DashboardScreen() {
+  const tabSpace = useTabBarSpace();
   const { refresh } = useFinosContext();
-  const { data: td, computed: tc, reload: reloadTrackers } = useTrackers();
+  const { data: td, computed: tc, loaded, reload: reloadTrackers } = useTrackers();
   const quick = useQuickLog(3);
   const { saved: moneyScore } = useMoneyScore();
   const rj = useReelsJourney();
@@ -74,31 +77,31 @@ export default function DashboardScreen() {
   return (
     <ScrollView
       style={styles.root}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, { paddingBottom: tabSpace + Spacing.lg }]}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.cyan} />}
       showsVerticalScrollIndicator={false}
     >
       {/* ── Header ── */}
-      <View style={styles.header}>
-        <View style={{ flexShrink: 1, paddingRight: Spacing.sm }}>
-          <Text style={styles.greeting}><Text>{GREETING[dayPart(new Date().getHours())]}</Text><Text>{myName ? `, ${myName} 👋` : ' 👋'}</Text></Text>
-          <Text style={styles.date}>{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</Text>
+      <Reveal index={0}>
+        <View style={styles.header}>
+          <View style={styles.headerTop}>
+            <Text style={[styles.date, { flex: 1 }]} numberOfLines={1}>{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase()}</Text>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <AlertBell data={td} computed={tc} style={styles.settingsBtn} />
+              <Tap accessibilityRole="button" accessibilityLabel="Search" onPress={() => router.push('/search' as any)} haptic="selection" style={styles.settingsBtn}>
+                <Ionicons name="search-outline" size={20} color={Colors.textPrimary} />
+              </Tap>
+              <Tap accessibilityRole="button" accessibilityLabel="Settings" onPress={() => router.push('/settings')} haptic="selection" style={styles.settingsBtn}>
+                <Ionicons name="settings-outline" size={20} color={Colors.textPrimary} />
+              </Tap>
+            </View>
+          </View>
+          <Text accessibilityRole="header" numberOfLines={2} maxFontSizeMultiplier={1.3} style={styles.greeting}>
+            {GREETING[dayPart(new Date().getHours())]}{myName ? `, ${myName}` : ''}
+          </Text>
           {streak ? <Text style={styles.streak}>{streak}</Text> : null}
         </View>
-        <View style={{ flexDirection: 'row', gap: 10 }}>
-          <AlertBell data={td} computed={tc} style={styles.settingsBtn} />
-          <Pressable accessibilityRole="button" accessibilityLabel="Search" onPress={() => router.push('/search' as any)} hitSlop={12}>
-            <View style={styles.settingsBtn}>
-              <Text style={{ fontSize: 18 }}>🔍</Text>
-            </View>
-          </Pressable>
-          <Pressable accessibilityRole="button" accessibilityLabel="Settings" onPress={() => router.push('/settings')} hitSlop={12}>
-            <View style={styles.settingsBtn}>
-              <Text style={{ fontSize: 18 }}>⚙️</Text>
-            </View>
-          </Pressable>
-        </View>
-      </View>
+      </Reveal>
 
       {!persona.stripHidden && <View style={{ paddingHorizontal: Spacing.lg }}><PersonaStrip items={strip} onHide={hideStrip} /></View>}
 
@@ -112,10 +115,10 @@ export default function DashboardScreen() {
 
       {/* ── Net Worth Hero ── */}
       <TouchableOpacity activeOpacity={0.85} onPress={() => open('/tracker/networth')} accessibilityRole="button" accessibilityLabel={`Net worth ${inrShort(tc.netWorth.netWorth)}. Open net worth tracker`}>
-        <LinearGradient colors={['#0D1117', '#111827']} style={styles.heroCard} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+        <Reveal index={2}><LinearGradient colors={['#0D1117', '#111827']} style={styles.heroCard} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
           <View style={[styles.heroTopBar, { backgroundColor: tc.netWorth.netWorth < 0 ? Colors.red : Colors.cyan }]} />
           <Text style={styles.heroLabel}>NET WORTH  ›</Text>
-          <Text style={[styles.heroValue, tc.netWorth.netWorth < 0 && { color: Colors.red }]}>{inrShort(tc.netWorth.netWorth)}</Text>
+          {loaded ? <Text style={[styles.heroValue, tc.netWorth.netWorth < 0 && { color: Colors.red }]}>{inrShort(tc.netWorth.netWorth)}</Text> : <View accessible accessibilityLabel="Loading net worth" style={{ height: 52, justifyContent: 'center' }}><Skeleton width={150} height={34} radius={10} /></View>}
           <View style={styles.heroRow}>
             <View>
               <Text style={styles.heroSub}>Portfolio</Text>
@@ -132,7 +135,7 @@ export default function DashboardScreen() {
               </Text>
             </View>
           </View>
-        </LinearGradient>
+        </LinearGradient></Reveal>
       </TouchableOpacity>
 
       {/* ── The one thing to do next ── */}
@@ -261,11 +264,12 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bg },
   content: { paddingBottom: Spacing.xxl },
 
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', padding: Spacing.lg, paddingTop: Spacing.md },
-  greeting: { ...Typography.h2, fontSize: 20 },
-  date: { ...Typography.caption, marginTop: 2 },
+  header: { paddingHorizontal: Spacing.lg, paddingTop: Spacing.sm, paddingBottom: Spacing.md },
+  headerTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  greeting: { ...Type.title1, marginTop: 2 },
+  date: { ...Type.caption, letterSpacing: 0.8 },
   streak: { color: Colors.gold, fontSize: 12, fontWeight: '700', marginTop: 4 },
-  settingsBtn: { width: 36, height: 36, borderRadius: Radii.full, backgroundColor: Colors.overlay, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: Colors.border },
+  settingsBtn: { width: 44, height: 44, borderRadius: Radii.full, backgroundColor: Colors.overlay, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: Colors.border },
 
   pillRow: { marginHorizontal: Spacing.lg, marginBottom: Spacing.md },
   pillContent: { gap: Spacing.sm },

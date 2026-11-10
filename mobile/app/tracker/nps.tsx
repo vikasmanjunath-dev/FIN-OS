@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { useTrackers } from '@/hooks/useTrackers';
 import { validDate, NPS_RATES } from '@/lib/retirement';
 import { TrackerScreen, Card, SectionLabel, Stat, Bar, MoneyField, NumberField, TextField, inr, inrShort } from '@/components/TrackerUI';

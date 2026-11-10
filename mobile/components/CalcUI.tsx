@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Switch, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Switch, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import Svg, { Polyline, Line, Text as SvgText } from 'react-native-svg';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 import { inrShort } from '@/components/TrackerUI';

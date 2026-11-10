@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router } from 'expo-router';
 import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
 import { recordCrash } from '@/lib/diagnosticsStorage';

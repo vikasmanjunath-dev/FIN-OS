@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 import { Card } from '@/components/TrackerUI';
 import { type Fact, type Source, sourcesLabel } from '@/lib/insuranceHub';

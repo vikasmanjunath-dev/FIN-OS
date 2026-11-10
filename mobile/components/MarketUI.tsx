@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ScrollView, View, Text, TouchableOpacity, RefreshControl, StyleSheet } from 'react-native';
+import { ScrollView, View, Text, RefreshControl, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';

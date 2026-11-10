@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router, useFocusEffect } from 'expo-router';
 import { TrackerScreen, Card, SectionLabel } from '@/components/TrackerUI';
 import { PulseCardView } from '@/components/PulseCard';
@@ -12,6 +13,7 @@ import { loadArFacts } from '@/lib/aryaFactsStorage';
 import { buildFeed, SECTIONS, type Feed } from '@/lib/pulseCards';
 import { loadSnapshot, saveSnapshot, shouldSave } from '@/lib/pulseStorage';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
+import { SkeletonRows } from '@/components/ui/Skeleton';
 
 const TONE = { good: Colors.teal, bad: Colors.red } as const;
 
@@ -45,7 +47,7 @@ export default function PulseScreen() {
   return (
     <TrackerScreen title="PULSE" subtitle="What matters for you today, ranked from your own records. Each card says where its numbers come from. Estimates for planning, not advice.">
       <AryaTabs current="pulse" />
-      {!feed && !failed ? <ActivityIndicator color={Colors.cyan} style={{ marginTop: Spacing.xl }} /> : null}
+      {!feed && !failed ? <SkeletonRows count={5} style={{ marginTop: Spacing.md }} /> : null}
       {failed ? (
         <Card><Text style={Typography.body}>I could not read your records just now. Pull back and open this screen again.</Text></Card>
       ) : null}

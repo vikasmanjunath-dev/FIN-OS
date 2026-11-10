@@ -21,7 +21,7 @@ export interface FinosContext {
 }
 
 const DEFAULTS: FinosContext = {
-  name: 'Friend', netWorth: 0, monthlyIncome: 0, monthlyExpense: 0, savingsRate: 0, healthScore: null,
+  name: '', netWorth: 0, monthlyIncome: 0, monthlyExpense: 0, savingsRate: 0, healthScore: null,
   sipTotal: 0, portfolioValue: 0, aaIncome: 0, aaExpense: 0, hasActiveAA: false,
 };
 
@@ -44,7 +44,7 @@ export function useFinosContext() {
       } catch { /* none */ }
 
       setCtx({
-        name: d.name || 'Friend',
+        name: d.name || '',
         netWorth: c.netWorth.netWorth,
         monthlyIncome: c.budget.income,
         monthlyExpense: c.budget.expense,

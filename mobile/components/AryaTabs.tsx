@@ -1,7 +1,8 @@
 import React from 'react';
-import { ScrollView, Text, Pressable, StyleSheet, View } from 'react-native';
+import { ScrollView, Text, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { Colors, Spacing, Radii } from '@/constants/theme';
+import { Tap } from '@/components/ui/Tap';
 
 /** The Arya tab strip, as on the website's Arya panel: Chat, Plan, Map, Life, Pulse, Cal, India, Agent. */
 export const ARYA_TABS = [
@@ -23,11 +24,11 @@ export function AryaTabs({ current }: { current: AryaTabId }) {
         {ARYA_TABS.map(t => {
           const on = t.id === current;
           return (
-            <Pressable key={t.id} accessibilityRole="tab" accessibilityState={{ selected: on }} accessibilityLabel={`Arya ${t.label}`}
+            <Tap key={t.id} accessibilityRole="tab" accessibilityState={{ selected: on }} accessibilityLabel={`Arya ${t.label}`}
               onPress={() => { if (!on) router.replace(t.route as any); }} style={[s.tab, on && s.tabOn]}>
               <Text style={s.icon}>{t.icon}</Text>
               <Text style={[s.label, on && s.labelOn]}>{t.label}</Text>
-            </Pressable>
+            </Tap>
           );
         })}
       </ScrollView>

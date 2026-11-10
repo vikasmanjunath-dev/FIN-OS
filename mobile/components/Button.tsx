@@ -1,5 +1,6 @@
 import React from 'react';
-import { ActivityIndicator, StyleProp, StyleSheet, Text, TouchableOpacity, ViewStyle } from 'react-native';
+import { ActivityIndicator, StyleProp, StyleSheet, Text, ViewStyle } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { Btn, Colors } from '@/constants/theme';
 
 type Props = {
@@ -18,7 +19,7 @@ export function Button({ label, onPress, variant = 'primary', color = Colors.cya
   const ink = variant === 'primary' || variant === 'danger' ? '#000' : color;
   return (
     <TouchableOpacity
-      testID={testID} onPress={off ? undefined : onPress} activeOpacity={0.8} disabled={off}
+      testID={testID} onPress={off ? undefined : onPress} activeOpacity={0.85} disabled={off} haptic={variant === 'primary' || variant === 'danger' ? 'light' : 'selection'}
       accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label} accessibilityState={{ disabled: off, busy: !!loading }}
       style={[Btn.base, fill, off && s.off, style]}
     >

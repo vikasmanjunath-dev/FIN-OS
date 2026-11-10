@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { useFocusEffect } from 'expo-router';
 import Svg, { Path, Line, Text as SvgText } from 'react-native-svg';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';

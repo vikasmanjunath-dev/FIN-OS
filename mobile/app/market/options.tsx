@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import Svg, { Path, Line, Text as SvgText } from 'react-native-svg';
 import { MarketScreen, Freshness, KV, Chip } from '@/components/MarketUI';
 import { Card, SectionLabel, inr } from '@/components/TrackerUI';

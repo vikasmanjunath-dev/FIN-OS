@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, TouchableOpacity, Platform, Alert } from 'react-native';
+import { View, Text, Platform, Alert } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router, useLocalSearchParams } from 'expo-router';
 import { TrackerScreen, Card, SectionLabel } from '@/components/TrackerUI';
 import { CalcField, Collapsible } from '@/components/CalcUI';

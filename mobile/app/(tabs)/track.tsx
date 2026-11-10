@@ -6,8 +6,11 @@ import { useFinosContext } from '@/hooks/useFinosContext';
 import { MetricCard } from '@/components/MetricCard';
 import { TrackerStorageNotice, NavCard } from '@/components/TrackerUI';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
+import { SkeletonCard } from '@/components/ui/Skeleton';
+import { useTabBarSpace } from '@/hooks/useTabBarSpace';
 
 export default function TrackScreen() {
+  const tabSpace = useTabBarSpace();
   const { ctx, loading, loadError, refresh } = useFinosContext();
   const [refreshing, setRefreshing] = React.useState(false);
 
@@ -30,11 +33,11 @@ export default function TrackScreen() {
   return (
     <ScrollView
       style={styles.root}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, { paddingBottom: tabSpace + Spacing.lg }]}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.cyan} />}
       showsVerticalScrollIndicator={false}
     >
-      {loading ? <Text style={[Typography.caption, { padding: Spacing.lg }]}>Loading your saved tracker data…</Text>
+      {loading ? <View style={{ padding: Spacing.lg, gap: Spacing.md }}><SkeletonCard lines={3} /><SkeletonCard lines={2} /></View>
         : loadError ? <View style={{ padding: Spacing.lg }}><TrackerStorageNotice /></View>
         : <>
       {/* ── Header ── */}

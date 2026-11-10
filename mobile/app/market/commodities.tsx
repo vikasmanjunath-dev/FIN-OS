@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router } from 'expo-router';
 import { MarketScreen, Freshness, KV, changeColor } from '@/components/MarketUI';
 import { Card, SectionLabel } from '@/components/TrackerUI';

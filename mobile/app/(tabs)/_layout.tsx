@@ -3,7 +3,13 @@ import { Tabs, router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Animated, { useAnimatedStyle, useSharedValue, withSequence, withSpring } from 'react-native-reanimated';
 import { Colors, Radii } from '@/constants/theme';
+import { Spring } from '@/constants/motion';
+import { Tap } from '@/components/ui/Tap';
+import { Glass } from '@/components/ui/Glass';
+import { TAB_BAR } from '@/hooks/useTabBarSpace';
+import { useReduceMotion } from '@/hooks/useReduceMotion';
 import { useReelsTab } from '@/hooks/useReelsTab';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
@@ -11,9 +17,13 @@ type IconName = React.ComponentProps<typeof Ionicons>['name'];
 /** One icon family for every tab (the old mix of a dark text glyph and four emoji made Home nearly invisible and the labels sit at
  *  different heights). Labels are 11 px, active/inactive differ by colour AND weight, never colour alone. */
 function TabIcon({ icon, iconActive, label, focused }: { icon: IconName; iconActive: IconName; label: string; focused: boolean }) {
+  const reduce = useReduceMotion();
+  const pop = useSharedValue(1);
+  React.useEffect(() => { if (focused && !reduce) pop.value = withSequence(withSpring(1.18, Spring.snappy), withSpring(1, Spring.bouncy)); }, [focused, reduce, pop]);
+  const popStyle = useAnimatedStyle(() => ({ transform: [{ scale: pop.value }] }));
   return (
     <View style={styles.tabItem}>
-      <View style={styles.iconSlot}><Ionicons name={focused ? iconActive : icon} size={24} color={focused ? Colors.cyan : Colors.textMuted} /></View>
+      <Animated.View style={[styles.iconSlot, popStyle]}><Ionicons name={focused ? iconActive : icon} size={24} color={focused ? Colors.cyan : Colors.textMuted} /></Animated.View>
       <Text numberOfLines={1} maxFontSizeMultiplier={1.15} style={[styles.tabLabel, focused && styles.tabLabelActive]}>{label}</Text>
     </View>
   );
@@ -34,7 +44,18 @@ function ReelsIcon({ focused, badge, streak }: { focused: boolean; badge: 'check
   );
 }
 
-const BAR = 64;
+/** Every tab answers a touch at once: a small squash and a selection tick, then the icon pops when the tab becomes active. */
+type TabButtonProps = { children?: React.ReactNode; onPress?: any; onLongPress?: any; accessibilityState?: any; accessibilityLabel?: string; testID?: string; style?: any };
+function TabButton({ children, onPress, onLongPress, accessibilityState, accessibilityLabel, testID, style }: TabButtonProps) {
+  return (
+    <Tap onPress={onPress} onLongPress={onLongPress} accessibilityRole="tab" accessibilityState={accessibilityState} accessibilityLabel={accessibilityLabel} testID={testID}
+      haptic="selection" pressScale={0.9} activeOpacity={0.8} hitSlop={{ top: 0, bottom: 0, left: 0, right: 0 }} style={style}>
+      {children}
+    </Tap>
+  );
+}
+
+const BAR = TAB_BAR;
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();      // the home indicator / gesture bar: the bar grows by it instead of drawing labels underneath
@@ -45,8 +66,11 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: [styles.tabBar, { height: BAR + bottom, paddingBottom: bottom }],
+        tabBarBackground: () => <Glass intensity={60} tintAlpha={0.8} style={StyleSheet.absoluteFill} />,   // the bar floats over the content: a blurred material
+        tabBarHideOnKeyboard: true,                                                                       // with the keyboard up the bar is out of the way
         tabBarShowLabel: false,
         tabBarItemStyle: styles.tabBarItem,
+        tabBarButton: TabButton,
       }}
     >
       <Tabs.Screen name="dashboard" options={{ tabBarAccessibilityLabel: 'Home', tabBarIcon: ({ focused }) => <TabIcon icon="home-outline" iconActive="home" label="Home" focused={focused} /> }} />
@@ -80,7 +104,8 @@ export default function TabsLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: '#0D1117',
+    position: 'absolute', left: 0, right: 0, bottom: 0,
+    backgroundColor: 'transparent',
     borderTopColor: Colors.border,
     borderTopWidth: StyleSheet.hairlineWidth,
     paddingTop: 6,

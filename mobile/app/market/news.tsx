@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import * as WebBrowser from 'expo-web-browser';
 import { MarketScreen, Freshness, Chip } from '@/components/MarketUI';
 import { Card } from '@/components/TrackerUI';

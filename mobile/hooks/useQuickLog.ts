@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useTransactions } from '@/hooks/useTransactions';
 import { buildQuickChips, QuickChip } from '@/lib/quicklog';
 import { ymd } from '@/lib/budget';
+import { hapticSuccess } from '@/lib/haptics';
 import { inr } from '@/components/TrackerUI';
 
 export interface UndoNotice { id: string; text: string }
@@ -22,6 +23,7 @@ export function useQuickLog(limit = 6) {
     try {
       const id = await add({ date: ymd(new Date()), amount: c.amount, kind: c.kind, category: c.category, label: c.label });
       const what = c.label || c.category;
+      hapticSuccess();
       setUndo({ id, text: `${c.kind === 'income' ? 'Income' : c.kind === 'saving' ? 'Invested' : c.kind === 'transfer' ? 'Transferred' : 'Added'} ${inr(c.amount)} · ${what}` });
       if (timer.current) clearTimeout(timer.current);
       timer.current = setTimeout(() => setUndo(null), 6000);

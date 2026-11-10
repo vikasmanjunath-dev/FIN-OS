@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router } from 'expo-router';
 import { useTrackers } from '@/hooks/useTrackers';
 import { TrackerScreen, Card, SectionLabel, Bar, Stat, MoneyField, inr } from '@/components/TrackerUI';

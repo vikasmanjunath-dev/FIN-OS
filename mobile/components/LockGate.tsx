@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { AppState, View, Text, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
+import { AppState, View, Text, StyleSheet, Alert, Platform } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { PIN_LENGTH, tryPin, secondsLeft, shouldRelock, NO_FAILS, type FailState, type LockMeta, DEFAULT_META } from '@/lib/appLock';
 import { biometricPrompt, biometricsAvailable, loadFail, loadLockStatus, loadMeta, onLockRequested, saveFail, verifyPin } from '@/lib/appLockStorage';

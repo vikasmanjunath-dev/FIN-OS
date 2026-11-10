@@ -1,11 +1,12 @@
 import React from 'react';
-import { Text, StyleSheet, ActivityIndicator, View } from 'react-native';
+import { Text, StyleSheet, View } from 'react-native';
 import { TrackerScreen, Card, SectionLabel } from '@/components/TrackerUI';
 import { AryaTabs } from '@/components/AryaTabs';
 import { useAryaFacts } from '@/components/AryaFacts';
 import { RULES, RULES_AS_OF, staleness, currentDates, bothRegimes } from '@/lib/aryaIndia';
 import { taxAnnualIncome, inr } from '@/lib/aryaFacts';
 import { Colors } from '@/constants/theme';
+import { SkeletonCard } from '@/components/ui/Skeleton';
 
 export default function AryaIndia() {
   const { facts } = useAryaFacts();
@@ -17,7 +18,7 @@ export default function AryaIndia() {
   return (
     <TrackerScreen title="India" subtitle={`India's income-tax rules the app uses, each with its source and the year it is for (${RULES_AS_OF}). Rules, not advice. Verify on incometax.gov.in.`}>
       <AryaTabs current="india" />
-      {!facts ? <ActivityIndicator color={Colors.cyan} /> : null}
+      {!facts ? <SkeletonCard lines={4} /> : null}
       {stale ? <Card accent={Colors.gold}><Text style={s.warn}>{stale}</Text></Card> : null}
       <SectionLabel>YOUR INCOME UNDER BOTH REGIMES</SectionLabel>
       <Card>

@@ -1,10 +1,14 @@
 import React from 'react';
-import { ScrollView, View, Text, StyleSheet, RefreshControl, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, RefreshControl } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { useMarketData, IndexQuote } from '@/hooks/useMarketData';
 import { useSectors } from '@/hooks/useSectors';
 import { router } from 'expo-router';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 import { LinearGradient } from '@/components/Gradient';
+import { useTabBarSpace } from '@/hooks/useTabBarSpace';
+import { ErrorState } from '@/components/ui/States';
+import { SkeletonRows } from '@/components/ui/Skeleton';
 
 const SECTOR_EMOJI: Record<string, string> = {
   IT: '💻', BANK: '🏦', FMCG: '🛒', PHARMA: '💊', AUTO: '🚗', METAL: '⚙️', ENERGY: '⚡', REALTY: '🏢',
@@ -55,6 +59,7 @@ function SectorRow({ name, emoji, changePct }: { name: string; emoji: string; ch
 }
 
 export default function MarketsScreen() {
+  const tabSpace = useTabBarSpace();
   const { data, refresh } = useMarketData();
   const sec = useSectors();
   const [refreshing, setRefreshing] = React.useState(false);
@@ -73,7 +78,7 @@ export default function MarketsScreen() {
   return (
     <ScrollView
       style={styles.root}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, { paddingBottom: tabSpace + Spacing.lg }]}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.cyan} />}
       showsVerticalScrollIndicator={false}
     >
@@ -113,7 +118,9 @@ export default function MarketsScreen() {
           <SectorRow key={x.name} name={x.label} emoji={SECTOR_EMOJI[x.label] ?? '📊'} changePct={x.changePct} />
         ))}
         {sec.sectors.length === 0 && (
-          <Text style={styles.flowNote}>{sec.loading ? 'Loading sector moves…' : sec.error ?? 'No sector data.'}</Text>
+          sec.loading
+            ? <SkeletonRows count={4} style={{ borderWidth: 0, backgroundColor: 'transparent' }} />
+            : <Text style={styles.flowNote}>{sec.error ?? 'No sector data.'}</Text>
         )}
       </View>
 
@@ -130,7 +137,7 @@ export default function MarketsScreen() {
 
       {data.error && (
         <View style={styles.errorBanner}>
-          <Text style={styles.errorText}>⚠️ {data.error}</Text>
+          <ErrorState title="Live prices unavailable" body={`${data.error} The numbers above may be out of date.`} onRetry={() => { refresh(); }} />
         </View>
       )}
     </ScrollView>

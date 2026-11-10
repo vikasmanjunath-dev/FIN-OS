@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router, useFocusEffect } from 'expo-router';
 import { Colors, Spacing, Radii } from '@/constants/theme';
 import { computeNudges, dismiss, visible, type Dismissed, type Nudge, type NudgeFacts } from '@/lib/nudges';

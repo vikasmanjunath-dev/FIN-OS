@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Linking, type TextProps } from 'react-native';
+import { View, Text, StyleSheet, Linking, type TextProps } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router } from 'expo-router';
 import { Colors, Spacing, Radii } from '@/constants/theme';
 import { MAX_FONT_SCALE, STATUS_LABEL, type Block, type HubEntry, type Lesson, type ManifestEntry, type NotShown, type PhoneTarget, type ReviewItem } from '@/lib/learn';

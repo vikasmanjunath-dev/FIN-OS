@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Platform, Alert } from 'react-native';
+import { View, Text, TextInput, Platform, Alert } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { TrackerScreen, Card, SectionLabel } from '@/components/TrackerUI';
 import { Chips, Notice, useJournal, s } from '@/components/JournalUI';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { TAG_COLORS, TAG_TYPES } from '@/lib/tradeJournal';
 import { addTag, deleteTag } from '@/lib/tradeJournalStorage';
+import { useToast } from '@/components/ui/Toast';
 
 export default function TagsScreen() {
+  const toast = useToast();
   const { data, reload } = useJournal();
   const [name, setName] = useState('');
   const [type, setType] = useState('custom');
@@ -15,7 +18,7 @@ export default function TagsScreen() {
   const save = async () => {
     const r = await addTag({ name, type, color });
     if (!r.ok) return setMsg(r.error);
-    setName(''); setMsg('Tag added.'); reload();
+    setName(''); setMsg(''); toast.show({ text: 'Tag added', tone: 'success' }); reload();
   };
   const remove = (id: string, label: string) => {
     const go = async () => { await deleteTag(id); reload(); };

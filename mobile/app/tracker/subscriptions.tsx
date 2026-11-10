@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert, Platform } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { useSubscriptions } from '@/hooks/useSubscriptions';
 import {
   CATEGORIES, CYCLES, CYCLE_IDS, STATUSES, Cycle, Status, Subscription,

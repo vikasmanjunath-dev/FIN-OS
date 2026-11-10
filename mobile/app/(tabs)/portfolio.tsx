@@ -1,11 +1,14 @@
 import React, { useState, useMemo } from 'react';
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity, RefreshControl, Alert, Platform } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, RefreshControl, Alert, Platform } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router } from 'expo-router';
 import { LinearGradient } from '@/components/Gradient';
 import { useHoldings, toView, HoldingView } from '@/hooks/useHoldings';
 import { AddHoldingModal } from '@/components/AddHoldingModal';
 import { XirrCard } from '@/components/XirrCard';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
+import { useTabBarSpace } from '@/hooks/useTabBarSpace';
+import { EmptyState } from '@/components/ui/States';
 
 const inr = (n: number) => '₹' + Math.round(n).toLocaleString('en-IN');
 const signed = (n: number) => (n >= 0 ? '+' : '−') + inr(Math.abs(n));
@@ -67,6 +70,7 @@ function buildInsights(rows: HoldingView[], total: number) {
 }
 
 export default function PortfolioScreen() {
+  const tabSpace = useTabBarSpace();
   const { holdings, loaded, pricing, priceError, addHolding, removeHolding, refreshPrices } = useHoldings();
   const [tab, setTab] = useState<Tab>('holdings');
   const [adding, setAdding] = useState(false);
@@ -97,7 +101,7 @@ export default function PortfolioScreen() {
   return (
     <View style={styles.root}>
       <ScrollView
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingBottom: tabSpace + Spacing.lg }]}
         refreshControl={<RefreshControl refreshing={pricing} onRefresh={refreshPrices} tintColor={Colors.cyan} />}
         showsVerticalScrollIndicator={false}
       >
@@ -127,15 +131,8 @@ export default function PortfolioScreen() {
         </View>
 
         {loaded && rows.length === 0 ? (
-          <View style={styles.empty}>
-            <Text style={styles.emptyIcon}>📊</Text>
-            <Text style={styles.emptyTitle}>No holdings yet</Text>
-            <Text style={styles.emptyText}>
-              Add the stocks and mutual funds you own. FIN·OS fetches market prices and works out your value, returns, SIPs and insights on this device. Prices may be delayed or unavailable.
-            </Text>
-            <TouchableOpacity accessibilityRole="button" style={styles.emptyBtn} onPress={() => setAdding(true)}>
-              <Text style={styles.emptyBtnTxt}>Add a holding</Text>
-            </TouchableOpacity>
+          <View style={[styles.empty, { padding: 0 }]}>
+            <EmptyState icon="pie-chart-outline" title="No holdings yet" body={`Add the stocks and mutual funds you own. FIN·OS fetches market prices and works out your value, returns, SIPs and insights on this device. Prices may be delayed or unavailable.`} actionLabel="Add a holding" onAction={() => setAdding(true)} />
             <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/arya')}>
               <Text style={styles.emptyLink}>Or ask Arya how to start →</Text>
             </TouchableOpacity>

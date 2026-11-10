@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, StyleSheet, ScrollView } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router, useFocusEffect } from 'expo-router';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 import {
@@ -108,7 +109,7 @@ export default function Onboarding() {
               <Text style={Typography.label}>{{ name: 'NAME', age: 'AGE', income: 'MONTHLY INCOME (₹)', dependents: 'PEOPLE WHO DEPEND ON YOUR INCOME' }[k]}</Text>
               <TextInput style={s.input} value={profile[k]} onChangeText={t => { setProfile(p => ({ ...p, [k]: t })); setErrors(e => ({ ...e, [k]: undefined })); }}
                 accessibilityLabel={{ name: 'Your name', age: 'Your age', income: 'Your monthly income', dependents: 'Number of dependants' }[k]}
-                keyboardType={k === 'name' ? 'default' : 'number-pad'} placeholder="Skip" placeholderTextColor={Colors.textDim} autoCorrect={false} maxLength={k === 'name' ? 60 : 10} />
+                keyboardType={k === 'name' ? 'default' : 'number-pad'} placeholder={k === 'age' ? 'Optional, e.g. 32' : k === 'name' ? 'Optional' : 'Optional, a number'} placeholderTextColor={Colors.textDim} autoCorrect={false} maxLength={k === 'name' ? 60 : 10} />
               {errors[k] ? <Text style={s.err}>{errors[k]}</Text> : <Text style={s.help}>{USED_FOR[k]}</Text>}
             </View>
           ))}

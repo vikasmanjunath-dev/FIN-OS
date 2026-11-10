@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { QuickChip } from '@/lib/quicklog';
 import { UndoNotice } from '@/hooks/useQuickLog';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';

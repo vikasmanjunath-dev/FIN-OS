@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Platform, Share } from 'react-native';
+import { View, Text, TextInput, Platform, Share } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { useFocusEffect } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import { TrackerScreen, Card, SectionLabel, Stat } from '@/components/TrackerUI';

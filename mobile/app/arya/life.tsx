@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
-import { Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { Text, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router, useFocusEffect } from 'expo-router';
 import { TrackerScreen, Card, SectionLabel } from '@/components/TrackerUI';
 import { AryaTabs } from '@/components/AryaTabs';
@@ -8,6 +9,7 @@ import { lifeTimeline } from '@/lib/aryaLife';
 import { loadLifeEvents } from '@/lib/lifeEventsStorage';
 import type { DeclaredEvent } from '@/lib/lifeEvents';
 import { Colors, Spacing, Radii } from '@/constants/theme';
+import { SkeletonCard } from '@/components/ui/Skeleton';
 
 export default function AryaLife() {
   const { facts, failed } = useAryaFacts();
@@ -17,7 +19,7 @@ export default function AryaLife() {
   return (
     <TrackerScreen title="Life" subtitle="The dated things you recorded or told Arya, in order, and what each life event makes Arya check. Nothing is placed on your timeline by age or benchmark.">
       <AryaTabs current="life" />
-      {!facts && !failed ? <ActivityIndicator color={Colors.cyan} /> : null}
+      {!facts && !failed ? <SkeletonCard lines={4} /> : null}
       {failed ? <Card><Text style={s.body}>I could not read your records just now.</Text></Card> : null}
       {facts ? (
         <>

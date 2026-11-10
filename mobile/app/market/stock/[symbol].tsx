@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { useLocalSearchParams } from 'expo-router';
 import { MarketScreen, Freshness, KV, Chip, RangeBar, changeColor } from '@/components/MarketUI';
 import { PriceChart } from '@/components/PriceChart';

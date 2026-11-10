@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router, useLocalSearchParams } from 'expo-router';
 import { TrackerScreen, Card, SectionLabel, inr } from '@/components/TrackerUI';
 import { CalcField, Collapsible, toNum } from '@/components/CalcUI';
@@ -11,6 +12,7 @@ import { loadRecent, loadTray, rememberFund, toggleInTray } from '@/lib/fundsSto
 import { type FundRecord, MAX_FUNDS, optionKind, planKind, sameScheme, typeHint, variantLabel } from '@/lib/funds';
 import { type PeriodResult, MAX_GAP_DAYS, MIN_ROLLING_OBSERVATIONS, MIN_SIP_INSTALMENTS, periodReturn, rollingReturns, sipReturn } from '@/lib/fundsHistory';
 import { getState, init } from '@/lib/holdingsStore';
+import { SkeletonCard, SkeletonChart } from '@/components/ui/Skeleton';
 
 const PERIODS = [{ m: 1, l: '1 month' }, { m: 3, l: '3 months' }, { m: 6, l: '6 months' }, { m: 12, l: '1 year' }, { m: 36, l: '3 years' }, { m: 60, l: '5 years' }];
 const pct = (n: number) => `${n >= 0 ? '+' : '−'}${Math.abs(n).toFixed(2)}%`;
@@ -64,7 +66,7 @@ export default function FundDetail() {
     setTrayMsg(r.full ? `The compare list holds ${MAX_FUNDS} funds. Remove one first.` : r.codes.includes(c) ? 'Added to the compare list.' : 'Removed from the compare list.');
   };
 
-  if (state === 'loading') return <TrackerScreen title="Fund"><View style={{ padding: Spacing.xl }}><ActivityIndicator color={Colors.cyan} /></View></TrackerScreen>;
+  if (state === 'loading') return <TrackerScreen title="Fund"><SkeletonCard lines={3} /><SkeletonChart /></TrackerScreen>;
   if (state === 'missing') return <TrackerScreen title="Fund"><Card><Text style={s.body}>AMFI data has no scheme with code {c}. Some schemes are closed or merged and drop out of the daily file.</Text></Card></TrackerScreen>;
   if (state === 'offline' || !rec) {
     return (
@@ -150,7 +152,7 @@ export default function FundDetail() {
 function Returns({ rec, history }: { rec: FundRecord; history: HistoryOutcome | null }) {
   const [amount, setAmount] = useState('5000');
   const [months, setMonths] = useState('36');
-  if (!history) return <Card><ActivityIndicator color={Colors.cyan} /></Card>;
+  if (!history) return <SkeletonChart />;
   if (history.status !== 'ok') {
     return (
       <Card accent={Colors.gold}>

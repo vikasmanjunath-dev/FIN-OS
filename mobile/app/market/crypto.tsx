@@ -1,5 +1,6 @@
 import React from 'react';
-import { Text, TouchableOpacity } from 'react-native';
+import { Text } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router } from 'expo-router';
 import { MarketScreen, Freshness, KV, changeColor } from '@/components/MarketUI';
 import { Card } from '@/components/TrackerUI';
@@ -7,6 +8,7 @@ import { useMarketResource } from '@/hooks/useMarketResource';
 import { loadCrypto } from '@/lib/marketDataApi';
 import { FRESH_MS, fmtInr, fmtMarketCap, fmtPct, relativeTime } from '@/lib/marketData';
 import { Colors, Typography } from '@/constants/theme';
+import { SkeletonRows } from '@/components/ui/Skeleton';
 
 export default function CryptoScreen() {
   const r = useMarketResource(() => loadCrypto(), [], 0);
@@ -15,7 +17,7 @@ export default function CryptoScreen() {
   return (
     <MarketScreen title="Crypto prices" subtitle="A few large coins, in rupees and dollars." refreshing={r.refreshing} onRefresh={r.reload}>
       <Freshness savedAt={r.savedAt} fromCache={r.fromCache} error={r.error} freshMs={FRESH_MS.crypto} loading={r.loading} />
-      {r.loading && !r.data ? <Text style={Typography.caption}>Loading…</Text> : null}
+      {r.loading && !r.data ? <SkeletonRows count={6} /> : null}
       {!r.loading && coins.length === 0 ? <Card><Text style={Typography.body}>No crypto prices to show. {r.error ?? ''}</Text></Card> : null}
       {coins.map(c => (
         <Card key={c.id}>

@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, ViewStyle, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ViewStyle } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { LinearGradient } from '@/components/Gradient';
 import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
 

@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleProp, Text, TextStyle, TouchableOpacity, ViewStyle } from 'react-native';
+import { StyleProp, Text, TextStyle, ViewStyle } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { Btn } from '@/constants/theme';
 
 /** A text link that is a real button: 44 px tall, announced as a button, with press feedback. (A <Text onPress> link is only as tall as its

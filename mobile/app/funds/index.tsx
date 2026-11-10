@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router, useFocusEffect } from 'expo-router';
 import { TrackerScreen, Card, SectionLabel } from '@/components/TrackerUI';
 import { PlanBadges, navLine } from '@/components/FundUI';
@@ -7,6 +8,7 @@ import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 import { fundsApi } from '@/lib/fundsApi';
 import { loadRawTransactions, loadRecent, loadTray } from '@/lib/fundsStorage';
 import { type FundRecord, type RecentFund, groupSchemes, sipConsistency, sipMonthsFromTransactions, typeHint } from '@/lib/funds';
+import { SkeletonRows } from '@/components/ui/Skeleton';
 
 const MAX_SHOWN = 40;
 
@@ -65,7 +67,7 @@ export default function FundsHome() {
         </TouchableOpacity>
       </View>
 
-      {busy ? <View style={{ padding: Spacing.lg }}><ActivityIndicator color={Colors.cyan} /></View> : null}
+      {busy ? <SkeletonRows count={4} /> : null}
       {message ? <Card accent={Colors.gold}><Text style={s.body}>{message}</Text></Card> : null}
 
       {results && results.length > 0 ? (

@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import {
-  Modal, View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet,
-  ActivityIndicator, KeyboardAvoidingView, Platform,
-} from 'react-native';
+import { Modal, View, Text, TextInput, ScrollView, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
 import { Holding, NewHolding, FundResult, lookupStock, searchFunds } from '@/hooks/useHoldings';
 

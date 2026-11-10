@@ -1,8 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ScrollView, View, Text, TextInput, TouchableOpacity, StyleSheet, ViewStyle } from 'react-native';
+import { ScrollView, View, Text, TextInput, StyleSheet, ViewStyle } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors, Spacing, Radii, Typography } from '@/constants/theme';
+import { Ionicons } from '@expo/vector-icons';
+import Animated, { Extrapolation, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import { Colors, Spacing, Radii, Type, Typography } from '@/constants/theme';
+import { Glass } from '@/components/ui/Glass';
+import { Reveal } from '@/components/ui/Reveal';
 import { parseTrackerMoney, parseTrackerNumber } from '@/lib/trackerInput';
 import { canRenderLoadedTrackerData, getTrackerStorageStatus, subscribeTrackerStorageStatus, type TrackerStorageIssue } from '@/lib/trackerStorageStatus';
 
@@ -29,23 +34,48 @@ export function TrackerStorageNotice() {
   );
 }
 
+const BAR_H = 44;           // the inline nav bar (the notch inset is applied once by the root layout)
+const REVEAL_MAX = 10;      // only the first screenful animates in; anything below renders plainly (long lists never stall)
+
 export function TrackerScreen({ title, subtitle, children, scrollRef }: { title: string; subtitle?: string; children: React.ReactNode; scrollRef?: React.RefObject<ScrollView | null> }) {
   const [issue, setIssue] = useState<TrackerStorageIssue | null>(getTrackerStorageStatus());
   useEffect(() => subscribeTrackerStorageStatus(setIssue), []);
-  const insets = useSafeAreaInsets();       // the top inset is applied once by the root layout; the bottom one (home indicator) here
+  const insets = useSafeAreaInsets();       // the bottom one (home indicator) is applied here
+  const y = useSharedValue(0);
+  const onScroll = useAnimatedScrollHandler(e => { y.value = e.contentOffset.y; });
+  // the large title scrolls away; as it leaves, the small one fades into the bar and the bar's hairline appears
+  const inlineTitle = useAnimatedStyle(() => ({ opacity: interpolate(y.value, [28, 64], [0, 1], Extrapolation.CLAMP) }));
+  const hairline = useAnimatedStyle(() => ({ opacity: interpolate(y.value, [8, 40], [0, 1], Extrapolation.CLAMP) }));
+  const goBack = () => (router.canGoBack() ? router.back() : router.replace('/dashboard'));
+
+  const body = canRenderLoadedTrackerData(issue)
+    ? React.Children.toArray(children).map((c, i) => (i < REVEAL_MAX && React.isValidElement(c) ? <Reveal key={c.key ?? i} index={i + 1}>{c}</Reveal> : c))
+    : null;
+
   return (
-    <ScrollView ref={scrollRef} style={ui.root} contentContainerStyle={[ui.content, { paddingBottom: 80 + insets.bottom }]} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="on-drag" showsVerticalScrollIndicator={false}>
-      <View style={ui.header}>
-        <TouchableOpacity accessibilityRole="button" style={ui.backBtn} onPress={() => (router.canGoBack() ? router.back() : router.replace('/dashboard'))} hitSlop={12}>
-          <Text style={ui.back}>← Back</Text>
+    <View style={ui.root}>
+      <Animated.ScrollView ref={scrollRef as any} onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={[ui.content, { paddingTop: BAR_H + Spacing.sm, paddingBottom: 80 + insets.bottom }]}
+        keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets keyboardDismissMode="on-drag" showsVerticalScrollIndicator={false}>
+        <Reveal index={0}>
+          {/* a heading for screen readers; at large text a long title shrinks (native) or wraps at a word, and is capped at 1.4x, instead of breaking mid-word */}
+          <Text accessibilityRole="header" style={[Type.title1, { flexShrink: 1 }]} maxFontSizeMultiplier={1.4}>{title}</Text>
+          {subtitle ? <Text style={[Typography.caption, { marginTop: 4, marginBottom: Spacing.lg, lineHeight: 17 }]}>{subtitle}</Text> : <View style={{ height: Spacing.lg }} />}
+        </Reveal>
+        {issue && <TrackerStorageNotice />}
+        {body}
+      </Animated.ScrollView>
+
+      {/* the nav bar floats over the content on a blurred material, so what scrolls beneath it shows through */}
+      <Glass style={ui.bar} intensity={55}>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back" style={ui.backBtn} onPress={goBack} hitSlop={8} haptic="selection">
+          <Ionicons name="chevron-back" size={22} color={Colors.cyan} />
+          <Text style={ui.back}>Back</Text>
         </TouchableOpacity>
-      </View>
-      {/* a heading for screen readers; at large text a long title shrinks (native) or wraps at a word, and is capped at 1.4x, instead of breaking mid-word */}
-      <Text accessibilityRole="header" style={[Typography.h1, { flexShrink: 1 }]} maxFontSizeMultiplier={1.4}>{title}</Text>
-      {subtitle ? <Text style={[Typography.caption, { marginTop: 4, marginBottom: Spacing.lg, lineHeight: 17 }]}>{subtitle}</Text> : <View style={{ height: Spacing.lg }} />}
-      {issue && <TrackerStorageNotice />}
-      {canRenderLoadedTrackerData(issue) && children}
-    </ScrollView>
+        <Animated.Text accessibilityElementsHidden importantForAccessibility="no-hide-descendants" numberOfLines={1} style={[ui.barTitle, inlineTitle]}>{title}</Animated.Text>
+        <View style={{ width: 72 }} />
+        <Animated.View pointerEvents="none" style={[ui.hairline, hairline]} />
+      </Glass>
+    </View>
   );
 }
 
@@ -161,8 +191,11 @@ export const ui = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bg },
   content: { padding: Spacing.lg, paddingTop: Spacing.sm, paddingBottom: 80 },   // the notch inset is applied once by the root layout
   header: { marginBottom: Spacing.xs },
-  back: { color: Colors.cyan, fontSize: 14, fontWeight: '600' },
-  backBtn: { minHeight: 44, justifyContent: 'center', alignSelf: 'flex-start' },
+  back: { color: Colors.cyan, fontSize: 16, fontWeight: '500' },
+  backBtn: { minHeight: 44, minWidth: 72, flexDirection: 'row', alignItems: 'center', gap: 2, alignSelf: 'flex-start' },
+  bar: { position: 'absolute', top: 0, left: 0, right: 0, height: BAR_H, flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.sm, zIndex: 10 },
+  barTitle: { ...Type.headline, flex: 1, textAlign: 'center' },
+  hairline: { position: 'absolute', left: 0, right: 0, bottom: 0, height: StyleSheet.hairlineWidth, backgroundColor: 'rgba(255,255,255,0.18)' },
   card: { backgroundColor: Colors.surface, borderRadius: Radii.lg, borderWidth: 1, borderColor: Colors.border, padding: Spacing.md, marginBottom: Spacing.md, overflow: 'hidden' },
   navCard: { minHeight: 72, flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, backgroundColor: Colors.surface, borderRadius: Radii.lg, borderWidth: 1, paddingVertical: Spacing.md, paddingHorizontal: Spacing.md, marginBottom: Spacing.md },
   navTitle: { ...Typography.body, fontWeight: '700', marginBottom: 2 },

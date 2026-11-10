@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router } from 'expo-router';
 import { TrackerScreen, Card, SectionLabel } from '@/components/TrackerUI';
 import { AryaTabs } from '@/components/AryaTabs';
@@ -7,6 +8,7 @@ import { useAryaFacts } from '@/components/AryaFacts';
 import { upcomingWindows, heatmap } from '@/lib/aryaCal';
 import { inr } from '@/lib/aryaFacts';
 import { Colors, Spacing, Radii } from '@/constants/theme';
+import { SkeletonCard } from '@/components/ui/Skeleton';
 
 const LEVEL = ['rgba(255,255,255,0.07)', '#22D3A688', '#00D4FF88', '#F0A50088', '#FF6B3588', '#FF444488'];
 const BASIS = { recorded: 'Each day is compared with your recorded monthly spending divided by 30.', 'own-average': 'You have not recorded monthly spending, so each day is compared with your own average over the days you logged.', none: 'Nothing is logged yet.' } as const;
@@ -18,7 +20,7 @@ export default function AryaCal() {
   return (
     <TrackerScreen title="Cal" subtitle="What falls due, and how your logged spending looked over the last 26 weeks.">
       <AryaTabs current="cal" />
-      {!facts && !failed ? <ActivityIndicator color={Colors.cyan} /> : null}
+      {!facts && !failed ? <SkeletonCard lines={4} /> : null}
       {failed ? <Card><Text style={s.body}>I could not read your records just now.</Text></Card> : null}
       {facts ? (
         <>

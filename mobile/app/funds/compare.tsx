@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router, useFocusEffect } from 'expo-router';
 import { TrackerScreen, Card, SectionLabel } from '@/components/TrackerUI';
 import { PlanBadges } from '@/components/FundUI';
@@ -8,6 +9,7 @@ import { fundsApi } from '@/lib/fundsApi';
 import { clearTray, loadRecent, loadTray, toggleInTray } from '@/lib/fundsStorage';
 import { type FundHoldingFact, type FundRecord, compareFunds } from '@/lib/funds';
 import { getState, init } from '@/lib/holdingsStore';
+import { SkeletonRows } from '@/components/ui/Skeleton';
 
 interface Loaded { rec: FundRecord; stale: boolean }
 
@@ -48,7 +50,7 @@ export default function FundCompare() {
 
   return (
     <TrackerScreen title="Compare funds" subtitle="Up to three funds side by side, as facts from the AMFI feed. No score, no ranking.">
-      {items === null ? <View style={{ padding: Spacing.xl }}><ActivityIndicator color={Colors.cyan} /></View> : null}
+      {items === null ? <SkeletonRows count={3} /> : null}
 
       {items && items.length === 0 ? (
         <Card><Text style={s.body}>Nothing chosen yet. Open a fund and tap "+ Compare" (up to three).</Text>

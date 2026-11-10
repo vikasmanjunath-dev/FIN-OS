@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { layoutTwoLevel, tileFill, type TreeGroup, type PlacedLeaf } from '@/lib/portfolioTreemap';
 import { Colors, Typography } from '@/constants/theme';
 

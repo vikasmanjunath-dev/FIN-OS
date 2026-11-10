@@ -1771,5 +1771,9 @@ export const HI: Table = {
   'Apex Cognitive Architectures | Deep Dive': 'एपेक्स कॉग्निटिव आर्किटेक्चर | गहराई',
   'Trading Simulator | India\'s First Thinking Trading OS': 'ट्रेडिंग सिमुलेटर | भारत का पहला सोचने वाला ट्रेडिंग OS',
   'Not on the phone (closest tool below)': 'फ़ोन पर नहीं (सबसे पास का टूल नीचे)',
+  '🧠 Quick review': '🧠 झटपट दोहराव',
+  'Five questions from reels you have already answered, spaced so they stick: right answers come back later, missed ones tomorrow.': 'उन रीलों के पाँच सवाल जो आप पहले हल कर चुके हैं, ऐसे अंतराल पर कि याद रहें: सही जवाब देर से लौटते हैं, छूटे हुए कल।',
+  '📝 Weekly money review': '📝 हफ़्ते की पैसों की समीक्षा',
+  'Three short lines for yourself: a win, a gap and one move for next week. Kept on this phone.': 'अपने लिए तीन छोटी पंक्तियाँ: एक जीत, एक कमी और अगले हफ़्ते का एक काम। यह इसी फ़ोन पर रहती हैं।',
   // ── end of reels screens block
 };

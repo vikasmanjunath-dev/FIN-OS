@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { MarketScreen, KV } from '@/components/MarketUI';
 import { Card, SectionLabel, inr, inrShort } from '@/components/TrackerUI';
 import { CalcField, toNum } from '@/components/CalcUI';

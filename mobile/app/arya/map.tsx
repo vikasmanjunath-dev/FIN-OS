@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { Tap, TouchableOpacity } from '@/components/ui/Tap';
 import { router } from 'expo-router';
 import { TrackerScreen, Card, SectionLabel } from '@/components/TrackerUI';
 import { AryaTabs } from '@/components/AryaTabs';
@@ -7,6 +8,7 @@ import { useAryaFacts } from '@/components/AryaFacts';
 import { allocation, branches } from '@/lib/aryaMap';
 import { inrShort } from '@/lib/aryaFacts';
 import { Colors, Spacing, Radii } from '@/constants/theme';
+import { SkeletonCard } from '@/components/ui/Skeleton';
 
 export default function AryaMap() {
   const { facts, failed } = useAryaFacts();
@@ -16,7 +18,7 @@ export default function AryaMap() {
   return (
     <TrackerScreen title="Map" subtitle="Where your money sits, and eight areas of your finances, from your own records. Nothing here is compared with an ideal mix or with other people.">
       <AryaTabs current="map" />
-      {!facts && !failed ? <ActivityIndicator color={Colors.cyan} /> : null}
+      {!facts && !failed ? <SkeletonCard lines={4} /> : null}
       {failed ? <Card><Text style={s.body}>I could not read your records just now.</Text></Card> : null}
       {facts ? (
         <>
@@ -35,9 +37,9 @@ export default function AryaMap() {
           <SectionLabel>EIGHT AREAS</SectionLabel>
           {bs.map(b => (
             <Card key={b.id}>
-              <Pressable accessibilityRole="button" accessibilityState={{ expanded: open === b.id }} accessibilityLabel={`${b.label}: ${b.headline}`} onPress={() => setOpen(open === b.id ? null : b.id)}>
+              <Tap accessibilityRole="button" accessibilityState={{ expanded: open === b.id }} accessibilityLabel={`${b.label}: ${b.headline}`} onPress={() => setOpen(open === b.id ? null : b.id)}>
                 <View style={s.top}><Text style={s.t}>{b.icon} {b.label}</Text><Text style={s.head}>{b.headline}</Text></View>
-              </Pressable>
+              </Tap>
               {open === b.id ? (
                 <View>
                   {b.rows.length === 0 ? <Text style={s.body}>Nothing recorded.</Text> : b.rows.map(r => <View key={r.label} style={s.row}><Text style={s.lbl}>{r.label}</Text><Text style={s.val}>{r.value}</Text></View>)}

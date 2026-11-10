@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { Stack, router, usePathname } from 'expo-router';
+import { ToastProvider } from '@/components/ui/Toast';
+import { Stack, router, usePathname, ThemeProvider, DarkTheme, DefaultTheme } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { AppState, View } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,6 +18,7 @@ import { syncReminders } from '@/lib/remindersStorage';
 import { syncReelReminders } from '@/lib/reelRemindersStorage';
 import { startNotificationTaps } from '@/lib/notificationTaps';
 import { installThemePatch, loadTheme, useMode } from '@/lib/theme';
+import { LIGHT_BG, LIGHT_SURFACE } from '@/lib/themeCore';
 import { LockGate } from '@/components/LockGate';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { installCrashHandlers, setCurrentScreen } from '@/lib/diagnosticsStorage';
@@ -39,6 +41,11 @@ function Shell({ children }: { children: React.ReactNode }) {
 
 export default function RootLayout() {
   const mode = useMode();
+  // The navigator paints its own background behind every screen (visible during slide / swipe-back); it must match the app in both modes.
+  const navTheme = React.useMemo(() => {
+    const light = mode === 'light', base = light ? DefaultTheme : DarkTheme;
+    return { ...base, colors: { ...base.colors, background: light ? LIGHT_BG : Colors.bg, card: light ? LIGHT_SURFACE : Colors.surface, text: light ? '#0F172A' : Colors.textPrimary, border: light ? 'rgba(15,23,42,0.10)' : Colors.border, primary: light ? '#0A6FB0' : Colors.cyan } };
+  }, [mode]);
   const epoch = useEraseEpoch();          // bumps after "delete everything": the navigator below is rebuilt from empty storage
   const pathname = usePathname();
   useEffect(() => {
@@ -69,9 +76,11 @@ export default function RootLayout() {
     <SafeAreaProvider>
     <Shell>
       <StatusBar style={mode === 'light' ? 'dark' : 'light'} />
+      <ToastProvider>
       <LockGate>
       <AuthProvider>
       <ErrorBoundary>
+      <ThemeProvider value={navTheme}>
       <Stack key={epoch} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Colors.bg } }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="settings" options={{ presentation: 'modal', headerShown: false }} />
@@ -84,9 +93,11 @@ export default function RootLayout() {
         <Stack.Screen name="diagnostics" options={{ presentation: 'modal', headerShown: false }} />
         <Stack.Screen name="onboarding/welcome" options={{ headerShown: false }} />
       </Stack>
+      </ThemeProvider>
       </ErrorBoundary>
       </AuthProvider>
       </LockGate>
+      </ToastProvider>
     </Shell>
     </SafeAreaProvider>
   );

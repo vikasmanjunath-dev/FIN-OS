@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { loadPortfolioHistory, type HistoryLoad } from '@/lib/portfolioApi';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, View } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router } from 'expo-router';
 import { Card } from '@/components/TrackerUI';
 import { Colors, Spacing, Typography } from '@/constants/theme';

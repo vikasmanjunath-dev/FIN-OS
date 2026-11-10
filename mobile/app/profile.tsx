@@ -1,13 +1,16 @@
 import React, { useCallback, useState } from 'react';
-import { Text, TouchableOpacity, StyleSheet, View } from 'react-native';
+import { Text, StyleSheet, View } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { useFocusEffect } from 'expo-router';
 import { TrackerScreen, Card } from '@/components/TrackerUI';
 import { CalcField, Collapsible, Bullet } from '@/components/CalcUI';
 import { EMPTY_PROFILE, USED_FOR, completeness, validate, type Profile } from '@/lib/profile';
 import { loadProfile, saveProfile } from '@/lib/profileStorage';
 import { Colors, Spacing, Typography } from '@/constants/theme';
+import { useToast } from '@/components/ui/Toast';
 
 export default function ProfileScreen() {
+  const toast = useToast();
   const [p, setP] = useState<Profile>(EMPTY_PROFILE);
   const [errors, setErrors] = useState<Partial<Record<keyof Profile, string>>>({});
   const [saved, setSaved] = useState(false);
@@ -22,6 +25,7 @@ export default function ProfileScreen() {
     await saveProfile(c.clean);
     setP(c.clean);
     setSaved(true);
+    toast.show({ text: 'Profile saved', tone: 'success' });
   };
 
   return (

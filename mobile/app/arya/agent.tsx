@@ -1,5 +1,6 @@
 import React, { useCallback, useState, useSyncExternalStore } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Pressable, StyleSheet } from 'react-native';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { Tap, TouchableOpacity } from '@/components/ui/Tap';
 import { router, useFocusEffect } from 'expo-router';
 import { TrackerScreen, Card, SectionLabel } from '@/components/TrackerUI';
 import { AryaTabs } from '@/components/AryaTabs';
@@ -48,9 +49,9 @@ export default function AryaAgent() {
     <TrackerScreen title="Agent" subtitle="Arya can use tools: read your records on this phone, run a calculator, or look up a public price. Every call is listed here and under the answer, with what it was given, what left the phone, and when.">
       <AryaTabs current="agent" />
       <Card accent={prefs.tools ? Colors.teal : Colors.gold}>
-        <Pressable accessibilityRole="switch" accessibilityState={{ checked: prefs.tools }} accessibilityLabel="Allow Arya to use tools" onPress={() => set({ tools: !prefs.tools })} style={s.sw}>
+        <Tap accessibilityRole="switch" accessibilityState={{ checked: prefs.tools }} accessibilityLabel="Allow Arya to use tools" onPress={() => set({ tools: !prefs.tools })} style={s.sw}>
           <Text style={s.t}>Tools {prefs.tools ? 'are on' : 'are off'}</Text><Text style={s.link}>{prefs.tools ? 'Turn off' : 'Turn on'}</Text>
-        </Pressable>
+        </Tap>
         <Text style={s.body}>{prefs.tools ? 'Arya may call the tools below. Off means Arya answers in words only and never reads your records or looks anything up.' : 'Arya will not read your records or look anything up. Questions go to the online model (if allowed) as plain chat.'}</Text>
         <Text style={s.body}>Public price lookups also need the online switch ({prefs.online ? 'on' : 'off'}) in What Arya remembers.</Text>
       </Card>

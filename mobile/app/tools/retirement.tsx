@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { TrackerScreen, Card, SectionLabel, Bar, inr, inrShort } from '@/components/TrackerUI';
 import { CalcField, Collapsible, Bullet } from '@/components/CalcUI';
 import { FanChart } from '@/components/FanChart';
@@ -7,6 +8,7 @@ import { simulate, solveContribution } from '@/lib/montecarlo';
 import { computePlan, mcConfig, verdictFor, type Plan } from '@/lib/retirementPlan';
 import { loadRetirementStore, saveRetirementInput, persistRetirementOutputs } from '@/lib/retirementStorage';
 import { Colors, Spacing, Radii, Typography, Btn } from '@/constants/theme';
+import { SkeletonCard } from '@/components/ui/Skeleton';
 
 const TONE = { good: Colors.teal, warn: Colors.gold, bad: Colors.red } as const;
 
@@ -74,7 +76,7 @@ export default function RetirementScreen() {
     }, 30);
   };
 
-  if (!store || !plan) return <TrackerScreen title="Retirement planner" subtitle="Loading what you already track…"><ActivityIndicator color={Colors.cyan} /></TrackerScreen>;
+  if (!store || !plan) return <TrackerScreen title="Retirement planner" subtitle="Loading what you already track…"><SkeletonCard lines={4} /><SkeletonCard lines={3} /></TrackerScreen>;
 
   const surplus = plan.corpusGap <= 0;
   const covered = Math.max(0, Math.min(100, plan.requiredCorpus > 0 ? (plan.totalCorpus / plan.requiredCorpus) * 100 : 0));

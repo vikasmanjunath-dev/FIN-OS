@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Share, Platform } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Share, Platform } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { translate, useLang } from '@/lib/i18n';
 import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
 

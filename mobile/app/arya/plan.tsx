@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router } from 'expo-router';
 import { TrackerScreen, Card, SectionLabel, Bar } from '@/components/TrackerUI';
 import { AryaTabs } from '@/components/AryaTabs';
@@ -7,6 +8,7 @@ import { useAryaFacts } from '@/components/AryaFacts';
 import { planSteps, nextStep, goalsWithReturn, type StepStatus } from '@/lib/aryaPlan';
 import { inr } from '@/lib/aryaFacts';
 import { Colors, Spacing, Radii } from '@/constants/theme';
+import { SkeletonCard } from '@/components/ui/Skeleton';
 
 const TONE: Record<StepStatus, string> = { done: Colors.teal, progress: Colors.cyan, todo: Colors.gold, unknown: Colors.textMuted, na: Colors.textMuted };
 const WORD: Record<StepStatus, string> = { done: 'In place', progress: 'In progress', todo: 'Not yet', unknown: 'Needs a figure', na: 'May not apply' };
@@ -22,7 +24,7 @@ export default function AryaPlan() {
   return (
     <TrackerScreen title="Plan" subtitle="Your money steps, with a status worked out only from what you recorded. A step that needs a figure you have not recorded says so; nothing is assumed. Estimates for planning, not advice.">
       <AryaTabs current="plan" />
-      {!facts && !failed ? <ActivityIndicator color={Colors.cyan} /> : null}
+      {!facts && !failed ? <SkeletonCard lines={4} /> : null}
       {failed ? <Card><Text style={s.body}>I could not read your records just now. Open this screen again.</Text></Card> : null}
       {next ? <Card accent={Colors.purple}><Text style={s.k}>START HERE</Text><Text style={s.t}>{next.icon} {next.title}</Text><Text style={s.body}>{next.stat}. {next.detail}</Text></Card> : null}
       {steps.map(st => (
