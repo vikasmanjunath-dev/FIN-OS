@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router, useFocusEffect } from 'expo-router';
 import { Bar, Card, TrackerScreen } from '@/components/TrackerUI';
 import { LIBRARY, libraryById } from '@/lib/reels/library';

@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router, useFocusEffect } from 'expo-router';
 import { TrackerScreen, Card, SectionLabel, Bar, NavCard } from '@/components/TrackerUI';
 import { LText } from '@/components/LearnBlocks';
@@ -17,6 +18,8 @@ const BODIES: Record<string, string> = Object.fromEntries(Object.entries(LESSONS
 const CARDS: { title: string; sub: string; accent: string; href: string }[] = [
   { title: '🎬 Money reels', sub: 'Short animated lessons with Mitra the owl: SIP, inflation, EMI and more. 30 seconds each, with a quick question.', accent: Colors.purple, href: '/learn/reels' },
   { title: '🗺️ Money Map', sub: 'Nine topics by four rungs: myth, concept, decision, action. See where you are strong and what to watch next.', accent: Colors.teal, href: '/learn/map' },
+  { title: '🧠 Quick review', sub: 'Five questions from reels you have already answered, spaced so they stick: right answers come back later, missed ones tomorrow.', accent: Colors.purple, href: '/learn/review' },
+  { title: '📝 Weekly money review', sub: 'Three short lines for yourself: a win, a gap and one move for next week. Kept on this phone.', accent: Colors.teal, href: '/learn/weekly' },
   { title: '📌 My moves', sub: 'What you said you would do after a reel, how each one stands, and the reels you kept for later. All on this phone.', accent: Colors.gold, href: '/learn/moves' },
   { title: '✅ 7-day challenges', sub: 'One small task a day: find your money leak, or scam-proof your phone. You tick each one; a missed day costs nothing.', accent: Colors.cyan, href: '/learn/challenges' },
   { title: '🔊 Reel voice', sub: 'Pick a voice, speed and style for the reels, and hear a sample with the words lighting up in time.', accent: Colors.cyan, href: '/learn/voice' },

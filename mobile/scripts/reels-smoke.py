@@ -461,6 +461,8 @@ ROUTE_SCREENS = [
     ('Money Map', '/learn/map', {'en': 'Money Map', 'hi': 'मनी मैप'}),
     ('Story series', '/learn/series', {'en': 'Story series', 'hi': 'कहानी'}),
     ('Series: First Salary', '/learn/series/first-salary', {'en': 'First Salary', 'hi': '.'}),
+    ('Quick review', '/learn/review', {'en': 'Quick review', 'hi': 'झटपट दोहराव'}),
+    ('Weekly money review', '/learn/weekly', {'en': 'Weekly money review', 'hi': 'हफ़्ते की पैसों की समीक्षा'}),
     ('Reels health', '/learn/health', {'en': 'Reels health', 'hi': 'रील'}),
     ('What the reels know', '/learn/reels-data', {'en': 'What the reels know about you', 'hi': 'रील.*आपके बारे'}),
     ('Diagnostics', '/diagnostics', {'en': 'Diagnostics', 'hi': 'डायग्नॉस्टिक्स|डायग्नोस्टिक|Diagnostics'}),

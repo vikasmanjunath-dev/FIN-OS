@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { Bar, Card, TrackerScreen } from '@/components/TrackerUI';
 import { Cast, CAST_IDS, type CastId } from '@/components/reels/Cast';

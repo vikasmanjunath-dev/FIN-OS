@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { Card, TrackerScreen } from '@/components/TrackerUI';
 import { Caption } from '@/components/reels/Caption';
 import { applyVoicePrefs, listVoices, speakScene, stopSpeaking } from '@/lib/reels/speech';
@@ -57,6 +58,11 @@ export default function VoiceScreen() {
         <Text style={Typography.label}>{hi ? 'गति' : 'SPEED'}</Text>
         <View style={s.chips}>{SPEEDS.map(sp => <TouchableOpacity key={sp.value} accessibilityRole="button" accessibilityState={{ selected: prefs.speed === sp.value }} style={[s.chip, prefs.speed === sp.value && s.chipOn]} onPress={() => update({ ...prefs, speed: sp.value })}><Text style={[s.chipTxt, prefs.speed === sp.value && s.chipTxtOn]}>{hi ? sp.hi : sp.label}</Text></TouchableOpacity>)}</View>
         <Text style={[Typography.caption, { marginTop: 6 }]}>{hi ? `पहला नमूना इस गति पर लगभग ${Math.round(est / 1000)} सेकंड का है। रील की हर सीन आवाज़ के हिसाब से लंबी होती है।` : `The first sample takes about ${Math.round(est / 1000)} seconds at this speed. Each scene lasts as long as the voice needs.`}</Text>
+        <Text style={Typography.label}>{hi ? 'आवाज़ का स्रोत' : 'VOICE SOURCE'}</Text>
+        <View style={s.chips}>
+          {(['recorded', 'phone'] as const).map(src => <TouchableOpacity key={src} accessibilityRole="button" accessibilityState={{ selected: prefs.source === src }} style={[s.chip, prefs.source === src && s.chipOn]} onPress={() => update({ ...prefs, source: src })}><Text style={[s.chipTxt, prefs.source === src && s.chipTxtOn]}>{src === 'recorded' ? (hi ? 'रिकॉर्ड की हुई' : 'Recorded') : (hi ? 'फ़ोन की आवाज़' : 'Phone voice')}</Text></TouchableOpacity>)}
+        </View>
+        <Text style={[Typography.caption, { marginTop: 6 }]}>{hi ? 'रिकॉर्ड की हुई आवाज़ टेक्स्ट के साथ ठीक तालमेल में चलती है। फ़ोन की आवाज़ आपके फ़ोन की अपनी आवाज़ें इस्तेमाल करती है और नीचे की सेटिंग मानती है।' : 'The recorded voice stays exactly in step with the text. The phone voice uses your phone\'s own voices and follows the settings below.'}</Text>
         <Text style={[Typography.label, { marginTop: Spacing.md }]}>{hi ? 'अंदाज़' : 'STYLE'}</Text>
         <View style={s.chips}>
           {(['expressive', 'steady'] as const).map(st => <TouchableOpacity key={st} accessibilityRole="button" accessibilityState={{ selected: prefs.style === st }} style={[s.chip, prefs.style === st && s.chipOn]} onPress={() => update({ ...prefs, style: st })}><Text style={[s.chipTxt, prefs.style === st && s.chipTxtOn]}>{st === 'expressive' ? (hi ? 'भावपूर्ण' : 'Expressive') : (hi ? 'सधी हुई' : 'Steady')}</Text></TouchableOpacity>)}

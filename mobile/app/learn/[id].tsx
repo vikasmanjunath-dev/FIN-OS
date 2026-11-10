@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
-import { Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Text, StyleSheet } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { TrackerScreen, Card } from '@/components/TrackerUI';
 import { LText, LessonBody, LessonNotes, ReviewBanner, StubView } from '@/components/LearnBlocks';

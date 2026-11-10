@@ -10,10 +10,10 @@ As of **24 Oct 2026**. Every number below was produced from the code that day (`
 |---|---|
 | Live reels | **177** in 9 topics (investing 30, scams 31, goals 21, tax 19, loans 18, protection 17, basics 16, retirement 14, credit 11) |
 | With something to do (a beat) | 71 (slider 16, spot-the-scam 15, myth 12, guess 10, sort 7, path 6, order 5); 106 are explainers |
-| Drafts held out of the app | **50** (wave 4), plus 2 draft series; out until `lib/reels/review.ts` `REVIEWED` has them |
+| Drafts held out of the app | **90** (50 in wave 4, 8 in each of waves 5 to 9; wave 9 is eight spot-the-scam reels (policy lapse, admission seat, scratch card, wedding file, fake trading app, pension call, card upgrade call, relief appeal); wave 8 was (choose-your-path: first salary, friend loan, KYC text, agent promise, card gift, EPF on job change, market fall, March tax rush); wave 7 was (four sort decks and four put-in-order sequences); wave 6 was (myth decks: health cover, term cover, emergency fund, home loan, tax filing, retirement number, child education, clearing debt); wave 5 was: scams concept/decision/action, first SIP, EPF check, three credit explainers), plus 2 draft series; out until `lib/reels/review.ts` `REVIEWED` has them |
 | Own-figure ("Your Number") reels | 17 |
 | Story series live / challenges / facts / cast | 6 / 8 / 23 / 14 figures |
-| Ladder (myth / concept / decision / action) | 45 / 59 / 51 / 22. Empty cells: Goals-Myth, Scams-Decision |
+| Ladder (myth / concept / decision / action) | 45 / 59 / 51 / 22. No empty cells now (thin: Invest-Action 1, Retire-Action 1, Safety-Concept 1) |
 | Library QA | 163 of 177 clean, 0 blocking, 15 warnings (judgement calls), 1 known (quiz answers skew to option 1 in storage; the feed shuffles) |
 | Size | largest reel 4.3 KB (budget 30 KB); library 422 KB as JSON; web data 672 KB raw / 169 KB gzipped (budget 720 / 190) |
 | Tests | mobile `npm test`: **1,567 pass, 0 fail**; web `tests/reels-web.test.js`: 21 pass; `typecheck` and `lint` clean |
@@ -84,3 +84,9 @@ Status words: **built-tested** = logic and screens covered by tests and a web-pr
 - Two tests pin text in `docs/REELS.md` (`Challenges v2`, `suggestChallenge`, `Your Number, wave 2` plus the 17 ids), so the guide keeps those strings.
 - `reels:smoke` does not exist as an npm script; smoke and layout audits are Python tools (`scripts/smoke-routes.py`, `scripts/layout-audit.py`).
 - Tax reels' figure caveats (unstated assumptions, rounding) are listed but the content was not edited (`mobile/docs/REELS-FIGURE-FINDINGS.md`).
+
+
+## Added since this page was written
+
+- Recorded voice for every reel in both languages (Mac voices, 48 MB), a Recorded / Phone voice setting, spaced review with Quick review and a weekly money review, quiz options scrambled per reel. Details: `docs/reels/voice.md`, `docs/reels/learning.md`.
+- Still needs a person or an account: hearing and approving the voice, a studio voice (Google or ElevenLabs key, or allowing the Piper install), a phone build for the audio package.

@@ -3,6 +3,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getText, parseJSON, isPlainObject } from '@/lib/safeStore';
 import { cleanDays, dayKey, type Watched } from '@/lib/reels/journey';
+import { nextStage } from '@/lib/reels/spaced';
 export type { Watched };
 
 export const REELS_KEY = 'finos_reels_watched';
@@ -13,8 +14,8 @@ export function parseWatched(raw: string | null | undefined): Watched {
   const out: Watched = {};
   for (const [id, v] of Object.entries(p.value as Record<string, unknown>)) {
     if (!/^[a-z0-9-]{1,40}$/.test(id) || !isPlainObject(v)) continue;
-    const r = v as { at?: unknown; correct?: unknown };
-    if (typeof r.at === 'string' && r.at.length <= 40) out[id] = { at: r.at, correct: r.correct === true };
+    const r = v as { at?: unknown; correct?: unknown; n?: unknown };
+    if (typeof r.at === 'string' && r.at.length <= 40) out[id] = { at: r.at, correct: r.correct === true, ...(typeof r.n === 'number' && Number.isInteger(r.n) && r.n >= 0 && r.n <= 4 ? { n: r.n } : {}) };
   }
   return out;
 }
@@ -28,7 +29,7 @@ const serial = <T,>(fn: () => Promise<T>): Promise<T> => { const run = queue.the
 /** Records a finished reel. A right answer is never turned back into a wrong one by watching again. */
 export const recordWatched = (id: string, correct: boolean, now: Date = new Date()): Promise<Watched> => serial(async () => {
   const all = await loadWatched();
-  all[id] = { at: now.toISOString(), correct: correct || all[id]?.correct === true };
+  all[id] = { at: now.toISOString(), correct: correct || all[id]?.correct === true, n: nextStage(all[id], correct) };
   try { await AsyncStorage.setItem(REELS_KEY, JSON.stringify(all)); } catch { /* the tick is only a convenience */ }
   await addDay(now);
   return all;

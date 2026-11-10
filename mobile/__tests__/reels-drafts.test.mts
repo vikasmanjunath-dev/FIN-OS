@@ -17,8 +17,8 @@ import fs from 'node:fs';
 
 const root = path.join(import.meta.dirname, '..');
 
-test('drafts: 50 of them, unique, and every one passes the script rules in both languages', () => {
-  assert.equal(DRAFT_REELS.length, 50); assert.equal(DRAFT_IDS.size, 50);
+test('drafts: 90 of them, unique, and every one passes the script rules in both languages', () => {
+  assert.equal(DRAFT_REELS.length, 90); assert.equal(DRAFT_IDS.size, 90);
   assert.deepEqual(DRAFT_REELS.flatMap(validateReel), []);
   for (const r of DRAFT_REELS) assert.ok(!REELS.slice(0, REELS.length).some(x => x.id === r.id) || isLive(r.id), `${r.id} is live without a sign-off`);
 });

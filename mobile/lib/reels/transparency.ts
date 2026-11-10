@@ -31,7 +31,7 @@ export const PART_KEYS: Record<PartId, string[]> = {
   moves: ['finos_session_reels_moves'],
   watched: ['finos_reels_watched', 'finos_reels_days'],
   stats: ['finos_session_reels_stats'],
-  challenges: ['finos_session_reels_challenges'],
+  challenges: ['finos_session_reels_challenges', 'finos_session_reels_weekly'],
   reminders: ['finos_session_reels_nudge', 'finos_session_reels_reminders', 'finos_session_reels_notify'],
   voice: ['finos_session_reels_voice'],
 };

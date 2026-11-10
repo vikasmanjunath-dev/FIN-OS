@@ -42,6 +42,7 @@ export const GLOSSARY: Term[] = [
   A('CVV', 'Card Verification Value', ['सीवीवी']),
   A('KYC', 'Know Your Customer', ['केवाईसी']),
   A('UPI', 'Unified Payments Interface', ['यूपीआई']),
+  A('UAN', 'Universal Account Number (EPFO)', ['यूएएन']),
   A('FD', 'Fixed Deposit', ['एफडी', 'एफ़डी'], 'The app prints FD. "फिक्स्ड डिपॉज़िट" is allowed only where the reel is explaining what an FD is.'),
   A('PPF', 'Public Provident Fund', ['पीपीएफ']),
   A('EPF', 'Employees’ Provident Fund', ['ईपीएफ']),

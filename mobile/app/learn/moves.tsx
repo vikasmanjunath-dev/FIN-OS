@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router } from 'expo-router';
 import { Card, SectionLabel, TrackerScreen } from '@/components/TrackerUI';
 import { ACT_ALL, LIBRARY } from '@/lib/reels/library';
@@ -76,11 +77,11 @@ export default function MyMoves() {
 }
 
 const s = StyleSheet.create({
-  title: { color: '#fff', fontSize: 16, fontWeight: '800' },
+  title: { color: Colors.textPrimary, fontSize: 16, fontWeight: '800' },
   status: { color: Colors.textMuted, fontSize: 13, marginTop: 4 },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginTop: Spacing.sm },
   primary: { minHeight: 44, maxWidth: '100%', borderRadius: Radii.md, backgroundColor: Colors.cyan, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.md, paddingVertical: 8 },
   primaryTxt: { color: '#000', fontSize: 14, fontWeight: '900', flexShrink: 1, textAlign: 'center' },
   ghost: { minHeight: 44, maxWidth: '100%', borderRadius: Radii.md, borderWidth: 1, borderColor: Colors.borderHi, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.md, paddingVertical: 8 },
-  ghostTxt: { color: '#fff', fontSize: 14, fontWeight: '700', flexShrink: 1, textAlign: 'center' },
+  ghostTxt: { color: Colors.textPrimary, fontSize: 14, fontWeight: '700', flexShrink: 1, textAlign: 'center' },
 });

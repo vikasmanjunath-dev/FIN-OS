@@ -58,11 +58,11 @@ for (const file of FILES) {
   });
 }
 
-// ── Learn index: the seven reels cards ─────────────────────────────────────────────────────────────────────────
-test('Learn index: the seven reels cards (title and body) are in the Hindi table, and nothing is left in English in their Hindi', () => {
+// ── Learn index: the nine reels cards ─────────────────────────────────────────────────────────────────────────
+test('Learn index: the nine reels cards (title and body) are in the Hindi table, and nothing is left in English in their Hindi', () => {
   const src = read('app/learn/index.tsx');
   const cards = [...src.matchAll(/\{ title: '([^']+)', sub: '([^']+)'/g)];
-  assert.equal(cards.length, 7, 'seven product cards');
+  assert.equal(cards.length, 9, 'nine product cards');
   for (const [, title, sub] of cards) {
     for (const s of [title, sub]) {
       const hi = lookup(s, HI, 'hi');

@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { router, useFocusEffect } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { Card, TrackerScreen } from '@/components/TrackerUI';
@@ -66,15 +67,15 @@ export default function Challenges() {
 }
 
 const s = StyleSheet.create({
-  title: { color: '#fff', fontSize: 17, fontWeight: '900', marginBottom: 2 },
+  title: { color: Colors.textPrimary, fontSize: 17, fontWeight: '900', marginBottom: 2 },
   dots: { flexDirection: 'row', gap: 6, marginTop: Spacing.sm },
   dot: { flex: 1, height: 8, borderRadius: 4, backgroundColor: 'rgba(255,255,255,0.14)' },
   dotOn: { backgroundColor: Colors.teal },
   dotNow: { backgroundColor: Colors.cyan },
   task: { marginTop: Spacing.md },
   taskTag: { color: Colors.cyan, fontSize: 11, fontWeight: '800', letterSpacing: 1 },
-  taskTitle: { color: '#fff', fontSize: 16, fontWeight: '800', marginTop: 2 },
-  taskBody: { color: '#D8DEEC', fontSize: 14, lineHeight: 20, marginTop: 4 },
+  taskTitle: { color: Colors.textPrimary, fontSize: 16, fontWeight: '800', marginTop: 2 },
+  taskBody: { color: Colors.textPrimary, fontSize: 14, lineHeight: 20, marginTop: 4 },
   primary: { minHeight: 48, borderRadius: Radii.md, backgroundColor: Colors.cyan, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md, paddingHorizontal: Spacing.md },
   primaryTxt: { color: '#000', fontWeight: '900', fontSize: 15 },
   ghost: { minHeight: 44, borderRadius: Radii.md, borderWidth: 1, borderColor: Colors.cyan + '66', alignItems: 'center', justifyContent: 'center', marginTop: Spacing.sm, paddingHorizontal: Spacing.md },

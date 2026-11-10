@@ -2,7 +2,7 @@
 // watched record, the saved Money Score and a date, so every rule is testable and nothing here needs a server.
 import type { L, Reel } from '@/lib/reels/types';
 
-export type Watched = Record<string, { at: string; correct: boolean }>;
+export type Watched = Record<string, { at: string; correct: boolean; /** consecutive right answers, 0 to 4 (see spaced.ts); absent on older data */ n?: number }>;
 export type PillarId = 'savings' | 'emergency' | 'insurance' | 'debt' | 'investing' | 'wealth';
 
 const DAY = 86_400_000;

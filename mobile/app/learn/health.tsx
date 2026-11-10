@@ -1,8 +1,12 @@
 import React, { useCallback, useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
+import { TouchableOpacity } from '@/components/ui/Tap';
 import { useFocusEffect } from 'expo-router';
 import { Card, SectionLabel, TrackerScreen } from '@/components/TrackerUI';
 import { clearStats, loadStats } from '@/lib/reelsStatsStorage';
+import { loadWatched } from '@/lib/reelsStorage';
+import { stageCounts } from '@/lib/reels/spaced';
+import type { Watched } from '@/lib/reels/journey';
 import { EMPTY_STATS, HYPOTHESES, healthOf, type Health, type StatsState } from '@/lib/reels/stats';
 import { useLang } from '@/lib/i18n';
 import { Colors, Radii, Spacing, Typography } from '@/constants/theme';
@@ -14,7 +18,8 @@ const num = (v: number | null, d = 0) => (v === null ? '–' : (Math.round(v * 1
 export default function ReelsHealth() {
   const lang = useLang(), hi = lang === 'hi';
   const [state, setState] = useState<StatsState>(EMPTY_STATS);
-  useFocusEffect(useCallback(() => { let live = true; loadStats().then(s => { if (live) setState(s); }); return () => { live = false; }; }, []));
+  const [watched, setWatched] = useState<Watched>({});
+  useFocusEffect(useCallback(() => { let live = true; loadStats().then(s => { if (live) setState(s); }); loadWatched().then(w => { if (live) setWatched(w); }); return () => { live = false; }; }, []));
   const h: Health = healthOf(state, new Date());
 
   const rows: { label: string; value: string; target?: { en: string; hi: string }; ok?: boolean }[] = [
@@ -25,6 +30,7 @@ export default function ReelsHealth() {
     { label: hi ? 'इंटरैक्टिव हिस्से में भागीदारी' : 'Played with the interactive part', value: pct(h.pokeRate) },
     { label: hi ? 'हर 100 रीलों पर शुरू किए काम' : 'Moves started per 100 reels', value: num(h.movesPer100), target: HYPOTHESES.movesPer100, ok: h.movesPer100 === null ? undefined : HYPOTHESES.movesPer100.ok(h.movesPer100) },
     { label: hi ? 'हर 100 रीलों पर “मैं यह करूँगा”' : '“I’ll do this” per 100 reels', value: num(h.pledgesPer100) },
+    { label: hi ? 'दोहराव के चरण (1, 3, 7, 21, 60 दिन)' : 'Reels by review stage (1, 3, 7, 21, 60 days)', value: stageCounts(watched).join(' · ') },
     { label: hi ? 'नतीजे की रसीदें' : 'Receipts earned', value: String(h.receipts) },
     { label: hi ? '“पता है” / “कम” हर 100 पर' : '“I know this” and “less” per 100 reels', value: num(h.steeringPer100), target: HYPOTHESES.steeringPer100, ok: h.steeringPer100 === null ? undefined : HYPOTHESES.steeringPer100.ok(h.steeringPer100) },
     { label: hi ? 'रोज़ के मिनट (मध्यिका)' : 'Minutes a day (median)', value: num(h.medianMinutes, 1), target: HYPOTHESES.medianMinutes, ok: h.medianMinutes === null ? undefined : HYPOTHESES.medianMinutes.ok(h.medianMinutes) },
@@ -55,7 +61,7 @@ export default function ReelsHealth() {
 
 const s = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: Colors.border },
-  val: { color: '#fff', fontSize: 20, fontWeight: '900', minWidth: 56, textAlign: 'right' },
+  val: { color: Colors.textPrimary, fontSize: 20, fontWeight: '900', minWidth: 56, textAlign: 'right' },
   del: { borderWidth: 1, borderColor: Colors.red + '66', borderRadius: Radii.md, paddingVertical: 12, alignItems: 'center' },
   delTxt: { color: Colors.red, fontWeight: '800', fontSize: 14 },
 });

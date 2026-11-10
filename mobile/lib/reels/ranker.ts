@@ -11,6 +11,7 @@
 // lowers the "how to start" reels it answers and lifts the next step; and in Diwali week, Budget week and March the reels people look for then
 // get a small lift (triggers.ts). None of it can hide or show a reel the distress guard removed.
 import { duePledges, resurfaceReason } from '@/lib/reels/followup';
+import { isDue } from '@/lib/reels/spaced';
 import { PILLAR_NAME, type Ranked, type Watched } from '@/lib/reels/journey';
 import { levelIndex, metaOf } from '@/lib/reels/meta';
 import { pokeFit, weekKey, type ReelsProfile } from '@/lib/reels/reelsProfile';
@@ -97,7 +98,7 @@ export function rankReelsV2(reels: Reel[], { watched, signals, profile, now, sta
     const age = w ? (now.getTime() - new Date(w.at).getTime()) / DAY : Infinity;
     let score = 0, why: Ranked['why'] = 'done', reason: L | null = null;
     if (w && !w.correct && age >= 1) { score = 110; why = 'review'; reason = l('You missed this question. Try it again.', 'यह सवाल छूट गया था। फिर कोशिश करें।'); }
-    else if (w && w.correct && age >= 7 && !profile.known.includes(reel.id)) { score = 20; why = 'refresh'; reason = l('A week on: a quick refresher.', 'एक हफ़्ते बाद: एक छोटा दोहराव।'); }
+    else if (w && w.correct && isDue(w, now) && !profile.known.includes(reel.id)) { score = 20; why = 'refresh'; reason = l('Time for a quick refresher.', 'एक छोटे दोहराव का समय।'); }
     else if (profile.known.includes(reel.id)) { score = 5; why = 'done'; }
     else if (w) { score = 10; why = 'done'; }
     else {

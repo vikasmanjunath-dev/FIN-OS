@@ -20,6 +20,8 @@ export interface HomeState {
   everDone: boolean;
   /** Pledged moves ("I'll do this"). */
   pledges: number;
+  /** Questions due for a spaced review (see spaced.ts and recall.ts). */
+  due?: number;
   /** A fresh real receipt or milestone, not yet shown in the feed: its title. */
   celebrate: { title: L; growth: boolean } | null;
   /** Money strain (see signals.ts): no growth wording. The streak is shown to everyone: it is a habit count, not a growth cue. */
@@ -45,6 +47,8 @@ export interface HomeCard {
   ctaState: 'start' | 'continue' | 'done';
   /** "N moves on your list", linking to /learn/moves, or null. */
   moves: L | null;
+  /** "N questions to review", linking to /learn/review, or null. */
+  review: L | null;
   /** A single celebratory line, or null. */
   celebrate: L | null;
   /** The season badge, or null in an ordinary week. */
@@ -104,6 +108,9 @@ export function homeCard(s: HomeState, now: Date): HomeCard {
     ? l(`${s.pledges} ${s.pledges === 1 ? 'move' : 'moves'} on your list`, `आपकी सूची में ${s.pledges} काम`)
     : null;
 
+  const due = Math.max(0, Math.floor(s.due ?? 0));
+  const review = due > 0 ? l(`${due} ${due === 1 ? 'question' : 'questions'} to review`, `दोहराने को ${due} ${due === 1 ? 'सवाल' : 'सवाल'}`) : null;
+
   const celebrate = s.celebrate && !(s.strain && s.celebrate.growth)
     ? l(`🎉 ${s.celebrate.title.en}`, `🎉 ${s.celebrate.title.hi}`)
     : null;
@@ -113,5 +120,5 @@ export function homeCard(s: HomeState, now: Date): HomeCard {
     heading, title, kind === 'done' ? null : reason, progress, streak, cta, season ? season.label : null,
   ], '. ');
 
-  return { kind, heading, title, reason, progress, streak, cta, ctaState, moves, celebrate, season: seasonOut, a11y };
+  return { kind, heading, title, reason, progress, streak, cta, ctaState, moves, review, celebrate, season: seasonOut, a11y };
 }

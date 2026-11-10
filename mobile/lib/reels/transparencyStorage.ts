@@ -3,6 +3,7 @@
 import { loadReelsProfile, loadMoves, resetMoves, resetReelsProfile, updateReelsProfile } from '@/lib/reelsProfileStorage';
 import { clearStats, loadStats } from '@/lib/reelsStatsStorage';
 import { loadChallenges, resetChallenges } from '@/lib/reelsChallengesStorage';
+import { resetWeekly } from '@/lib/reelsWeeklyStorage';
 import { loadMoveReminders, loadNotify, loadNudge, resetReelReminders, syncReelReminders } from '@/lib/reelRemindersStorage';
 import { loadDays, loadWatched, resetWatched } from '@/lib/reelsStorage';
 import { loadVoicePrefs, resetVoicePrefs } from '@/lib/reels/voicePrefsStorage';
@@ -29,7 +30,7 @@ const RESET: Record<PartId, () => Promise<unknown>> = {
   moves: resetMoves,
   watched: resetWatched,
   stats: clearStats,
-  challenges: resetChallenges,
+  challenges: async () => { await resetChallenges(); await resetWeekly(); },       // the weekly reviews you wrote are kept with the challenges
   reminders: resetReelReminders,
   voice: resetVoicePrefs,
 };
