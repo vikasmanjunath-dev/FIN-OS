@@ -16,7 +16,7 @@ button{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:8px 1
 .done{border-color:var(--ok)}
 </style></head><body>
 <header><h1>Review the draft Hindi / Hinglish golden questions</h1>
-<div class="mut"><span id="prog">0 of 0 reviewed</span> &middot; saved in this browser only &middot; nothing is sent anywhere &middot; <button id="dl" class="sec">Download verdicts (JSON)</button>
+<div class="mut"><span id="prog">0 of 0 reviewed</span> &middot; saved in this browser only &middot; nothing is sent anywhere &middot; keys: <b>1</b> correct, <b>2</b> wrong gold, <b>3</b> bad question (then it jumps to the next unreviewed), <b>j</b>/<b>k</b> move, <b>n</b> next unreviewed &middot; <button id="dl" class="sec">Download verdicts (JSON)</button>
 <input id="who" placeholder="your name or initials" style="margin-left:8px;padding:6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)"></div></header>
 <main><p class="mut">For each question, read the gold chunk (the English passage the question was written from) and mark the QUESTION: <b>correct</b> = a natural question that the gold chunk really answers;
 <b>wrong gold</b> = the gold chunk does not answer it; <b>bad question</b> = unclear, unnatural or not answerable. If a retrieved chunk below also answers it, tick it. Do not guess: leave it unmarked if unsure.</p>
@@ -50,6 +50,19 @@ document.getElementById('dl').addEventListener('click',function(){
   data.forEach(function(d){var v=st.items[d.id]; if(v&&v.verdict) out.items[d.id]={verdict:v.verdict,also_answers:v.also_answers||[],note:v.note||''};});
   var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(out,null,1)],{type:'application/json'})); a.download='golden_review_verdicts.json'; a.click();
 });
+var cards=[].slice.call(root.querySelectorAll('.item')), cur=0;
+function isDone(i){var v=st.items[data[i].id]; return !!(v&&v.verdict);}
+function focusCard(i){if(i<0||i>=cards.length)return; cards[cur].style.outline=''; cur=i; cards[cur].style.outline='2px solid var(--acc)'; cards[cur].scrollIntoView({block:'start',behavior:'smooth'});}
+function nextUnreviewed(from){for(var k=1;k<=cards.length;k++){var i=(from+k)%cards.length; if(!isDone(i))return i;} return -1;}
+document.addEventListener('keydown',function(e){
+  var t=e.target&&e.target.tagName; if(t==='TEXTAREA'||t==='INPUT'&&e.target.type!=='radio'||e.ctrlKey||e.metaKey||e.altKey)return;
+  var k=e.key, map={'1':0,'2':1,'3':2};
+  if(k in map){var r=cards[cur].querySelectorAll('input[type=radio]')[map[k]]; if(r){r.checked=true; r.dispatchEvent(new Event('change',{bubbles:true})); var n=nextUnreviewed(cur); if(n>=0)focusCard(n);} e.preventDefault();}
+  else if(k==='j'||k==='ArrowDown'){focusCard(Math.min(cur+1,cards.length-1)); e.preventDefault();}
+  else if(k==='k'||k==='ArrowUp'){focusCard(Math.max(cur-1,0)); e.preventDefault();}
+  else if(k==='n'){var m=nextUnreviewed(cur); if(m>=0)focusCard(m); e.preventDefault();}
+});
+var first=nextUnreviewed(-1); focusCard(first>=0?first:0);   // resume where you left off
 prog();
 })();
 </script></body></html>
