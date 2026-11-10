@@ -1,0 +1,83 @@
+{
+ "trained_with_extra2": true,
+ "tfidf_C": 50,
+ "embed_C": 20,
+ "chosen_blend_weight_on_dev": 0.5,
+ "results": {
+  "embed_only": {
+   "embed_weight": 1.0,
+   "guard_threshold": 0.1,
+   "met_dev_recall_99": true,
+   "sets": {
+    "dev": {
+     "n": 424,
+     "macro_f1": 0.8588,
+     "guard_recall": 0.9932,
+     "guard_false_alarm": 0.2086
+    },
+    "test5": {
+     "n": 181,
+     "macro_f1": 0.8998,
+     "guard_recall": 1.0,
+     "guard_false_alarm": 0.1192
+    },
+    "test6": {
+     "n": 217,
+     "macro_f1": 0.8919,
+     "guard_recall": 1.0,
+     "guard_false_alarm": 0.1159
+    },
+    "test7": {
+     "n": 1013,
+     "macro_f1": 0.7763,
+     "guard_recall": 0.9661,
+     "guard_false_alarm": 0.2716
+    },
+    "test8": {
+     "n": 913,
+     "macro_f1": 0.7453,
+     "guard_recall": 0.9744,
+     "guard_false_alarm": 0.3233
+    }
+   }
+  },
+  "blend": {
+   "embed_weight": 0.5,
+   "guard_threshold": 0.2,
+   "met_dev_recall_99": true,
+   "sets": {
+    "dev": {
+     "n": 424,
+     "macro_f1": 0.9612,
+     "guard_recall": 0.9932,
+     "guard_false_alarm": 0.0647
+    },
+    "test5": {
+     "n": 181,
+     "macro_f1": 0.9552,
+     "guard_recall": 1.0,
+     "guard_false_alarm": 0.0662
+    },
+    "test6": {
+     "n": 217,
+     "macro_f1": 0.9565,
+     "guard_recall": 1.0,
+     "guard_false_alarm": 0.0366
+    },
+    "test7": {
+     "n": 1013,
+     "macro_f1": 0.9344,
+     "guard_recall": 0.9859,
+     "guard_false_alarm": 0.1639
+    },
+    "test8": {
+     "n": 913,
+     "macro_f1": 0.9253,
+     "guard_recall": 0.9936,
+     "guard_false_alarm": 0.1667
+    }
+   }
+  }
+ },
+ "note": "dev is the only selection set; test5/test6 are exploratory; test7/test8 are SPENT sealed sets, exploratory only. Not a gate."
+}

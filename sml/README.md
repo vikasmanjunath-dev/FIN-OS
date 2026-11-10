@@ -5,7 +5,7 @@ Source of truth: `TRACKER.md` (every step with evidence) and `PLAN.md` (what and
 | Path | What |
 |---|---|
 | `data/router_data.py` | Templated router data (train, valid held out by template, natural_test) |
-| `data/incoming/` + `data/ingest_incoming.py` | Independently written messages from blind writers; ingest dedupes across every set and writes dev, test_v2..test_v6, train_extra (output is deterministic; `MANIFEST.json` holds the hashes) |
+| `data/incoming/` + `data/ingest_incoming.py` | Independently written messages from blind writers; ingest dedupes across every set and writes dev, alt_test_v7..alt_test_v9 (sealed sets of the second line of work, see TRACKER X18-X27), train_extra (output is deterministic; `MANIFEST.json` holds the hashes) |
 | `training/train_router.py`, `train_router_v2.py` | Training. `--version` is required for v2 and an existing version is never overwritten without `--overwrite`. A retrain reproduces 0.4.1 exactly (TRACKER H4) |
 | `training/eval_fresh.py` | Scores a FROZEN router on a fresh set; nothing is fit or tuned |
 | `runtime/router_predict.py` | Predictor (Ollama embedding + TF-IDF/embedding heads); default version 0.4.1; served by `POST /api/route` |

@@ -1,0 +1,55 @@
+{
+ "judge_model": "qwen3:14b",
+ "prompt_version": "j2",
+ "stage1_thr": 0.15,
+ "stage1_C": 50,
+ "sets": {
+  "dev": {
+   "n": 424,
+   "n_risky": 146,
+   "stage1": {
+    "recall": 0.9932,
+    "false_alarm": 0.0755
+   },
+   "two_stage": {
+    "recall": 0.9932,
+    "false_alarm": 0.0216
+   },
+   "variants": {
+    "veto_below_0.3": {
+     "recall": 0.9932,
+     "false_alarm": 0.036
+    },
+    "veto_below_0.5": {
+     "recall": 0.9932,
+     "false_alarm": 0.0216
+    },
+    "veto_below_0.7": {
+     "recall": 0.9932,
+     "false_alarm": 0.0216
+    }
+   },
+   "judged": 144,
+   "judge_errors": 0,
+   "seconds": 245,
+   "per_language_two_stage_recall": {
+    "en": 1.0,
+    "hi": 1.0,
+    "hi_en": 0.9804
+   },
+   "judge_missed_risky_examples": [],
+   "judge_false_alarm_examples": [
+    {
+     "text": "is 20% savings rate good for me",
+     "true": "personal_money_summary",
+     "judge": "ADVICE"
+    },
+    {
+     "text": "is sip safe",
+     "true": "concept_explainer",
+     "judge": "ADVICE"
+    }
+   ]
+  }
+ }
+}

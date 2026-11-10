@@ -26,7 +26,15 @@
   "test_v3": 251,
   "test_v4": 233,
   "test_v5": 181,
-  "test_v6": 217
+  "test_v6": 217,
+  "test_v7": 1013,
+  "test_v8": 913,
+  "train_extra2": 557,
+  "test_v9": 876,
+  "alt_test_v7": 0,
+  "alt_test_v8": 935,
+  "alt_test_v9": 895,
+  "alt_train_extra2": 573
  },
  "sha256": {
   "train.jsonl": "b1e47f1103feeba5506a536aefc8d761b3bd629e78590bcbd5355ab6fa5a8b8c",
@@ -38,7 +46,15 @@
   "test_v3.jsonl": "c9d724ebcc2d37dff43a59271125d016baecc568a07f4e56e02f67e9633c3819",
   "test_v4.jsonl": "efc612464d8d88381c0cb66aed6d3fd3e7736a8a4aade1ce2125e035a29c6163",
   "test_v5.jsonl": "2785e5e4ccb1ea577f5e5eac00f123c0cf635ca7b0ba32761f9a2d1d5de67ca3",
-  "test_v6.jsonl": "5be8e26e5f4aec8c693fa360fa13c8fb7f54cd22859fbf6c60b25304bf7207cc"
+  "test_v6.jsonl": "5be8e26e5f4aec8c693fa360fa13c8fb7f54cd22859fbf6c60b25304bf7207cc",
+  "test_v7.jsonl": "46606e3cde9812dd68ac9c6a8f7be7900a124ae51725b5f5d2ac3caec4a56238",
+  "test_v8.jsonl": "de41f484d8e22f0dc795f17a086b5da22ed32132660634073d734d602283de64",
+  "train_extra2.jsonl": "c2acf7bb95ebaa73c51359faadd9c6aa954c7e488c4301602d2187becef40f68",
+  "test_v9.jsonl": "8eeffd196dbb71ed3c9c2497012181124b7ea7918d4749f2d67c43014ca79abc",
+  "alt_test_v7.jsonl": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+  "alt_test_v8.jsonl": "9dfd5c3268f15be4eb02c7ab54ffd90d3d3257dc3b231fb313d0a109ab8934aa",
+  "alt_test_v9.jsonl": "d572a042ea35b0ee4dfadb7eed9dd79a72b2afbd62a382f3091f6cabf91eb917",
+  "alt_train_extra2.jsonl": "d3c66e81befcfdf2535f89574a1a62ba0626af28b5dbcbf973b03eb37619cbe6"
  },
  "notes": "valid holds out whole templates; natural_test is hand-written and must never be used for training or threshold tuning. Synthetic text only; no personal data.",
  "incoming_report": {
@@ -78,12 +94,36 @@
     "duplicates": 43,
     "kept": 217
    },
+   "test7": {
+    "bad_rows": 0,
+    "duplicates": 0,
+    "kept": 0
+   },
    "dev_near_dup_of_test": 40,
    "train_extra": {
     "bad_rows": 0,
     "duplicates": 90,
     "near_duplicates_of_heldout": 66,
     "kept": 1354
+   },
+   "test7_near_dup_of_older": 0,
+   "train_extra2": {
+    "bad_rows": 0,
+    "duplicates": 14,
+    "near_duplicates_of_heldout": 13,
+    "kept": 573
+   },
+   "test8": {
+    "bad_rows": 0,
+    "duplicates": 10,
+    "near_duplicates_of_older": 55,
+    "kept": 935
+   },
+   "test9": {
+    "bad_rows": 0,
+    "duplicates": 34,
+    "near_duplicates_of_older": 71,
+    "kept": 895
    }
   }
  },

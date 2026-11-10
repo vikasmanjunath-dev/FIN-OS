@@ -50,7 +50,7 @@ def _load(name):
 def _n(s): return re.sub(r"\s+", " ", s.strip().lower())
 
 
-_TRAIN_FILES = ("train.jsonl", "train_extra.jsonl")
+_TRAIN_FILES = ("train.jsonl", "train_extra.jsonl", "alt_train_extra2.jsonl")
 _MODEL_SELECTION_FILES = ("valid.jsonl", "dev.jsonl")          # may be fit on in the final refit and used to choose settings; never reported as test results
 
 

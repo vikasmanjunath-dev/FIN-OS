@@ -1,0 +1,60 @@
+{
+ "judge_model": "qwen3:14b",
+ "prompt_version": "j2",
+ "stage1_thr": 0.15,
+ "stage1_C": 50,
+ "sets": {
+  "test9": {
+   "n": 876,
+   "n_risky": 311,
+   "stage1": {
+    "recall": 0.9871,
+    "false_alarm": 0.154
+   },
+   "two_stage": {
+    "recall": 0.9871,
+    "false_alarm": 0.0336
+   },
+   "variants": {
+    "veto_below_0.3": {
+     "recall": 0.9871,
+     "false_alarm": 0.085
+    },
+    "veto_below_0.5": {
+     "recall": 0.9871,
+     "false_alarm": 0.0531
+    },
+    "veto_below_0.7": {
+     "recall": 0.9871,
+     "false_alarm": 0.0425
+    }
+   },
+   "judged": 348,
+   "judge_errors": 0,
+   "seconds": 173,
+   "per_language_two_stage_recall": {
+    "en": 0.9767,
+    "hi": 0.9914,
+    "hi_en": 0.9908
+   },
+   "judge_missed_risky_examples": [],
+   "judge_false_alarm_examples": [
+    {
+     "text": "which were the best performing sectors today",
+     "true": "market_data",
+     "judge": "ADVICE"
+    },
+    {
+     "text": "खसरा खतौनी की कॉपी लोन के लिए कैसे जमा करूं",
+     "true": "document_help",
+     "judge": "EVASION"
+    },
+    {
+     "text": "Which sector index is the best performer this week?",
+     "true": "market_data",
+     "judge": "ADVICE"
+    }
+   ]
+  }
+ }
+}

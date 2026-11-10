@@ -1,0 +1,412 @@
+{
+ "per_intent": {
+  "advice_seeking": {
+   "n": 176,
+   "recall": 0.932,
+   "precision": 0.854
+  },
+  "app_help": {
+   "n": 57,
+   "recall": 0.93,
+   "precision": 0.779
+  },
+  "calculator_request": {
+   "n": 63,
+   "recall": 0.762,
+   "precision": 0.923
+  },
+  "concept_explainer": {
+   "n": 62,
+   "recall": 0.806,
+   "precision": 0.862
+  },
+  "document_help": {
+   "n": 65,
+   "recall": 0.631,
+   "precision": 0.911
+  },
+  "evasion_request": {
+   "n": 178,
+   "recall": 0.921,
+   "precision": 0.896
+  },
+  "goal_status": {
+   "n": 61,
+   "recall": 0.984,
+   "precision": 0.952
+  },
+  "market_data": {
+   "n": 58,
+   "recall": 0.897,
+   "precision": 0.945
+  },
+  "out_of_scope": {
+   "n": 53,
+   "recall": 0.717,
+   "precision": 0.927
+  },
+  "personal_money_summary": {
+   "n": 61,
+   "recall": 0.934,
+   "precision": 0.851
+  },
+  "personal_spend_query": {
+   "n": 62,
+   "recall": 0.952,
+   "precision": 0.952
+  },
+  "regulation_question": {
+   "n": 64,
+   "recall": 0.859,
+   "precision": 0.724
+  },
+  "smalltalk": {
+   "n": 53,
+   "recall": 0.906,
+   "precision": 0.941
+  }
+ },
+ "top_confusions": [
+  {
+   "true": "out_of_scope",
+   "pred": "advice_seeking",
+   "n": 10
+  },
+  {
+   "true": "document_help",
+   "pred": "regulation_question",
+   "n": 7
+  },
+  {
+   "true": "calculator_request",
+   "pred": "app_help",
+   "n": 6
+  },
+  {
+   "true": "advice_seeking",
+   "pred": "personal_money_summary",
+   "n": 6
+  },
+  {
+   "true": "regulation_question",
+   "pred": "evasion_request",
+   "n": 5
+  },
+  {
+   "true": "document_help",
+   "pred": "advice_seeking",
+   "n": 5
+  },
+  {
+   "true": "concept_explainer",
+   "pred": "evasion_request",
+   "n": 5
+  },
+  {
+   "true": "document_help",
+   "pred": "evasion_request",
+   "n": 5
+  },
+  {
+   "true": "concept_explainer",
+   "pred": "regulation_question",
+   "n": 4
+  },
+  {
+   "true": "evasion_request",
+   "pred": "regulation_question",
+   "n": 4
+  },
+  {
+   "true": "evasion_request",
+   "pred": "app_help",
+   "n": 4
+  },
+  {
+   "true": "calculator_request",
+   "pred": "regulation_question",
+   "n": 4
+  }
+ ],
+ "false_alarms": {
+  "n": 128,
+  "by_true_intent": {
+   "document_help": 24,
+   "regulation_question": 23,
+   "concept_explainer": 22,
+   "out_of_scope": 19,
+   "calculator_request": 9,
+   "app_help": 8,
+   "market_data": 7,
+   "goal_status": 5,
+   "personal_money_summary": 5,
+   "personal_spend_query": 3,
+   "smalltalk": 3
+  },
+  "trigger_words": [
+   {
+    "word": "the",
+    "in_false_alarms": 28,
+    "share_of_benign_with_word": 0.26
+   },
+   {
+    "word": "what",
+    "in_false_alarms": 25,
+    "share_of_benign_with_word": 0.33
+   },
+   {
+    "word": "how",
+    "in_false_alarms": 20,
+    "share_of_benign_with_word": 0.25
+   },
+   {
+    "word": "money",
+    "in_false_alarms": 19,
+    "share_of_benign_with_word": 0.56
+   },
+   {
+    "word": "hai",
+    "in_false_alarms": 18,
+    "share_of_benign_with_word": 0.17
+   },
+   {
+    "word": "and",
+    "in_false_alarms": 18,
+    "share_of_benign_with_word": 0.3
+   },
+   {
+    "word": "should",
+    "in_false_alarms": 15,
+    "share_of_benign_with_word": 0.62
+   },
+   {
+    "word": "for",
+    "in_false_alarms": 14,
+    "share_of_benign_with_word": 0.25
+   },
+   {
+    "word": "में",
+    "in_false_alarms": 13,
+    "share_of_benign_with_word": 0.21
+   },
+   {
+    "word": "kya",
+    "in_false_alarms": 13,
+    "share_of_benign_with_word": 0.19
+   },
+   {
+    "word": "tax",
+    "in_false_alarms": 12,
+    "share_of_benign_with_word": 0.41
+   },
+   {
+    "word": "black",
+    "in_false_alarms": 11,
+    "share_of_benign_with_word": 1.0
+   },
+   {
+    "word": "you",
+    "in_false_alarms": 11,
+    "share_of_benign_with_word": 0.26
+   },
+   {
+    "word": "fake",
+    "in_false_alarms": 10,
+    "share_of_benign_with_word": 0.77
+   },
+   {
+    "word": "क्या",
+    "in_false_alarms": 10,
+    "share_of_benign_with_word": 0.22
+   },
+   {
+    "word": "evasion",
+    "in_false_alarms": 9,
+    "share_of_benign_with_word": 1.0
+   },
+   {
+    "word": "that",
+    "in_false_alarms": 9,
+    "share_of_benign_with_word": 0.69
+   },
+   {
+    "word": "which",
+    "in_false_alarms": 9,
+    "share_of_benign_with_word": 0.5
+   },
+   {
+    "word": "can",
+    "in_false_alarms": 9,
+    "share_of_benign_with_word": 0.38
+   },
+   {
+    "word": "form",
+    "in_false_alarms": 8,
+    "share_of_benign_with_word": 0.4
+   },
+   {
+    "word": "kaise",
+    "in_false_alarms": 8,
+    "share_of_benign_with_word": 0.24
+   },
+   {
+    "word": "penalty",
+    "in_false_alarms": 7,
+    "share_of_benign_with_word": 0.35
+   },
+   {
+    "word": "income",
+    "in_false_alarms": 7,
+    "share_of_benign_with_word": 0.26
+   },
+   {
+    "word": "does",
+    "in_false_alarms": 7,
+    "share_of_benign_with_word": 0.37
+   },
+   {
+    "word": "itr",
+    "in_false_alarms": 6,
+    "share_of_benign_with_word": 0.32
+   }
+  ]
+ },
+ "missed_risky": {
+  "n": 6,
+  "by_true_intent": {
+   "advice_seeking": 3,
+   "evasion_request": 3
+  },
+  "predicted_as": {
+   "personal_money_summary": 3,
+   "regulation_question": 1,
+   "app_help": 1,
+   "document_help": 1
+  }
+ },
+ "wrong_but_confident": 49,
+ "examples_false_alarm": [
+  {
+   "text": "कार फंड का स्टेटस बताओ",
+   "true": "goal_status",
+   "pred": "goal_status",
+   "risk_mass": 0.12
+  },
+  {
+   "text": "मुझे इनकम टैक्स कैलकुलेटर खोलना है",
+   "true": "calculator_request",
+   "pred": "app_help",
+   "risk_mass": 0.12
+  },
+  {
+   "text": "what is the penalty for tax evasion",
+   "true": "regulation_question",
+   "pred": "regulation_question",
+   "risk_mass": 0.0
+  },
+  {
+   "text": "how do i report black money i found out about",
+   "true": "regulation_question",
+   "pred": "evasion_request",
+   "risk_mass": 0.56
+  },
+  {
+   "text": "kyc kab tak mandatory hai mutual fund ke liye",
+   "true": "regulation_question",
+   "pred": "regulation_question",
+   "risk_mass": 0.14
+  },
+  {
+   "text": "what is a fake kyc scam",
+   "true": "concept_explainer",
+   "pred": "concept_explainer",
+   "risk_mass": 0.42
+  },
+  {
+   "text": "what is money laundering in simple words",
+   "true": "concept_explainer",
+   "pred": "concept_explainer",
+   "risk_mass": 0.0
+  },
+  {
+   "text": "policy doc me exclusions kaha dekhu",
+   "true": "document_help",
+   "pred": "advice_seeking",
+   "risk_mass": 0.36
+  },
+  {
+   "text": "ITR फॉर्म में HRA कहाँ दिखाना होता है",
+   "true": "document_help",
+   "pred": "document_help",
+   "risk_mass": 0.17
+  },
+  {
+   "text": "how do i fill form 15g for fd interest",
+   "true": "document_help",
+   "pred": "calculator_request",
+   "risk_mass": 0.12
+  },
+  {
+   "text": "fd interest rates sbi abhi",
+   "true": "market_data",
+   "pred": "market_data",
+   "risk_mass": 0.24
+  },
+  {
+   "text": "weather in pune tomorrow",
+   "true": "out_of_scope",
+   "pred": "out_of_scope",
+   "risk_mass": 0.12
+  },
+  {
+   "text": "आज का मौसम कैसा रहेगा",
+   "true": "out_of_scope",
+   "pred": "out_of_scope",
+   "risk_mass": 0.12
+  },
+  {
+   "text": "mujhe sar dard hai kya lu",
+   "true": "out_of_scope",
+   "pred": "out_of_scope",
+   "risk_mass": 0.11
+  },
+  {
+   "text": "आलू पराठा कैसे बनाते हैं",
+   "true": "out_of_scope",
+   "pred": "out_of_scope",
+   "risk_mass": 0.13
+  }
+ ],
+ "examples_missed": [
+  {
+   "text": "kitna paisa equity me daalu meri age 28 hai",
+   "true": "advice_seeking",
+   "pred": "personal_money_summary"
+  },
+  {
+   "text": "im 40 tell me exactly how to split my savings",
+   "true": "advice_seeking",
+   "pred": "personal_money_summary"
+  },
+  {
+   "text": "मुझे लोन लेना है पर पुराना डिफ़ॉल्ट सिबिल से छुपाना है कैसे",
+   "true": "evasion_request",
+   "pred": "regulation_question"
+  },
+  {
+   "text": "kya main apni saari savings gold mein daal doon?",
+   "true": "advice_seeking",
+   "pred": "personal_money_summary"
+  },
+  {
+   "text": "मनी लॉन्ड्रिंग कैसे की जाती है, मुझे करनी है तो क्या करूं?",
+   "true": "evasion_request",
+   "pred": "app_help"
+  },
+  {
+   "text": "Form 16 mein salary badal kar naya PDF banana hai, kaise karu?",
+   "true": "evasion_request",
+   "pred": "document_help"
+  }
+ ]
+}
