@@ -17,7 +17,7 @@
   const E = window.FinosReelsEval;
   const PREFIX = 'finos_session_reels_web_';
   const KEY_SEEN = PREFIX + 'seen', KEY_DAYS = PREFIX + 'days', KEY_EPISODE = PREFIX + 'episode';
-  const KEY_STATS = PREFIX + 'stats', KEY_SAVED = PREFIX + 'saved', KEY_PLEDGES = PREFIX + 'pledges';
+  const KEY_STATS = PREFIX + 'stats', KEY_SAVED = PREFIX + 'saved', KEY_PLEDGES = PREFIX + 'pledges', KEY_VOICE = PREFIX + 'voice';
   const ID_OK = /^[a-z0-9-]{1,40}$/;
   const EPISODE_SIZE = 3;
   const reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -33,6 +33,7 @@
       statusNew: (n) => `Today’s episode: ${n} reels.`, statusDone: 'You’ve finished today’s reels. Watch any again, or come back tomorrow.', statusLeft: (d, n) => `${d} of ${n} watched today.`,
       streak: (n) => ` Day streak: ${n}.`,
       reelOf: (i, n) => `Reel ${i} of ${n}`, stageLabel: 'Reel picture. Press space to pause or play, left and right arrow keys to change scene.',
+      voiceOn: 'Voice: on', voiceOff: 'Voice: off', voiceHint: 'Turn the voice on or off',
       play: 'Play', pause: 'Pause', prev: 'Previous scene', next: 'Next scene', restart: 'Start this reel again', paused: 'Paused', tapHint: 'Tap the picture to pause',
       topics: { basics: 'Basics', invest: 'Investing', loans: 'Loans', protect: 'Protection', tax: 'Tax', retire: 'Retirement', credit: 'Credit', safety: 'Scam safety', goals: 'Goals' },
       tryIt: 'Try it', skip: 'Skip this', cont: 'Continue',
@@ -68,6 +69,7 @@
       statusNew: (n) => `आज का एपिसोड: ${n} रील्स।`, statusDone: 'आपने आज की रील्स देख ली हैं। चाहें तो कोई दोबारा देखें, या कल आएँ।', statusLeft: (d, n) => `आज ${n} में से ${d} देखीं।`,
       streak: (n) => ` लगातार दिन: ${n}।`,
       reelOf: (i, n) => `रील ${i} / ${n}`, stageLabel: 'रील की तस्वीर। रोकने या चलाने के लिए स्पेस दबाएँ, सीन बदलने के लिए बाएँ-दाएँ तीर।',
+      voiceOn: 'आवाज़: चालू', voiceOff: 'आवाज़: बंद', voiceHint: 'आवाज़ चालू या बंद करें',
       play: 'चलाएँ', pause: 'रोकें', prev: 'पिछला सीन', next: 'अगला सीन', restart: 'यह रील फिर से शुरू करें', paused: 'रुका है', tapHint: 'रोकने के लिए तस्वीर छुएँ',
       topics: { basics: 'बुनियादी बातें', invest: 'निवेश', loans: 'लोन', protect: 'सुरक्षा', tax: 'टैक्स', retire: 'रिटायरमेंट', credit: 'क्रेडिट', safety: 'ठगी से बचाव', goals: 'लक्ष्य' },
       tryIt: 'आज़माएँ', skip: 'इसे छोड़ें', cont: 'आगे बढ़ें',
@@ -345,6 +347,21 @@
   // ── one reel's player ───────────────────────────────────────────────────────────────────────────────────────
   const state = { season: null, stats: { v: 1, days: {} }, saved: [], pledges: [], stopEl: null, io: null, data: null, reels: [], players: [], active: -1, episode: null, today: '', seen: {}, days: [], feed: null, last: 0, drawAt: 0 };
 
+  // ── the voice: recorded clips (assets/reels-voice, the app's own), opt-in. While a clip plays it IS the clock, so the words and the voice
+  // cannot drift; a clip that is missing or does not start within 3 s is dropped and the scene runs on its written length.
+  const BREATH_MS = 320, CLIP_WAIT_MS = 3000;
+  const voice = { on: false, ms: null, asked: false };
+  voice.on = store.get(KEY_VOICE, false) === true;
+  function loadVoice() {
+    if (voice.ms || voice.asked) return;
+    voice.asked = true;
+    fetch('../js/reels-voice.json', { credentials: 'omit' }).then((r) => (r.ok ? r.json() : null)).then((d) => { voice.ms = d && d.clips && typeof d.clips === 'object' ? d.clips : {}; }).catch(() => { voice.ms = {}; voice.asked = false; });
+  }
+  if (voice.on) loadVoice();
+  function clipFor(reel, i) {
+    const key = reel.id + '.' + lang + '.' + i, ms = voice.ms && voice.ms[key];
+    return voice.on && typeof ms === 'number' && ms > 0 && ID_OK.test(reel.id) ? { url: '../assets/reels-voice/' + key + '.m4a', ms } : null;
+  }
   const sceneMs = (reel, i) => Math.max(reel.scenes[i].ms, Math.min(7500, 1200 + 40 * tx(reel.scenes[i].say).length));
 
   function buildCard(reel, idx, total) {
@@ -356,7 +373,7 @@
       `<div class="rl-prog" aria-hidden="true">${reel.scenes.map(() => '<i><b></b></i>').join('')}</div>` +
       '<div class="rl-stage" data-r="stage" tabindex="0" role="group"><div class="rl-big" data-r="big"></div><div class="rl-who" data-r="who"></div><svg class="rl-prop" data-r="prop" viewBox="0 0 200 270" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"></svg><span class="rl-pause-badge" data-r="badge" hidden></span></div>' +
       '<p class="rl-say" data-r="say"></p>' +
-      '<div class="rl-ctl" data-r="ctl"><button type="button" class="rl-ic" data-a="prev">⏮</button><button type="button" class="rl-ic rl-ic-main" data-a="toggle"></button><button type="button" class="rl-ic" data-a="nextscene">⏭</button></div>' +
+      '<div class="rl-ctl" data-r="ctl"><button type="button" class="rl-ic" data-a="prev">⏮</button><button type="button" class="rl-ic rl-ic-main" data-a="toggle"></button><button type="button" class="rl-ic" data-a="nextscene">⏭</button><button type="button" class="rl-ic" data-a="voice"></button></div>' +
       '<div class="rl-panel" data-r="panel" hidden tabindex="-1"></div>';
     return el;
   }
@@ -376,6 +393,7 @@
       const toggle = el.querySelector('[data-a="toggle"]'), prev = el.querySelector('[data-a="prev"]'), nx = el.querySelector('[data-a="nextscene"]');
       toggle.textContent = P.playing ? '⏸' : '▶'; toggle.setAttribute('aria-label', P.playing ? s.pause : s.play);
       prev.setAttribute('aria-label', s.prev); nx.setAttribute('aria-label', s.next);
+      const vb = el.querySelector('[data-a="voice"]'); vb.textContent = voice.on ? '🔊' : '🔇'; vb.setAttribute('aria-pressed', voice.on ? 'true' : 'false'); vb.setAttribute('aria-label', voice.on ? s.voiceOn : s.voiceOff); vb.title = s.voiceHint;
       P.r.badge.textContent = s.paused; P.r.badge.hidden = P.playing || P.phase !== 'scene' || !P.started;
       el.setAttribute('aria-label', `${P.extra ? s.savedReel : s.reelOf(idx + 1, total)}: ${tx(reel.title)}`);
     };
@@ -384,7 +402,9 @@
       const sc = reel.scenes[P.si];
       if (sc.prop) P.r.prop.innerHTML = propSvg(sc.prop, p, now || performance.now()); else P.r.prop.innerHTML = '';
     };
+    P.stopClip = () => { const c = P.clip; P.clip = null; P.clipFor = null; if (c) { try { c.a.pause(); c.a.removeAttribute('src'); c.a.load(); } catch (e) { /* gone */ } } };
     P.enterScene = (i) => {
+      P.stopClip();
       P.phase = 'scene'; P.si = i; P.t = 0; P.started = true;
       const sc = reel.scenes[i];
       el.classList.remove('is-panel'); P.r.panel.hidden = true; P.r.ctl.style.display = '';
@@ -400,6 +420,8 @@
       P.playing = on && P.phase === 'scene';
       if (P.playing) P.started = true;
       if (byUser) P.userPaused = !on;
+      const c = P.clip;
+      if (c && c.started) { try { if (P.playing) { const pr = c.a.play(); if (pr && pr.catch) pr.catch(() => {}); } else c.a.pause(); } catch (e) { /* silent */ } }
       P.labels();
     };
     P.refreshPanelClass = () => { el.classList.toggle('is-panel', P.phase !== 'scene'); };
@@ -411,8 +433,21 @@
     };
     P.tick = (dt, now) => {
       if (P.phase !== 'scene' || !P.playing) return;
-      const dur = sceneMs(reel, P.si);
-      P.t += dt;
+      if (voice.on && !voice.ms) return;                         // the clip list is still loading (a moment); it settles to {} if it never comes
+      const tag = P.si + lang + (voice.on ? 'v' : '');
+      if (P.clipFor !== tag) {                                   // a new scene, a language change or the voice switched: set the clip up once
+        P.stopClip(); P.clipFor = tag;
+        const spec = clipFor(reel, P.si);
+        const nx = P.si + 1 < reel.scenes.length ? clipFor(reel, P.si + 1) : null;      // the next scene's clip is fetched while this one plays, so scenes change without a wait
+        const pre = spec && P.pre && P.pre.url === spec.url ? P.pre.a : null;
+        P.pre = nx ? { url: nx.url, a: Object.assign(new Audio(nx.url), { preload: 'auto' }) } : null;
+        if (spec) { const a = pre || new Audio(spec.url); a.preload = 'auto'; try { a.currentTime = 0; } catch (e) { /* fresh */ } P.clip = { a, ms: spec.ms, wait: 0, started: false }; try { const pr = a.play(); if (pr && pr.then) pr.then(() => { if (P.clip && P.clip.a === a) P.clip.started = true; }).catch(() => { if (P.clip && P.clip.a === a) P.clip.wait = CLIP_WAIT_MS; }); } catch (e) { P.clip.wait = CLIP_WAIT_MS; } }
+      }
+      const c = P.clip;
+      if (c && !c.started) { c.wait += dt; if (c.wait >= CLIP_WAIT_MS) P.stopClip(); else return; }   // hold the picture until the voice begins
+      let dur = sceneMs(reel, P.si);
+      if (P.clip) { dur = P.clip.ms + BREATH_MS; const a = P.clip.a; if (!a.ended && !a.paused) P.t = Math.max(P.t, a.currentTime * 1000); else P.t += dt; }
+      else P.t += dt;
       const p = clamp01(P.t / dur);
       P.r.bars[P.si].style.width = (p * 100).toFixed(1) + '%';
       if (!reduced && now - state.drawAt >= 33) { P.drawScene(p, now); }
@@ -421,6 +456,7 @@
 
     // phases with a panel
     P.showPanel = () => {
+      P.stopClip();
       P.r.panel.hidden = false; P.r.ctl.style.display = 'none'; P.playing = false;
       P.refreshPanelClass(); P.labels(); P.renderPanel();
     };
@@ -452,6 +488,7 @@
       if (P.phase === 'scene') {
         const sc = reel.scenes[P.si];
         P.r.say.textContent = tx(sc.say); P.r.big.textContent = sc.big ? tx(sc.big) : '';
+        P.stopClip(); P.t = 0;
         P.drawScene(reduced ? 1 : clamp01(P.t / sceneMs(reel, P.si)));
       } else P.renderPanel();
     };
@@ -547,6 +584,25 @@
       default: return contBtn();
     }
   }
+  /** Live values for the guess and slider inputs (the panel is rebuilt on every step, so they are wired each time). */
+  function wireInputs(P) {
+    const panel = P.r.panel, b = P.reel.beat;
+    const g = panel.querySelector('[data-in="guess"]');
+    if (g && b) g.addEventListener('input', () => {
+      P.beat.pos = Number(g.value) / 1000;
+      const v = E.posToValue(P.beat.pos, b.min, b.max), txt = E.money(v)[li()];
+      panel.querySelector('[data-o="gv"]').textContent = txt; g.setAttribute('aria-valuetext', txt);
+    });
+    const sl = panel.querySelector('[data-in="slider"]');
+    if (sl && b) sl.addEventListener('input', () => {
+      const x = Number(sl.value); P.beat.x = x;
+      const xt = E.xText(b, x, lang);
+      panel.querySelector('[data-o="sx"]').textContent = xt; sl.setAttribute('aria-valuetext', xt);
+      panel.querySelector('[data-o="sbars"]').innerHTML = barsHtml(E.sliderBars(b, x));
+      panel.querySelector('[data-o="stake"]').textContent = tx(E.sliderLine(b, x));
+    });
+  }
+
   function barsHtml(bars) {
     return bars.map((br) => `<div class="rl-bar ${br.tone}"><span><span>${esc(tx(br.label))}</span><b>${esc(tx(br.text))}</b></span><i><em style="width:${(Math.max(0, Math.min(1, br.frac)) * 100).toFixed(1)}%"></em></i></div>`).join('');
   }
@@ -754,6 +810,12 @@
       if (btn && el.contains(btn)) {
         const a = btn.dataset.a;
         if (a === 'toggle') { P.setPlaying(!P.playing, true); return; }
+        if (a === 'voice') {
+          voice.on = !voice.on; store.set(KEY_VOICE, voice.on);
+          if (voice.on) loadVoice();
+          state.players.forEach((Q) => { Q.stopClip(); Q.labels(); });
+          return;
+        }
         if (a === 'prev') { P.enterScene(Math.max(0, P.si - 1)); return; }
         if (a === 'nextscene') { P.advance(); return; }
         if (P.phase !== 'scene') return onPanelClick(P, a, btn.dataset.v);

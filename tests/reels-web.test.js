@@ -403,11 +403,11 @@ test('the reels page references only files that exist, and loads the new scripts
   assert.match(html, /education, not advice/i);
   assert.match(html, /<main[ >]/);
   assert.match(html, /mobile-nav\.js/, 'the off-canvas menu needs mobile-nav.js');
-  // the page script fetches exactly the data file, relative to the page
+  // the page script fetches exactly two files, both relative to the page: the data, and (only when the person turns Voice on) the clip list
   const js = read('js/reels.js');
   const fetches = [...js.matchAll(/fetch\(\s*([^)]*)\)/g)].map((m) => m[1].trim());
-  assert.equal(fetches.length, 1, 'reels.js should make exactly one fetch, saw: ' + fetches.join(' | '));
-  assert.match(js, /\.\.\/js\/reels-data\.json/);
+  assert.equal(fetches.length, 2, 'reels.js should make exactly two fetches, saw: ' + fetches.join(' | '));
+  assert.match(js, /\.\.\/js\/reels-data\.json/); assert.match(js, /\.\.\/js\/reels-voice\.json/);
   assert.ok(fs.existsSync(path.join(ROOT, 'js/reels-data.json')));
 });
 
@@ -471,4 +471,29 @@ test('the service worker precaches the reels page, script, maths and styles; the
 test('the page is reachable: linked from Learn and found by site search', () => {
   assert.match(read('html/foundations.html'), /href="reels\.html"/);
   assert.match(read('js/finos-search-index.js'), /reels\.html/);
+});
+
+/* ── the web voice (opt-in recorded clips) ───────────────────────────────────────────────────────────────── */
+test('web voice: every clip in js/reels-voice.json is a file, belongs to a live reel scene and has a sane length; no file is unlisted', () => {
+  const v = JSON.parse(read('js/reels-voice.json')), keys = Object.keys(v.clips);
+  const dir = path.join(ROOT, 'assets', 'reels-voice');
+  assert.equal(v.v, 1);
+  const files = fs.readdirSync(dir).filter((f) => f.endsWith('.m4a')).map((f) => f.slice(0, -4)).sort();
+  assert.deepEqual(files, keys.slice().sort(), 'clip files and the list must match: run mobile/scripts/export-reels-voice-web.mts');
+  const reels = new Map(data().reels.map((r) => [r.id, r]));
+  for (const k of keys) {
+    const [id, lang, i] = k.split('.');
+    const r = reels.get(id); assert.ok(r, `${k}: no such live reel`);
+    assert.ok(lang === 'en' || lang === 'hi', k);
+    assert.ok(Number(i) >= 0 && Number(i) < r.scenes.length, `${k}: no such scene`);
+    assert.ok(v.clips[k] >= 300 && v.clips[k] <= 20000, `${k}: length ${v.clips[k]} ms`);
+  }
+  for (const r of reels.values()) for (const l of ['en', 'hi']) for (let i = 0; i < r.scenes.length; i++) assert.ok(v.clips[`${r.id}.${l}.${i}`], `${r.id}.${l}.${i} has no clip`);
+});
+
+test('reels.js: every helper the panel calls is defined (a missing wireInputs once left the sliders dead), and the voice button is off until chosen', () => {
+  const src = read('js/reels.js');
+  for (const fn of ['wireInputs', 'barsHtml', 'beatHtml', 'quizHtml', 'endHtml', 'onPanelClick']) assert.match(src, new RegExp(`function ${fn}\\(`), fn);
+  assert.match(src, /voice\.on = store\.get\(KEY_VOICE, false\) === true/, 'voice stays off unless the person turned it on');
+  assert.match(src, /CLIP_WAIT_MS/, 'a clip that does not start is dropped');
 });
