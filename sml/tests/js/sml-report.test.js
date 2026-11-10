@@ -27,7 +27,7 @@ test('missing modules do not throw', () => {
 });
 test('resetKeys lists only counter keys, never flags', () => {
   const k = Rep.resetKeys(R, P);
-  assert.deepStrictEqual(k, ['finos_sml_router_stats', 'finos_pulse_counters']);
+  assert.deepStrictEqual(k, ['finos_sml_router_stats', 'finos_pulse_counters', 'finos_pulse_events']);
   assert.ok(!k.some((x) => /shadow|_on$/.test(x)));
 });
 test('report text contains no message-like content, only counters', () => {

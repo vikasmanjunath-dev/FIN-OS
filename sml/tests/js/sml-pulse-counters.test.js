@@ -92,3 +92,20 @@ test('a stored widget that is not an object is read as zeros', () => {
   const st = mem(); C.saveStats(st, { renders: 1, widgets: { a: 'secret text', b: 7 } });
   assert.deepStrictEqual(C.loadStats(st).widgets.a, { imp: 0, tap: 0, pos_sum: 0, top_imp: 0, top_tap: 0 });
 });
+
+test('G5 event log: renders and taps keep only ids, positions and days, capped to the newest events', () => {
+  let l = C.logRender([], ['a', 'b', 'c'], Date.UTC(2026, 10, 7));
+  l = C.logTap(l, 'b', 1, Date.UTC(2026, 10, 7));
+  assert.deepStrictEqual(l, [{ k: 'r', d: '2026-11-07', o: ['a', 'b', 'c'] }, { k: 't', d: '2026-11-07', i: 'b', p: 1 }]);
+  for (let i = 0; i < C.MAX_EVENTS + 50; i++) l = C.logTap(l, 'a', 0, Date.UTC(2026, 10, 8));
+  assert.strictEqual(l.length, C.MAX_EVENTS);
+});
+test('G5 event log rejects text-like ids, bad positions and junk; nothing but the whitelist survives a round trip', () => {
+  let l = C.logRender([], ['ok1', 'has space', '<script>', 'x'.repeat(60)], 0);
+  assert.deepStrictEqual(l[0].o, ['ok1']);
+  assert.deepStrictEqual(C.logTap([], 'bad id', 1, 0), []);
+  assert.deepStrictEqual(C.logTap([], 'a', -1, 0), []);
+  const st = mem(); C.saveLog(st, [{ k: 't', d: '2026-11-07', i: 'a', p: 2, text: 'my salary is 90000' }, { k: 'x' }, null]);
+  assert.deepStrictEqual(C.loadLog(st), [{ k: 't', d: '2026-11-07', i: 'a', p: 2 }]);
+  assert.ok(!JSON.stringify(st._m).includes('salary'));
+});

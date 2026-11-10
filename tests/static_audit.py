@@ -129,7 +129,7 @@ def search_index_urls():
 
 
 # Pages intentionally not searchable: detail drill-downs, stubs, onboarding steps, redirects.
-SEARCH_EXEMPT = re.compile(r'(detail\.html$|^html/(readme|onboarding|start|login|chat|not-money)\.html$)')
+SEARCH_EXEMPT = re.compile(r'(detail\.html$|^html/(readme|onboarding|start|login|chat|not-money|help-improve)\.html$)')
 
 
 def check_search():
