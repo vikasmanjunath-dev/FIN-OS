@@ -1,0 +1,58 @@
+{
+ "reviewer": "agents sonnet+opus, both agreed (not native speakers)",
+ "reviewed": 40,
+ "counted_as_evidence": 39,
+ "excluded": {
+  "H3-17": "wrong_gold"
+ },
+ "systems": {
+  "pipeline_mxbai": {
+   "recall@1": 0.2821,
+   "recall@3": 0.4359,
+   "recall@5": 0.4359,
+   "n": 39
+  },
+  "pipeline_bge_m3": {
+   "recall@1": 0.6923,
+   "recall@3": 0.8718,
+   "recall@5": 0.8974,
+   "n": 39
+  },
+  "dense_mxbai_raw": {
+   "recall@1": 0.0513,
+   "recall@3": 0.2564,
+   "recall@5": 0.3077,
+   "n": 39
+  },
+  "dense_bge_m3_raw": {
+   "recall@1": 0.5641,
+   "recall@3": 0.7692,
+   "recall@5": 0.8462,
+   "n": 39
+  }
+ },
+ "paired_pipeline_bge_m3_minus_pipeline_mxbai_recall@5": {
+  "diff": 0.4615,
+  "ci95": [
+   0.3077,
+   0.6154
+  ],
+  "better": 18,
+  "worse": 0,
+  "n": 39
+ },
+ "paired_dense_bge_m3_raw_minus_dense_mxbai_raw_recall@5": {
+  "diff": 0.5385,
+  "ci95": [
+   0.3846,
+   0.6923
+  ],
+  "better": 21,
+  "worse": 0,
+  "n": 39
+ },
+ "bge_m3_pipeline_extra_view_also_answers": {
+  "questions_with_ticked_chunks": 0,
+  "note": "chunks ticked as also answering are not in the headline numbers; they only show how much the anchor rule undercounts bge-m3"
+ }
+}

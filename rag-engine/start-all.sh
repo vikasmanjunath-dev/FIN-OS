@@ -50,7 +50,7 @@ echo "[5/5] Starting ingestion worker (Phase 6 — async ingestion, see jobs.py)
 # after the Mac sleeps or Redis is briefly unreachable — and nothing restarted it, so
 # /api/health silently showed ingest_workers_running: 0 and queued jobs sat forever.
 # The loop brings it back within 3 seconds; `pkill -f rag-worker-loop` stops it.
-nohup zsh -c 'exec -a rag-worker-loop zsh -c "while true; do rq worker rag-ingestion --worker-class rq.worker.SimpleWorker --url redis://localhost:6379 >> worker.log 2>&1; sleep 3; done"' > /dev/null 2>&1 &
+nohup zsh -c 'exec -a rag-worker-loop zsh -c "while true; do ./.venv/bin/rq worker rag-ingestion --worker-class rq.worker.SimpleWorker --url redis://localhost:6379 >> worker.log 2>&1; sleep 3; done"' > /dev/null 2>&1 &
 disown
 
 sleep 3

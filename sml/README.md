@@ -27,7 +27,7 @@ Source of truth: `TRACKER.md` (every step with evidence) and `PLAN.md` (what and
 | `tools/categoriser/` + `categoriser/CONTRIBUTOR_GUIDE.md` | `validate_rows.py` rejects dirty contributor files; the guide is the one-page instructions for friends |
 | `../js/sml/` (browser) | `router-shadow.js`, `router-advisory.js`, `sample-capture.js`, `categoriser-export.js`, `pulse-counters.js`, `report.js`, `tfidf-router.js`, `numeric-check.js`, `normalizer.js`. All opt-in, default off (flags in `docs/ARYA_AI.md`) |
 
-Held-out sets (test_v2..test_v6, natural_test) are never trained or tuned on. `training/.embed_cache.npz` is a local cache tagged with its embedding model and can be deleted.
+Held-out sets (natural_test, test_v2..test_v8; v4 is diagnostic, v7 and v8 were scored once) are never trained or tuned on. `training/.embed_cache.npz` is a local cache tagged with its embedding model and can be deleted.
 Run the tests: `rag-engine/.venv/bin/pytest sml/tests rag-engine/evaluation/test_*.py -q` and `node --test tests/*.test.js sml/tests/js/*.test.js`.
 
 **Rule: all SML work (data, models, docs, tests, scripts) lives under `sml/`.** The one exception is the browser code in `js/sml/`: pages load it as `/js/sml/*.js`, so it must stay under the served `js/` folder. Its tests are in `sml/tests/js/`.
