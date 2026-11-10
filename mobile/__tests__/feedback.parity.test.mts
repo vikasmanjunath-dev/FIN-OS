@@ -33,7 +33,7 @@ test('sanitizeEvent: same keep/drop decision, day, topic and rating as the websi
     if (!w || !m) continue;
     assert.equal(m.day, w.day); assert.equal(m.topic, w.topic); assert.equal(m.rating, w.rating);
     assert.equal(m.comment, redact(raw.comment));
-    assert.equal(w.comment, redactBase(raw.comment));
+    assert.equal(w.comment, redact(raw.comment));
   }
 });
 

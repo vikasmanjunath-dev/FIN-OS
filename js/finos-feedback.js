@@ -39,8 +39,8 @@
   const pad = (n) => String(n).padStart(2, '0');
   const dayOf = (d) => { d = d instanceof Date && !Number.isNaN(+d) ? d : new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
 
-  /** Remove anything that could identify a person or reveal a figure. Applied before storing and again when building a report. */
-  function redact(text) {
+  /** The original rule, kept unchanged as the base of `redact` below (the phone's parity test pins it). */
+  function redactBase(text) {
     let t = String(text == null ? '' : text);
     t = t.replace(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g, '[email]');                                   // emails
     t = t.replace(/\b(?:https?:\/\/|www\.)\S+/gi, '[link]');                                    // links
@@ -53,6 +53,48 @@
       return core.replace(/\D/g, '').length >= 4 ? '[number]' + m.slice(core.length) : m;
     });
     return t.replace(/\s+/g, ' ').trim().slice(0, MAX_COMMENT);
+  }
+
+  /* The cases the base rule leaves through, found by the phone's parity corpus (ported from mobile/lib/redact.ts, which a parity test keeps
+     identical): UPI handles, digits split by spaces or dashes, lower-case PAN, IFSC codes, digits of other scripts, amounts in words. */
+  const SMALL_WORDS = 'one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred|half';
+  const WORDS_AMOUNT = new RegExp('\\b(?:(?:' + SMALL_WORDS + ')[\\s-]+)+(?:lakhs?|lacs?|crores?|thousand|million|billion)\\b', 'gi');
+  function asciiDigits(s) {
+    if (!/[^\x00-\x7f]/.test(s)) return s;
+    const isNd = (cp) => /^\p{Nd}$/u.test(String.fromCodePoint(cp));
+    return s.replace(/\p{Nd}/gu, (ch) => {
+      const cp = ch.codePointAt(0);
+      if (cp < 128) return ch;
+      let start = cp;
+      while (start > 0 && cp - start < 9 && isNd(start - 1)) start--;
+      return String((cp - start) % 10);
+    });
+  }
+  function redactBefore(raw) {
+    let t = asciiDigits(raw);
+    t = t.replace(/(?:https?:\/\/|www\.)\S+/gi, '[link]');
+    t = t.replace(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g, '[email]');
+    t = t.replace(/[\w.-]+@\w[\w-]*/g, '[upi]');                                                  // UPI handle: name@bank, 98xxxxxxxx@ybl
+    t = t.replace(/\b[a-z]{5}\d{4}[a-z]\b/gi, '[id]');                                            // PAN in any case
+    t = t.replace(/\b[a-z]{4}0[a-z0-9]{6}\b/gi, (m) => (/\d/.test(m) ? '[id]' : m));              // IFSC (needs a digit)
+    return t;
+  }
+  function redactAfter(t) {
+    let s = t;
+    s = s.replace(/\d+(?:[ /-]\d+)+/g, (m) => (m.replace(/\D/g, '').length >= 6 ? '[number]' : m));
+    s = s.replace(/\b\d[\d,]*(?:\.\d+)?\s*(?:rupees?|rs\.?|inr|rupaye|paise)\b/gi, '[amount]');
+    s = s.replace(/[$€£]\s*\d[\d,.]*(?:\s*(?:k|m|mn|bn|million|billion|thousand)\b)?/gi, '[amount]');
+    s = s.replace(/\b\d+(?:\.\d+)?\s*(?:thousand|million|billion|mn|bn)\b/gi, '[amount]');
+    s = s.replace(WORDS_AMOUNT, '[amount]');
+    return s;
+  }
+  function redactOnce(text) { return redactAfter(redactBase(redactBefore(text))).replace(/\s+/g, ' ').trim().slice(0, MAX_COMMENT); }
+  /** Remove anything that could identify a person or reveal a figure. Applied before storing and again when building a report. Runs until
+      nothing changes, so redact(redact(x)) === redact(x). */
+  function redact(text) {
+    let t = redactOnce(String(text == null ? '' : text));
+    for (let i = 0; i < 4; i++) { const next = redactOnce(t); if (next === t) break; t = next; }
+    return t;
   }
 
   /** A plain site path ("html/money-score.html"): no query, no hash, no host, no "..", nothing odd. Real calculator paths contain
@@ -166,7 +208,7 @@
     return out;
   }
 
-  const api = { TOPICS, MAX_COMMENT, MAX_LOG, USAGE_DAYS, CONFIG, redact, cleanPath, sanitizeEvent, Usage, buildReport, send, summarize, dayOf };
+  const api = { TOPICS, MAX_COMMENT, MAX_LOG, USAGE_DAYS, CONFIG, redact, redactBase, cleanPath, sanitizeEvent, Usage, buildReport, send, summarize, dayOf };
   if (typeof root.document === 'undefined') return api;
 
   /* ═════════════════════ browser part ═════════════════════ */

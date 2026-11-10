@@ -38,13 +38,13 @@ function randomInputs(n: number, seed: number): string[] {
 const ALL = [...CORPUS, ...randomInputs(4000, 20261014)];
 
 test('redactBase equals the website\'s FinosFeedback.redact on the corpus and 4,000 random strings', () => {
-  assert.equal(typeof web.redact, 'function');
-  for (const s of ALL) assert.equal(redactBase(s), web.redact(s), JSON.stringify(s.slice(0, 80)));
+  assert.equal(typeof web.redactBase, 'function');
+  for (const s of ALL) assert.equal(redactBase(s), web.redactBase(s), JSON.stringify(s.slice(0, 80)));
   assert.equal(MAX_COMMENT, web.MAX_COMMENT);
 });
 
 test('null, undefined and non-strings behave like the website', () => {
-  for (const v of [null, undefined, 0, 12345, true, {}, [], ['a@b.com']]) assert.equal(redactBase(v), web.redact(v));
+  for (const v of [null, undefined, 0, 12345, true, {}, [], ['a@b.com']]) assert.equal(redactBase(v), web.redactBase(v));
 });
 
 const LEAKS: [string, RegExp][] = [
@@ -79,9 +79,9 @@ test('redact removes what the website rule lets through: UPI handles, spaced dig
     const out = redact(input);
     for (const re of gone) assert.ok(!re.test(out), `"${input}" -> "${out}" still matches ${re}`);
   }
-  // and the website's rule alone does leak these (this is the reason redact exists; keep it honest)
-  assert.match(web.redact('pay rahul@okhdfcbank'), /okhdfcbank/);
-  assert.match(web.redact('call 98 76 54 32 10'), /98 76 54/);
+  // and the website's base rule alone does leak these (this is why the extra rules exist; keep it honest)
+  assert.match(web.redactBase('pay rahul@okhdfcbank'), /okhdfcbank/);
+  assert.match(web.redactBase('call 98 76 54 32 10'), /98 76 54/);
 });
 
 test('digits of other scripts are redacted too (a Hindi-language user types a phone number in Devanagari)', () => {
@@ -122,4 +122,9 @@ test('redactShort caps length and still redacts', () => {
   const out = redactShort('x'.repeat(500) + ' 9876543210', 40);
   assert.ok(out.length <= 40);
   assert.ok(!/9876543210/.test(redactShort('call 9876543210', 100)));
+});
+
+test('the website\'s full redact equals the phone\'s redact on the corpus and random strings', () => {
+  for (const s of ALL) assert.equal(redact(s), web.redact(s), JSON.stringify(s.slice(0, 80)));
+  for (const v of [null, undefined, 0, 12345, true, {}, [], ['a@b.com']]) assert.equal(redact(v), web.redact(v));
 });
