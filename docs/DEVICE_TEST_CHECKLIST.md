@@ -138,6 +138,9 @@ Mark each failing line with the screen, device model and OS version. Start a fre
 | D-105 | Gestures | Double-tap the picture; swipe right; swipe left, with gesture navigation on | Double-tap = "I'll do this", swipe right keeps the reel, swipe left opens "I know this / fewer on this topic"; none of them triggers the system back gesture |
 | D-106 | My moves and reminders | Learn > My moves: add a move from a reel, tap Remind me, pick a time, then deny and re-allow notifications | The reminder arrives at that time with a plain message; a denied permission gives the plain message of D-22; the button fits a 320 dp screen |
 | D-107 | Small screen, large text, reduce motion | 320 dp width or Display size max, text at 1.35x and 2x, then toggle reduce motion while a reel is open | Nothing is clipped or overlapping on the question, the calm stop, the sheets and the banners (known: the feed's top bar wraps into the topic chips from 1.35x text); the motion setting takes effect without a restart |
+| D-108 | Recorded voice | Reel voice screen: Voice source = Recorded; play one English and one Hindi reel with sound on | The clip plays at once, the lit word follows it, the next scene starts about 0.3 s after the clip ends; no cut-off, no gap; Phone voice switches back to the phone's own voice |
+| D-109 | Quick review and weekly review | Learn > Quick review after answering a few reels; Learn > Weekly review | Five questions from different topics, your own words asked before the reason shows; one weekly entry is kept per week; nothing leaves the phone |
+| D-110 | Press feedback, large text, reduce motion | Tap buttons and cards; set Display size max, then Reduce motion on | Taps react at once and softly; text is not clipped; with Reduce motion on, springs and reveals are replaced by plain fades |
 
 ## Sign-off
 

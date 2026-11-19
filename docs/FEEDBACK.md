@@ -15,6 +15,7 @@ Lets the team learn what to fix without any tracking: feedback and usage counts 
 
 - Feedback item: `{ day, page, topic, rating, comment }`. No user id, no device id, no time finer than a day, no query string. `page` is a site path (`html/money-score.html`) or `unknown`; only `html/`, `calculators/`, `index.html` and `login.html` count.
 - **Redaction happens before storage** (`redact`): amounts (`₹1,50,000`, `Rs 5 lakh`, `12 lakh`, `5k`), any number with 4 or more digits (even glued to letters), emails, links, PAN and Aadhaar-style IDs. Short numbers such as `8.75` and `3` survive so ordinary feedback stays readable. A random-input test asserts no 4-digit run or email can survive.
+  - **Web and phone use the same rules (8 Nov 2026).** `js/finos-feedback.js` `redact` now also removes UPI handles, spaced and non-ASCII digits, lower-case PAN, IFSC codes and amounts in words (ported from `mobile/lib/redact.ts`). `mobile/__tests__/feedback.parity.test.mts` and `redact.parity.test.mts` run both on the same inputs, so they cannot drift apart again.
 - It is applied again when a report is built and again by `summarize`, so an old stored comment, a tampered file or a forged report cannot put personal data in front of the team.
 - Usage counts: `{ day: { path: count } }` for the last 90 days, paths only. They are recorded **only if the `usage` consent is on**; otherwise the counting code is never even downloaded.
 - Keys: `finos_feedback_log` (last 50), `finos_usage`, `finos_consents` (see `docs/PRIVACY.md`).

@@ -100,7 +100,7 @@ eas submit --profile production --platform android # lands on the *internal* tra
 eas submit --profile production --platform ios     # TestFlight first
 ```
 
-Versioning: `app.json` `version` is the human version (1.2.0 on 22 Oct 2026). The iOS build number and Android version code are
+Versioning: `app.json` `version` is the human version (1.4.1 on 10 Nov 2026). The iOS build number and Android version code are
 created and incremented by EAS on each production build; do not add `buildNumber` / `versionCode` (a test fails if you
 do). To release 1.0.1, bump `version` only. To set the first number explicitly: `eas build:version:set`.
 Settings > About shows the `version` from `app.json` through `expo-constants` (`lib/appInfo.ts`; it was hard-coded until 15 Oct), so
@@ -109,7 +109,7 @@ native config at run time, which the web preview cannot prove.
 
 ## 4b. Sideload APK built on your own machine (what the website's download page serves)
 
-This is how FIN-OS 1.0.0, 1.1.0 and 1.2.0 were produced and handed out. It is **not** a store build: no EAS, no Play review, no auto-update, and the backend-hosting problem in section 0 still applies. The commands below are the standard Expo and Gradle ones; the exact sequence used for the three releases was not written down in the repository, so check each step on the first run.
+This is how FIN-OS 1.0.0 to 1.4.1 were produced and handed out. It is **not** a store build: no EAS, no Play review, no auto-update, and the backend-hosting problem in section 0 still applies. The commands below are the standard Expo and Gradle ones; the exact sequence used for the three releases was not written down in the repository, so check each step on the first run.
 
 What the repository gives you:
 

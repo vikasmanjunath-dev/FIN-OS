@@ -2,7 +2,7 @@
 
 Short animated lessons with Mitra the owl, in the FIN-OS phone app (Reels tab, `/learn/reels`) and in a smaller web version (`html/reels.html`). A reel is **data, not video**: 4 to 9 scenes with captions in English and Hindi, an optional picture or character, at most one thing to do (a "beat"), and one quiz question. The phone draws it, so a reel is a few kilobytes, works offline, follows language and text size, and a wrong figure is fixed by editing one line.
 
-**This is the one reference.** What is built and what still needs people is on `docs/REELS-STATUS.md`. Per-feature detail is in `docs/reels/` (one file per feature, linked below). Adding a reel: `docs/REELS-AUTHORS.md`. The older plans (`docs/REELS-MVP-PLAN.md`, `docs/REELS-400-PLAN.md`) are history with a status header. Verified against the code on **24 Oct 2026** (the date the numbers below were produced).
+**This is the one reference.** What is built and what still needs people is on `docs/REELS-STATUS.md`. Per-feature detail is in `docs/reels/` (one file per feature, linked below). Adding a reel: `docs/REELS-AUTHORS.md`. The older plans (`docs/REELS-MVP-PLAN.md`, `docs/REELS-400-PLAN.md`) are history with a status header. Counts in sections 10 and 11 were re-measured on **19 Nov 2026**; the rest was last verified against the code on **24 Oct 2026** (the date the numbers below were produced).
 
 ## 1. What it is, and the principles
 
@@ -77,6 +77,7 @@ All paths under `mobile/` unless stated. 80 modules in `lib/reels/`.
 - **Reminders** (all local, all opt-in or tied to a person's own choice): "when will you do it?" after a reel, an optional daily nudge, a follow-up on a pledge on day 3 (default on only after the person set a nudge or a reminder), an optional Sunday look-back, and one merged plan `planAll`: at most one notice a day, between 8:00 and 21:00, at most 6 scheduled (`MAX_SCHEDULED`) within 14 days, no amount on the lock screen. Taps open a plain in-app route only. `docs/reels/notifications.md`.
 - **Reels health** (`stats.ts`, `app/learn/health.tsx`, from Diagnostics): daily counters with no reel names or amounts, shown against the blueprint's starting hypotheses (Money Days, moves per 100 reels, steering taps, minutes, episode finish rate, pledges). Shares are not counted.
 - **Map and series**: the Money Map (`/learn/map`, 9 topics x 4 rungs, no points) and 6 live story series (`/learn/series`); 2 draft series (Married and Money, New Parent) appear only when every episode is live.
+- **Learning loop (Nov 2026)**: each answered reel has a review stage 0 to 4 (`spaced.ts`); a right answer steps up and the refresher falls due after 1, 3, 7, 21 and 60 days, a miss starts again. **Quick review** (`/learn/review`, `recall.ts`) asks five due questions from different topics and has the person write the reason in their own words before showing the reel's (nothing written is kept). The **weekly money review** (`/learn/weekly`, `weeklyReview.ts`) keeps a win, a gap and one move per ISO week, the last eight weeks (`finos_session_reels_weekly`, never synced). The Home card says how many questions are due; Reels health shows reels per stage. `docs/reels/learning.md`, `reels-learning.test.mts`.
 - Everything in this section: `docs/reels/habit-loop.md`.
 
 ## 6. Trust, privacy and storage
@@ -104,6 +105,7 @@ Two human gates stay open: legal review of the privacy and terms text (U2) and t
 ## 7. Voice, accessibility, performance
 
 - **Voice** (sound is off until the person turns it on; never autoplays): the phone's text-to-speech reads captions, each beat's question and reveal, and the quiz and its verdict. `speechText` makes amounts, percent, acronyms and the 1930 helpline speakable; scenes are stretched to what the voice needs (`withVoiceTiming`, about 31 s for a 23 s reel); the caption lights the word being spoken; mood changes rate and pitch; `pickVoice` prefers enhanced voices. A voice screen (`/learn/voice`) sets speed, style, breaths and the voice per language. **Nobody has listened to it on a real phone.** A recorded voice is not built: a recording brief exists (`docs/voice/recording-brief-en.md`, `-hi.md`) but playing clips needs `expo-audio`, which is not a dependency. `docs/reels/voice.md`.
+- **Recorded voice (Nov 2026)**: every live reel has recorded clips in both languages (1,892 clips, 48 MB, `mobile/assets/voice/`, made by `npm run reels:voiceover` with the Mac voices: Rishi for English, Lekha for Hindi; other engines are `piper`, `google`, `elevenlabs`). The clip is the scene's clock (`clipplayer.ts`, lengths and word cues in `voiceManifest.ts`), so the lit word and the voice cannot drift. The Reel voice screen has **Voice source: Recorded** (default) or **Phone voice** (the phone's own voices, with the speed and style settings above). The web feed plays the same clips when the person turns Voice on (off by default, `finos_session_reels_web_voice`; `scripts/export-reels-voice-web.mts` copies them to `assets/reels-voice/`). **Nobody has heard the recorded voice on a phone**; a studio voice needs an account or the Piper install. `docs/reels/voice.md`.
 - **Accessibility**: one 44 px adjustable scene control; the picture is the one pause/play button; off-screen reels are hidden from screen readers; live regions hold words only (`announce()` on iOS); every beat has a no-touch path and Skip; reduce-motion and large text honoured (audited at 320 px, 1x/1.35x/2x, English and Hindi). Checked in the web preview and DOM only; **VoiceOver and TalkBack have not been tried on a phone**. `docs/reels/accessibility.md`.
 - **Performance**: target under 30 KB a reel (largest is 4.3 KB; library 422 KB as JSON), no network, about 30 fps, no sound autoplay. The clock is not React state; a settled picture is not redrawn; Mitra's still parts are built once. Counted: 689 of 936 scenes have no picture, worst scene is 20 of 30 animated pieces (`npm run reels:perf`); in a laptop web preview, render time per second fell 2.5-3.5 times. **Never measured on a phone.** `docs/reels/performance.md`.
 - **Haptics** (light/medium impact and success/warning on beats, answers and Money date, `expo-haptics`) are in the code and untried on a phone.
@@ -139,15 +141,15 @@ Checkers' Hindi and compliance findings so far are in `docs/reels/review-sheets.
 
 ## 10. Testing and tools
 
-Run from `Initial Deployment/mobile` unless noted. Counts are from 24 Oct 2026.
+Run from `Initial Deployment/mobile` unless noted. Counts are from 19 Nov 2026 (typecheck re-run; lint not re-run since 24 Oct).
 
 | Command | What it does / prints |
 |---|---|
-| `npm test` | all mobile tests: **1,567 pass, 0 fail** (about 2.5 minutes). 22 `__tests__/reels*.test.mts` files (about 450 test blocks) cover the library, beats, ranker, personal figures, habit loop, notifications, voice, a11y, perf, share, review tools, QA |
-| `npm run typecheck` | `tsc --noEmit`; clean on 24 Oct |
+| `npm test` | all mobile tests: **1,655 pass, 0 fail** (19 Nov 2026) (about 2.5 minutes). 30 `__tests__/reels*.test.mts` files (533 test blocks) cover the library, beats, ranker, personal figures, habit loop, notifications, voice, a11y, perf, share, review tools, QA |
+| `npm run typecheck` | `tsc --noEmit`; clean on 19 Nov |
 | `npm run lint` | eslint, `--max-warnings 0`; clean on 24 Oct |
 | `npm run reels:check -- <id>` | the author's checklist for one reel (validator, Hindi/compliance state, ladder, tool, trust, beat, duration with the voice, quiz, wording, size). Live library first, then drafts |
-| `npm run reels:check -- --all` | one line per reel with problems, then library-wide; exit 1 if anything blocks. Today: 177 reels, 163 clean, 0 blocking, 15 warnings, 1 known. With `--drafts`: 50 reels, 29 clean, 0 blocking, 14 warnings, 11 known |
+| `npm run reels:check -- --all` | one line per reel with problems, then library-wide; exit 1 if anything blocks. Today: 179 reels, 164 clean, 0 blocking, 16 warnings, 1 known. With `--drafts`: 90 reels, 67 clean, 0 blocking, 17 warnings, 11 known |
 | `npm run reels:check -- --summary` | coverage: topic x rung map, formats, pillars, answer positions, tool links, reachability, trust notes, review state, size. `--summary --drafts` for drafts. (`--drafts` alone prints usage) |
 | `npm run reels:perf` | rendering cost counted from the data (pieces per scene, nodes per picture, Mitra nodes, ten heaviest reels); `-- <id>`, `-- --all`, `--drafts` |
 | `npm run reels:hindi` | writes `docs/hindi-review/` (CSV per topic, glossary, variants, spelling, index, README); `-- --check` compares without writing (exit 1 if stale) |
@@ -156,23 +158,23 @@ Run from `Initial Deployment/mobile` unless noted. Counts are from 24 Oct 2026.
 | same prefix with `scripts/export-reels-web.mts` (`--check`, `--parity`) | writes `../js/reels-data.json` and prints raw and gzipped KB against the budget; `--check` says whether it is current |
 | same prefix with `scripts/verify-numbers.mts` | the phone calculators re-checked by a second method; prints NOTE lines where two screens legitimately differ |
 | same prefix with `scripts/voice-brief.mts en` (or `hi`) `> ../docs/voice/recording-brief-en.md` | the recording brief for a voice artist |
-| `node --test tests/reels-web.test.js` (repo root) | 21 tests: the data file is current, web maths match the app's TypeScript, offline and tool links |
+| `node --test tests/reels-web.test.js` (repo root) | 27 tests: the data file is current, web maths match the app's TypeScript, offline and tool links |
 | `python3 scripts/smoke-routes.py`, `python3 scripts/layout-audit.py` (need `npx expo start --web` running) | every screen opened for errors / text clipping at large text and 320 px; usage in each file's header |
 | `npx expo start --web`, open `/learn/reels?id=<id>` | look at one reel |
-| `EXPO_PUBLIC_REELS_DRAFTS=1 npx expo start` | include the 50 drafts (review or test build) |
+| `EXPO_PUBLIC_REELS_DRAFTS=1 npx expo start` | include the 90 drafts (review or test build) |
 
-`docs/REELS-INTEGRITY.md` and `docs/REELS-SWEEP.md` (an integrity review and an end-to-end sweep) were being written by other sessions at the time of writing. A device checklist is `docs/DEVICE_TEST_CHECKLIST.md` section J; there is no `reels:smoke` npm script today.
+`docs/REELS-INTEGRITY.md` and `docs/REELS-SWEEP.md` (an integrity review and an end-to-end sweep) were being written by other sessions at the time of writing. A device checklist is `docs/DEVICE_TEST_CHECKLIST.md` section J; `npm run reels:smoke` (`scripts/reels-smoke.py`, needs the web preview running) opens every Reels screen in English and Hindi at 375 px and at 320 px / 2x text; findings are in `docs/REELS-SWEEP.md`.
 
 Two tests read this file, so do not rename these: `Challenges v2` and `suggestChallenge` (section 5) and the heading `Your Number, wave 2` with all 17 reel ids in backticks (section 4) (`reels-challenges2.test.mts`, `reels-yournumber.test.mts`).
 
 ## 11. Known limits
 
 - **Nothing here has run on a real phone**: notifications (scheduling, permission, delivery, tap), haptics, text-to-speech quality in either language, share as image, VoiceOver/TalkBack, frame rate on a mid-range Android, gestures against the system back swipe.
-- **Review gates are open**: no reel has a Hindi or compliance sign-off (0 of 177 live, 0 of 50 drafts). Hindi first pass flagged 360 of 4,764 texts, mostly inconsistent terms (income, salary, tax regime, emergency fund) for a native reader to decide; 473 claims in 161 of 227 reels are waiting for a source and verdict; 8 rates are stated without an assumption cue.
+- **Review gates are open**: no reel has a Hindi or compliance sign-off (0 of 179 live, 0 of 90 drafts). Hindi first pass flagged 360 of 4,764 texts, mostly inconsistent terms (income, salary, tax regime, emergency fund) for a native reader to decide; 473 claims in 161 of 227 reels are waiting for a source and verdict; 8 rates are stated without an assumption cue.
 - **Tax year**: the tax reels use FY 2025-26 constants; it is FY 2026-27. Re-check slabs, limits and dates (`tax-dates`, `section-80c`, `section-80d`, `hra-basics`).
 - **Figure caveats** (right figure, unstated assumption or rounding): `path-spare-monthly`, `choose-bonus`, `no-cost-emi`, `path-card-bill`, `car-buying-math`, `lifestyle-creep`, `real-return-fd`, `standard-deduction` (`mobile/docs/REELS-FIGURE-FINDINGS.md`). Content was not edited for them.
 - **Personal reels are not in the review sheets** (their sentences are built at run time from `personal*.ts`).
 - **Code gaps found while writing this guide**: `suggestChallenge` is not wired into any screen; `useReelsJourney` calls `personaliseReels(LIBRARY, mine)` without the strain context, so `start-early` is rebuilt from a strained person's SIP on the All tab (the ranker still never offers it to them); no helpline-style resource card for a person under strain exists (the blueprint lists one); the accessibility pass 2 "not fixed" list (feed top bar wrapping at 1.35x, English-only feed labels, caption and voice both announced with a screen reader) was not re-checked.
-- **Not built** (needs assets, people or a backend): recorded voice and commissioned art, more Indian languages (Marathi, Tamil, Telugu, Bengali: would need a per-language review record in the types), backend sync and push, a Money date over the network, share counters, background milestone notices, waves 5 to 9 of the content plan (about 270 more reels). Ask Mitra's tool answers are English even in Hindi; Hindi UI strings on the web page are drafts.
+- **Not built** (needs assets, people or a backend): commissioned art, a studio voice (the recorded clips are Mac voices) and hearing them on a phone, more Indian languages (Marathi, Tamil, Telugu, Bengali: would need a per-language review record in the types), backend sync and push, a Money date over the network, share counters, background milestone notices, waves 5 to 9 of the content plan (about 270 more reels). Ask Mitra's tool answers are English even in Hindi; Hindi UI strings on the web page are drafts.
 - **Web page** has no personal ranker, so no receipts or milestones; its data file must be regenerated after every reel change and would need splitting by 400 reels.
 - **Tool paths**: scam reels deliberately have no tool button and may name only 1930 and cybercrime.gov.in (a test enforces it).

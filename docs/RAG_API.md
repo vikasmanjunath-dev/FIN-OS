@@ -287,6 +287,16 @@ A failed job (e.g., the real fork-crash bug hit during this build, see [RAG_PHAS
 
 ---
 
+## ✅ `POST /api/route` — BUILT (25 Oct 2026, SML router, shadow mode)
+
+Body `{"text": "<one message>"}`. Returns the router's decision: `router_version`, `intent`, `confidence`, `risk` (`high` for `advice_seeking` and `evasion_request`), `high_risk_mass`, `needs_guard`, `top3`. Predictor: `sml/runtime/router_predict.py` (default version set there; see `sml/README.md`).
+
+- **Privacy:** the text is never logged, cached or stored. Only `intent` and `needs_guard` feed the Prometheus counter `rag_router_decisions_total`.
+- Empty text answers `422 {"error": "text is empty"}`. Any other failure answers `503 {"error": "router unavailable (<ErrorType>)"}`, never a stack trace: shadow mode must not break a caller.
+- The Arya panel calls it fire-and-forget only when `localStorage.finos_sml_router_shadow === '1'` (default off) and keeps counters, never text.
+
+---
+
 ## ✅ `POST /api/search` — BUILT, verified (Phase 1)
 
 Raw vector search only — no BM25, no RRF, no rerank, no generation. Mostly superseded by `/api/query` for real use; kept for debugging retrieval quality in isolation.

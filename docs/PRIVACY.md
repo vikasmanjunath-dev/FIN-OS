@@ -34,3 +34,7 @@ The page maps each DPDP right to a control that already exists (export, edit, de
 ## Not done
 
 Legal review; operator and grievance details; a cookie banner (the app sets none, only first-party storage); a data-processing agreement with the account provider; server-side retention rules (the account service is currently unreachable).
+
+## Local-only switches added in Oct and Nov 2026
+
+All off or on-device; none sends anything unless stated. `finos_sml_router_shadow` (sends each typed message to the person's own local rag-engine `/api/route`, stores counters only; listed in the registry's local-services flow), `finos_pulse_counters_on` (counts PULSE widget ids and positions, no text), `finos_session_reels_weekly` (the weekly money review lines, never synced, included in the person's own export and backup), `finos_session_reels_web_voice` (the web feed's voice button). The reels' recorded voice clips ship inside the app and the site; playing them contacts no service.
