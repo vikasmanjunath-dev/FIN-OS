@@ -29,15 +29,18 @@ HI = {"advice_seeking", "evasion_request"}
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--version", required=True)
+    ap.add_argument("--legacy-data", action="store_true", help="use exactly the data of 0.4.x: no train_extra2.jsonl and no dev3.jsonl (reproduces 0.4.1 bit for bit)")
     ap.add_argument("--overwrite", action="store_true", help="allow replacing the artifacts of an existing version (versions are frozen once a model card exists)")
     a = ap.parse_args()
     out = HERE.parents[0] / "models" / "router" / a.version
     if (out / "embed_lr.npz").exists() and not a.overwrite:
         sys.exit(f"refusing to overwrite router {a.version}: {out} already has a model. Pick a new --version, or pass --overwrite on purpose.")
-    S = {k: T.load(f) for k, f in (("train", "train.jsonl"), ("extra", "train_extra.jsonl"), ("valid", "valid.jsonl"),
+    ld = lambda f: T.load(f) if (T.DATA / f).exists() else []
+    S = {k: ld(f) for k, f in (("train", "train.jsonl"), ("extra", "train_extra.jsonl"), ("extra2", "train_extra2.jsonl"), ("test7", "test_v7.jsonl"), ("valid", "valid.jsonl"),
                                   ("dev", "dev.jsonl"), ("nat1", "natural_test.jsonl"), ("test2", "test_v2.jsonl"), ("test3", "test_v3.jsonl"),
                                   ("test4", "test_v4.jsonl"), ("test5", "test_v5.jsonl"), ("test6", "test_v6.jsonl"))}
-    S["train_all"] = S["train"] + S["extra"]
+    if not a.legacy_data: S["dev"] = S["dev"] + ld("dev3.jsonl")      # C20b: the enlarged dev set chooses the blend weight and the guard threshold
+    S["train_all"] = S["train"] + S["extra"] + ([] if a.legacy_data else S["extra2"])      # test_v7 is scored below but is DIAGNOSTIC for 0.5.0 (the new data was written after its failures were seen)
     X = {k: [r["text"] for r in v] for k, v in S.items()}; Y = {k: [r["intent"] for r in v] for k, v in S.items()}
     # `test` = the two sets used for the v0.2 numbers (comparable); `all` = test + the fresh test_v3 (never tuned on)
     X["test"] = X["nat1"] + X["test2"]; Y["test"] = Y["nat1"] + Y["test2"]
@@ -49,9 +52,9 @@ def main():
     feat = lambda ts, fit=False: hstack([(wv.fit_transform if fit else wv.transform)(ts), (cv.fit_transform if fit else cv.transform)(ts)]).tocsr()
     Xtr = feat(X["train_all"], fit=True)
     cache = HERE / ".embed_cache.npz"
-    E = {k: T.norm_rows(T.embed_texts(X[k], cache)) for k in ("train_all", "valid", "dev", "nat1", "test2", "test3", "test4", "test5", "test6")}
+    E = {k: T.norm_rows(T.embed_texts(X[k], cache)) for k in ("train_all", "valid", "dev", "nat1", "test2", "test3", "test4", "test5", "test6", "test7")}
     E["test"] = np.vstack([E["nat1"], E["test2"]]); E["all"] = np.vstack([E["test"], E["test3"]])
-    TF = {k: feat(X[k]) for k in ("valid", "dev", "nat1", "test2", "test3", "test4", "test5", "test6", "test", "all")}
+    TF = {k: feat(X[k]) for k in ("valid", "dev", "nat1", "test2", "test3", "test4", "test5", "test6", "test7", "test", "all")}
 
     def pick(fit_fn, grid, Xdev, label):
         best = None
@@ -67,7 +70,7 @@ def main():
     rep["ensemble_embed_weight"] = best_w
     blend = lambda s: best_w * P(s)["em"] + (1 - best_w) * P(s)["tf"]
 
-    for s in ("valid", "dev", "nat1", "test2", "test3", "test4", "test5", "test6", "test", "all"):
+    for s in ("valid", "dev", "nat1", "test2", "test3", "test4", "test5", "test6", "test7", "test", "all"):
         rep["results"].setdefault("rules", {})[s] = T.evaluate("rules", Y[s], [T.rules_predict(t) for t in X[s]])
         rep["results"].setdefault("tfidf_lr", {})[s] = T.evaluate("tfidf_lr", Y[s], tf_m.predict(TF[s]))
         rep["results"].setdefault("embed_lr", {})[s] = T.evaluate("embed_lr", Y[s], em_m.predict(E[s]))
@@ -84,7 +87,7 @@ def main():
     ok = [t for t in grid if guard_stats("dev", t)["recall"] >= 0.99]
     thr = max(ok) if ok else min(grid, key=lambda t: (-guard_stats("dev", t)["recall"], guard_stats("dev", t)["false_alarm_rate"]))
     rep["guard_threshold"] = {"chosen_on_dev": thr, "rule": "regex OR high-risk probability mass >= threshold", "met_dev_recall_99": bool(ok)}
-    rep["guard"] = {s: guard_stats(s, thr) for s in ("dev", "nat1", "test2", "test3", "test4", "test5", "test6", "test", "all")}
+    rep["guard"] = {s: guard_stats(s, thr) for s in ("dev", "nat1", "test2", "test3", "test4", "test5", "test6", "test7", "test", "all")}
     rep["guard_curve_test"] = [{"thr": t, **guard_stats("test", t)} for t in (0.1, 0.2, 0.3, 0.4, 0.5)]
     # out-of-sample confirmation: the SAME thresholds on test_v3, which nothing was tuned on
     rep["guard_curve_test3"] = [{"thr": t, **guard_stats("test3", t)} for t in (0.1, 0.2, 0.3, 0.4, 0.5)]
@@ -110,7 +113,7 @@ def main():
     joblib.dump({"word": wv, "char": cv, "lr": tf_f, "classes": list(tf_f.classes_), "embed_weight": best_w}, out / "tfidf_lr.joblib")
     np.savez(out / "embed_lr.npz", coef=em_f.coef_, intercept=em_f.intercept_, classes=np.array(em_f.classes_), embed_model=config.EMBED_MODEL, guard_threshold=thr, embed_weight=best_w)
     (out / "eval.json").write_text(json.dumps(rep, indent=1, ensure_ascii=False))
-    brief = {m: {s: (r["accuracy"], r["acc_ci95"], r["macro_f1"]) for s, r in rep["results"][m].items() if s in ("dev", "nat1", "test2", "test3", "test4", "test5", "test6", "test", "all")} for m in rep["results"]}
+    brief = {m: {s: (r["accuracy"], r["acc_ci95"], r["macro_f1"]) for s, r in rep["results"][m].items() if s in ("dev", "nat1", "test2", "test3", "test4", "test5", "test6", "test7", "test", "all")} for m in rep["results"]}
     print(json.dumps({"counts": rep["counts"], "C": [rep["tfidf_C"], rep["embed_C"]], "w": best_w, "guard_thr": thr, "guard": rep["guard"], "gates": rep["gates"], "gates_test5": rep["gates_test5"], "gates_test6": rep["gates_test6"], "guard_curve_dev": rep["guard_curve_dev"], "guard_curve_test6": rep["guard_curve_test6"], "lang": rep["lang_accuracy_test"]}, indent=1))
     print(json.dumps(brief, indent=1)); print("saved", out)
 

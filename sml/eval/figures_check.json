@@ -1,0 +1,100 @@
+{
+ "version": "2026-10-26.1",
+ "anchors": [
+  {
+   "id": "sec_80c_limit",
+   "source": "html/tax.html",
+   "ok": true
+  },
+  {
+   "id": "sec_80d_self_family",
+   "source": "html/tax.html",
+   "ok": true
+  },
+  {
+   "id": "sec_80d_parents_senior",
+   "source": "html/tax.html",
+   "ok": true
+  },
+  {
+   "id": "sec_80e_no_cap",
+   "source": "html/tax.html",
+   "ok": true
+  },
+  {
+   "id": "sec_80ccd1b",
+   "source": "html/tax.html",
+   "ok": true
+  },
+  {
+   "id": "ltcg_equity_rate",
+   "source": "html/tax.html",
+   "ok": true
+  },
+  {
+   "id": "stcg_equity_rate",
+   "source": "html/tax.html",
+   "ok": true
+  },
+  {
+   "id": "ltcg_equity_exemption",
+   "source": "html/tax.html",
+   "ok": true
+  },
+  {
+   "id": "property_ltcg_holding",
+   "source": "html/tax.html",
+   "ok": true
+  },
+  {
+   "id": "property_ltcg_rate",
+   "source": "html/tax.html",
+   "ok": true
+  },
+  {
+   "id": "std_deduction_new",
+   "source": "html/tax.html",
+   "ok": true
+  },
+  {
+   "id": "std_deduction_taxcore",
+   "source": "js/finos-taxcore.js",
+   "ok": true
+  },
+  {
+   "id": "new_regime_nil_to_12l",
+   "source": "js/finos-taxcore.js",
+   "ok": true
+  },
+  {
+   "id": "cess",
+   "source": "js/finos-taxcore.js",
+   "ok": true
+  },
+  {
+   "id": "gst_replaced",
+   "source": "html/tax.html",
+   "ok": true
+  }
+ ],
+ "candidates": [
+  {
+   "entry": "property_ltcg_rate",
+   "kind": "stale_probe",
+   "file": "js/finos-windfall.js",
+   "context": " from relatives → exempt Sec 56(2)(x) * — Property sale: LTCG (>2yr) 20% with indexation; STCG at slab * — FD maturity: interest taxed at slab; p"
+  },
+  {
+   "entry": "property_ltcg_rate",
+   "kind": "stale_probe",
+   "file": "js/finos-windfall.js",
+   "context": "'property', label:'Property Sale', icon:'🏠', taxNote:'LTCG (>2yr): 20% + indexation · STCG: slab rate · 54/54F exemption if reinvesting in prop"
+  },
+  {
+   "entry": "property_ltcg_rate",
+   "kind": "stale_probe",
+   "file": "js/finos-gold-tracker.js",
+   "context": " capital gains EXEMPT if held to maturity; LTCG 20%+indexation * if redeemed on secondary market after"
+  }
+ ]
+}

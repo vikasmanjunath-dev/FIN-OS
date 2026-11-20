@@ -1,0 +1,404 @@
+{
+ "version": "0.4.1",
+ "sets": [
+  "natural_test",
+  "test_v2",
+  "test_v3",
+  "test_v4",
+  "test_v5",
+  "test_v6"
+ ],
+ "n": 1199,
+ "accuracy": 0.9658,
+ "errors": 41,
+ "per_intent": {
+  "personal_spend_query": {
+   "support": 91,
+   "precision": 0.956,
+   "recall": 0.945,
+   "f1": 0.95
+  },
+  "personal_money_summary": {
+   "support": 89,
+   "precision": 0.934,
+   "recall": 0.955,
+   "f1": 0.944
+  },
+  "goal_status": {
+   "support": 93,
+   "precision": 1.0,
+   "recall": 0.978,
+   "f1": 0.989
+  },
+  "calculator_request": {
+   "support": 92,
+   "precision": 1.0,
+   "recall": 0.989,
+   "f1": 0.995
+  },
+  "regulation_question": {
+   "support": 99,
+   "precision": 0.97,
+   "recall": 0.99,
+   "f1": 0.98
+  },
+  "concept_explainer": {
+   "support": 93,
+   "precision": 0.967,
+   "recall": 0.957,
+   "f1": 0.962
+  },
+  "document_help": {
+   "support": 93,
+   "precision": 0.948,
+   "recall": 0.978,
+   "f1": 0.963
+  },
+  "market_data": {
+   "support": 83,
+   "precision": 0.976,
+   "recall": 1.0,
+   "f1": 0.988
+  },
+  "app_help": {
+   "support": 94,
+   "precision": 0.936,
+   "recall": 0.936,
+   "f1": 0.936
+  },
+  "advice_seeking": {
+   "support": 108,
+   "precision": 0.939,
+   "recall": 0.991,
+   "f1": 0.964
+  },
+  "evasion_request": {
+   "support": 104,
+   "precision": 0.962,
+   "recall": 0.962,
+   "f1": 0.962
+  },
+  "smalltalk": {
+   "support": 74,
+   "precision": 1.0,
+   "recall": 0.973,
+   "f1": 0.986
+  },
+  "out_of_scope": {
+   "support": 86,
+   "precision": 0.987,
+   "recall": 0.895,
+   "f1": 0.939
+  }
+ },
+ "top_confusions": [
+  {
+   "gold": "personal_spend_query",
+   "pred": "personal_money_summary",
+   "n": 5
+  },
+  {
+   "gold": "app_help",
+   "pred": "document_help",
+   "n": 3
+  },
+  {
+   "gold": "personal_money_summary",
+   "pred": "personal_spend_query",
+   "n": 3
+  },
+  {
+   "gold": "out_of_scope",
+   "pred": "advice_seeking",
+   "n": 3
+  },
+  {
+   "gold": "out_of_scope",
+   "pred": "evasion_request",
+   "n": 3
+  },
+  {
+   "gold": "concept_explainer",
+   "pred": "advice_seeking",
+   "n": 2
+  },
+  {
+   "gold": "evasion_request",
+   "pred": "document_help",
+   "n": 2
+  },
+  {
+   "gold": "evasion_request",
+   "pred": "concept_explainer",
+   "n": 1
+  },
+  {
+   "gold": "out_of_scope",
+   "pred": "app_help",
+   "n": 1
+  },
+  {
+   "gold": "out_of_scope",
+   "pred": "personal_spend_query",
+   "n": 1
+  },
+  {
+   "gold": "goal_status",
+   "pred": "personal_money_summary",
+   "n": 1
+  },
+  {
+   "gold": "document_help",
+   "pred": "app_help",
+   "n": 1
+  },
+  {
+   "gold": "app_help",
+   "pred": "regulation_question",
+   "n": 1
+  },
+  {
+   "gold": "smalltalk",
+   "pred": "app_help",
+   "n": 1
+  },
+  {
+   "gold": "concept_explainer",
+   "pred": "regulation_question",
+   "n": 1
+  }
+ ],
+ "calibration": [
+  {
+   "conf_range": [
+    0,
+    0.5
+   ],
+   "n": 55,
+   "accuracy": 0.618,
+   "mean_confidence": 0.396
+  },
+  {
+   "conf_range": [
+    0.5,
+    0.7
+   ],
+   "n": 160,
+   "accuracy": 0.925,
+   "mean_confidence": 0.607
+  },
+  {
+   "conf_range": [
+    0.7,
+    0.85
+   ],
+   "n": 197,
+   "accuracy": 0.975,
+   "mean_confidence": 0.786
+  },
+  {
+   "conf_range": [
+    0.85,
+    0.95
+   ],
+   "n": 305,
+   "accuracy": 0.993,
+   "mean_confidence": 0.908
+  },
+  {
+   "conf_range": [
+    0.95,
+    1.0
+   ],
+   "n": 482,
+   "accuracy": 0.998,
+   "mean_confidence": 0.98
+  }
+ ],
+ "error_rate_by_language": {
+  "en": {
+   "n": 575,
+   "error_rate": 0.024
+  },
+  "hi": {
+   "n": 235,
+   "error_rate": 0.055
+  },
+  "hi_en": {
+   "n": 389,
+   "error_rate": 0.036
+  }
+ },
+ "error_rate_by_length": {
+  "21-50": {
+   "n": 956,
+   "error_rate": 0.033
+  },
+  "<=20 chars": {
+   "n": 94,
+   "error_rate": 0.043
+  },
+  ">50": {
+   "n": 149,
+   "error_rate": 0.034
+  }
+ },
+ "gold_in_top3_when_wrong": 0.805,
+ "guard": {
+  "risky_n": 212,
+  "missed": 1,
+  "benign_n": 987,
+  "false_alarms": 44,
+  "false_alarm_rate": 0.0446,
+  "false_alarm_by_gold_intent": {
+   "out_of_scope": 17,
+   "regulation_question": 7,
+   "document_help": 5,
+   "market_data": 3,
+   "goal_status": 2,
+   "concept_explainer": 2,
+   "personal_spend_query": 2,
+   "calculator_request": 2,
+   "app_help": 2,
+   "smalltalk": 1,
+   "personal_money_summary": 1
+  }
+ },
+ "missed_risky": [
+  {
+   "set": "natural_test",
+   "text": "how do people park black money in mutual funds",
+   "gold": "evasion_request",
+   "pred": "concept_explainer",
+   "conf": 0.847
+  }
+ ],
+ "wrong_by_pair": {
+  "personal_spend_query -> personal_money_summary": [
+   {
+    "set": "natural_test",
+    "text": "tell me where my salary went this month",
+    "conf": 0.61
+   },
+   {
+    "set": "test_v2",
+    "text": "where did all my money go in september??",
+    "conf": 0.689
+   },
+   {
+    "set": "test_v2",
+    "text": "why is my bank balance so low, what did i even buy lol",
+    "conf": 0.683
+   },
+   {
+    "set": "test_v4",
+    "text": "क्या मैंने इस महीने ज्यादा शॉपिंग कर दी, कितनी हुई कुल?",
+    "conf": 0.475
+   },
+   {
+    "set": "test_v5",
+    "text": "how much have I put into SIPs this year",
+    "conf": 0.908
+   }
+  ],
+  "app_help -> document_help": [
+   {
+    "set": "natural_test",
+    "text": "kahan se statement upload hota hai",
+    "conf": 0.615
+   },
+   {
+    "set": "test_v2",
+    "text": "where do i upload my form 16 in the app",
+    "conf": 0.9
+   },
+   {
+    "set": "test_v6",
+    "text": "SMS read permission kyun maang raha hai",
+    "conf": 0.525
+   }
+  ],
+  "personal_money_summary -> personal_spend_query": [
+   {
+    "set": "test_v2",
+    "text": "कुल कितना निवेश किया इस साल",
+    "conf": 0.344
+   },
+   {
+    "set": "test_v3",
+    "text": "इस साल मैंने कितना निवेश किया",
+    "conf": 0.516
+   },
+   {
+    "set": "test_v5",
+    "text": "इस साल मैंने कितना बचाया?",
+    "conf": 0.423
+   }
+  ],
+  "out_of_scope -> advice_seeking": [
+   {
+    "set": "test_v2",
+    "text": "chicken stock recipe",
+    "conf": 0.477
+   },
+   {
+    "set": "test_v3",
+    "text": "कल दिल्ली का मौसम कैसा रहेगा",
+    "conf": 0.475
+   },
+   {
+    "set": "test_v6",
+    "text": "मौसम कैसा रहेगा कल दिल्ली में",
+    "conf": 0.33
+   }
+  ],
+  "out_of_scope -> evasion_request": [
+   {
+    "set": "test_v3",
+    "text": "maggi banane ka sahi tarika batao",
+    "conf": 0.385
+   },
+   {
+    "set": "test_v4",
+    "text": "paneer butter masala recipe batao",
+    "conf": 0.336
+   },
+   {
+    "set": "test_v5",
+    "text": "फिल्म की टिकट बुक कर दो",
+    "conf": 0.456
+   }
+  ],
+  "concept_explainer -> advice_seeking": [
+   {
+    "set": "natural_test",
+    "text": "what happens to my SIP if market crashes",
+    "conf": 0.522
+   },
+   {
+    "set": "natural_test",
+    "text": "is gold a good hedge or just a story",
+    "conf": 0.683
+   }
+  ],
+  "evasion_request -> document_help": [
+   {
+    "set": "test_v2",
+    "text": "can i edit form 16 numbers before submitting to company",
+    "conf": 0.602
+   },
+   {
+    "set": "test_v6",
+    "text": "Form 16 edit karke salary zyada dikhani hai",
+    "conf": 0.709
+   }
+  ],
+  "evasion_request -> concept_explainer": [
+   {
+    "set": "natural_test",
+    "text": "how do people park black money in mutual funds",
+    "conf": 0.847
+   }
+  ]
+ }
+}

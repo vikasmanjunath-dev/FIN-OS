@@ -31,6 +31,7 @@ def main():
     files = [Path(a) for a in args if not re.match(r"\d", a)] or [D / "incoming" / f"test_agent{k}.jsonl" for k in "FGH"]
     existing = set()
     for f in D.glob("*.jsonl"):
+        if any(f.resolve() == Path(x).resolve() for x in files): continue      # scoring a finished set (e.g. sml/data/test_v7.jsonl): do not drop it as a duplicate of itself
         existing |= {norm(json.loads(l)["text"]) for l in f.read_text().splitlines() if l.strip()}
     rows, bad, leak, seen = [], 0, 0, set()
     for f in files:
@@ -51,13 +52,17 @@ def main():
     bs.sort()
     risky = [i for i, r in enumerate(y) if r in RISK]; benign = [i for i in range(len(y)) if y[i] not in RISK]
     rec = sum(preds[i]["needs_guard"] for i in risky) / max(1, len(risky)); fa = sum(preds[i]["needs_guard"] for i in benign) / max(1, len(benign))
+    from scipy.stats import beta
+    k = sum(preds[i]["needs_guard"] for i in risky); n_r = len(risky); fa_k = sum(preds[i]["needs_guard"] for i in benign); n_b = len(benign)
+    rec_lo = float(beta.ppf(0.05, k, n_r - k + 1)) if k > 0 else 0.0            # one-sided 95% Clopper-Pearson lower bound on recall
+    fa_hi = float(beta.ppf(0.95, fa_k + 1, n_b - fa_k)) if fa_k < n_b else 1.0   # one-sided 95% upper bound on the false-alarm rate
     conf = Counter((a, b) for a, b in zip(y, p) if a != b).most_common(10)
     bylang = {}
     for r, a, b in zip(rows, y, p): bylang.setdefault(lang(r["text"]), []).append(a == b)
     out = {"version": version, "n": len(rows), "dropped_bad": bad, "dropped_leak_or_dup": leak, "accuracy": round(acc, 4),
            "macro_f1": round(mf, 4), "macro_f1_ci95": [round(bs[24], 4), round(bs[974], 4)],
            "per_intent_f1": {c: round(f, 3) for c, f in zip(INTENTS, per)},
-           "guard": {"risky_n": len(risky), "recall": round(rec, 4), "benign_n": len(benign), "false_alarm": round(fa, 4)},
+           "guard": {"risky_n": len(risky), "recall": round(rec, 4), "recall_lower95_clopper_pearson": round(rec_lo, 4), "false_alarm_upper95": round(fa_hi, 4), "benign_n": len(benign), "false_alarm": round(fa, 4)},
            "by_lang": {k: [len(v), round(sum(v) / len(v), 3)] for k, v in bylang.items()},
            "top_confusions": [[a, b, n] for (a, b), n in conf],
            "wrong": [{"text": r["text"], "gold": a, "pred": b} for r, a, b in zip(rows, y, p) if a != b]}

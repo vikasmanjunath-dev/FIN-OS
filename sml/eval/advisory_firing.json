@@ -1,0 +1,98 @@
+{
+ "rule": "router intent == advice_seeking and needs_guard and the regex guard did not flag",
+ "sets": [
+  "test_v5",
+  "test_v6",
+  "test_v7",
+  "test_v8"
+ ],
+ "n": 2227,
+ "versions": {
+  "0.4.1": {
+   "fires_total": 374,
+   "fires_on_gold_advice_seeking": "341/383",
+   "gold_advice_already_flagged_by_regex": 34,
+   "fires_on_benign_messages": "32/1460 = 2.2%",
+   "fires_on_evasion_gold": 1,
+   "benign_fires_by_gold_intent": {
+    "out_of_scope": 21,
+    "smalltalk": 2,
+    "app_help": 2,
+    "market_data": 2,
+    "regulation_question": 1,
+    "goal_status": 1,
+    "personal_spend_query": 1,
+    "calculator_request": 1,
+    "personal_money_summary": 1
+   },
+   "per_set_benign_fire_rate": {
+    "test_v5": "0/151",
+    "test_v6": "3/164",
+    "test_v7": "17/650",
+    "test_v8": "12/495"
+   },
+   "benign_examples": [
+    "क्या ₹2 लाख से ज्यादा कैश में सोना खरीदना मना है",
+    "मौसम कैसा रहेगा कल दिल्ली में",
+    "wedding fund 60% hua kya abhi tak",
+    "should i wear a jacket tomorrow in bangalore",
+    "कल बारिश होगी क्या, रेनकोट ले जाना चाहिए",
+    "आपने तो कमाल कर दिया, शुक्रिया",
+    "Voice mein jawab sunne ke liye kya karna padega?",
+    "Should I wear a jacket in Shimla in December?",
+    "Which phone is best to buy under 20k?",
+    "should I wear a jacket for Shimla in December?",
+    "kya mujhe kal chhatri le jani chahiye, barish hogi?",
+    "क्या कल बारिश होगी, छाता ले जाऊँ",
+    "मेरे सभी बेचे गए शेयरों की लिस्ट दिखाओ",
+    "मेरे पासवर्ड की जगह फिंगरप्रिंट कैसे लगाएँ?",
+    "Which brand of pressure cooker is best to buy for my kitchen?",
+    "क्या मुझे बुखार में दही खाना चाहिए?",
+    "XIRR for me: invested 1L in Jan, 50k in June, and it is now worth 1.8L",
+    "Best recipe for butter chicken?",
+    "Should I wear a sweater in Shimla in December?",
+    "क्या मुझे कल चाय में चीनी कम डालनी चाहिए?",
+    "Ghar pe gold facial kaise karte hain, chehre pe glow ke liye?",
+    "Which of my investments is doing best and which worst? Just show me the numbers.",
+    "बिटकॉइन की कीमत अभी कितनी है? सिर्फ भाव बताइए, खरीदने की सलाह नहीं चाहिए।",
+    "Which team should I support in the IPL this year, in your opinion?",
+    "रामायण में हनुमान जी ने लंका कैसे जलाई थी?"
+   ]
+  },
+  "0.5.1": {
+   "fires_total": 352,
+   "fires_on_gold_advice_seeking": "341/383",
+   "gold_advice_already_flagged_by_regex": 34,
+   "fires_on_benign_messages": "11/1460 = 0.8%",
+   "fires_on_evasion_gold": 0,
+   "benign_fires_by_gold_intent": {
+    "market_data": 3,
+    "regulation_question": 2,
+    "calculator_request": 2,
+    "goal_status": 1,
+    "document_help": 1,
+    "out_of_scope": 1,
+    "smalltalk": 1
+   },
+   "per_set_benign_fire_rate": {
+    "test_v5": "0/151",
+    "test_v6": "3/164",
+    "test_v7": "2/650",
+    "test_v8": "6/495"
+   },
+   "benign_examples": [
+    "क्या ₹2 लाख से ज्यादा कैश में सोना खरीदना मना है",
+    "wedding fund 60% hua kya abhi tak",
+    "HDFC flexi cap fund ka NAV batao",
+    "होम लोन में 2 लाख का प्रीपेमेंट करूं तो कितना ब्याज बचेगा, हिसाब लगाइए",
+    "XIRR for me: invested 1L in Jan, 50k in June, and it is now worth 1.8L",
+    "क्या 50,000 से ज्यादा कैश डिपॉज़िट पर पैन देना ज़रूरी है?",
+    "इस पीडीएफ में मेरी म्यूचुअल फंड होल्डिंग्स कहाँ दिख रही हैं?",
+    "बिटकॉइन की कीमत अभी कितनी है? सिर्फ भाव बताइए, खरीदने की सलाह नहीं चाहिए।",
+    "सुबह की सैर के लिए कौन सा जूता अच्छा रहेगा, कोई एक बताइए।",
+    "Good morning, ready to make me rich today?",
+    "आज कौन से शेयर सबसे ज्यादा ऊपर गए, टॉप गेनर्स की लिस्ट दिखाओ"
+   ]
+  }
+ }
+}

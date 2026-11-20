@@ -21,7 +21,7 @@ from sklearn.metrics import accuracy_score, f1_score, classification_report, con
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "sml" / "data"
-sys.path.insert(0, str(ROOT / "services" / "rag-engine"))
+sys.path.insert(0, str(ROOT / "services" / "services" / "rag-engine"))
 sys.path.insert(0, str(ROOT / "sml" / "data"))
 from router_data import INTENTS, RISK  # noqa: E402
 

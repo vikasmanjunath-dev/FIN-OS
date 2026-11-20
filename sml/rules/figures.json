@@ -1,0 +1,143 @@
+{
+  "_about": "Authoritative figures FIN-OS states about Indian tax (D10 first slice). Each entry cites the page and the exact sentence it comes from; sml/tools/check_figures.py proves the sentence is still there and lists other places that look inconsistent. These are what the app says, not legal advice: a CA must confirm them before any use that blocks or edits an answer (ROADMAP D10).",
+  "version": "2026-10-26.1",
+  "entries": [
+    {
+      "id": "sec_80c_limit",
+      "topic": "Section 80C deduction limit (old regime)",
+      "value": "1.5 lakh",
+      "numeric": 150000,
+      "unit": "INR",
+      "source": "html/tax.html",
+      "anchor": "Section 80C Limit: ₹1"
+    },
+    {
+      "id": "sec_80d_self_family",
+      "topic": "Section 80D, self and family",
+      "value": "25,000",
+      "numeric": 25000,
+      "unit": "INR",
+      "source": "html/tax.html",
+      "anchor": "Self & Family: ₹25,000"
+    },
+    {
+      "id": "sec_80d_parents_senior",
+      "topic": "Section 80D, parents above 60",
+      "value": "50,000",
+      "numeric": 50000,
+      "unit": "INR",
+      "source": "html/tax.html",
+      "anchor": "Parents (above 60): ₹50,000"
+    },
+    {
+      "id": "sec_80e_no_cap",
+      "topic": "Section 80E education-loan interest: no upper limit",
+      "value": "no upper limit",
+      "numeric": null,
+      "unit": null,
+      "source": "html/tax.html",
+      "anchor": "Section 80E No Upper Limit",
+      "forbid_probe": "(?:80E[^.\\n<]{0,80}?(?:limit|cap|maximum|upto|up to)[^.\\n<]{0,40}?₹\\s*[\\d,.]+)|(?:(?:limit|cap|maximum)[^.\\n<]{0,80}?80E[^.\\n<]{0,40}?₹\\s*[\\d,.]+)"
+    },
+    {
+      "id": "sec_80ccd1b",
+      "topic": "Section 80CCD(1B) additional NPS deduction (old regime only)",
+      "value": "50,000",
+      "numeric": 50000,
+      "unit": "INR",
+      "source": "html/tax.html",
+      "anchor": "80CCD(1B): Additional ₹50,000 for NPS (above 80C)"
+    },
+    {
+      "id": "ltcg_equity_rate",
+      "topic": "LTCG on listed equity, held more than 12 months",
+      "value": "12.5%",
+      "numeric": 12.5,
+      "unit": "percent",
+      "source": "html/tax.html",
+      "anchor": "LTCG (> 1 year): 12"
+    },
+    {
+      "id": "stcg_equity_rate",
+      "topic": "STCG on listed equity, held up to 12 months",
+      "value": "20%",
+      "numeric": 20,
+      "unit": "percent",
+      "source": "html/tax.html",
+      "anchor": "STCG (< 1 year): 20%"
+    },
+    {
+      "id": "ltcg_equity_exemption",
+      "topic": "Annual LTCG exemption on equity",
+      "value": "1.25 lakh",
+      "numeric": 125000,
+      "unit": "INR",
+      "source": "html/tax.html",
+      "anchor": "1.25L exemption"
+    },
+    {
+      "id": "property_ltcg_holding",
+      "topic": "Real estate long-term holding period",
+      "value": "24 months",
+      "numeric": 24,
+      "unit": "months",
+      "source": "html/tax.html",
+      "anchor": "Real Estate Property, Land, House 24 months"
+    },
+    {
+      "id": "property_ltcg_rate",
+      "topic": "LTCG on property held more than 24 months",
+      "value": "12.5% without indexation",
+      "numeric": 12.5,
+      "unit": "percent",
+      "source": "html/tax.html",
+      "anchor": "LTCG (> 24 months): 12",
+      "stale_probe": "(?:LTCG|long[- ]term)[^\\n]{0,70}\\b20\\s*%\\s*(?:\\+|with|and)?\\s*indexation"
+    },
+    {
+      "id": "std_deduction_new",
+      "topic": "Standard deduction, new regime (FY 2025-26)",
+      "value": "75,000",
+      "numeric": 75000,
+      "unit": "INR",
+      "source": "html/tax.html",
+      "anchor": "Standard Deduction — Flat ₹75,000 (FY 2025-26)"
+    },
+    {
+      "id": "std_deduction_taxcore",
+      "topic": "Standard deduction in the tax core",
+      "value": "75,000 new / 50,000 old",
+      "numeric": 75000,
+      "unit": "INR",
+      "source": "js/finos-taxcore.js",
+      "anchor": "STD_NEW / STD_OLD         → standard deduction (₹75,000 / ₹50,000)"
+    },
+    {
+      "id": "new_regime_nil_to_12l",
+      "topic": "New regime: no tax up to 12 lakh taxable income (Sec 87A rebate with marginal relief)",
+      "value": "12 lakh",
+      "numeric": 1200000,
+      "unit": "INR",
+      "source": "js/finos-taxcore.js",
+      "anchor": "87A: taxable income up to ₹12,00,000 → no tax"
+    },
+    {
+      "id": "cess",
+      "topic": "Health and education cess",
+      "value": "4%",
+      "numeric": 4,
+      "unit": "percent",
+      "source": "js/finos-taxcore.js",
+      "anchor": "CESS = 0.04"
+    },
+    {
+      "id": "gst_replaced",
+      "topic": "GST replaced VAT, service tax and excise",
+      "value": "VAT, Service Tax, Excise",
+      "numeric": null,
+      "unit": null,
+      "source": "html/tax.html",
+      "anchor": "Replaced VAT, Service Tax, Excise"
+    }
+  ]
+}

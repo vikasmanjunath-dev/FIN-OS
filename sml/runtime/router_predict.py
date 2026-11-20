@@ -6,7 +6,7 @@ import json, sys
 from pathlib import Path
 import numpy as np
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "services" / "rag-engine"))
+sys.path.insert(0, str(ROOT / "services" / "services" / "rag-engine"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import config  # noqa: E402
 from embedding.encoder import embed_batch  # noqa: E402

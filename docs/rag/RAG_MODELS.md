@@ -63,6 +63,8 @@ Rationale (corrected Oct 2026): the original plan was `qwen3:14b` for final answ
 
 ---
 
+> **Update Oct 26 2026: the primary embedding model is now `bge-m3`** (1.2 GB, multilingual, 1024-dim), adopted after the bake-off in `sml/TRACKER.md` B14/B21/B22: same public benchmark (95/112), personalized 38-40/41 over three clean runs (mxbai: 38-39), English retrieval within 1 point, and Hindi/Hinglish questions on the English corpus 0.425 -> 0.900 recall@5 (40 unreviewed draft items). The live collection is `finos_chunks_bge_m3`; `mxbai-embed-large` stays installed because the SML router was trained on its vectors, and `finos_chunks` is the unwritten rollback copy. Rollback: `RAG_EMBED_MODEL=mxbai-embed-large RAG_COLLECTION=finos_chunks`. The sections below describe mxbai as originally chosen.
+
 ## 3. `mxbai-embed-large` — Primary Embedding
 
 ```bash

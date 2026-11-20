@@ -6,7 +6,7 @@
  * name that matches /^[a-z_]{1,40}$/, a risk class, a needs_guard boolean) into numeric counters. No message text can
  * be stored, even if the decision object carries extra fields.
  *
- * Stats: {since, total, by_intent:{}, by_risk:{low,high}, router_guard, regex_guard, agree_both, router_only, regex_only, errors, by_version:{}}
+ * Stats: {since, total, by_intent:{}, by_risk:{low,high}, router_guard, regex_guard, agree_both, router_only, regex_only, errors, by_version:{}, advisory_shown, advisory_skipped_own_disclaimer, advisory_late}
  *   record(stats, decision, regexFlagged) → new stats (decision null/invalid → errors+1)
  *   summary(stats) → one-line string for the founder
  */
@@ -19,12 +19,13 @@
   const KEY = 'finos_sml_router_stats';
   const INTENT_RE = /^[a-z_]{1,40}$/;
   const MAX_INTENTS = 30;
-  const VERSION_RE = /^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,3}$/;   // router_version such as 0.4.1; anything else is ignored
+  const VERSION_RE = /^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,3}(-tfidf)?$/;   // router_version such as 0.4.1 or 0.4.1-tfidf (the on-device head); anything else is ignored
   const MAX_VERSIONS = 5;
 
   function emptyStats(now) {
     return { since: Number.isFinite(now) ? now : Date.now(), total: 0, by_intent: {}, by_risk: { low: 0, high: 0 },
-      router_guard: 0, regex_guard: 0, agree_both: 0, router_only: 0, regex_only: 0, errors: 0, by_version: {} };
+      router_guard: 0, regex_guard: 0, agree_both: 0, router_only: 0, regex_only: 0, errors: 0, by_version: {},
+      advisory_shown: 0, advisory_skipped_own_disclaimer: 0, advisory_late: 0, decided_local: 0, decided_server: 0 };
   }
 
   function num(v) { return Number.isFinite(v) && v >= 0 ? Math.floor(v) : 0; }
@@ -36,7 +37,7 @@
   function clean(s) {
     const o = emptyStats(s && s.since);
     if (!s || typeof s !== 'object') return o;
-    ['total', 'router_guard', 'regex_guard', 'agree_both', 'router_only', 'regex_only', 'errors'].forEach((k) => { o[k] = num(s[k]); });
+    ['total', 'router_guard', 'regex_guard', 'agree_both', 'router_only', 'regex_only', 'errors', 'advisory_shown', 'advisory_skipped_own_disclaimer', 'advisory_late', 'decided_local', 'decided_server'].forEach((k) => { o[k] = num(s[k]); });
     if (s.by_risk && typeof s.by_risk === 'object') { o.by_risk.low = num(s.by_risk.low); o.by_risk.high = num(s.by_risk.high); }
     if (s.by_intent && typeof s.by_intent === 'object') {
       Object.keys(s.by_intent).filter(validIntent).slice(0, MAX_INTENTS).forEach((k) => { o.by_intent[k] = num(s.by_intent[k]); });
@@ -69,13 +70,31 @@
     return o;
   }
 
+  /** count one advisory outcome (E8): only the three whitelisted integer fields can change */
+  function recordAdvisory(stats, reason) {
+    const o = clean(stats);
+    if (reason === 'shown') o.advisory_shown += 1;
+    else if (reason === 'own_disclaimer') o.advisory_skipped_own_disclaimer += 1;
+    else if (reason === 'late') o.advisory_late += 1;
+    return o;
+  }
+
+  /** count where a decision came from (on-device head or the server): two whitelisted integers */
+  function recordVia(stats, via) {
+    const o = clean(stats);
+    if (via === 'local') o.decided_local += 1; else if (via === 'server') o.decided_server += 1;
+    return o;
+  }
+
   function summary(stats) {
     const s = clean(stats);
     if (!s.total) return 'Router shadow: no messages yet' + (s.errors ? ' (' + s.errors + ' errors)' : '');
     const pct = (n) => (100 * n / s.total).toFixed(1) + '%';
     return 'Router shadow: ' + s.total + ' msgs | router guard ' + pct(s.router_guard) + ' | regex guard ' + pct(s.regex_guard) +
       ' | both ' + s.agree_both + ', router-only ' + s.router_only + ', regex-only ' + s.regex_only + ' | errors ' + s.errors +
-      (Object.keys(s.by_version).length ? ' | router ' + Object.keys(s.by_version).map((k) => k + ' x' + s.by_version[k]).join(', ') : '');
+      (Object.keys(s.by_version).length ? ' | router ' + Object.keys(s.by_version).map((k) => k + ' x' + s.by_version[k]).join(', ') : '') +
+      (s.decided_local || s.decided_server ? ' | decided on-device ' + s.decided_local + ', by server ' + s.decided_server : '') +
+      (s.advisory_shown || s.advisory_skipped_own_disclaimer || s.advisory_late ? ' | advisory note shown ' + s.advisory_shown + ', skipped (own disclaimer) ' + s.advisory_skipped_own_disclaimer + ', late ' + s.advisory_late : '');
   }
 
   function loadStats(storage) {
@@ -85,5 +104,5 @@
     try { storage.setItem(KEY, JSON.stringify(clean(stats))); return true; } catch (e) { return false; }
   }
 
-  return { VERSION: '1.0', KEY, emptyStats, record, summary, loadStats, saveStats };
+  return { VERSION: '1.2', KEY, emptyStats, record, recordAdvisory, recordVia, summary, loadStats, saveStats };
 });

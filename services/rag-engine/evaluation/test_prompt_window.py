@@ -43,3 +43,12 @@ def test_build_prompt_uses_query_aware_context():
     chunk = {"payload": {"doc_title": "Commodity", "text": _long_chunk(" issued by RBI on behalf of the Government ", 900)}}
     p = build_prompt("Who issues Sovereign Gold Bonds?", [chunk])
     assert "issued by RBI" in p
+
+
+def test_mark_variant_wraps_the_best_sentence_and_leaves_other_cases_alone():
+    from generation.prompt import mark_best_sentence
+    w = "Section 80E covers education loan interest. Section 80C limit is 1.5 lakh. NPS gives 50,000 extra."
+    out = mark_best_sentence(w, "what is the Section 80C limit")
+    assert "«Section 80C limit is 1.5 lakh.»" in out and out.count("«") == 1
+    assert mark_best_sentence("One sentence only about 80C limit.", "80C limit") == "One sentence only about 80C limit."
+    assert mark_best_sentence(w, "zzzz qqqq") == w

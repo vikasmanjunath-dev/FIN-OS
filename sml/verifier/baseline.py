@@ -9,7 +9,7 @@ HERE = Path(__file__).parent
 ROOT = HERE.parents[1]
 os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
 sys.dont_write_bytecode = True
-sys.path.insert(0, str(ROOT / "services" / "rag-engine"))
+sys.path.insert(0, str(ROOT / "services" / "services" / "rag-engine"))
 
 def run_nli(rows, bs=8):
     import torch

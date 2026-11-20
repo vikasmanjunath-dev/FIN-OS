@@ -40,8 +40,13 @@
 
     { id: 'ai', kind: 'local', hosts: ['localhost', '127.0.0.1', '[::1]'], title: 'AI features on your own computer',
       purpose: 'Arya and the explainers talk to a language model and helper services that run on your own machine (for example Ollama on port 11434).',
-      sent: 'Your questions and the financial context Arya needs, sent to a service on the same computer. It does not leave your machine. If you switch on the optional router test mode, each message you type is also sent to that local service to be classified; only anonymous counters are kept in the browser, never the message.', personal: true, optional: true,
+      sent: 'Your questions and the financial context Arya needs, sent to a service on the same computer. It does not leave your machine. If you switch on the optional router test mode, each message you type is also sent to that local service to be classified; only anonymous counters are kept in the browser, never the message. If you also switch on the optional advisory, a general-information note can be added to an answer when the test classifier thinks you asked for a personal investment decision.', personal: true, optional: true,
       control: 'Only works if you run those services yourself. Nothing is sent anywhere if you do not.' },
+
+    { id: 'sml-model', kind: 'asset', hosts: [], title: 'On-device classifier file (from this site)',
+      purpose: 'An optional test mode lets the browser classify your questions itself (to spot investment-advice requests) instead of asking the helper service on your computer.',
+      sent: 'Nothing about you. The browser downloads one static model file from FIN-OS itself (about 0.7 MB compressed) the first time the mode is used; your questions are classified in the browser and never leave it for this.', personal: false, optional: true,
+      control: 'Off unless you switch it on (browser setting finos_sml_router_local). Nothing is downloaded and nothing changes if you never do.' },
 
     { id: 'assets', kind: 'asset', hosts: ['fonts.googleapis.com', 'fonts.gstatic.com', 'cdn.jsdelivr.net', 'cdnjs.cloudflare.com', 'unpkg.com', 'cdn.tailwindcss.com', 'code.jquery.com'], title: 'Fonts, charts and code libraries',
       purpose: 'Pages load fonts (Google Fonts) and open-source libraries (charts, sign-in client) from public content networks.',

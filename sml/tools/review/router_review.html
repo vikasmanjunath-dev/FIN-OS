@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Router label review (blind)</title>
+<style>
+:root{--bg:#fff;--fg:#1b1f24;--mut:#5b6573;--line:#d6dbe1;--card:#f6f8fa;--acc:#0969da;--warn:#9a6700;--hi:#cf222e}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--mut:#9aa7b4;--line:#30363d;--card:#161b22;--acc:#58a6ff;--warn:#d29922;--hi:#f85149}}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+header{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px;z-index:2}
+main{max-width:980px;margin:0 auto;padding:12px 16px 80px}
+h1{font-size:1.1rem;margin:0 0 4px} .mut{color:var(--mut);font-size:.9rem}
+.bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden;margin:6px 0} .bar i{display:block;height:100%;background:var(--acc)}
+.card{border:1px solid var(--line);border-radius:10px;background:var(--card);padding:14px 16px}
+.msg{font-size:1.35rem;font-weight:600;margin:8px 0 14px;word-break:break-word}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+button{border:1px solid var(--acc);background:transparent;color:var(--acc);border-radius:8px;padding:8px 10px;font-size:.95rem;cursor:pointer;min-height:44px;text-align:left}
+button b{display:block} button small{color:var(--mut);display:block;font-size:.78rem;font-weight:400}
+button.risk{border-color:var(--hi);color:var(--hi)} button.on{background:var(--acc);color:#fff} button.on small{color:#e6edf3}
+kbd{border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:.8rem;background:var(--bg);color:var(--fg)}
+.row{margin:12px 0} .tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:0 8px;font-size:.78rem;color:var(--mut);margin-right:6px}
+#setup{max-width:760px} [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header>
+<h1>Router label review (blind)</h1>
+<div class="mut" id="top">Choose the messages file to begin. Everything stays in this browser; nothing is sent anywhere.</div>
+<div class="bar" aria-hidden="true"><i id="fill" style="width:0"></i></div>
+<div class="mut" id="stats"></div>
+</header>
+<main>
+<section id="setup" class="card">
+<p><b>What you are doing.</b> You see one message a user might type to Arya, a personal-finance assistant for people in India (English, Hinglish, Hindi). Pick the <b>one</b> intent that fits it best. You do not see anyone else's label: that is on purpose. Read the labelling guide first (<code>sml/docs/LABELLING_GUIDE.md</code>, 5 minutes).</p>
+<p class="mut">Pick one button, or press its key. <kbd>U</kbd> = unsure (two labels fit equally, or you cannot tell). <kbd>Z</kbd> or Backspace undoes the last label; <kbd>&larr;</kbd> / <kbd>&rarr;</kbd> move without labelling. Progress is saved in this browser after every click. A file containing any label or router guess is refused.</p>
+<p><label>Messages file (<code>sml/tools/review/router_candidates.jsonl</code>): <input type="file" id="pool" accept=".jsonl,.json,.txt"></label></p>
+<p><label>Resume from a labels file (optional): <input type="file" id="resume" accept=".jsonl,.json,.txt"></label></p>
+<p id="msg" class="mut" role="status"></p>
+</section>
+<section id="work" hidden>
+<div class="card"><span class="tag" id="pos"></span><div class="msg" id="text" lang=""></div>
+<div class="grid" id="grid"></div>
+<div class="row"><button id="bU" type="button"><b>Unsure <kbd>U</kbd></b><small>two labels fit equally, or I cannot tell</small></button></div>
+<div class="row"><button id="bP" type="button">&larr; Previous</button> <button id="bX" type="button">Next &rarr;</button> <button id="bZ" type="button">Undo <kbd>Z</kbd></button></div>
+<div class="mut" id="cur"></div></div>
+<p><button id="dl" type="button">Download my labels (JSONL)</button> <button id="reset" type="button">Start over (delete my labels)</button></p>
+</section>
+</main>
+<script src="router-review-core.js"></script>
+<script>
+(function () {
+  'use strict';
+  var R = window.RouterReview, st = null, sig = '';
+  var HELP = { personal_spend_query: 'how much I spent on a thing or in a period', personal_money_summary: 'the overall picture of my money', goal_status: 'how my goal is going', calculator_request: 'compute something / open a calculator',
+    regulation_question: 'rules, sections, limits, deadlines, penalties', concept_explainer: 'explain a finance idea', document_help: 'help with MY document (Form 16, statement...)', market_data: 'a current price, rate, index, news',
+    app_help: 'how to use the FIN-OS app', advice_seeking: 'asks Arya to make or recommend a FINANCIAL decision', evasion_request: 'wants to avoid tax illegally, hide or fake something', smalltalk: 'greeting, thanks, who are you', out_of_scope: 'not finance, not the app' };
+  var $ = function (id) { return document.getElementById(id); };
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) {} return null; }
+  function key() { return 'finos_router_review_' + sig; }
+  function save() { store(key(), JSON.stringify({ labels: st.labels, cursor: st.cursor })); }
+  function render() {
+    var p = R.progress(st), r = st.rows[st.cursor], cur = st.labels[r.item_id];
+    $('fill').style.width = Math.round(100 * p.labelled / Math.max(1, p.total)) + '%';
+    $('top').textContent = p.labelled + ' of ' + p.total + ' labelled' + (p.unsure ? ' (' + p.unsure + ' unsure)' : '');
+    $('stats').textContent = p.remaining + ' to go. Saved in this browser only.';
+    $('pos').textContent = 'message ' + (st.cursor + 1) + ' of ' + p.total; $('text').textContent = r.text; $('text').lang = /[ऀ-ॿ]/.test(r.text) ? 'hi' : 'en';
+    $('cur').textContent = cur ? 'Your label: ' + cur.replace(/_/g, ' ') : 'Not labelled yet.';
+    $('bU').className = cur === 'unsure' ? 'on' : '';
+    var g = $('grid'); g.textContent = '';
+    R.INTENTS.forEach(function (i) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = (cur === i ? 'on ' : '') + (i === 'advice_seeking' || i === 'evasion_request' ? 'risk' : '');
+      var t = document.createElement('b'); t.textContent = i.replace(/_/g, ' ') + '  [' + R.keyFor(i).toUpperCase() + ']'; var s = document.createElement('small'); s.textContent = HELP[i];
+      b.appendChild(t); b.appendChild(s); b.addEventListener('click', function () { act(i); }); g.appendChild(b);
+    });
+  }
+  function act(label) { var r = st.rows[st.cursor]; if (R.setLabel(st, r.item_id, label)) { R.next(st); save(); render(); } }
+  function start(rows) {
+    sig = R.signature(rows); var saved = null; try { saved = JSON.parse(store(key()) || 'null'); } catch (e) {}
+    st = R.create(rows, saved);
+    if (window.__pending) { Object.keys(window.__pending).forEach(function (k) { if (!st.labels[k] && rows.some(function (r) { return r.item_id === k; })) st.labels[k] = window.__pending[k]; }); window.__pending = null; }
+    $('setup').hidden = true; $('work').hidden = false; save(); render();
+  }
+  $('pool').addEventListener('change', function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    f.text().then(function (t) { var r = R.parseJsonl(t); var bl = r.errors.filter(function (x) { return /not blind/.test(x.error); }).length;
+      $('msg').textContent = r.rows.length + ' messages loaded' + (r.errors.length ? '; ' + r.errors.length + ' lines refused' + (bl ? ' (' + bl + ' because the file shows labels or router guesses: use router_candidates.jsonl, not the key file)' : '') : '') + '.';
+      if (r.rows.length && !bl) start(r.rows); });
+  });
+  $('resume').addEventListener('change', function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    f.text().then(function (t) { var x = R.parseLabels(t); if (st) { Object.keys(x.labels).forEach(function (k) { if (!st.labels[k] && st.rows.some(function (r) { return r.item_id === k; })) st.labels[k] = x.labels[k]; }); save(); render(); } else { window.__pending = x.labels; $('msg').textContent = Object.keys(x.labels).length + ' labels read; now choose the messages file.'; } });
+  });
+  $('bU').onclick = function () { act('unsure'); }; $('bP').onclick = function () { R.prev(st); save(); render(); }; $('bX').onclick = function () { R.jump(st, Math.min(st.rows.length - 1, st.cursor + 1)); save(); render(); };
+  $('bZ').onclick = function () { if (R.undo(st)) { save(); render(); } };
+  $('dl').onclick = function () { var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([R.toJsonl(st) + '\n'], { type: 'application/x-ndjson' })); a.download = 'router_review_labels.jsonl'; a.click(); };
+  $('reset').onclick = function () { if (window.confirm('Delete all your labels for this file? (download them first if you want a copy)')) { st.labels = {}; st.history = []; st.cursor = 0; save(); render(); } };
+  document.addEventListener('keydown', function (e) {
+    if (!st || e.ctrlKey || e.metaKey || e.altKey || /input|textarea/i.test((e.target || {}).tagName || '')) return;
+    var k = e.key.toLowerCase();
+    if (k === 'z' || k === 'backspace') { if (R.undo(st)) { save(); render(); } e.preventDefault(); return; }
+    if (k === 'arrowleft') { R.prev(st); save(); render(); return; } if (k === 'arrowright') { R.jump(st, Math.min(st.rows.length - 1, st.cursor + 1)); save(); render(); return; }
+    var it = R.intentForKey(k); if (it) act(it);
+  });
+})();
+</script>
+</body>
+</html>

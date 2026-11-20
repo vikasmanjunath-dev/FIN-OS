@@ -1,0 +1,18 @@
+{"description": "SWIGGY ORDER 8812", "amount_bucket": "100-500", "direction": "debit", "channel": "upi", "category": "Food & Dining", "source": "synthetic-plumbing"}
+{"description": "BIGBASKET GROCERIES", "amount_bucket": "500-2000", "direction": "debit", "channel": "upi", "category": "Groceries", "source": "synthetic-plumbing"}
+{"description": "UBER TRIP", "amount_bucket": "100-500", "direction": "debit", "channel": "upi", "category": "Transport", "source": "synthetic-plumbing"}
+{"description": "NETFLIX SUBSCRIPTION", "amount_bucket": "100-500", "direction": "debit", "channel": "upi", "category": "Subscriptions", "source": "synthetic-plumbing"}
+{"description": "HDFC HOME LOAN EMI", "amount_bucket": "10000+", "direction": "debit", "channel": "upi", "category": "EMI & Loans", "source": "synthetic-plumbing"}
+{"description": "APOLLO PHARMACY", "amount_bucket": "100-500", "direction": "debit", "channel": "upi", "category": "Health", "source": "synthetic-plumbing"}
+{"description": "AMAZON PAY SHOPPING", "amount_bucket": "500-2000", "direction": "debit", "channel": "upi", "category": "Shopping", "source": "synthetic-plumbing"}
+{"description": "JIO RECHARGE", "amount_bucket": "100-500", "direction": "debit", "channel": "upi", "category": "Bills & Utilities", "source": "synthetic-plumbing"}
+{"description": "MAKEMYTRIP FLIGHT", "amount_bucket": "10000+", "direction": "debit", "channel": "upi", "category": "Travel", "source": "synthetic-plumbing"}
+{"description": "PVR CINEMAS MOVIE", "amount_bucket": "500-2000", "direction": "debit", "channel": "upi", "category": "Entertainment", "source": "synthetic-plumbing"}
+{"description": "SCHOOL TUITION FEES", "amount_bucket": "2000-10000", "direction": "debit", "channel": "upi", "category": "Education", "source": "synthetic-plumbing"}
+{"description": "MONTHLY RENT", "amount_bucket": "10000+", "direction": "debit", "channel": "upi", "category": "Housing", "source": "synthetic-plumbing"}
+{"description": "CHAI POINT", "amount_bucket": "<100", "direction": "debit", "channel": "upi", "category": "Food & Dining", "source": "synthetic-plumbing"}
+{"description": "RANDOM KIRANA STORE", "amount_bucket": "500-2000", "direction": "debit", "channel": "upi", "category": "Groceries", "source": "synthetic-plumbing"}
+{"description": "PETROL PUMP", "amount_bucket": "500-2000", "direction": "debit", "channel": "upi", "category": "Transport", "source": "synthetic-plumbing"}
+{"description": "GAS CYLINDER REFILL", "amount_bucket": "500-2000", "direction": "debit", "channel": "upi", "category": "Bills & Utilities", "source": "synthetic-plumbing"}
+{"description": "MYSTERY MERCHANT 77", "amount_bucket": "100-500", "direction": "debit", "channel": "upi", "category": "Other", "source": "synthetic-plumbing"}
+{"description": "ZOMATO GOLD", "amount_bucket": "100-500", "direction": "debit", "channel": "upi", "category": "Subscriptions", "source": "synthetic-plumbing"}

@@ -327,6 +327,22 @@ RULES (non-negotiable):
 
 ---
 
+## SML test mode (Oct 2026): two local counter sets, both default OFF
+
+Detail and evidence: `sml/TRACKER.md`, `sml/PLAN.md`. Nothing here changes an answer or the PULSE order.
+
+| Flag (localStorage) | What it does | Console |
+|---|---|---|
+| `finos_sml_router_shadow` = '1' | After each user message the panel sends the text to the LOCAL rag-engine `POST /api/route` (fire-and-forget, never awaited) and stores only counters: intent, risk, router vs regex-guard agreement, router version, error count. Never the text. Declared in `js/finos-privacy.js` (`ai` flow) | `AryaSidebar.routerStats()` |
+| `finos_pulse_counters_on` = '1' | PULSE widgets are wrapped in layout-neutral `display:contents` markers; impressions, taps and average position are counted per widget id. No text, no amounts, no network | `AryaSidebar.pulseStats()` |
+| `finos_sml_router_advisory` = '1' (needs the shadow flag too) | At final-answer time, if the router (not the regex guard) thinks you asked for a personal investment decision and the model has not already disclaimed, the existing "not a SEBI-registered adviser" note is appended once. Never blocks, never edits the model's words, never waits for the router. Counters only | `smlReport()` shows the advisory counts |
+| `finos_sml_rows` = '1' | Lets `await AryaSidebar.smlRows()` build redacted, labelled transaction rows (description masked, amount only as a bucket, no date, only categories you set yourself) from this browser's transactions, for the categoriser. `smlRowsExport()` returns them as JSON lines. Local only | `smlRows()`, `smlRowsExport()` |
+| `finos_sml_router_local` = '1' (needs the shadow flag too) | The router decision is made IN THIS BROWSER by the TF-IDF half of the classifier (model file about 0.7 MB compressed, downloaded once from this site; declared as the `sml-model` flow in `js/finos-privacy.js`); the local helper service is only the fallback while the file loads or if anything fails. Recall-first signal labelled `0.4.1-tfidf`, never blocking. Local mode makes no per-message request | `smlReport()` shows "decided on-device N, by server M" |
+| `finos_sml_flagged` = '1' (set by `html/help-improve.html`, draft, not linked) | The person's consent to keep up to 50 REDACTED copies of questions the classifier flagged, on this device only, until they delete them or download a file to send themselves. Nothing is sent | the page itself |
+| `finos_sml_samples` = '1' (needs the shadow flag too) | Keeps up to 100 REDACTED copies of your own messages in this browser only (amounts, numbers, e-mails, UPI handles masked; day only), with the router's verdict, so you can review them. Never sent anywhere | `await AryaSidebar.smlSamples()`, `smlSamplesRemove(id)`, `smlSamplesClear()`, `smlSamplesExport()` |
+
+`await AryaSidebar.smlReport()` prints one readable summary (rates with 95% intervals, router-vs-regex disagreement, progress toward the 300-message gate); `JSON.stringify(await AryaSidebar.smlExport())` returns counters only for offline analysis; `await AryaSidebar.smlReset()` clears the counters but not the flags. Code: `js/sml/router-shadow.js`, `js/sml/pulse-counters.js`, `js/sml/report.js` (all loaded on demand by `ensureSml()` in the panel; versions `?v=7` for the helpers, `?v=8` for the panel in `js/arya-lazy.js`). Tests: `sml/tests/js/`.
+
 ## Adding a New Feature to Arya
 
 ### New tab

@@ -11,7 +11,7 @@ import json, re, sys
 from pathlib import Path
 import httpx
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "services" / "rag-engine"))
+sys.path.insert(0, str(ROOT / "services" / "services" / "rag-engine"))
 from evaluation import benchmark as B          # noqa: E402
 from generation.prompt import select_window    # noqa: E402
 

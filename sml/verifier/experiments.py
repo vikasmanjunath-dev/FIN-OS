@@ -149,7 +149,7 @@ def val_split(train, frac=0.3, seed=SEED):
 
 # ---------- NLI ----------
 def run_nli(pairs, bs=8):
-    sys.path.insert(0, str(ROOT / "services" / "rag-engine"))
+    sys.path.insert(0, str(ROOT / "services" / "services" / "rag-engine"))
     from generation.faithfulness import _get_model
     model, _ = _get_model()
     id2 = {int(k): v.lower() for k, v in model.model.config.id2label.items()}
