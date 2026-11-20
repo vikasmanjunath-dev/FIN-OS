@@ -17,7 +17,7 @@ def test_items_are_well_formed_unique_and_not_copied_from_their_chunk():
         assert 4 <= len(i["gold_anchor"].split()) <= 16 and i["must_contain"]
 
 
-@pytest.mark.skipif(not (ROOT / "rag-engine" / "rag_bm25.db").exists(), reason="local index not present")
+@pytest.mark.skipif(not (ROOT / "rag-engine" / "rag_bm25.db").exists() or (ROOT / "rag-engine" / "rag_bm25.db").stat().st_size < 1_000_000, reason="local index not present or empty (the tracked stub is 24 KB)")
 def test_every_anchor_is_present_in_the_local_index_and_no_question_copies_its_chunk(capsys):
     rep = H.check(); capsys.readouterr()
     assert rep["missing_anchor"] == [] and rep["question_copies_chunk"] == [] and rep["duplicate_questions"] == []

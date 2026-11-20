@@ -52,3 +52,13 @@ test('the real guardrails note and the decide() de-duplication agree with AryaGu
   assert.deepStrictEqual(flags, ['advice_requested']);
   assert.strictEqual(A.decide(adv, flags, viaRegex, NOTE).note, null);    // ... so the router must not add it a second time
 });
+
+test('steer: router-only evasion gets one fixed line (en/hi); regex-flagged, benign, late, repeat get none', () => {
+  const ev = { intent: 'evasion_request', needs_guard: true };
+  assert.strictEqual(A.steer(ev, [], 'x', 'en').note, A.STEER.en);
+  assert.strictEqual(A.steer(ev, [], 'x', 'hi').note, A.STEER.hi);
+  assert.strictEqual(A.steer(ev, ['evasion_request'], 'x', 'en').reason, 'regex_already_flagged');
+  assert.strictEqual(A.steer({ intent: 'advice_seeking', needs_guard: true }, [], 'x', 'en').reason, 'not_evasion');
+  assert.strictEqual(A.steer(null, [], 'x', 'en').reason, 'no_decision');
+  assert.strictEqual(A.steer(ev, [], A.STEER.en, 'en').reason, 'already_present');
+});
