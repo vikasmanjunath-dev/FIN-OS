@@ -1715,17 +1715,17 @@ RULES (non-negotiable):
   })();
   let _smlLoading = null;
   function ensureSml() {
-    if (window.SmlNumericCheck && window.FinosFacts && window.SmlRouterShadow && window.SmlPulseCounters && window.SmlReport && window.SmlRouterAdvisory && window.SmlSampleCapture && window.SmlCategoriserExport && window.SmlTfidfRouter && window.SmlRouterClient) return Promise.resolve();
+    if (window.SmlNumericCheck && window.FinosFacts && window.SmlRouterShadow && window.SmlPulseCounters && window.SmlReport && window.SmlRouterAdvisory && window.SmlRouterLadder && window.SmlSampleCapture && window.SmlCategoriserExport && window.SmlTfidfRouter && window.SmlRouterClient) return Promise.resolve();
     if (_smlLoading) return _smlLoading;
     // ?v bumps force a fresh copy (the pages load these without a content hash). Independent files load in parallel;
     // numeric-check needs normalizer first.
     const load = f => new Promise(res => {
       const sc = document.createElement('script');
-      sc.src = _SML_BASE + f + '?v=9';
+      sc.src = _SML_BASE + f + '?v=10';
       sc.onload = sc.onerror = () => res();
       document.head.appendChild(sc);
     });
-    _smlLoading = Promise.all(['finos-facts.js', 'sml/router-shadow.js', 'sml/router-advisory.js', 'sml/sample-capture.js', 'sml/tfidf-router.js', 'sml/router-client.js', 'sml/pulse-counters.js', 'sml/report.js', 'sml/normalizer.js'].map(load))
+    _smlLoading = Promise.all(['finos-facts.js', 'sml/router-shadow.js', 'sml/router-advisory.js', 'sml/router-ladder.js', 'sml/sample-capture.js', 'sml/tfidf-router.js', 'sml/router-client.js', 'sml/pulse-counters.js', 'sml/report.js', 'sml/normalizer.js'].map(load))
       .then(() => Promise.all([load('sml/numeric-check.js'), load('sml/categoriser-export.js')]));
     return _smlLoading;
   }
@@ -1737,10 +1737,17 @@ RULES (non-negotiable):
      the router runs IN THIS BROWSER (js/sml/tfidf-router.js, model file downloaded once from this site, about 0.5 MB compressed) and the server is only the fallback while the
      file loads or if anything fails. See js/sml/router-client.js; the on-device head is a recall-first signal, labelled router_version 0.4.1-tfidf. */
   let _routerClient = null;
+  /* Action ladder (ROADMAP E9, default OFF): localStorage finos_sml_router_ladder = 'note' (notes only), 'block' (refusals only) or '1' / 'both'. Needs finos_sml_router_shadow too.
+     The ladder level comes from the SERVER (router 0.5.1 blend + sml/models/router/0.5.1/ladder.json), so while it is on the decision is always requested from the server
+     with ladder:true, even if the on-device head is enabled. Note false alarm <= 5%, block false alarm <= 2% on dev (TRACKER E9); a candidate until a new sealed set confirms it. */
+  function ladderMode() {
+    try { const v = localStorage.getItem('finos_sml_router_ladder'); return v === 'note' || v === 'block' ? v : (v === '1' || v === 'both' ? 'both' : ''); } catch (e) { return ''; }
+  }
   function routeDecision(text) {
-    const viaServer = () => ragAPI('/api/route', { text }, 15000).then(d => (d && !d.error ? { decision: d, via: 'server' } : { decision: null, via: null }));
+    const ladder = !!ladderMode();
+    const viaServer = () => ragAPI('/api/route', ladder ? { text, ladder: true } : { text }, 15000).then(d => (d && !d.error ? { decision: d, via: 'server' } : { decision: null, via: null }));
     try {
-      if (localStorage.getItem('finos_sml_router_local') !== '1' || !window.SmlRouterClient || !window.SmlTfidfRouter) return viaServer();
+      if (ladder || localStorage.getItem('finos_sml_router_local') !== '1' || !window.SmlRouterClient || !window.SmlTfidfRouter) return viaServer();
       if (!_routerClient) {
         _routerClient = window.SmlRouterClient.create({
           tfidf: window.SmlTfidfRouter,
@@ -1792,6 +1799,22 @@ RULES (non-negotiable):
       if (r.reason === 'shown' || r.reason === 'own_disclaimer') bump(r.reason);
       return r.note ? window.SmlRouterAdvisory.append(replyText, r.note) : replyText;
     } catch (e) { return replyText; }
+  }
+  /* Action ladder at final-answer time (ROADMAP E9). Reads the router decision for THIS message, never waits for it, counts outcomes only (SmlRouterShadow.recordLadder).
+     Returns { text, acted }; acted = a note was added or the answer was replaced, so the E8 advisory is skipped and the user never sees two notes. Fail-open. */
+  function routerLadder(seq, userText, replyText) {
+    try {
+      const mode = ladderMode();
+      if (!seq || !mode || !window.SmlRouterLadder) return { text: replyText, acted: false };
+      const bump = (o) => { if (window.SmlRouterShadow) window.SmlRouterShadow.saveStats(localStorage, window.SmlRouterShadow.recordLadder(window.SmlRouterShadow.loadStats(localStorage), o)); };
+      if (!_routerLast || _routerLast.seq !== seq) { bump('late'); return { text: replyText, acted: false }; }
+      const g = window.AryaGuardrails;
+      const flags = (g && g.apply(userText, '').flags) || [];
+      const lang = (document.documentElement.lang || '').toLowerCase().indexOf('hi') === 0 ? 'hi' : 'en';
+      const r = window.SmlRouterLadder.decide(_routerLast.decision, flags, replyText, { mode, lang, adviceNote: g && g.NOTES && g.NOTES.advice_requested, refusal: g && g.REFUSAL });
+      if (r.action === 'note' || r.action === 'block') bump(r.action); else if (r.reason !== 'none' && r.reason !== 'no_decision' && r.reason !== 'no_ladder') bump('skipped');
+      return { text: r.text, acted: r.changed };
+    } catch (e) { return { text: replyText, acted: false }; }
   }
   /* PULSE impression/tap counters, LOCAL ONLY (sml/PLAN.md W6 groundwork). Default OFF: only when localStorage
      finos_pulse_counters_on === '1'. Counts widget ids and positions; no text, no amounts, no network. Nothing reads
@@ -7777,7 +7800,9 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
       }, numPredict, taskType);
       speaker.flush(finalText);           // say whatever's left (no trailing punctuation, last fragment, etc.)
       if (window.AryaGuardrails) finalText = window.AryaGuardrails.apply(isAutoInsight ? '' : userText, finalText).text;   // adds a note on buy/sell calls, guarantees, predictions
-      if (_rseq) finalText = routerAdvisory(_rseq, userText, finalText);          // optional, default off: the router-only advice note (E8)
+      let _ladderActed = false;
+      if (_rseq) { const _lr = routerLadder(_rseq, userText, finalText); finalText = _lr.text; _ladderActed = _lr.acted; }          // optional, default off: action ladder note / block (E9)
+      if (_rseq && !_ladderActed) finalText = routerAdvisory(_rseq, userText, finalText);          // optional, default off: the router-only advice note (E8)
       // Numeric check (js/sml/numeric-check.js): when the answer leans on retrieved sources, any figure that appears in
       // neither those sources, the user's own context nor their question is flagged. We ADD a caution; we never edit or
       // remove the model's text. Skipped when nothing was retrieved (nothing to verify against) and fail-open.

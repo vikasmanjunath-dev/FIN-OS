@@ -449,6 +449,7 @@ def retrieve_endpoint(req: QueryRequest, authorization: str | None = Header(None
 
 class RouteRequest(BaseModel):
     text: str
+    ladder: bool = False     # opt-in: also return the action-ladder level (note / block) from router 0.5.1 (sml/runtime/ladder.py)
 
 
 @app.post("/api/route")
@@ -465,7 +466,13 @@ def route_endpoint(req: RouteRequest):
         if _rt not in _sys.path:
             _sys.path.insert(0, _rt)
         import router_predict
-        decision = router_predict.predict(req.text)
+        if req.ladder:
+            import ladder as _ladder
+            decision = router_predict.predict(req.text, version=_ladder.LADDER_VERSION)
+            decision["ladder"] = _ladder.decide(decision)
+            metrics.ROUTER_LADDER.labels(action=decision["ladder"]["action"]).inc()
+        else:
+            decision = router_predict.predict(req.text)
         metrics.ROUTER_DECISIONS.labels(
             intent=str(decision.get("intent", "unknown")),
             needs_guard="true" if decision.get("needs_guard") else "false",

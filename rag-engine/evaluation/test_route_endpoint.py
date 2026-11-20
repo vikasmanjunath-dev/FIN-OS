@@ -69,3 +69,23 @@ def test_metric_has_labels_but_no_text(monkeypatch):
     exposition = generate_latest().decode()
     assert 'rag_router_decisions_total{intent="advice_seeking",needs_guard="true"}' in exposition
     assert "ABCDE1234F" not in exposition
+
+
+def test_ladder_is_opt_in_and_uses_router_0_5_1(monkeypatch):
+    import ladder
+    seen = []
+    ev = {**DECISION, "intent": "evasion_request", "high_risk_mass": 0.99}
+    monkeypatch.setattr(router_predict, "predict", lambda t, *a, **k: (seen.append(k.get("version")), ev)[1])
+    plain = client.post("/api/route", json={"text": "kala dhan safed kaise kare"}).json()
+    assert "ladder" not in plain and seen == [None]                    # default call: version untouched, no ladder field
+    r = client.post("/api/route", json={"text": "kala dhan safed kaise kare", "ladder": True}).json()
+    assert seen[-1] == ladder.LADDER_VERSION
+    assert r["ladder"]["action"] == "block" and r["ladder"]["kind"] == "unlawful" and 0 < r["ladder"]["t_note"] <= r["ladder"]["t_block"]
+
+
+def test_ladder_response_never_echoes_the_message(monkeypatch, caplog):
+    monkeypatch.setattr(router_predict, "predict", lambda t, *a, **k: dict(DECISION))
+    with caplog.at_level(logging.DEBUG):
+        r = client.post("/api/route", json={"text": SECRET, "ladder": True})
+    assert SECRET not in r.text and SECRET not in caplog.text
+

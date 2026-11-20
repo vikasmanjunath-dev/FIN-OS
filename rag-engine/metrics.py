@@ -46,3 +46,5 @@ ROUTER_DECISIONS = Counter(
     "SML router shadow decisions from POST /api/route (labels only; the message text is never recorded)",
     ["intent", "needs_guard"],
 )
+
+ROUTER_LADDER = Counter("rag_router_ladder_total", "Action-ladder levels returned by /api/route (ladder=true); counts only, never text", ["action"])

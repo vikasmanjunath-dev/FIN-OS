@@ -1,0 +1,118 @@
+{
+ "version": "0.5.1",
+ "targets": {
+  "note_false_alarm": 0.05,
+  "block_false_alarm": 0.02,
+  "block_precision": 0.95
+ },
+ "t_note": 0.05,
+ "t_block": 0.55,
+ "status": "CANDIDATE: confirm on a new sealed set (test_v9) before any default-on",
+ "chosen_on": "dev + dev3 (805 rows) with an honest head fitted on 2950 rows (train + train_extra + train_extra2 + valid), settings of 0.5.1",
+ "rule": "action only when predicted intent is advice_seeking or evasion_request; note: mass >= t_note; block: predicted evasion_request and mass >= t_block; t_note = smallest threshold with dev false alarm <= 5%; t_block = smallest threshold >= t_note with dev block false alarm <= 2% and block precision >= 0.95",
+ "dev": {
+  "n": 805,
+  "n_benign": 517,
+  "n_risky": 288,
+  "note_false_alarm": 0.0329,
+  "note_recall": 0.9826,
+  "block_false_alarm": 0.0116,
+  "block_precision": 0.9536,
+  "block_recall_evasion": 0.9931,
+  "blocked": 151,
+  "noted": 149
+ },
+ "dev_curve": [
+  {
+   "t": 0.2,
+   "note_false_alarm": 0.0329,
+   "note_recall": 0.9826,
+   "block_false_alarm": 0.0213,
+   "block_precision": 0.9236,
+   "block_recall_evasion": 1.0
+  },
+  {
+   "t": 0.3,
+   "note_false_alarm": 0.0329,
+   "note_recall": 0.9826,
+   "block_false_alarm": 0.0213,
+   "block_precision": 0.9236,
+   "block_recall_evasion": 1.0
+  },
+  {
+   "t": 0.4,
+   "note_false_alarm": 0.0309,
+   "note_recall": 0.9826,
+   "block_false_alarm": 0.0193,
+   "block_precision": 0.9295,
+   "block_recall_evasion": 1.0
+  },
+  {
+   "t": 0.5,
+   "note_false_alarm": 0.0232,
+   "note_recall": 0.9826,
+   "block_false_alarm": 0.0174,
+   "block_precision": 0.9355,
+   "block_recall_evasion": 1.0
+  },
+  {
+   "t": 0.6,
+   "note_false_alarm": 0.0116,
+   "note_recall": 0.9653,
+   "block_false_alarm": 0.0097,
+   "block_precision": 0.9597,
+   "block_recall_evasion": 0.9862
+  },
+  {
+   "t": 0.7,
+   "note_false_alarm": 0.0039,
+   "note_recall": 0.9236,
+   "block_false_alarm": 0.0039,
+   "block_precision": 0.9786,
+   "block_recall_evasion": 0.9448
+  },
+  {
+   "t": 0.8,
+   "note_false_alarm": 0.0019,
+   "note_recall": 0.8368,
+   "block_false_alarm": 0.0019,
+   "block_precision": 0.9837,
+   "block_recall_evasion": 0.8345
+  },
+  {
+   "t": 0.9,
+   "note_false_alarm": 0.0,
+   "note_recall": 0.6979,
+   "block_false_alarm": 0.0,
+   "block_precision": 1.0,
+   "block_recall_evasion": 0.6759
+  }
+ ],
+ "diagnostic_shipped_model": {
+  "test_v7": {
+   "n": 983,
+   "n_benign": 650,
+   "n_risky": 333,
+   "note_false_alarm": 0.0077,
+   "note_recall": 0.985,
+   "block_false_alarm": 0.0015,
+   "block_precision": 0.9933,
+   "block_recall_evasion": 0.881,
+   "blocked": 149,
+   "noted": 184
+  },
+  "test_v8": {
+   "n": 846,
+   "n_benign": 495,
+   "n_risky": 351,
+   "note_false_alarm": 0.0242,
+   "note_recall": 0.9744,
+   "block_false_alarm": 0.0081,
+   "block_precision": 0.9745,
+   "block_recall_evasion": 0.8693,
+   "blocked": 157,
+   "noted": 197
+  }
+ },
+ "diagnostic_note": "test_v7 is diagnostic for 0.5.x; test_v8 was scored once for the older guard rule, so this is a second look with a different rule and is NOT a confirmation"
+}

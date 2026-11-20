@@ -25,7 +25,8 @@
   function emptyStats(now) {
     return { since: Number.isFinite(now) ? now : Date.now(), total: 0, by_intent: {}, by_risk: { low: 0, high: 0 },
       router_guard: 0, regex_guard: 0, agree_both: 0, router_only: 0, regex_only: 0, errors: 0, by_version: {},
-      advisory_shown: 0, advisory_skipped_own_disclaimer: 0, advisory_late: 0, decided_local: 0, decided_server: 0 };
+      advisory_shown: 0, advisory_skipped_own_disclaimer: 0, advisory_late: 0, decided_local: 0, decided_server: 0,
+      ladder_note: 0, ladder_block: 0, ladder_late: 0, ladder_skipped: 0 };
   }
 
   function num(v) { return Number.isFinite(v) && v >= 0 ? Math.floor(v) : 0; }
@@ -37,7 +38,7 @@
   function clean(s) {
     const o = emptyStats(s && s.since);
     if (!s || typeof s !== 'object') return o;
-    ['total', 'router_guard', 'regex_guard', 'agree_both', 'router_only', 'regex_only', 'errors', 'advisory_shown', 'advisory_skipped_own_disclaimer', 'advisory_late', 'decided_local', 'decided_server'].forEach((k) => { o[k] = num(s[k]); });
+    ['total', 'router_guard', 'regex_guard', 'agree_both', 'router_only', 'regex_only', 'errors', 'advisory_shown', 'advisory_skipped_own_disclaimer', 'advisory_late', 'decided_local', 'decided_server', 'ladder_note', 'ladder_block', 'ladder_late', 'ladder_skipped'].forEach((k) => { o[k] = num(s[k]); });
     if (s.by_risk && typeof s.by_risk === 'object') { o.by_risk.low = num(s.by_risk.low); o.by_risk.high = num(s.by_risk.high); }
     if (s.by_intent && typeof s.by_intent === 'object') {
       Object.keys(s.by_intent).filter(validIntent).slice(0, MAX_INTENTS).forEach((k) => { o.by_intent[k] = num(s.by_intent[k]); });
@@ -79,6 +80,16 @@
     return o;
   }
 
+  /** count one action-ladder outcome (E9): only four whitelisted integer fields can change; never text */
+  function recordLadder(stats, outcome) {
+    const o = clean(stats);
+    if (outcome === 'note') o.ladder_note += 1;
+    else if (outcome === 'block') o.ladder_block += 1;
+    else if (outcome === 'late') o.ladder_late += 1;
+    else if (outcome === 'skipped') o.ladder_skipped += 1;
+    return o;
+  }
+
   /** count where a decision came from (on-device head or the server): two whitelisted integers */
   function recordVia(stats, via) {
     const o = clean(stats);
@@ -94,7 +105,8 @@
       ' | both ' + s.agree_both + ', router-only ' + s.router_only + ', regex-only ' + s.regex_only + ' | errors ' + s.errors +
       (Object.keys(s.by_version).length ? ' | router ' + Object.keys(s.by_version).map((k) => k + ' x' + s.by_version[k]).join(', ') : '') +
       (s.decided_local || s.decided_server ? ' | decided on-device ' + s.decided_local + ', by server ' + s.decided_server : '') +
-      (s.advisory_shown || s.advisory_skipped_own_disclaimer || s.advisory_late ? ' | advisory note shown ' + s.advisory_shown + ', skipped (own disclaimer) ' + s.advisory_skipped_own_disclaimer + ', late ' + s.advisory_late : '');
+      (s.advisory_shown || s.advisory_skipped_own_disclaimer || s.advisory_late ? ' | advisory note shown ' + s.advisory_shown + ', skipped (own disclaimer) ' + s.advisory_skipped_own_disclaimer + ', late ' + s.advisory_late : '') +
+      (s.ladder_note || s.ladder_block || s.ladder_late || s.ladder_skipped ? ' | ladder: note ' + s.ladder_note + ', block ' + s.ladder_block + ', skipped ' + s.ladder_skipped + ', late ' + s.ladder_late : '');
   }
 
   function loadStats(storage) {
@@ -104,5 +116,5 @@
     try { storage.setItem(KEY, JSON.stringify(clean(stats))); return true; } catch (e) { return false; }
   }
 
-  return { VERSION: '1.2', KEY, emptyStats, record, recordAdvisory, recordVia, summary, loadStats, saveStats };
+  return { VERSION: '1.3', KEY, emptyStats, record, recordAdvisory, recordLadder, recordVia, summary, loadStats, saveStats };
 });
