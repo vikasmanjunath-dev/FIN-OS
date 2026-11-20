@@ -7,7 +7,7 @@ const mem = () => { const m = {}; return { getItem: (k) => (k in m ? m[k] : null
 
 test('emptyStats has the documented shape', () => {
   const s = R.emptyStats(1000);
-  assert.deepStrictEqual(s, { since: 1000, total: 0, by_intent: {}, by_risk: { low: 0, high: 0 }, router_guard: 0, regex_guard: 0, agree_both: 0, router_only: 0, regex_only: 0, errors: 0, by_version: {}, advisory_shown: 0, advisory_skipped_own_disclaimer: 0, advisory_late: 0, decided_local: 0, decided_server: 0 });
+  assert.deepStrictEqual(s, { since: 1000, total: 0, by_intent: {}, by_risk: { low: 0, high: 0 }, router_guard: 0, regex_guard: 0, agree_both: 0, router_only: 0, regex_only: 0, errors: 0, by_version: {}, advisory_shown: 0, advisory_skipped_own_disclaimer: 0, advisory_late: 0, decided_local: 0, decided_server: 0, ladder_note: 0, ladder_block: 0, ladder_late: 0, ladder_skipped: 0 });
 });
 test('record counts totals and intents', () => {
   let s = R.emptyStats(1);
@@ -62,7 +62,7 @@ test('no message text can appear in stats, even from extra fields or hostile int
   s = R.record(s, { intent: secret, needs_guard: true }, true);
   const ser = JSON.stringify(s);
   assert.ok(!ser.includes('ABCDE1234F') && !ser.includes('salary') && !ser.includes('PAN'));
-  assert.deepStrictEqual(Object.keys(s).sort(), ['advisory_late', 'advisory_shown', 'advisory_skipped_own_disclaimer', 'agree_both', 'by_intent', 'by_risk', 'by_version', 'decided_local', 'decided_server', 'errors', 'regex_guard', 'regex_only', 'router_guard', 'router_only', 'since', 'total']);
+  assert.deepStrictEqual(Object.keys(s).sort(), ['advisory_late', 'advisory_shown', 'advisory_skipped_own_disclaimer', 'agree_both', 'by_intent', 'by_risk', 'by_version', 'decided_local', 'decided_server', 'errors', 'ladder_block', 'ladder_late', 'ladder_note', 'ladder_skipped', 'regex_guard', 'regex_only', 'router_guard', 'router_only', 'since', 'total']);
 });
 test('stats loaded from storage are re-cleaned: injected text fields are dropped', () => {
   const st = mem();

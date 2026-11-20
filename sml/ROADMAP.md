@@ -1,6 +1,6 @@
 # SML roadmap: from the verified state of 2026-10-25 to the full end state
 
-> **Status refresh 2026-11-08.** Written 2026-10-25; since then TRACKER shows B14/B21/B22 (bge-m3 adopted, retrieval embedding changed), B18 (golden set v1), E8/E8b (flagged advisory), J1 and C13b (opt-in browser TF-IDF router), K1 (sample capture), L1 (draft help-improve page), LT1-LT4 (labelling tools), N3 (router files tracked) and M (PR #3 and CI). Where this file and TRACKER differ, TRACKER wins; sections 1-2 numbers below are the 25-26 Oct baseline except the test totals and chunk count fixed here.
+> **Status refresh 2026-11-08.** Written 2026-10-25; since then TRACKER shows B14/B21/B22 (bge-m3 adopted, retrieval embedding changed), B18 (golden set v1), E8/E8b (flagged advisory), J1 and C13b (opt-in browser TF-IDF router), K1 (sample capture), L1 (draft help-improve page), LT1-LT4 (labelling tools), N3 (router files tracked) and M (PR #3 and CI). Where this file and TRACKER differ, TRACKER wins; the F3 / E7 action ladder is built as a flagged candidate (TRACKER E9, C23); sections 1-2 numbers below are the 25-26 Oct baseline except the test totals and chunk count fixed here.
 
 One document, written 2026-10-25. It sits on top of three files and must stay consistent with them: `TRACKER.md` (every step with evidence; the source of truth for what happened), `PLAN.md` (workstreams W1-W8, founder decisions F1-F8, principles) and the "FIN-OS SML Blueprint" (strategy; PDF copy `FIN-OS_SML_Blueprint.pdf` in the repo root). Where this file and TRACKER disagree, TRACKER wins and this file is wrong. Update this file when a phase closes; do not let it drift.
 
@@ -26,7 +26,7 @@ Binding founder rules (unchanged, repeated because every item below obeys them):
 | The measured gap that matters | On the same labelled sets the **live regex guard (`js/arya-guardrails.js`) catches about 10% of risky messages**: dev 14/146 (9.6%), test_v5 4/30 (13%), test_v6 6/53 (11%). Router 0.4.1 catches 53/53 on test_v6. Misses are paraphrases in Hinglish, Devanagari and plain English ("kala dhan ko safed kaise kare", "make fake salary slip") | TRACKER H16 |
 | Verifier | **NO-GO for any automated gate.** On 224 agreed real claims (34 not supported, kappa 0.769) the best single judge is qwen3:14b decomposition P 0.68 / R 0.44 (13.5 s per claim); 2-of-3 votes P 0.90 / R 0.27; NLI with best-sentence premise P 0.17 (it scored 0.997 on synthetic data and did not transfer). The deterministic numeric check stays | TRACKER D1-D8; `verifier/REPORT.md` |
 | Categoriser, PULSE ranker, on-device runtime, embedding bake-off, feedback loop | Not started. Categoriser needs real rows (F1), the ranker needs real taps (G2), device work needs topology and phones (F5), the bake-off needs downloads and free memory (F6, F8), the feedback loop needs endpoint and consent (F2) | TRACKER B14, C11-C13, D9, G2 |
-| Tests | `sml/scripts/verify.sh`: router checksums 0.1.0-0.5.1, python **105 passed** (4 skipped; `test_namespace_isolation` needs Qdrant), JS **641 passed** (6 skipped), measured 2026-11-08 (`node --test tests/*.test.js sml/tests/js/*.test.js`). The leakage and manifest tests discover every `sml/data/*.jsonl` | TRACKER bottom |
+| Tests | `sml/scripts/verify.sh`: router checksums 0.1.0-0.5.1, python **113 passed** (4 skipped; `test_namespace_isolation` needs Qdrant), JS **649 passed** (6 skipped), measured 2026-11-08 (`node --test tests/*.test.js sml/tests/js/*.test.js`). The leakage and manifest tests discover every `sml/data/*.jsonl` | TRACKER bottom |
 | Risk of loss | SML work up to router 0.4.1 is committed (`14fb9b6`, `6b920b0`). Everything since (0.5.1, test_v7/v8 and the other datasets, tools, rules, categoriser, report v2, docs) is uncommitted in the same checkout on branch `audit/track-finances-production`; an updated commit message sits in the sibling notes folder `COMMIT_MESSAGE_sml_audit.txt` | `git status` |
 
 Three structural facts the older documents did not state plainly:
@@ -114,7 +114,7 @@ Entry: none. Items:
 - **F10** `sml/scripts/verify.sh`: runs both test suites, checks `sml/data/MANIFEST.json` hashes, prints the two totals. Effort 0.3 d, light.
 - **F11** Test that every held-out file under `sml/data/` is covered by a leakage test and listed in `MANIFEST.json`, so a new `test_v7` cannot be added unguarded. Effort 0.3 d, light.
 - **Founder:** commit the SML tree using the handed-over message (single point of loss today).
-Gate: `sml/scripts/verify.sh` prints at least the TRACKER baseline (JS 641 pass, python 105 pass; it was 590 / 58 when this was written). Rollback: n/a (no behaviour change).
+Gate: `sml/scripts/verify.sh` prints at least the TRACKER baseline (JS 649 pass, python 113 pass; it was 590 / 58 when this was written). Rollback: n/a (no behaviour change).
 
 #### P1 Evidence (weeks 0-4; everything here is safe now)
 Entry: P0 not required except F10 / F11 recommended first. Items (details in section 4):
@@ -448,7 +448,7 @@ Policy recommended (decision N3; F9 implements it):
 ### 8.3 How to run and verify (correct today)
 
 ```bash
-# tests (re-run 2026-11-08: JS 641 pass / 6 skipped, python 105 pass / 4 skipped; `sml/scripts/verify.sh` runs both)
+# tests (re-run 2026-11-08: JS 649 pass / 6 skipped, python 113 pass / 4 skipped; `sml/scripts/verify.sh` runs both)
 node --test tests/*.test.js sml/tests/js/*.test.js
 rag-engine/.venv/bin/pytest sml/tests rag-engine/evaluation/test_*.py -q
 

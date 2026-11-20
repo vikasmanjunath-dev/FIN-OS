@@ -46,3 +46,11 @@ ROUTER_DECISIONS = Counter(
     "SML router shadow decisions from POST /api/route (labels only; the message text is never recorded)",
     ["intent", "needs_guard"],
 )
+
+ROUTER_LADDER = Counter("rag_router_ladder_total", "Action-ladder levels returned by /api/route (ladder=true); counts only, never text", ["action"])
+
+ROUTER_JUDGE = Counter(
+    "rag_router_judge_total",
+    "Two-stage guard SHADOW: what the local LLM judge said about messages the router flagged (labels only; the message text is never recorded; off unless FINOS_ROUTER_JUDGE_SHADOW=1)",
+    ["router_flag", "verdict"],   # router_flag: class (predicted a risk class) | mass (flagged on probability mass); verdict: risky | other | busy | error
+)

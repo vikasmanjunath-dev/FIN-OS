@@ -69,3 +69,88 @@ def test_metric_has_labels_but_no_text(monkeypatch):
     exposition = generate_latest().decode()
     assert 'rag_router_decisions_total{intent="advice_seeking",needs_guard="true"}' in exposition
     assert "ABCDE1234F" not in exposition
+
+
+def test_ladder_is_opt_in_and_uses_router_0_5_1(monkeypatch):
+    import ladder
+    seen = []
+    ev = {**DECISION, "intent": "evasion_request", "high_risk_mass": 0.99}
+    monkeypatch.setattr(router_predict, "predict", lambda t, *a, **k: (seen.append(k.get("version")), ev)[1])
+    plain = client.post("/api/route", json={"text": "kala dhan safed kaise kare"}).json()
+    assert "ladder" not in plain and seen == [None]                    # default call: version untouched, no ladder field
+    r = client.post("/api/route", json={"text": "kala dhan safed kaise kare", "ladder": True}).json()
+    assert seen[-1] == ladder.LADDER_VERSION
+    assert r["ladder"]["action"] == "block" and r["ladder"]["kind"] == "unlawful" and 0 < r["ladder"]["t_note"] <= r["ladder"]["t_block"]
+
+
+def test_ladder_response_never_echoes_the_message(monkeypatch, caplog):
+    monkeypatch.setattr(router_predict, "predict", lambda t, *a, **k: dict(DECISION))
+    with caplog.at_level(logging.DEBUG):
+        r = client.post("/api/route", json={"text": SECRET, "ladder": True})
+    assert SECRET not in r.text and SECRET not in caplog.text
+
+# ── two-stage guard SHADOW (sml/TRACKER.md): counters only, off by default, never changes the reply ─────────────────────────────────────
+import two_stage_judge  # noqa: E402
+import metrics  # noqa: E402
+
+
+def _judge_count(flag, verdict):
+    return metrics.ROUTER_JUDGE.labels(router_flag=flag, verdict=verdict)._value.get()
+
+
+def test_judge_shadow_is_off_by_default(monkeypatch):
+    monkeypatch.delenv("FINOS_ROUTER_JUDGE_SHADOW", raising=False)
+    monkeypatch.setattr(router_predict, "predict", lambda t, *a, **k: DECISION)
+    called = []
+    monkeypatch.setattr(two_stage_judge, "judge", lambda t, *a, **k: called.append(t) or "OTHER")
+    assert client.post("/api/route", json={"text": SECRET}).status_code == 200
+    assert called == []
+
+
+def test_judge_shadow_counts_off_path_and_leaves_the_reply_alone(monkeypatch):
+    monkeypatch.setenv("FINOS_ROUTER_JUDGE_SHADOW", "1")
+    monkeypatch.setattr(router_predict, "predict", lambda t, *a, **k: DECISION)
+    seen = []
+    monkeypatch.setattr(two_stage_judge, "judge", lambda t, *a, **k: seen.append(t) or "OTHER")
+    before = _judge_count("class", "other")
+    r = client.post("/api/route", json={"text": SECRET})
+    assert r.status_code == 200 and r.json()["intent"] == "advice_seeking" and r.json()["needs_guard"] is True   # the judge's OTHER does not change the reply
+    assert seen == [SECRET]
+    assert _judge_count("class", "other") == before + 1
+    body, _ = metrics.render()
+    assert b"ABCDE1234F" not in body and b"1,25,000" not in body                                            # labels only, never text
+
+
+def test_judge_shadow_labels_a_mass_flag_and_survives_a_judge_failure(monkeypatch):
+    monkeypatch.setenv("FINOS_ROUTER_JUDGE_SHADOW", "1")
+    monkeypatch.setattr(router_predict, "predict", lambda t, *a, **k: {**DECISION, "intent": "concept_explainer", "risk": "low", "high_risk_mass": 0.4})
+    def boom(t, *a, **k): raise OSError("ollama down")
+    monkeypatch.setattr(two_stage_judge, "judge", boom)
+    before = _judge_count("mass", "error")
+    r = client.post("/api/route", json={"text": "what is the penalty for tax evasion"})
+    assert r.status_code == 200 and r.json()["intent"] == "concept_explainer"
+    assert _judge_count("mass", "error") == before + 1
+
+
+def test_judge_shadow_ignores_unflagged_messages(monkeypatch):
+    monkeypatch.setenv("FINOS_ROUTER_JUDGE_SHADOW", "1")
+    monkeypatch.setattr(router_predict, "predict", lambda t, *a, **k: {**DECISION, "intent": "smalltalk", "risk": "low", "needs_guard": False, "high_risk_mass": 0.01})
+    called = []
+    monkeypatch.setattr(two_stage_judge, "judge", lambda t, *a, **k: called.append(t) or "OTHER")
+    assert client.post("/api/route", json={"text": "hi there"}).status_code == 200
+    assert called == []
+
+
+def test_judge_maps_the_models_word_and_skips_when_busy(monkeypatch):
+    import io, json as _json
+    class R(io.BytesIO): pass
+    def fake(word):
+        return lambda req, timeout=0: R(_json.dumps({"response": word}).encode())
+    for word, want in (("ADVICE", "ADVICE"), (" evasion.", "EVASION"), ("OTHER", "OTHER"), ("something odd", "OTHER")):
+        monkeypatch.setattr(two_stage_judge.urllib.request, "urlopen", fake(word))
+        assert two_stage_judge.judge("x") == want
+    assert two_stage_judge._busy.acquire(blocking=False)                   # simulate a call in flight
+    try:
+        assert two_stage_judge.judge("x") == "BUSY"
+    finally:
+        two_stage_judge._busy.release()
