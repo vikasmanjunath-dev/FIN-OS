@@ -8,6 +8,7 @@ Phase 2 (this revision): hybrid retrieval (dense+BM25 via RRF) + reranking +
 """
 from __future__ import annotations
 import json
+import os
 import tempfile
 import time
 import uuid
@@ -19,7 +20,7 @@ from rq import Queue
 from rq.job import Job
 from rq.worker import Worker
 from rq.exceptions import NoSuchJobError
-from fastapi import FastAPI, HTTPException, Header, UploadFile, File, Form
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Header, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, JSONResponse
 from pydantic import BaseModel
@@ -452,8 +453,19 @@ class RouteRequest(BaseModel):
     ladder: bool = False     # opt-in: also return the action-ladder level (note / block) from router 0.5.1 (sml/runtime/ladder.py)
 
 
+def _judge_shadow(text: str, router_flag: str) -> None:
+    """Two-stage guard SHADOW (sml/TRACKER.md): ask the local judge about a message the router flagged and COUNT the verdict. Runs after the reply is sent and
+    never changes it. Labels only; the text is never logged or stored. Any failure is a counter, never an exception."""
+    try:
+        import two_stage_judge
+        verdict = {"ADVICE": "risky", "EVASION": "risky", "OTHER": "other", "BUSY": "busy"}.get(two_stage_judge.judge(text), "error")
+    except Exception:  # noqa: BLE001 - a shadow check must never raise
+        verdict = "error"
+    metrics.ROUTER_JUDGE.labels(router_flag=router_flag, verdict=verdict).inc()
+
+
 @app.post("/api/route")
-def route_endpoint(req: RouteRequest):
+def route_endpoint(req: RouteRequest, background: BackgroundTasks):
     """SML router (shadow mode, sml/PLAN.md W1.1): intent / risk / needs_guard for one message.
     PRIVACY: the message text is never logged, printed, cached or stored. Only the decision's intent and
     needs_guard go to a Prometheus counter. Imported lazily so server start does not depend on it.
@@ -477,6 +489,8 @@ def route_endpoint(req: RouteRequest):
             intent=str(decision.get("intent", "unknown")),
             needs_guard="true" if decision.get("needs_guard") else "false",
         ).inc()
+        if decision.get("needs_guard") and os.environ.get("FINOS_ROUTER_JUDGE_SHADOW") == "1":
+            background.add_task(_judge_shadow, req.text, "class" if decision.get("risk") == "high" else "mass")
         return decision
     except Exception as e:  # noqa: BLE001 - deliberately broad: shadow mode must never 500
         return JSONResponse(status_code=503, content={"error": f"router unavailable ({type(e).__name__})"})
