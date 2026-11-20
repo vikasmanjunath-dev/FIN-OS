@@ -1,4 +1,4 @@
-"""Guards the W2 verifier data. Run: rag-engine/.venv/bin/pytest sml/tests -q"""
+"""Guards the W2 verifier data. Run: services/rag-engine/.venv/bin/pytest sml/tests -q"""
 import hashlib, json, re, shutil, sys
 from pathlib import Path
 import pytest

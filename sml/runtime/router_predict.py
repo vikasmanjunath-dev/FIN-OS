@@ -1,12 +1,12 @@
 """Router v0.1 predictor (server/dev use). rung 2: mxbai-embed-large (Ollama) + logistic head.
-    rag-engine/.venv/bin/python sml/runtime/router_predict.py "september mein khana kitna kharch hua?"
+    services/rag-engine/.venv/bin/python sml/runtime/router_predict.py "september mein khana kitna kharch hua?"
 Returns intent, confidence, risk class and a `needs_guard` flag. NOT yet wired into Arya; see models/router/0.1.0/MODEL_CARD.md."""
 from __future__ import annotations
 import json, sys
 from pathlib import Path
 import numpy as np
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "rag-engine"))
+sys.path.insert(0, str(ROOT / "services" / "rag-engine"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import config  # noqa: E402
 from embedding.encoder import embed_batch  # noqa: E402

@@ -106,7 +106,7 @@
   }
 
   /* @pure-start market-format
-     Shapes come from arya-ai/server.py: GET /api/commodities ->
+     Shapes come from services/arya-ai/server.py: GET /api/commodities ->
        {commodities:{"GOLD (10g, global equiv.)":{price,unit:"₹/10g",change_pct|null,note,price_usd,usd_unit,usd_inr,price_date}, ...},
         unavailable:{label:{reason,price_usd,usd_unit,change_pct,price_date}}, as_of}
      GET /api/fx -> {USD_INR:83.1,...} or {error}. Gold/silver are world futures prices converted at the live USD/INR
@@ -1695,7 +1695,7 @@ RULES (non-negotiable):
    * Main Chat tab (sendMessage→streamFromOllama) is a single direct Ollama
    * call — no tool loop — so grounding context has to be pre-fetched and
    * injected into that one call's system prompt, the same way macro news is.
-   * See docs/RAG_INTEGRATION.md for why this differs from the original
+   * See docs/rag/RAG_INTEGRATION.md for why this differs from the original
    * (speculative, written before this file was read) AgentTools-only design.
    */
   const _RAG_INTENT_RE = /\b(section\s?\d|circular|notification|sebi|rbi|amfi|regulation|regulatory|kcc|kisan credit|directions?,?\s*20\d\d|rule\b|act\b|compliance|directive)\b/i;
@@ -1808,10 +1808,10 @@ RULES (non-negotiable):
   async function fetchRagContext(userText) {
     try {
       // 4500ms not 2500ms: measured retrieve+rerank baseline alone is 1.1-2.5s on
-      // this hardware (docs/RAG_HARDWARE.md §4), and this call runs concurrently
+      // this hardware (docs/rag/RAG_HARDWARE.md §4), and this call runs concurrently
       // with the main chat's own Ollama generate request, which contends for the
       // same local Ollama process — 2.5s aborted consistently in real browser
-      // testing even with otherwise-idle models. See docs/RAG_PHASES.md Phase 4.
+      // testing even with otherwise-idle models. See docs/rag/RAG_PHASES.md Phase 4.
       const d = await ragAPI('/api/retrieve', { query: userText, top_k: 3, stream: false }, 4500);
       if (d.error || !Array.isArray(d.chunks) || !d.chunks.length) return { text: '', chunks: [] };
       const text = d.chunks.map(c => `[${c.doc_title}]\n${c.text}`).join('\n\n');
@@ -2876,7 +2876,7 @@ ${sigLines.join('\n')}`;
             : `Couldn't open a chart for ${sym} — check the symbol and try again.`;
         }
 
-        /* ── RAG (Phase 4 — see docs/RAG_INTEGRATION.md) ────────────────── */
+        /* ── RAG (Phase 4 — see docs/rag/RAG_INTEGRATION.md) ────────────────── */
         case 'rag_query': {
           const query = args.query || '';
           if (!query) return 'Please provide a question to look up.';
@@ -7643,7 +7643,7 @@ h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:2px}
     // Fetch RAG grounding context (Phase 4) — only when the message looks like
     // it needs a regulation/circular/notification lookup; skipped otherwise so
     // casual chat never pays this extra latency on this hardware (see
-    // docs/RAG_HARDWARE.md §4 — even fast retrieval costs 1-3s here, more under
+    // docs/rag/RAG_HARDWARE.md §4 — even fast retrieval costs 1-3s here, more under
     // contention with the main chat's own concurrent Ollama call).
     let ragLines = '';
     let ragChunks = [];

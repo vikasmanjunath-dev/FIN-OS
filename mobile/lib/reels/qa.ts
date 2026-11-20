@@ -23,7 +23,7 @@ import { withVoiceTiming } from '@/lib/reels/voice';
 import type { Act } from '@/lib/reels/journey';
 import type { Beat, L, Prop, Reel, Scene, SliderModel } from '@/lib/reels/types';
 
-// ── Budgets (documented in docs/REELS-AUTHORS.md; the test file holds the library to them) ───────────────────────────────────────
+// ── Budgets (documented in docs/reels/REELS-AUTHORS.md; the test file holds the library to them) ───────────────────────────────────────
 
 export const BUDGET = {
   /** One reel, serialised as JSON. Reels are data; the whole library should stay small enough to ship in the app bundle without thought. */
@@ -240,7 +240,7 @@ export const CHECKS: Check[] = [
     key: 'script', label: 'Script rules (validate.ts)',
     run: r => {
       const msgs = validateReel(r).map(m => m.replace(`${r.id}: `, ''));
-      return { findings: msgs.map(m => err('validator', m, 'fix the line named; see docs/REELS-AUTHORS.md "What the validator bans"')), detail: msgs.length ? `${msgs.length} problem${msgs.length > 1 ? 's' : ''}` : 'passes every rule in both languages' };
+      return { findings: msgs.map(m => err('validator', m, 'fix the line named; see docs/reels/REELS-AUTHORS.md "What the validator bans"')), detail: msgs.length ? `${msgs.length} problem${msgs.length > 1 ? 's' : ''}` : 'passes every rule in both languages' };
     },
   },
   {

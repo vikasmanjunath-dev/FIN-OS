@@ -1,5 +1,5 @@
 // Accessibility and layout rules for the newer Money Reels UI (gestures, Saved, My moves, Money date, milestones, voice captions), held as source checks the way
-// a11y.test.mts does. Each test names the rule it guards; the "why" is in docs/REELS.md ("Accessibility pass 2").
+// a11y.test.mts does. Each test names the rule it guards; the "why" is in docs/reels/REELS.md ("Accessibility pass 2").
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';

@@ -1,6 +1,6 @@
 # Trust ribbon: "How this is worked out"
 
-Part of the Money Reels guide (`docs/REELS.md`, section 3). Notes live in `mobile/lib/reels/trust.ts` (`TRUST`, `trustFor`).
+Part of the Money Reels guide (`docs/reels/REELS.md`, section 3). Notes live in `mobile/lib/reels/trust.ts` (`TRUST`, `trustFor`).
 
 ## What it is
 

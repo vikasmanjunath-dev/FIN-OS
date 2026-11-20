@@ -1,8 +1,8 @@
 """C26: two-stage guard. Stage 1 = the TF-IDF candidate (train + extra + extra2; C and thr chosen on dev by the existing rule). Stage 2 = a local LLM judge (Ollama) that
 reads only the messages stage 1 flagged on probability mass (regex hits stay flagged). Final flag = regex OR (mass >= thr AND judge says ADVICE/EVASION).
 The judge prompt is fixed in JUDGE_PROMPT (version JV); it is tuned on DEV only. Any other set is exploratory unless it is a fresh sealed set; test_v7 and test_v8 are spent.
-  rag-engine/.venv/bin/python sml/training/eval_two_stage.py --sets dev            (tune)
-  rag-engine/.venv/bin/python sml/training/eval_two_stage.py --sets test8 test7    (exploratory)
+  services/rag-engine/.venv/bin/python sml/training/eval_two_stage.py --sets dev            (tune)
+  services/rag-engine/.venv/bin/python sml/training/eval_two_stage.py --sets test8 test7    (exploratory)
 Judge answers are cached in sml/eval/.judge_cache.json (keyed by model, prompt version and text), so a rerun is free."""
 import argparse, hashlib, json, sys, time, urllib.request
 from concurrent.futures import ThreadPoolExecutor

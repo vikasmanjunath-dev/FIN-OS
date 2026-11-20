@@ -138,8 +138,8 @@ python server.py
 
 Port 8766 was chosen to avoid conflict with:
 - `voiceagent/agent.py` → ws://127.0.0.1:8765 (WebSocket)
-- `arya-ai/server.py` → http://localhost:7475
-- `rag-engine/server.py` → http://localhost:7476
+- `services/arya-ai/server.py` → http://localhost:7475
+- `services/rag-engine/server.py` → http://localhost:7476
 
 The frontend page connects to `http://127.0.0.1:8766` hardcoded in `portfolio-analyser-v10.html`.
 

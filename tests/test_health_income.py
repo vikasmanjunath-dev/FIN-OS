@@ -1,4 +1,4 @@
-"""alerts/health_score.py income classification (open item: _monthly_income counted ANY positive amount as income).
+"""services/alerts/health_score.py income classification (open item: _monthly_income counted ANY positive amount as income).
 
 The transactions table stores every amount as a positive number, so "positive == income" turned every expense
 into income and the couple / benchmark endpoints reported inflated income.  The rule now mirrors the website's
@@ -17,7 +17,7 @@ import pytest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-from alerts.health_score import (  # noqa: E402
+from services.alerts.health_score import (  # noqa: E402
     MONTHLY_WINDOW_MONTHS, _monthly_emi, _monthly_expenses, _monthly_income, _monthly_window, _parse_dt, _tx_kind, window_start)
 
 
@@ -145,5 +145,5 @@ def test_timestamps_are_placed_in_the_right_month():
 
 def test_no_fixed_two_month_assumption_is_left_in_the_source():
     import re
-    src = open(os.path.join(ROOT, "alerts", "health_score.py"), encoding="utf-8").read()
+    src = open(os.path.join(ROOT, "services", "alerts", "health_score.py"), encoding="utf-8").read()
     assert not re.search(r"sum\([^\n]*\) / 2|\) / 2\s*$", src, re.M), "a '/ 2' monthly halving is back"

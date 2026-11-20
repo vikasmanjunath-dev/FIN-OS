@@ -1,7 +1,7 @@
 # arya-pulse agent: PULSE ranked insights, Arya memory and life events, Arya local tools
 
 Worktree: `/Users/vkm/Desktop/Finos/Initial Deployment/.claude/worktrees/agent-a7f23e0889ff2f9e5`  (branch `worktree-agent-a7f23e0889ff2f9e5`)
-Nothing committed or pushed. Website files, `arya-ai/` and the shared files named in the brief are untouched.
+Nothing committed or pushed. Website files, `services/arya-ai/` and the shared files named in the brief are untouched.
 
 ## 0. Read this first: three things about the state I started from
 
@@ -190,7 +190,7 @@ entries and a native-reviewed Hindi pass can be wired in `pulseCards`/`PulseCard
 * `loadAlerts` writes `finos_alerts_last_networth` as a side effect (existing behaviour, same as the alerts screen).
 * The backend `/api/chat` ignores unknown context keys except as "k: v" lines in the system prompt, so memory and life-event
   lines reach the model as profile text; there is no server-side tool loop on `/api/chat` (the website's agent loop is client side).
-  I did not change `arya-ai/`.
+  I did not change `services/arya-ai/`.
 
 ## 7. Tests and how to run them
 

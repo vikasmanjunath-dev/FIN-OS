@@ -8,7 +8,7 @@ from decimal import Decimal
 import pytest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DOC_AI = os.path.join(os.path.dirname(HERE), "document-ai")
+DOC_AI = os.path.join(os.path.dirname(HERE), "services", "document-ai")
 sys.path.insert(0, DOC_AI)
 import cas_import  # noqa: E402
 
@@ -153,7 +153,7 @@ def client(monkeypatch):
     pytest.importorskip("httpx")
     from fastapi.testclient import TestClient
     try:
-        import server  # document-ai/server.py
+        import server  # services/document-ai/server.py
     except Exception as e:  # noqa: BLE001
         pytest.skip(f"document-ai server not importable here: {e}")
     return TestClient(server.app), server

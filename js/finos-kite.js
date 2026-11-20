@@ -22,7 +22,7 @@
  * Setup (one-time):
  *   1. Create an app at https://developers.kite.trade/
  *   2. Set redirect_uri: http://localhost:7475/api/kite/callback
- *   3. Add KITE_API_KEY + KITE_API_SECRET to arya-ai/.env
+ *   3. Add KITE_API_KEY + KITE_API_SECRET to services/arya-ai/.env
  *   4. Restart arya-ai
  */
 (function (global) {
@@ -415,7 +415,7 @@
           <li>Visit <a href="https://developers.kite.trade/" target="_blank" style="color:#387ed1;">developers.kite.trade</a> → Create App</li>
           <li>Set redirect_uri: <code style="background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;">http://localhost:7475/api/kite/callback</code></li>
           <li>Copy your <strong style="color:#F5F7FA;">API Key</strong> and <strong style="color:#F5F7FA;">API Secret</strong></li>
-          <li>Add to <code style="background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;">arya-ai/.env</code>:<br>
+          <li>Add to <code style="background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;">services/arya-ai/.env</code>:<br>
             <code style="display:block;margin-top:4px;background:rgba(255,255,255,.06);padding:8px;border-radius:6px;font-size:11px;">KITE_API_KEY=your_key<br>KITE_API_SECRET=your_secret</code>
           </li>
           <li>Restart arya-ai and try again</li>

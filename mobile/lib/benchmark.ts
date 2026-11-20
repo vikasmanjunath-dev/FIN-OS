@@ -1,6 +1,6 @@
 // "How do I compare?" without a made-up peer group.
 // The website page (html/benchmarking.html) shows "Avg Peer" and "Top 10%" columns from a table of numbers typed into
-// alerts/health_score.py (benchmark_comparison) and says they come from SEBI, AMFI, RBI and NPS Trust reports. There is no dataset,
+// services/alerts/health_score.py (benchmark_comparison) and says they come from SEBI, AMFI, RBI and NPS Trust reports. There is no dataset,
 // link or date behind them, and when the server is offline the page shows invented figures for the person. They are not ported.
 // What is honest, and is here: the person's own figures against the same rules of thumb the Money Score uses, each labelled as a
 // rule of thumb. No percentile, no "peers", no ranking. An unrecorded figure is "Not recorded", never a guess.

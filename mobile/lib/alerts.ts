@@ -1,4 +1,4 @@
-// The alerts bell, worked out on the phone. Ports the rules of the website's alert engine (alerts/rules.py) that can be decided
+// The alerts bell, worked out on the phone. Ports the rules of the website's alert engine (services/alerts/rules.py) that can be decided
 // from what is recorded here; the ones that need a bank feed, card data or a market stream are not faked.
 // Pure: facts and "now" go in, a list of alerts comes out. An alert's id includes the period it is about (a month, a goal), so a
 // dismissed alert comes back next period if the situation is still true. Nothing fires from a missing figure.

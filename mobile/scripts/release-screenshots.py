@@ -8,7 +8,7 @@
 What these are, honestly: the real app code rendered by react-native-web at a phone viewport, device scale 3. They show the
 real screens and real calculations on made-up data. They are NOT captured from an iPhone or an Android phone, so they have no
 status bar or home indicator. Apple and Google both want screenshots of the app running; replace these with simulator /
-device captures after the first EAS build if you want that (docs/STORE_LISTING.md). Nothing here is a real person's data:
+device captures after the first EAS build if you want that (docs/mobile/STORE_LISTING.md). Nothing here is a real person's data:
 the profile is named "Sample User", every figure is invented, and the seed is in this file.
 """
 import argparse, datetime as dt, json, os, re, sys

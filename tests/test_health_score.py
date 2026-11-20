@@ -6,7 +6,7 @@ import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import pytest
-from alerts.health_score import (
+from services.alerts.health_score import (
     compute_health_score, benchmark_comparison,
     score_emergency_fund, score_debt_management,
     score_savings_and_discipline, score_insurance,
@@ -128,7 +128,7 @@ class TestEmergencyFundPillar:
 
     def test_no_expense_transactions_uses_income_fallback(self):
         # B1 regression: ef_months should NOT be zero when no expense txns
-        from alerts.health_score import benchmark_comparison
+        from services.alerts.health_score import benchmark_comparison
         u = make_user(income=100_000, liquid=300_000)
         result = benchmark_comparison(u)
         ef = next(m for m in result["metrics"] if m["key"] == "ef_months")

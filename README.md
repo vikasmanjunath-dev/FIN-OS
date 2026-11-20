@@ -13,16 +13,16 @@
 
 | Doc | What it covers |
 |---|---|
-| [PRD.md](docs/PRD.md) | Product requirements — goals, user personas, feature list, milestones |
-| [FRD.md](docs/FRD.md) | Functional requirements — every module's behaviour, acceptance criteria |
-| [TRD.md](docs/TRD.md) | Technical requirements — stack specs, performance budgets, security, integrations |
-| [SOP.md](docs/SOP.md) | Standard operating procedures — deploy, debug, incidents, onboarding |
-| [BRD.md](docs/BRD.md) | Business requirements — goals, stakeholders, KPIs, constraints |
-| [MRD.md](docs/MRD.md) | Market requirements — market problem, segments, competitive landscape |
-| [CRD.md](docs/CRD.md) | Customer requirements — customer needs traced to implementing modules |
-| [DRD.md](docs/DRD.md) | Design requirements — tokens, themes, hover system, accessibility, new-page checklist |
-| [ARD.md](docs/ARD.md) | Architecture requirements — hub-and-spoke system, constraints, planned evolution |
-| [NFRD.md](docs/NFRD.md) | Non-functional requirements — performance, security, reliability, compliance |
+| [PRD.md](docs/requirements/PRD.md) | Product requirements — goals, user personas, feature list, milestones |
+| [FRD.md](docs/requirements/FRD.md) | Functional requirements — every module's behaviour, acceptance criteria |
+| [TRD.md](docs/requirements/TRD.md) | Technical requirements — stack specs, performance budgets, security, integrations |
+| [SOP.md](docs/requirements/SOP.md) | Standard operating procedures — deploy, debug, incidents, onboarding |
+| [BRD.md](docs/requirements/BRD.md) | Business requirements — goals, stakeholders, KPIs, constraints |
+| [MRD.md](docs/requirements/MRD.md) | Market requirements — market problem, segments, competitive landscape |
+| [CRD.md](docs/requirements/CRD.md) | Customer requirements — customer needs traced to implementing modules |
+| [DRD.md](docs/requirements/DRD.md) | Design requirements — tokens, themes, hover system, accessibility, new-page checklist |
+| [ARD.md](docs/requirements/ARD.md) | Architecture requirements — hub-and-spoke system, constraints, planned evolution |
+| [NFRD.md](docs/requirements/NFRD.md) | Non-functional requirements — performance, security, reliability, compliance |
 
 The six docs added after PRD/FRD/TRD are exports of living Claude Docs; the online copies are linked at the top of each file.
 
@@ -30,50 +30,50 @@ The six docs added after PRD/FRD/TRD are exports of living Claude Docs; the onli
 
 | Doc | What it covers |
 |---|---|
-| [MOBILE_APP.md](docs/MOBILE_APP.md) | Expo / React Native app — screens, architecture, web parity, known gaps |
-| [REELS.md](docs/REELS.md) | Money Reels — how a reel works, the Reels tab, voice, share image, ranker, web version, accessibility, what is not built |
-| [REELS-AUTHORS.md](docs/REELS-AUTHORS.md) | One-page guide to adding or reviewing a reel, and the `npm run reels:check` checklist |
-| [REELS-400-PLAN.md](docs/REELS-400-PLAN.md) | Plan and review gate for growing the library; status at the top |
-| [RELEASE_RUNBOOK.md](docs/RELEASE_RUNBOOK.md) | Store release steps (EAS) and the local sideload APK path (section 4b) |
-| [DEVICE_TEST_CHECKLIST.md](docs/DEVICE_TEST_CHECKLIST.md) | What to check on a real phone before a release; no results recorded yet |
-| [PENDING.md](docs/PENDING.md) | The working list: what needs you, build order, known quirks |
-| [UPGRADES_OCT_2026.md](docs/UPGRADES_OCT_2026.md) | October 2026 six-stage upgrade pass — what was added, where, what is not done |
-| [PREPAY_OFFERS_SUBSCRIPTIONS.md](docs/PREPAY_OFFERS_SUBSCRIPTIONS.md) | Prepay-vs-Invest, Job-Offer Comparer and Subscription Tracker — pages, logic modules, tests |
+| [MOBILE_APP.md](docs/mobile/MOBILE_APP.md) | Expo / React Native app — screens, architecture, web parity, known gaps |
+| [REELS.md](docs/reels/REELS.md) | Money Reels — how a reel works, the Reels tab, voice, share image, ranker, web version, accessibility, what is not built |
+| [REELS-AUTHORS.md](docs/reels/REELS-AUTHORS.md) | One-page guide to adding or reviewing a reel, and the `npm run reels:check` checklist |
+| [REELS-400-PLAN.md](docs/reels/REELS-400-PLAN.md) | Plan and review gate for growing the library; status at the top |
+| [RELEASE_RUNBOOK.md](docs/ops/RELEASE_RUNBOOK.md) | Store release steps (EAS) and the local sideload APK path (section 4b) |
+| [DEVICE_TEST_CHECKLIST.md](docs/mobile/DEVICE_TEST_CHECKLIST.md) | What to check on a real phone before a release; no results recorded yet |
+| [PENDING.md](docs/ops/PENDING.md) | The working list: what needs you, build order, known quirks |
+| [UPGRADES_OCT_2026.md](docs/features/UPGRADES_OCT_2026.md) | October 2026 six-stage upgrade pass — what was added, where, what is not done |
+| [PREPAY_OFFERS_SUBSCRIPTIONS.md](docs/features/PREPAY_OFFERS_SUBSCRIPTIONS.md) | Prepay-vs-Invest, Job-Offer Comparer and Subscription Tracker — pages, logic modules, tests |
 
-Component READMEs: [mobile/](mobile/README.md) · [gateway/](gateway/README.md) · [supabase/](supabase/README.md) · [TradeJournal/](TradeJournal/README.md)
+Component READMEs: [mobile/](mobile/README.md) · [services/gateway/](services/gateway/README.md) · [supabase/](supabase/README.md) · [TradeJournal/](TradeJournal/README.md)
 
 **Engineering Reference**
 
 | Doc | What it covers |
 |---|---|
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System map, AI pipeline, widget lifecycle, navigation engine, data flows |
-| [SETUP.md](docs/SETUP.md) | Local dev setup — voice agent, Portfolio.AI server, all services |
-| [VOICE_AGENT.md](docs/VOICE_AGENT.md) | Voice agent config, ws:// connection, navigation engine, latency tuning |
-| [VOICE_AI.md](docs/VOICE_AI.md) | Voice AI model selection, STT/TTS pipeline |
-| [ARYA_AI.md](docs/ARYA_AI.md) | Arya AI assistant architecture across the site |
-| [ARYA_UPGRADES.md](docs/ARYA_UPGRADES.md) | Arya feature upgrade history |
-| [DATABASE.md](docs/DATABASE.md) | All Supabase tables, RLS policies, migrations, env vars |
-| [DEPLOYMENT.md](docs/DEPLOYMENT.md) | Vercel deployment (no git), vercel.json, api/chat.js, checklist |
-| [API_REFERENCE.md](docs/API_REFERENCE.md) | All backend endpoints (Flask, FastAPI, Django, Portfolio.AI) |
-| [DJANGO.md](docs/DJANGO.md) | Django service reference |
-| [WEBSOCKET_PROTOCOL.md](docs/WEBSOCKET_PROTOCOL.md) | Full ws:// message schema between browser and agent.py |
-| [CONTRIBUTING.md](docs/CONTRIBUTING.md) | Adding calculators, pages, alert rules, voice intents |
+| [ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md) | System map, AI pipeline, widget lifecycle, navigation engine, data flows |
+| [SETUP.md](docs/ops/SETUP.md) | Local dev setup — voice agent, Portfolio.AI server, all services |
+| [VOICE_AGENT.md](docs/architecture/VOICE_AGENT.md) | Voice agent config, ws:// connection, navigation engine, latency tuning |
+| [VOICE_AI.md](docs/architecture/VOICE_AI.md) | Voice AI model selection, STT/TTS pipeline |
+| [ARYA_AI.md](docs/architecture/ARYA_AI.md) | Arya AI assistant architecture across the site |
+| [ARYA_UPGRADES.md](docs/architecture/ARYA_UPGRADES.md) | Arya feature upgrade history |
+| [DATABASE.md](docs/architecture/DATABASE.md) | All Supabase tables, RLS policies, migrations, env vars |
+| [DEPLOYMENT.md](docs/ops/DEPLOYMENT.md) | Vercel deployment (no git), vercel.json, api/chat.js, checklist |
+| [API_REFERENCE.md](docs/architecture/API_REFERENCE.md) | All backend endpoints (Flask, FastAPI, Django, Portfolio.AI) |
+| [DJANGO.md](docs/architecture/DJANGO.md) | Django service reference |
+| [WEBSOCKET_PROTOCOL.md](docs/architecture/WEBSOCKET_PROTOCOL.md) | Full ws:// message schema between browser and agent.py |
+| [CONTRIBUTING.md](docs/ops/CONTRIBUTING.md) | Adding calculators, pages, alert rules, voice intents |
 
 **RAG Engine**
 
 | Doc | What it covers |
 |---|---|
-| [RAG_SYSTEM.md](docs/RAG_SYSTEM.md) | RAG system overview |
-| [RAG_ARCHITECTURE / PHASES](docs/RAG_PHASES.md) | Build phases |
-| [RAG_PIPELINE.md](docs/RAG_PIPELINE.md) | Ingestion/retrieval pipeline |
-| [RAG_MODELS.md](docs/RAG_MODELS.md) | Embedding/LLM model choices |
-| [RAG_KNOWLEDGE_BASE.md](docs/RAG_KNOWLEDGE_BASE.md) | Knowledge base structure |
-| [RAG_API.md](docs/RAG_API.md) | RAG service API |
-| [RAG_INTEGRATION.md](docs/RAG_INTEGRATION.md) | Integration with the main app |
-| [RAG_SETUP.md](docs/RAG_SETUP.md) | Local setup |
-| [RAG_HARDWARE.md](docs/RAG_HARDWARE.md) | Hardware/resource requirements |
-| [RAG_SECURITY.md](docs/RAG_SECURITY.md) | Security considerations |
-| [RAG_EVALUATION.md](docs/RAG_EVALUATION.md) | Evaluation methodology & metrics |
+| [RAG_SYSTEM.md](docs/rag/RAG_SYSTEM.md) | RAG system overview |
+| [RAG_ARCHITECTURE / PHASES](docs/rag/RAG_PHASES.md) | Build phases |
+| [RAG_PIPELINE.md](docs/rag/RAG_PIPELINE.md) | Ingestion/retrieval pipeline |
+| [RAG_MODELS.md](docs/rag/RAG_MODELS.md) | Embedding/LLM model choices |
+| [RAG_KNOWLEDGE_BASE.md](docs/rag/RAG_KNOWLEDGE_BASE.md) | Knowledge base structure |
+| [RAG_API.md](docs/rag/RAG_API.md) | RAG service API |
+| [RAG_INTEGRATION.md](docs/rag/RAG_INTEGRATION.md) | Integration with the main app |
+| [RAG_SETUP.md](docs/rag/RAG_SETUP.md) | Local setup |
+| [RAG_HARDWARE.md](docs/rag/RAG_HARDWARE.md) | Hardware/resource requirements |
+| [RAG_SECURITY.md](docs/rag/RAG_SECURITY.md) | Security considerations |
+| [RAG_EVALUATION.md](docs/rag/RAG_EVALUATION.md) | Evaluation methodology & metrics |
 
 ---
 
@@ -151,13 +151,13 @@ Local Python services (9 total)
 │     ├─ HISTORY_TURNS: 10, num_ctx: 8192, num_predict: 400
 │     └─ No SSL cert — plain WebSocket
 ├── Porfolio Analyser/server.py → Arya AI HTTP :8766 (llama3.1:latest + llama3.2:3b)
-├── alerts/alert-engine.py   → FastAPI :8001 (APScheduler, 10 rules)
+├── services/alerts/alert-engine.py   → FastAPI :8001 (APScheduler, 10 rules)
 ├── app.py                   → Flask :5000 (News Intel)
 ├── chatbot/brain.py         → Python :8000 (QFT engine)
-├── arya-ai/server.py        → Arya AI service (auth.py, config.py, tts.py)
-├── document-ai/server.py    → Document analysis (parser.py)
-├── market intelligence/app.py → Market data (fundamental/intraday/long/swing)
-└── rag-engine/server.py     → RAG pipeline (jobs.py, scheduler.py, metrics.py)
+├── services/arya-ai/server.py        → Arya AI service (auth.py, config.py, tts.py)
+├── services/document-ai/server.py    → Document analysis (parser.py)
+├── services/market-intelligence/app.py → Market data (fundamental/intraday/long/swing)
+└── services/rag-engine/server.py     → RAG pipeline (jobs.py, scheduler.py, metrics.py)
        │
        ▼
 Supabase  (Auth + Postgres 15 + Realtime + RLS)
@@ -366,7 +366,7 @@ python3 tests/perf_budget.py     # JS weight per page vs tests/perf_budget.json
 
 The phone app is checked separately, from `mobile/`: `npm test` (1,371 tests on 22 Oct 2026), `npm run typecheck`, `npm run lint` (no warnings allowed) and `npm run reels:check -- --all` for the reel library. See [mobile/README.md](mobile/README.md).
 
-`.github/workflows/ci.yml` runs the fast + browser suites on every push/PR and the full crawls nightly. Details: [tests/README.md](tests/README.md), [docs/UPGRADES_OCT_2026.md](docs/UPGRADES_OCT_2026.md).
+`.github/workflows/ci.yml` runs the fast + browser suites on every push/PR and the full crawls nightly. Details: [tests/README.md](tests/README.md), [docs/features/UPGRADES_OCT_2026.md](docs/features/UPGRADES_OCT_2026.md).
 
 ---
 
@@ -401,14 +401,14 @@ Initial Deployment/
 │   ├── requirements.txt        faster-whisper, ollama, edge-tts, websockets, httpx
 │   ├── schema.sql              Supabase agent_memories table DDL
 │   └── .env.example            Env var template
-├── alerts/
+├── services/alerts/
 │   └── alert-engine.py         FastAPI :8001 — 10 rules, VAPID push
-├── arya-ai/                    Arya AI service — server.py, auth.py, config.py, tts.py
+├── services/arya-ai/                    Arya AI service — server.py, auth.py, config.py, tts.py
 ├── chatbot/                    brain.py — QFT engine, Python :8000
-├── document-ai/                Document analysis — server.py, parser.py
-├── market intelligence/        Market data service — app.py, fundamental/intraday/long/swing.py
-├── rag-engine/                 RAG pipeline — server.py, jobs.py, scheduler.py, metrics.py, .venv/
-├── stock-engine/                Stock research backend
+├── services/document-ai/                Document analysis — server.py, parser.py
+├── services/market-intelligence/        Market data service — app.py, fundamental/intraday/long/swing.py
+├── services/rag-engine/                 RAG pipeline — server.py, jobs.py, scheduler.py, metrics.py, .venv/
+├── services/stock-engine/                Stock research backend
 ├── mobile/                      Expo SDK 57 / React Native app ("finos-mobile") — separate from the web site; android/ is generated and git-ignored
 ├── sml/                         Small-model work: intent-router dataset, training script, dev predictor, leakage tests (see sml/README.md)
 ├── scripts/                     Maintenance/one-off scripts
@@ -436,4 +436,4 @@ cd "Initial Deployment"
 vercel --prod --yes
 ```
 
-See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the full checklist, vercel.json reference, and rollback procedure.
+See [docs/ops/DEPLOYMENT.md](docs/ops/DEPLOYMENT.md) for the full checklist, vercel.json reference, and rollback procedure.

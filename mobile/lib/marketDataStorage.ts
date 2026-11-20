@@ -42,12 +42,12 @@ export function pruneIndex(index: Record<string, number>, max: number): string[]
 /** The words shown to a person for a failed fetch. Pure. */
 export function describeFailure(e: unknown): string {
   const m = e instanceof Error ? e.message : String(e ?? '');
-  if (/HTTP 404/.test(m)) return 'Your Arya backend is an older version without this feature. Restart it (arya-ai/start.sh).';
+  if (/HTTP 404/.test(m)) return 'Your Arya backend is an older version without this feature. Restart it (services/arya-ai/start.sh).';
   if (/HTTP 4\d\d/.test(m)) return 'The Arya backend could not find that.';
   if (/HTTP 5\d\d/.test(m)) return 'The data provider behind the Arya backend did not answer.';
   if (/abort|timeout|timed out/i.test(m)) return 'The Arya backend took too long to answer.';
   if (/^NO_DATA:/.test(m)) return m.slice(8);
-  return "Can't reach the Arya backend. Start it with arya-ai/start.sh, or set its address in Settings.";
+  return "Can't reach the Arya backend. Start it with services/arya-ai/start.sh, or set its address in Settings.";
 }
 
 async function readIndex(): Promise<Record<string, number>> {

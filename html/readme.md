@@ -89,7 +89,7 @@ Stateful tools (localStorage-backed, feed Arya AI context) launched from `track-
 | `goal-optimizer.html` | Priority score + SIP plan across all life goals |
 | `passive-income.html` | Dividend/FD/rental/SWP income, freedom coverage ratio |
 | `windfall.html` | 7-step priority waterfall for bonus/RSU/inheritance |
-| `subscription-tracker.html` | OTT/music/cloud/gym subscriptions — real yearly cost, renewal + free-trial reminders, cancel candidates (see `docs/PREPAY_OFFERS_SUBSCRIPTIONS.md`) |
+| `subscription-tracker.html` | OTT/music/cloud/gym subscriptions — real yearly cost, renewal + free-trial reminders, cancel candidates (see `docs/features/PREPAY_OFFERS_SUBSCRIPTIONS.md`) |
 
 **Full Suite (gateway, not counted among the 28)**
 | File | Purpose |
@@ -205,7 +205,7 @@ Reachable only via dynamically-injected personalization/insight cards (`js/finos
 | `system-leak.html` | Wealth leak detector |
 | `not-money.html` | → redirects to mindset-sim.html |
 | `tax.html` | Tax planning hub |
-| `reels.html` | Money Reels: today's three short animated lessons in English and Hindi, in the browser only (`js/reels.js`, data in `js/reels-data.json` exported from the app; see `docs/REELS.md`) |
+| `reels.html` | Money Reels: today's three short animated lessons in English and Hindi, in the browser only (`js/reels.js`, data in `js/reels-data.json` exported from the app; see `docs/reels/REELS.md`) |
 | `download.html` | Download the Android app (APK from GitHub Releases, with its SHA-256 and install steps) |
 | `money-score.html` | Money Score |
 | `import-statement.html` | Import a bank statement |

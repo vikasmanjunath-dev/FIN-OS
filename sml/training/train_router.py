@@ -1,6 +1,6 @@
 """
 Train + evaluate the intent router (blueprint Part 8 T1/T2, Part 9 gates).  Run from repo root:
-    rag-engine/.venv/bin/python sml/training/train_router.py [--version 0.1.0]
+    services/rag-engine/.venv/bin/python sml/training/train_router.py [--version 0.1.0]
 
 Models compared on the SAME two test sets:
   rules      the behaviour FIN-OS has today (regex advice/evasion guards + a keyword RAG gate), the baseline to beat
@@ -21,7 +21,7 @@ from sklearn.metrics import accuracy_score, f1_score, classification_report, con
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "sml" / "data"
-sys.path.insert(0, str(ROOT / "rag-engine"))
+sys.path.insert(0, str(ROOT / "services" / "rag-engine"))
 sys.path.insert(0, str(ROOT / "sml" / "data"))
 from router_data import INTENTS, RISK  # noqa: E402
 

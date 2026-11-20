@@ -170,6 +170,6 @@ test('suggestChallenge: at most one, and it is pure', () => {
 test('challenges v2: the screen and docs mention what they must', () => {
   const screen = fs.readFileSync(nodePath.join(root, 'app/learn/challenges.tsx'), 'utf8');
   assert.match(screen, /pledgeToStart/); assert.match(screen, /beginMove/); assert.match(screen, /Watch first/);
-  const docs = fs.readFileSync(nodePath.join(root, '..', 'docs', 'REELS.md'), 'utf8');
+  const docs = fs.readFileSync(nodePath.join(root, '..', 'docs', 'reels', 'REELS.md'), 'utf8');
   assert.match(docs, /Challenges v2/); assert.match(docs, /suggestChallenge/);
 });

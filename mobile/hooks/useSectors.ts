@@ -30,7 +30,7 @@ export function useSectors(refreshMs = 60_000) {
       setError(list.length ? null : 'No sector data right now.');
     } catch (e: any) {
       setError(e?.message === 'old-backend'
-        ? 'Your Arya backend is an older version without sector data — restart it (arya-ai/start.sh).'
+        ? 'Your Arya backend is an older version without sector data — restart it (services/arya-ai/start.sh).'
         : "Couldn't load sector data.");
     } finally {
       setLoading(false);

@@ -1,6 +1,6 @@
 # Personalisation: signals, ranker v3, episode and distress guard
 
-Part of the Money Reels guide (`docs/REELS.md`, section 4). Everything here runs on the phone and is pure: the same inputs give the same order. Tests: `reels-personal`, `reels-rank3`, `reels-more`, `reels-coldstart`.
+Part of the Money Reels guide (`docs/reels/REELS.md`, section 4). Everything here runs on the phone and is pure: the same inputs give the same order. Tests: `reels-personal`, `reels-rank3`, `reels-more`, `reels-coldstart`.
 
 ## The first loop (Phase 1)
 

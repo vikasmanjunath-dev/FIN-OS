@@ -56,7 +56,7 @@ Pinned by `tradeJournal.parity.test.mts` (`todo` tests assert the correct behavi
 - `app/(tabs)/dashboard.tsx` or Tools hub: a link to `/journal`.
 - `.expo/types/router.d.ts`: add the 6 routes (screens use `as any` so tsc is unaffected).
 - Hindi (`i18nHi.ts`), first pass: "Trade journal", "Add a trade", "Analytics", "Psychology", "Import and export", "Tags", "NET PROFIT AFTER CHARGES", "WIN RATE", "AVG PER TRADE", "MAX DRAWDOWN", "YOUR TRADES", "No trades yet", "Not recorded", "Save trade", "Save changes", "Delete this trade", "Read the file", "Export CSV", "Undo this import", "PAST IMPORTS", "This journal records and counts what you entered. It is not investment advice and does not compute tax.", "Reading your journal…".
-- Tracker xlsx S-09: Partial (log, edit, analytics, psychology counts, CSV/JSON import and export built; OCR scan out of scope, with reasons above). README / docs/MOBILE_APP.md: list `/journal/*` and the three libs. PENDING: OCR decision, real-file broker tests, website fixes above.
+- Tracker xlsx S-09: Partial (log, edit, analytics, psychology counts, CSV/JSON import and export built; OCR scan out of scope, with reasons above). README / docs/mobile/MOBILE_APP.md: list `/journal/*` and the three libs. PENDING: OCR decision, real-file broker tests, website fixes above.
 
 ## Run
 `cd mobile && npx tsc --noEmit && node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./__tests__/register-aliases.mjs --test __tests__/tradeJournal*.test.mts` (70 tests, 8 todo = website defects). Smoke: `BASE=http://localhost:<port> python3 mobile/scripts/smoke-routes.py /journal /journal/trade /journal/analytics /journal/psychology /journal/import /journal/tags`.

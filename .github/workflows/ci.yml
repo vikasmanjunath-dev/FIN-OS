@@ -32,7 +32,7 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12", cache: pip }
       - name: Python deps (backend tests + CAS import tests)
-        run: pip install pytest fastapi httpx python-multipart pdfplumber casparser -r alerts/requirements.txt
+        run: pip install pytest fastapi httpx python-multipart pdfplumber casparser -r services/alerts/requirements.txt
       - name: Static audits + search index
         run: npm run check
       - name: JS unit tests

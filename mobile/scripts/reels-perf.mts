@@ -1,6 +1,6 @@
 // What a Money Reel costs to play, counted from the data alone (no phone needed): scenes, animated pieces per scene, the worst scene, how many SVG
 // nodes the picture holds, and how much of that the player redraws every frame. The numbers a phone adds (milliseconds per frame) are not here:
-// see "Performance" in docs/REELS.md for how those were measured in the web preview and what still needs a real mid-range phone.
+// see "Performance" in docs/reels/REELS.md for how those were measured in the web preview and what still needs a real mid-range phone.
 //   npm run reels:perf                 the library summary, the ten heaviest reels, then the 'before' and 'after' redraw model
 //   npm run reels:perf -- <reel-id>    one reel, scene by scene
 //   npm run reels:perf -- --all        every reel, one line each
@@ -120,4 +120,4 @@ console.log(`  after:  at most ${FPS} a second, and only the segment bar, the st
 console.log(`  whole library, svg node renders playing every reel once: before ${num(sum(x => x.oldNodeRenders))}, after ${num(sum(x => x.newNodeRenders))} (${pct(sum(x => x.newNodeRenders), sum(x => x.oldNodeRenders))})`);
 console.log(`  whole-player renders playing every reel once: before ${num(sum(x => x.oldTicks))}, after ${num(rows.reduce((a, x) => a + x.scenes + 2, 0))} (one per scene change, plus the start and the question screen)`);
 console.log(`  mean per reel: ${(sum(x => x.oldTicks) / rows.length).toFixed(0)} ticks before, ${(sum(x => x.newFrames) / rows.length).toFixed(0)} picture frames after`);
-console.log('\nNot counted here (needs a phone): milliseconds per frame, dropped frames while swiping, memory. See "Performance" in docs/REELS.md.');
+console.log('\nNot counted here (needs a phone): milliseconds per frame, dropped frames while swiping, memory. See "Performance" in docs/reels/REELS.md.');

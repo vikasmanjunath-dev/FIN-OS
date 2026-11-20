@@ -1,6 +1,6 @@
 # web-qa: website QA pass (Oct 14-15 2026)
 
-Scope: html/, js/, css/, calculators/, sw.js, tests/. Nothing under mobile/ or arya-ai/ was edited. Nothing committed.
+Scope: html/, js/, css/, calculators/, sw.js, tests/. Nothing under mobile/ or services/arya-ai/ was edited. Nothing committed.
 
 ## State of the suites after the pass
 | Command | Result |
@@ -62,7 +62,7 @@ Unlabelled controls fixed at source (label `for=`, aria-label): home-loan, life-
 - Life cover form opens with age 30 / income ₹12 L / need ₹60,000 as editable example values (`finos-life-cover.js`), and windfall opens with ₹5 L. They are labelled inputs, not claims, but a blank start would be more honest: product decision.
 - Capital gains calculator assumes a 30% slab for debt and short-term property gains; it is in a code comment, not on the screen. Worth a visible line.
 - Absurd inputs (1e12 years) in the remaining calculators show a dash or a huge number instead of an error message.
-- Root `index.html` / `login.html` are outside my ownership and still use unpinned jsDelivr tags if they have any; `TradeJournal/`, `market intelligence/`, `News1/` not touched.
+- Root `index.html` / `login.html` are outside my ownership and still use unpinned jsDelivr tags if they have any; `TradeJournal/`, `services/market-intelligence/`, `News1/` not touched.
 - Final verification after the last edits: smoke of the 82 touched page loads clean; `test_calculator_math.py`, `test_inline_handlers.py`, `test_a11y.py`, `test_pwa_sw.py` 125 pass; node suite 387 pass; static audit and perf budget pass. A full 430-load smoke was not repeated after the last edits.
 
 ## Mobile parity tests that now need the phone port updated (not edited, per the brief)
@@ -73,7 +73,7 @@ All are caused by deliberate website changes above. `npm test` in mobile: 641 pa
 - `insuranceHub.test.mts` (2) and the insurance extraction JSON: `html/insurance-hub.html` rule lines changed (`income > 0 ? income * 12 * 2 : 0`) and shifted; re-run the extraction script and review the "no income" wording.
 
 ## Shared-file entries
-None needed from me. (`docs/PENDING.md` "Found and fixed" could take the invented-data items above; I did not edit it.)
+None needed from me. (`docs/ops/PENDING.md` "Found and fixed" could take the invented-data items above; I did not edit it.)
 
 ## Rerun everything
 ```

@@ -4,7 +4,7 @@
 //   formatServer(call, result, ts, now) the server's answer worded the same way every time, or null when its shape is not recognised
 //
 // What leaves the phone for these tools is a public share symbol, a coin name, or the fund-name words typed. Never a figure about the
-// person, and never the rest of the question. Tool names are the ones the website's agent uses (arya-ai/server.py `_TOOL_MAP`).
+// person, and never the rest of the question. Tool names are the ones the website's agent uses (services/arya-ai/server.py `_TOOL_MAP`).
 // Pure: the network call itself is made by hooks/useAryaChat.ts (the only allowed fetch caller for Arya).
 import type { ToolId, Args } from '@/lib/aryaIntent';
 import { stamp } from '@/lib/aryaToolbox';

@@ -1,6 +1,6 @@
 # The web version (html/reels.html)
 
-Part of the Money Reels guide (`docs/REELS.md`, section 9).
+Part of the Money Reels guide (`docs/reels/REELS.md`, section 9).
 
 ## What it is and how it stays in step
 

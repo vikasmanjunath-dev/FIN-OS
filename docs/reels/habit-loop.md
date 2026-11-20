@@ -1,6 +1,6 @@
 # The habit loop: episode, streak, saved, moves, milestones, seasons, facts, health
 
-Part of the Money Reels guide (`docs/REELS.md`, section 5). Rule for all of it: no guilt, no loss wording, no points.
+Part of the Money Reels guide (`docs/reels/REELS.md`, section 5). Rule for all of it: no guilt, no loss wording, no points.
 
 ## Today's episode
 

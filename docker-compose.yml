@@ -42,10 +42,10 @@ services:
 
   # ── Alert Engine + Health Score ──────────────────────────────────
   alert-engine:
-    build: ./alerts
+    build: ./services/alerts
     expose:
       - "8001"
-    env_file: ./alerts/.env
+    env_file: ./services/alerts/.env
     depends_on:
       ollama:
         condition: service_healthy
@@ -74,7 +74,7 @@ services:
 
   # ── Stock Engine (FastAPI) ───────────────────────────────────────
   stock-engine:
-    build: ./stock-engine/backend
+    build: ./services/stock-engine/backend
     expose:
       - "8003"
     restart: unless-stopped
@@ -86,7 +86,7 @@ services:
 
   # ── Document AI (FastAPI) ────────────────────────────────────────
   document-ai:
-    build: ./document-ai
+    build: ./services/document-ai
     expose:
       - "8004"
     environment:
@@ -99,18 +99,18 @@ services:
 
   # ── Market Intelligence (Flask) ──────────────────────────────────
   market-intel:
-    build: ./market\ intelligence
+    build: ./services/market-intelligence
     expose:
       - "5000"
     restart: unless-stopped
 
   # ── Arya AI (FastAPI) ────────────────────────────────────────────
   arya-ai:
-    build: ./arya-ai
+    build: ./services/arya-ai
     expose:
       - "7475"
     env_file:
-      - path: ./arya-ai/.env
+      - path: ./services/arya-ai/.env
         required: false
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
@@ -122,7 +122,7 @@ services:
 
   # ── RAG engine (FastAPI + Qdrant/SQLite FTS5) ────────────────────
   rag-engine:
-    build: ./rag-engine
+    build: ./services/rag-engine
     expose:
       - "7476"
     environment:
@@ -134,7 +134,7 @@ services:
 
   # ── Gateway health aggregator ────────────────────────────────────
   gateway-health:
-    build: ./gateway
+    build: ./services/gateway
     expose:
       - "8010"
     restart: unless-stopped
@@ -161,7 +161,7 @@ services:
     image: nginx:alpine
     ports:
       - "3000:80"
-    # Only the static site is mounted. The repo root used to be mounted whole, which served arya-ai/.env, alerts/.env, voiceagent/.env,
+    # Only the static site is mounted. The repo root used to be mounted whole, which served services/arya-ai/.env, services/alerts/.env, voiceagent/.env,
     # voiceagent/.finos_key.pem, supabase/*.sql and every backend's source at http://host:3000/<path>.
     volumes:
       - ./index.html:/usr/share/nginx/html/index.html:ro

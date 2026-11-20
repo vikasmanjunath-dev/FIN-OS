@@ -7,7 +7,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "sml" / "runtime"))
-sys.path.insert(0, str(ROOT / "rag-engine"))
+sys.path.insert(0, str(ROOT / "services" / "rag-engine"))
 import router_predict as rp  # noqa: E402
 
 CLASSES = ["advice_seeking", "evasion_request", "other"]

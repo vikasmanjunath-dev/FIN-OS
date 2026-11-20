@@ -4,14 +4,14 @@ Capture REAL claims from the engine's own answers (W2.5), so the verifier can be
 For every public benchmark question: retrieve the top-3 chunks (same call the engine makes), build the exact context
 windows the generator is shown (generation.prompt.select_window), get the engine's answer, split it into claim sentences,
 and write one row per sentence: {qid, question, evidence: [3 windows with titles], claim, answer_index}.
-Run with the rag-engine server up:  rag-engine/.venv/bin/python sml/verifier/capture_real.py
+Run with the rag-engine server up:  services/rag-engine/.venv/bin/python sml/verifier/capture_real.py
 Output: sml/verifier/real_claims_raw.jsonl  (unlabelled; labelling is a separate step, see PLAN W2.5)
 """
 import json, re, sys
 from pathlib import Path
 import httpx
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "rag-engine"))
+sys.path.insert(0, str(ROOT / "services" / "rag-engine"))
 from evaluation import benchmark as B          # noqa: E402
 from generation.prompt import select_window    # noqa: E402
 

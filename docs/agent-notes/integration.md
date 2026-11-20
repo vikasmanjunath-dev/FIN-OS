@@ -74,10 +74,10 @@ reads the version from `expo-constants` via `lib/appInfo.ts` instead of the hard
 **`mobile/.expo/types/router.d.ts`**: already contained every new route (`/learn`, `/insurance`, `/funds`, `/market/*`, `/plan/*`,
 `/pulse*`, `/security`, `/alerts`, `/feedback`, `/diagnostics`, `/onboarding/welcome`); a Metro start on :8131 left it unchanged.
 
-**Docs**: `mobile/README.md`, `docs/MOBILE_APP.md` (status, screens, module rows, calendar/reminders rows, permissions, never-synced
-list, new storage keys, Learning pillar divergence row, test count), `docs/PENDING.md` (U7-U12, rows 13-16, date).
+**Docs**: `mobile/README.md`, `docs/mobile/MOBILE_APP.md` (status, screens, module rows, calendar/reminders rows, permissions, never-synced
+list, new storage keys, Learning pillar divergence row, test count), `docs/ops/PENDING.md` (U7-U12, rows 13-16, date).
 
-**`docs/MOBILE_PARITY_TRACKER.xlsx`** (openpyxl; formatting, validations, formulas and conditional formats verified unchanged; 48
+**`docs/mobile/MOBILE_PARITY_TRACKER.xlsx`** (openpyxl; formatting, validations, formulas and conditional formats verified unchanged; 48
 rows touched, Status/Notes/Updated only):
 - Learn: L-01..L-21 and L-23 Done; L-22, L-24, L-25 Partial; L-41 Not planned. T-36 note only (status was already Done).
 - Planners: T-01, T-02, T-10, T-18, T-38, T-39 Done.
@@ -111,7 +111,7 @@ rows touched, Status/Notes/Updated only):
   `<FeedbackPrompt topic="money-score" .../>` on the Money Score result. The dashboard tiles and search reach all of these screens.
 - `supabase/delete_account.sql`: `trust-platform` changed it and `release-pack` proposes a replacement
   (`mobile/scripts/release-sql/delete_account_complete.sql`); the two should be compared and run once (PENDING U9). `supabase/README.md`
-  corrections and the `voiceagent/schema.sql` / `alerts/schema.sql` warnings are not applied (not in my list); recorded in PENDING row 14.
+  corrections and the `voiceagent/schema.sql` / `services/alerts/schema.sql` warnings are not applied (not in my list); recorded in PENDING row 14.
 - Optional hardening: `finos_sync_never_couple_v1` in `NEVER_EXACT` (already excluded by the `finos_sync_` prefix, and a test asserts it).
 - Arya status rows (A-02 PULSE, A-05 agent tools, A-06 memory/life events): `arya-pulse.md` names no tracker IDs, so nothing was
   applied. By its own table I would set A-02 Partial (14 of 27 sections), A-05 Partial, A-06 Done.
@@ -142,7 +142,7 @@ git add -- \
   mobile/app.json mobile/package.json mobile/package-lock.json mobile/.expo/types/router.d.ts \
   mobile/__tests__/search.test.mts mobile/__tests__/privacy.test.mts mobile/__tests__/calendar.parity.test.mts \
   mobile/__tests__/reminders.test.mts mobile/__tests__/learn.test.mts \
-  mobile/README.md docs/MOBILE_APP.md docs/PENDING.md docs/MOBILE_PARITY_TRACKER.xlsx \
+  mobile/README.md docs/mobile/MOBILE_APP.md docs/ops/PENDING.md docs/mobile/MOBILE_PARITY_TRACKER.xlsx \
   docs/agent-notes/integration.md
 
 git commit -F - <<'EOF'

@@ -7,7 +7,7 @@
 //
 // Order matters: Expo runs the mods of the plugin listed LAST first, so this plugin is listed FIRST in app.json and
 // therefore runs after expo-notifications has written its entitlement. mobile/__tests__/releaseConfig.test.mts checks
-// that order, and `npx expo prebuild --platform ios` (see docs/RELEASE_RUNBOOK.md) shows the resulting entitlements file.
+// that order, and `npx expo prebuild --platform ios` (see docs/ops/RELEASE_RUNBOOK.md) shows the resulting entitlements file.
 const { withEntitlementsPlist } = require('expo/config-plugins');
 
 module.exports = function withLocalNotificationsOnly(config) {

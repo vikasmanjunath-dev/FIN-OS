@@ -1,6 +1,6 @@
 # Accessibility: the player, the beats, the gesture UI
 
-Part of the Money Reels guide (`docs/REELS.md`, section 7). Everything here was checked in the web preview and the DOM only; VoiceOver and TalkBack have not been tried on a phone.
+Part of the Money Reels guide (`docs/reels/REELS.md`, section 7). Everything here was checked in the web preview and the DOM only; VoiceOver and TalkBack have not been tried on a phone.
 
 ## Pass 1: scene control and the beats
 

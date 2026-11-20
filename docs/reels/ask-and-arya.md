@@ -1,6 +1,6 @@
 # Ask Mitra and the Arya bridge
 
-Part of the Money Reels guide (`docs/REELS.md`, section 9). Arya is the app's assistant. Both directions are decided on the phone and carry no personal data in any route.
+Part of the Money Reels guide (`docs/reels/REELS.md`, section 9). Arya is the app's assistant. Both directions are decided on the phone and carry no personal data in any route.
 
 ## Ask Mitra
 

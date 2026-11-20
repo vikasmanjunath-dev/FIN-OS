@@ -7,7 +7,7 @@ Phone (all under `mobile/`):
 - `app/(tabs)/markets.tsx`: "Market research" link; index cards no longer show 0 for an unknown change; offline shows the last saved answer.
 - Tests: `__tests__/marketData.test.mts`, `__tests__/marketDataStorage.test.mts` (33 tests).
 
-Backend (`arya-ai/`), tests in `tests/test_market_data_backend.py` (30 tests, stubs only):
+Backend (`services/arya-ai/`), tests in `tests/test_market_data_backend.py` (30 tests, stubs only):
 - `pe_ratio` was price-to-book under a wrong name (and always None in practice: fast_info has neither). Now `pe_ratio: None`, `price_to_book: None` on quotes; real ratios come from new `GET /api/fundamentals/{symbol}` (Yahoo company info; P/E cross-checked against price/EPS within 15%, else withheld with the reason).
 - Commodities: no more `fx.get("USD_INR", 83.5)`. Without a live rate gold/silver go to `unavailable` (with USD price); partial answers are not cached; units now USD/bbl, USD/MMBtu; `price_date`, `price_usd`, `usd_inr` added.
 - `/api/fx` returns `{"error":...}` when no rate could be fetched. Crypto cache key collision fixed, ids validated, failures remembered 30 s, generic error text. Overview: NSE `high/low` were read from the wrong keys; added year high/low, NSE index P/E, P/B, dividend yield; no invented 0 change; empty answers not cached. Sector fallback likewise.
@@ -38,13 +38,13 @@ Backend (`arya-ai/`), tests in `tests/test_market_data_backend.py` (30 tests, st
 - Privacy notice (`lib/privacy.ts`): backend now also asks api.mfapi.in (fund NAV history, scheme code only) and Yahoo company info; add to the market-data providers flow. New on-device cache: keys `marketcache_v1:*` and `marketcache_v1_index` (last market answers, includes symbols you looked at; not exported or backed up because no `finos_` prefix; removed by Erase all data or the hub's "Clear saved market data"). Add to DATA_ITEMS if wanted.
 - `privacy.test.mts` fetch-caller list unchanged (new code uses fetchJSON; useMarketData.ts still calls fetch directly).
 - Hindi (`lib/i18nHi.ts`): "Market research", "Market news", "Stock screener", "Gold, silver and oil", "Currency rates", "Crypto prices", "Offline. Showing the last saved answer", "Not available", "What this is, and is not", "Add to watchlist".
-- Docs: `mobile/README.md`, `docs/MOBILE_APP.md` list the `/market/*` screens and cache layer; `arya-ai/README.md` endpoint table gets `/api/fundamentals/{symbol}`, `/api/mf/history/{code}`, `/api/mf/search`, `/api/fx`, chart `dates`; `docs/PENDING.md` gets the "not built" items.
+- Docs: `mobile/README.md`, `docs/mobile/MOBILE_APP.md` list the `/market/*` screens and cache layer; `services/arya-ai/README.md` endpoint table gets `/api/fundamentals/{symbol}`, `/api/mf/history/{code}`, `/api/mf/search`, `/api/fx`, chart `dates`; `docs/ops/PENDING.md` gets the "not built" items.
 - Tracker: M-19 Done; M-04 Done (live data, no masterclass text); M-05 Partial (ETF = share screen, no expense ratio); M-06 Done (NAV, history, computed returns); M-07, M-08, M-09 Partial (live prices only); M-15 Partial (price-only screener); M-10, M-11, M-12, M-13 stay Pending/Blocked (no data source).
 - Website issues seen (not mine): `js/arya-sidebar-panel.js` reads commodity key "GOLD (10g MCX)" which no longer exists and labels FX "RBI reference"; `html/news.html` shows fabricated "Ghost Protocol" headlines when the feed is offline.
 
 ## Commit
 ```
-git add -- arya-ai/data/market.py arya-ai/data/news.py arya-ai/db/store.py arya-ai/server.py tests/test_market_data_backend.py \
+git add -- services/arya-ai/data/market.py services/arya-ai/data/news.py services/arya-ai/db/store.py services/arya-ai/server.py tests/test_market_data_backend.py \
   mobile/lib/marketData.ts mobile/lib/marketDataStorage.ts mobile/lib/marketDataApi.ts mobile/hooks/useMarketResource.ts mobile/hooks/useMarketData.ts \
   mobile/components/PriceChart.tsx mobile/components/MarketUI.tsx "mobile/app/(tabs)/markets.tsx" \
   mobile/app/market/index.tsx mobile/app/market/news.tsx mobile/app/market/commodities.tsx mobile/app/market/fx.tsx mobile/app/market/crypto.tsx \

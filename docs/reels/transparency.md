@@ -1,6 +1,6 @@
 # What the reels know about you
 
-Part of the Money Reels guide (`docs/REELS.md`, section 6).
+Part of the Money Reels guide (`docs/reels/REELS.md`, section 6).
 
 ## The screen
 

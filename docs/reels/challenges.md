@@ -1,6 +1,6 @@
 # Seven-day challenges
 
-Part of the Money Reels guide (`docs/REELS.md`, section 5). Code: `lib/reels/challenges.ts`, `app/learn/challenges.tsx`, `__tests__/reels-challenges2.test.mts`.
+Part of the Money Reels guide (`docs/reels/REELS.md`, section 5). Code: `lib/reels/challenges.ts`, `app/learn/challenges.tsx`, `__tests__/reels-challenges2.test.mts`.
 
 ## The first two
 

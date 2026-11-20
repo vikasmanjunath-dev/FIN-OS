@@ -1,5 +1,5 @@
 """Score a FROZEN router version on a fresh, never-tuned test set (sml/PLAN.md C10). Nothing is fit or tuned here.
-    rag-engine/.venv/bin/python sml/training/eval_fresh.py [version] [file ...]   (version defaults to the predictor's DEFAULT_VERSION)
+    services/rag-engine/.venv/bin/python sml/training/eval_fresh.py [version] [file ...]   (version defaults to the predictor's DEFAULT_VERSION)
 Default files: sml/data/incoming/test_agent{F,G,H}.jsonl. Rows identical (case/space-insensitive) to ANY existing
 train/valid/dev/test text are dropped and counted, so the score cannot be inflated by leakage.
 Reports accuracy, macro-F1 with a 1,000x bootstrap 95% CI, per-intent F1, top confusions, per-language accuracy and the

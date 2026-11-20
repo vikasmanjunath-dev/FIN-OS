@@ -1,6 +1,6 @@
 # The library: files, waves, series, the Money Map and the drafts
 
-Part of the Money Reels guide (`docs/REELS.md`, sections 2 and 8). Library numbers change often: run `cd mobile && npm run reels:check -- --summary` for the current ones (177 live, 50 drafts on 24 Oct 2026).
+Part of the Money Reels guide (`docs/reels/REELS.md`, sections 2 and 8). Library numbers change often: run `cd mobile && npm run reels:check -- --summary` for the current ones (177 live, 50 drafts on 24 Oct 2026).
 
 ## Wave 2: 98 reels, story series, the Money Map
 

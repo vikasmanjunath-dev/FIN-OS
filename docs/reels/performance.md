@@ -1,6 +1,6 @@
 # Performance
 
-Part of the Money Reels guide (`docs/REELS.md`, section 7). Run `cd mobile && npm run reels:perf` for the counts below.
+Part of the Money Reels guide (`docs/reels/REELS.md`, section 7). Run `cd mobile && npm run reels:perf` for the counts below.
 
 
 The target from the blueprint: a reel is under 30 KB, plays with no network, holds about 30 frames a second on a mid-range Android, and never autoplays sound. The first three held already; the frame rate was the risk. **Nothing here has been measured on a phone.** The numbers below come from counting the data (no device needed) and from the web preview on a laptop (a development build of React, which is slower than the phone's release build but shows what each design costs relative to the other).

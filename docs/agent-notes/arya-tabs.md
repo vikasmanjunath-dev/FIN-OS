@@ -1,6 +1,6 @@
 # arya-tabs agent: Arya Plan / Map / Life / Cal / India / Agent tabs, tool loop, PULSE additions (tracker A-02 to A-06, A-09)
 
-Nothing committed or pushed. Website files, `arya-ai/` and shared files untouched. The first-pass work (PULSE, memory, life events, local tools) was
+Nothing committed or pushed. Website files, `services/arya-ai/` and shared files untouched. The first-pass work (PULSE, memory, life events, local tools) was
 already committed; this builds on it. See `arya-pulse.md` for that pass.
 
 ## Per-row decisions
@@ -15,7 +15,7 @@ already committed; this builds on it. See `arya-pulse.md` for that pass.
 | A-09 Money AI / chatbot brain / RAG filings | **Not built on the phone**, reasons below | Money AI page = the Arya tab (A-01 Done). Chatbot brain (`chatbot/brain.py`) is a server-side Ollama proxy; the phone's equivalent is `/api/chat` already used. RAG filings: see below. |
 
 ### A-09 reasons (RAG)
-Checked live (not from the docs): `rag-engine` on :7476 answers `/api/search`, but its collection (per `docs/RAG_STATUS.md`, 1036 points) holds only
+Checked live (not from the docs): `rag-engine` on :7476 answers `/api/search`, but its collection (per `docs/rag/RAG_STATUS.md`, 1036 points) holds only
 `regulation` (SEBI/RBI/IRDAI/PFRDA) and `finos_page` documents; **no NSE/BSE filings are indexed**, so "RAG filings" cannot be honest. A test query for ELSS lock-in
 returned a FIN-OS page chunk as its top hit, not a regulation. A phone tool would also send the question text to a second service that needs Qdrant and a model
 running on the person's computer, with no public fallback. Documented in the Agent tab's "Not on the phone" list. Backend request: index filings, then expose a
@@ -61,7 +61,7 @@ retrieval-only endpoint (passages + source URL + date, no generated text) and th
 * Per-cell heatmap taps are not offered (accessibility); biggest days are listed as text.
 * Not verified: a physical device / simulator; Hindi; light-theme contrast audit (`theme-audit.py` not run); the Agent screen with a populated phone by eye (smoke test ran empty + populated, 0 problems).
 
-## Backend requests (not done: `arya-ai/` is another agent's)
+## Backend requests (not done: `services/arya-ai/` is another agent's)
 1. Native tool calling on `/api/chat` (or a server loop) if model-chosen tools are wanted; today the phone must not send results back.
 2. A retrieval-only RAG endpoint with filings indexed (A-09).
 3. `get_quote` returns no price timestamp (the gateway's `ts` is the call time); add `price_time` so "as of" can be the market time.

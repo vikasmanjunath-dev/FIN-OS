@@ -1,6 +1,6 @@
 """
 Router v2 training (blueprint Part 8/9). Run after sml/data/ingest_incoming.py:
-    rag-engine/.venv/bin/python sml/training/train_router_v2.py --version 0.5.0   (an existing version is never overwritten without --overwrite)
+    services/rag-engine/.venv/bin/python sml/training/train_router_v2.py --version 0.5.0   (an existing version is never overwritten without --overwrite)
 
 Differences from v1 (which stays reproducible):
   * train = templated train + 650 independently written messages (train_extra)

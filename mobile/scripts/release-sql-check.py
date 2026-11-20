@@ -20,7 +20,7 @@ import os, re, shutil, subprocess, sys, tempfile, time, glob
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
 ORDER = ['supabase/profiles_rls.sql', 'supabase/core_tables.sql', 'supabase/holdings.sql', 'supabase/tracker_snapshot.sql',
-         'alerts/schema.sql', 'voiceagent/schema.sql', 'supabase/delete_account.sql']
+         'services/alerts/schema.sql', 'voiceagent/schema.sql', 'supabase/delete_account.sql']
 PROPOSED = 'mobile/scripts/release-sql/delete_account_complete.sql'
 hard, findings = [], []
 

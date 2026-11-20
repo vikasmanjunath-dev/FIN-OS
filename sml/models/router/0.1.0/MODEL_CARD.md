@@ -20,5 +20,5 @@ The "rules" row is the current behaviour (`AryaGuardrails` evasion/advice patter
 **Limits** natural_test is small (N=130; +/-5-6 points); templated training text is far narrower than real user language (valid 0.89 vs natural 0.88 here only because the encoder generalises; the TF-IDF model drops 0.865 -> 0.677); written by one person; no real user messages yet; Devanagari Hindi barely represented in the natural set; no multi-turn context.
 **Latency** one Ollama embedding call (~0.1 s warm) + a 13x1024 matrix product. Not yet ported to the browser (needs an on-device encoder, Phase 3).
 **Next (in order)** 1) grow train to ~3,000 and natural_test to >=300 with a second writer; 2) add a separate dev set and tune the abstain / guard thresholds there; 3) error-driven additions for the weak intents; 4) only then wire into Arya as an *additional* guard (never replacing `AryaGuardrails`).
-**Reproduce** `python3 sml/data/router_data.py` then `rag-engine/.venv/bin/python sml/training/train_router.py`. Full numbers: `eval.json`.
+**Reproduce** `python3 sml/data/router_data.py` then `services/rag-engine/.venv/bin/python sml/training/train_router.py`. Full numbers: `eval.json`.
 **Owner / date** Oct 17 2026. Rollback: nothing depends on it yet.

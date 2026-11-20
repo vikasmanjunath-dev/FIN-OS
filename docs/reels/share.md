@@ -1,6 +1,6 @@
 # Sharing: text and image
 
-Part of the Money Reels guide (`docs/REELS.md`, section 9). Not tried on a phone.
+Part of the Money Reels guide (`docs/reels/REELS.md`, section 9). Not tried on a phone.
 
 ## Share as an image
 

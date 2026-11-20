@@ -1,6 +1,6 @@
 # Money Reels: feature notes
 
-The reference is `docs/REELS.md`; what is built and what needs people is `docs/REELS-STATUS.md`; adding a reel is `docs/REELS-AUTHORS.md`. One short file per feature here:
+The reference is `docs/reels/REELS.md`; what is built and what needs people is `docs/reels/REELS-STATUS.md`; adding a reel is `docs/reels/REELS-AUTHORS.md`. One short file per feature here:
 
 | File | Feature |
 |---|---|
@@ -23,4 +23,4 @@ The reference is `docs/REELS.md`; what is built and what needs people is `docs/R
 | `review-sheets.md` | Hindi and compliance sheets, what a sign-off is |
 | `checkers.md` | `reels:check` and the library-wide invariants |
 
-These files were moved out of the old append-only `docs/REELS.md` on 24 Oct 2026 and corrected where the code had moved on; a few lines still say "as of Oct 2026" where the detail was written at the time.
+These files were moved out of the old append-only `docs/reels/REELS.md` on 24 Oct 2026 and corrected where the code had moved on; a few lines still say "as of Oct 2026" where the detail was written at the time.

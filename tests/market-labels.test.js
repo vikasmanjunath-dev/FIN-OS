@@ -1,7 +1,7 @@
 'use strict';
 // js/arya-sidebar-panel.js read the commodity key "GOLD (10g MCX)" (no longer returned by arya-ai) and called FX
 // rates an "RBI reference".  The formatting helpers are extracted between their @pure markers and run on the real
-// response shapes of arya-ai/server.py.
+// response shapes of services/arya-ai/server.py.
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -15,7 +15,7 @@ const ctx = vm.createContext({});
 vm.runInContext(m[1], ctx);
 const H = (n) => vm.runInContext(n, ctx);
 
-// real shape, taken from arya-ai/data/market.py get_commodities()
+// real shape, taken from services/arya-ai/data/market.py get_commodities()
 const live = {
   commodities: {
     'GOLD (10g, global equiv.)': { price: 118450, unit: '₹/10g', change_pct: -0.4, note: 'global futures price converted to INR, not MCX\'s actual quote', price_usd: 4021.5, usd_unit: 'USD/oz', usd_inr: 88.1, price_date: '2026-10-14' },

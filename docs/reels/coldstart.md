@@ -1,6 +1,6 @@
 # Cold start: the first 60 seconds
 
-Part of the Money Reels guide (`docs/REELS.md`, section 4).
+Part of the Money Reels guide (`docs/reels/REELS.md`, section 4).
 
 ## The welcome, the nudge and the first episode
 

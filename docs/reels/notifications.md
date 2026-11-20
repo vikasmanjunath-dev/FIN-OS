@@ -1,6 +1,6 @@
 # Reminders, nudges and notification taps
 
-Part of the Money Reels guide (`docs/REELS.md`, section 5). All local: no server, no background task. Nothing here has run on a real phone.
+Part of the Money Reels guide (`docs/reels/REELS.md`, section 5). All local: no server, no background task. Nothing here has run on a real phone.
 
 ## When will you do it? and the daily nudge
 

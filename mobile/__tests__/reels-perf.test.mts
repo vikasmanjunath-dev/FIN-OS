@@ -1,6 +1,6 @@
 // Money Reels on a mid-range Android: the picture is drawn at most 30 times a second, the player itself does not re-render on a tick, a finished picture
 // is not drawn again, and a reel that is not on screen runs nothing. Known-answer tests for lib/reels/frame.ts, and source checks on the components
-// (the way a11y.test.mts holds rules that need a screen). The "why" and the measurements are in docs/REELS.md ("Performance").
+// (the way a11y.test.mts holds rules that need a screen). The "why" and the measurements are in docs/reels/REELS.md ("Performance").
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';

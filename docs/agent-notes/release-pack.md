@@ -13,7 +13,7 @@ plugin in the main tree; I read them, re-ran and verified them, extended them, a
 | Store screenshots | `mobile/scripts/release-screenshots.py` -> `mobile/assets/store/ios-1290x2796/`, `android-1080x1920/` (7 screens x dark/light = 28 PNGs) + `manifest.json` | Synthetic "Sample User" profile, Expo web preview via Playwright, offline-guarded; zero NaN/undefined/empty detections. Looked at both themes. |
 | Config review + guard | `mobile/__tests__/releaseConfig.test.mts` (11 tests), `mobile/app.json`, `mobile/eas.json`, `mobile/plugins/withLocalNotificationsOnly.js` | Config copied from the main tree unchanged after review (see decisions). Test mutation-checked (removing a blocked permission fails it). |
 | SQL verification | `mobile/scripts/release-sql-check.py`, `mobile/scripts/release-sql/delete_account_complete.sql` | Runs the real files in a throwaway PostgreSQL 16 (pglast parse, run twice, RLS, cross-user and anon isolation, deletion completeness). |
-| Docs | `docs/STORE_LISTING.md`, `docs/RELEASE_RUNBOOK.md`, `docs/DEVICE_TEST_CHECKLIST.md` | Written from code; every flow/permission has its file. |
+| Docs | `docs/mobile/STORE_LISTING.md`, `docs/ops/RELEASE_RUNBOOK.md`, `docs/mobile/DEVICE_TEST_CHECKLIST.md` | Written from code; every flow/permission has its file. |
 
 Run: `cd mobile && node --test __tests__/releaseAssets.test.mts __tests__/releaseConfig.test.mts`;
 `python3 scripts/release-assets.py --check`; `python3 scripts/release-sql-check.py`;
@@ -29,7 +29,7 @@ all 11 pass; run the whole `npm test` after integrating.
    `mobile/scripts/release-sql/delete_account_complete.sql` (proved complete; idempotent; denies anon). Integrator: copy over `supabase/delete_account.sql`.
 2. **`voiceagent/schema.sql` begins with `DROP TABLE IF EXISTS agent_memories`**: re-running destroys all voice memories, while
    `supabase/README.md` says to run it "if missing". Shared file, not edited.
-3. **`alerts/schema.sql` is not re-runnable** (`CREATE POLICY user_read_own_alerts` without DROP IF EXISTS), contradicting the "every file is idempotent" sentence for the repo as a whole (true for `supabase/*.sql`). Shared file, not edited.
+3. **`services/alerts/schema.sql` is not re-runnable** (`CREATE POLICY user_read_own_alerts` without DROP IF EXISTS), contradicting the "every file is idempotent" sentence for the repo as a whole (true for `supabase/*.sql`). Shared file, not edited.
 4. **No usable backend in a store build**: `ENDPOINTS` host defaults to the Expo dev machine / `10.0.2.2` / `127.0.0.1`, URLs are `http://`. Android release blocks cleartext, iOS ATS blocks non-local `http`. Live prices and Arya chat therefore do not work for a store user unless they run their own HTTPS backend. The store copy does not advertise them. Not changed (product decision).
 5. **Permissions in the built app exceed `privacy.ts` PERMISSIONS**: `VIBRATE`, `USE_FINGERPRINT`, `RECEIVE_BOOT_COMPLETED` (prebuilt manifest + library manifests). No prompts, but Play lists them. Needs a decision/edit in `lib/privacy.ts` and `privacy.test.mts`.
 6. **`expo-av` is installed and unused**; only kept harmless by `microphonePermission:false` + `RECORD_AUDIO` in blockedPermissions. Remove from `package.json` when convenient.
@@ -54,17 +54,17 @@ all 11 pass; run the whole `npm test` after integrating.
   `'Run at start-up, to keep reminders after a restart'` if finding 5 is accepted; also add the news-link flow (in-app browser to a publisher site).
 - `mobile/package.json`: remove `expo-av` (then drop the `expo-av` plugin entry in `app.json` and the `if (av)` branch is already optional in the tests).
 - `supabase/delete_account.sql`: replace with `mobile/scripts/release-sql/delete_account_complete.sql`; `supabase/README.md`: correct the
-  "every file is idempotent" claim for `alerts/schema.sql` and add the `voiceagent` warning.
-- `docs/PENDING.md`: items "owner: legal operator + privacy URL", "owner: EAS init + stores accounts", "decide backend hosting/HTTPS", "finish account deletion SQL".
+  "every file is idempotent" claim for `services/alerts/schema.sql` and add the `voiceagent` warning.
+- `docs/ops/PENDING.md`: items "owner: legal operator + privacy URL", "owner: EAS init + stores accounts", "decide backend hosting/HTTPS", "finish account deletion SQL".
 - `mobile/app/settings.tsx`: read the version from `expo-constants`.
 
-## Owner-only steps (summary; ordered detail in `docs/RELEASE_RUNBOOK.md`)
+## Owner-only steps (summary; ordered detail in `docs/ops/RELEASE_RUNBOOK.md`)
 
 1. Legal operator, contact, grievance officer, privacy/support/deletion URLs. 2. Decide guest-only vs sign-in first release.
 3. Decide HTTPS backend / cleartext. 4. Apple + Google accounts; `eas init`; EAS env variables. 5. Run Supabase SQL (order and
-warnings in the runbook), incl. the delete-account replacement. 6. Preview builds + `docs/DEVICE_TEST_CHECKLIST.md` on a low-end
+warnings in the runbook), incl. the delete-account replacement. 6. Preview builds + `docs/mobile/DEVICE_TEST_CHECKLIST.md` on a low-end
 Android and an iPhone (PBKDF2 timing, notifications, biometrics, TalkBack/VoiceOver, 200% text, airplane mode). 7. Store forms from
-`docs/STORE_LISTING.md` sections 4-5. 8. Native Hindi review.
+`docs/mobile/STORE_LISTING.md` sections 4-5. 8. Native Hindi review.
 
 ## Git (hand-over; I did not run any of this)
 
@@ -78,7 +78,7 @@ git add -- mobile/assets mobile/app.json mobile/eas.json mobile/plugins/withLoca
   mobile/scripts/release-assets.py mobile/scripts/release-screenshots.py mobile/scripts/release-sql-check.py \
   mobile/scripts/release-sql/delete_account_complete.sql \
   mobile/__tests__/releaseAssets.test.mts mobile/__tests__/releaseConfig.test.mts \
-  docs/STORE_LISTING.md docs/RELEASE_RUNBOOK.md docs/DEVICE_TEST_CHECKLIST.md docs/agent-notes/release-pack.md
+  docs/mobile/STORE_LISTING.md docs/ops/RELEASE_RUNBOOK.md docs/mobile/DEVICE_TEST_CHECKLIST.md docs/agent-notes/release-pack.md
 
 git commit -F - <<'EOF'
 Release pack: brand assets, store screenshots, release config guards, store copy, runbook, SQL verification

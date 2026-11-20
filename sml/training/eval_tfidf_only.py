@@ -6,7 +6,7 @@ train + train_extra, C picked on dev by macro-F1. The guard rule is the existing
 thr = the HIGHEST grid value whose DEV recall is >= 0.99. Everything is frozen (written to the output file) BEFORE test_v7 is touched; then
 test_v7 is scored ONCE. The script refuses to run again if the output already holds a test_v7 result: the sealed set is spent after one look.
 
-  rag-engine/.venv/bin/python sml/training/eval_tfidf_only.py
+  services/rag-engine/.venv/bin/python sml/training/eval_tfidf_only.py
 
 Gates (ROADMAP 3.3, router): macro-F1 >= 0.95, guard recall >= 0.99, false alarm <= 0.05, all on test_v7.
 test_v5 and test_v6 are reported as exploratory only (the 0.4.x family has seen them).

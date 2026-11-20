@@ -56,7 +56,7 @@ test('app.json asks only for the network and local notifications (no mic, camera
   const plugins = (app.plugins as any[]).map(p => (Array.isArray(p) ? p[0] : p));
   // expo-av was installed but unused and has been removed. If it ever comes back, Expo applies its config plugin on its own: that adds
   // RECORD_AUDIO (Android) and NSMicrophoneUsageDescription (iOS), so it may only be listed with the microphone switched off, and
-  // Android blocks the permission in the merged manifest too (verified with `expo prebuild`, see docs/RELEASE_RUNBOOK.md).
+  // Android blocks the permission in the merged manifest too (verified with `expo prebuild`, see docs/ops/RELEASE_RUNBOOK.md).
   const av = (app.plugins as any[]).find(p => (Array.isArray(p) ? p[0] : p) === 'expo-av');
   if (av) assert.equal(Array.isArray(av) ? av[1]?.microphonePermission : undefined, false, 'expo-av adds a microphone permission unless it is switched off');
   assert.ok((app.android.blockedPermissions ?? []).includes('android.permission.RECORD_AUDIO'), 'RECORD_AUDIO must be blocked in the merged manifest');

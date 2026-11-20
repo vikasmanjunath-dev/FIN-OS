@@ -287,7 +287,7 @@ test('your number 2: rebuilding never changes the library, so a shared lesson st
 // ── the documentation ───────────────────────────────────────────────────────────────────────────────────────────
 
 test('docs: REELS.md has "Your Number, wave 2" and names every personalised reel and the figure it uses', () => {
-  const doc = readFileSync(new URL('../../docs/REELS.md', import.meta.url), 'utf8');
+  const doc = readFileSync(new URL('../../docs/reels/REELS.md', import.meta.url), 'utf8');
   const i = doc.indexOf('Your Number, wave 2');
   assert.ok(i > 0, 'no "Your Number, wave 2" section');
   const section = doc.slice(i, i + 9000);

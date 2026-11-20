@@ -81,3 +81,11 @@ export const DEFAULT_PREFS: PersonaPrefs = { stripHidden: true };
 export function normalisePrefs(raw: unknown): PersonaPrefs {
   return raw !== null && typeof raw === 'object' && !Array.isArray(raw) && (raw as any).stripHidden === false ? { stripHidden: false } : { ...DEFAULT_PREFS };
 }
+
+const HI_DAYS = ['रविवार', 'सोमवार', 'मंगलवार', 'बुधवार', 'गुरुवार', 'शुक्रवार', 'शनिवार'];
+const HI_MONTHS = ['जनवरी', 'फ़रवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर'];
+/** The Home date line: "THURSDAY, 19 NOVEMBER" in English, "गुरुवार, 19 नवंबर" in Hindi (fixed names, so it does not depend on the phone's ICU data). */
+export function dateLine(d: Date, hindi: boolean): string {
+  if (hindi) return `${HI_DAYS[d.getDay()]}, ${d.getDate()} ${HI_MONTHS[d.getMonth()]}`;
+  return d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase();
+}

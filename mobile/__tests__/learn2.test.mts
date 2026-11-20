@@ -17,7 +17,7 @@ const lessonFiles = fs.readdirSync(CONTENT).filter(f => f.endsWith('.json') && f
 const lessons: Record<string, L.Lesson> = Object.fromEntries(lessonFiles.map(f => [f.replace(/\.json$/, ''), readJson(f)]));
 const byId = Object.fromEntries(manifest.lessons.map(e => [e.id, e]));
 
-// The 24 Pending rows (L-27..L-51 except L-41) and the three Partial rows of docs/MOBILE_PARITY_TRACKER.xlsx, by website page.
+// The 24 Pending rows (L-27..L-51 except L-41) and the three Partial rows of docs/mobile/MOBILE_PARITY_TRACKER.xlsx, by website page.
 const TRACKER_PAGES = ['mindset-sim', 'mindset-sim-hub', 'train-mindset', 'not-money', 'decision', 'clarity', 'scenarios', 'timeline', 'fear-roadmap',
   'roadmap', 'roadmaps', 'trader-roadmap', 'traditional-roadmap', 'simulator', 'simulator-landing', 'trading-simulator', 'trading-coach', 'trading-brain',
   'know-your-finances', 'financial-being', 'diagnostics', 'life-wealth', 'impact', 'impact-detail', 'foundations', 'investor-mindset', 'investor-profile'];

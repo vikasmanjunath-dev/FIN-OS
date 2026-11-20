@@ -1,7 +1,7 @@
 """Repo SQL must be safe to run twice and must never drop a table or wipe rows when run as documented.
 
 Found Oct 2026: voiceagent/schema.sql started with `DROP TABLE IF EXISTS agent_memories` while supabase/README.md told people to
-run it "if missing" / "run once" (re-running erased every user's voice memory), and alerts/schema.sql stopped on a second run
+run it "if missing" / "run once" (re-running erased every user's voice memory), and services/alerts/schema.sql stopped on a second run
 because CREATE POLICY had no DROP POLICY IF EXISTS.  Nothing here runs SQL against a database: it reads the files.
 """
 import glob
@@ -10,7 +10,7 @@ import re
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FILES = sorted(glob.glob(os.path.join(ROOT, "supabase", "*.sql"))) + [
-    os.path.join(ROOT, "alerts", "schema.sql"),
+    os.path.join(ROOT, "services", "alerts", "schema.sql"),
     os.path.join(ROOT, "voiceagent", "schema.sql"),
 ]
 

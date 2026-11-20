@@ -1,6 +1,6 @@
 # Voice: read-aloud, settings and the route to a recorded voice
 
-Part of the Money Reels guide (`docs/REELS.md`, section 7). Today the voice is the phone's own text-to-speech. Nobody has listened to it on a real phone yet.
+Part of the Money Reels guide (`docs/reels/REELS.md`, section 7). Today the voice is the phone's own text-to-speech. Nobody has listened to it on a real phone yet.
 
 ## How a reel is spoken
 

@@ -29,7 +29,7 @@ def arya():
     """arya-ai's modules (server/config/data/db) share names with other backends in this repo, so they are imported for this
     module only and removed again afterwards."""
     before_mods, before_path = set(sys.modules), list(sys.path)
-    sys.path.insert(0, os.path.join(ROOT, "arya-ai"))
+    sys.path.insert(0, os.path.join(ROOT, "services", "arya-ai"))
     try:
         if "ta" not in sys.modules:
             try:

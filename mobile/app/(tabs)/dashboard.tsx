@@ -21,10 +21,11 @@ import { ReelsHomeCard } from '@/components/ReelsHomeCard';
 import { QuickLogChips } from '@/components/QuickLogChips';
 import { ToolRow, StatRow } from '@/components/ToolRow';
 import { PersonaStrip } from '@/components/PersonaStrip';
-import { GREETING, buildStrip, dayPart, firstName, streakLine, type PersonaPrefs } from '@/lib/persona';
+import { GREETING, buildStrip, dateLine, dayPart, firstName, streakLine, type PersonaPrefs } from '@/lib/persona';
 import { loadPersonaPrefs, savePersonaPrefs } from '@/lib/personaStorage';
 import { Colors, Spacing, Radii, Typography, Type } from '@/constants/theme';
 import { useTabBarSpace } from '@/hooks/useTabBarSpace';
+import { getLang } from '@/lib/i18n';
 
 function IndexPill({ symbol, price, changePct }: { symbol: string; price: number; changePct: number | null }) {
   const known = changePct != null;
@@ -85,7 +86,7 @@ export default function DashboardScreen() {
       <Reveal index={0}>
         <View style={styles.header}>
           <View style={styles.headerTop}>
-            <Text style={[styles.date, { flex: 1 }]} numberOfLines={1}>{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }).toUpperCase()}</Text>
+            <Text style={[styles.date, { flex: 1 }]} numberOfLines={1}>{dateLine(new Date(), getLang() === 'hi')}</Text>
             <View style={{ flexDirection: 'row', gap: 8 }}>
               <AlertBell data={td} computed={tc} style={styles.settingsBtn} />
               <Tap accessibilityRole="button" accessibilityLabel="Search" onPress={() => router.push('/search' as any)} haptic="selection" style={styles.settingsBtn}>

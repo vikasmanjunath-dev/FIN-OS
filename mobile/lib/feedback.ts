@@ -1,4 +1,4 @@
-// Feedback on the phone: the same private-by-design loop as the website (js/finos-feedback.js, docs/FEEDBACK.md).
+// Feedback on the phone: the same private-by-design loop as the website (js/finos-feedback.js, docs/features/FEEDBACK.md).
 //   - Feedback lives ON THE DEVICE; the person can see it, share it and delete it.
 //   - Comments are redacted before they are stored (lib/redact.ts): amounts, numbers, e-mails, links and IDs never persist.
 //   - Nothing is sent unless (1) the matching consent is on AND (2) an endpoint is configured. The endpoint is null, as on the

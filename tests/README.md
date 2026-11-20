@@ -7,7 +7,7 @@
 
 ## What's Tested
 
-This suite covers the `alerts/` module — the most logic-heavy backend in FIN-OS.
+This suite covers the `services/alerts/` module — the most logic-heavy backend in FIN-OS.
 
 | File | Tests | What's verified |
 |---|---|---|
@@ -22,7 +22,7 @@ This suite covers the `alerts/` module — the most logic-heavy backend in FIN-O
 # From the project root (Initial Deployment/)
 cd "Initial Deployment"
 
-# Install test dependencies (already in alerts/requirements.txt)
+# Install test dependencies (already in services/alerts/requirements.txt)
 pip install pytest pytest-cov
 
 # Run all tests
@@ -50,7 +50,7 @@ Shared pytest configuration:
 
 ### `test_health_score.py`
 
-Tests for `alerts/health_score.py`:
+Tests for `services/alerts/health_score.py`:
 
 | Test | Scenario |
 |---|---|
@@ -62,7 +62,7 @@ Tests for `alerts/health_score.py`:
 
 ### `test_rules.py`
 
-Tests for `alerts/rules.py` — one test per rule:
+Tests for `services/alerts/rules.py` — one test per rule:
 
 | Test | Rule | Scenario |
 |---|---|---|
@@ -82,7 +82,7 @@ Tests for `alerts/rules.py` — one test per rule:
 
 ## Adding New Tests
 
-For a new alert rule `MY_RULE` in `alerts/rules.py`:
+For a new alert rule `MY_RULE` in `services/alerts/rules.py`:
 
 ```python
 # tests/test_rules.py

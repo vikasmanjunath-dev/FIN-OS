@@ -13,7 +13,7 @@ import re
 import pytest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FILES = sorted(glob.glob(os.path.join(ROOT, "supabase", "*.sql"))) + [os.path.join(ROOT, "alerts", "schema.sql"),
+FILES = sorted(glob.glob(os.path.join(ROOT, "supabase", "*.sql"))) + [os.path.join(ROOT, "services", "alerts", "schema.sql"),
                                                                        os.path.join(ROOT, "voiceagent", "schema.sql")]
 SQL = {os.path.relpath(f, ROOT): re.sub(r"--[^\n]*", "", open(f, encoding="utf-8").read()) for f in FILES}
 ALL = "\n".join(SQL.values())
@@ -63,14 +63,14 @@ def test_couple_tables_are_read_only_through_the_public_api():
 
 
 def test_plan_column_is_protected_from_the_signed_in_user():
-    sql = SQL["alerts/schema.sql"]
+    sql = SQL["services/alerts/schema.sql"]
     assert re.search(r"CREATE TRIGGER profiles_protect_plan\s+BEFORE INSERT OR UPDATE ON profiles", sql)
     assert re.search(r"NEW\.plan\s*:=\s*OLD\.plan", sql) and re.search(r"NEW\.plan\s*:=\s*'free'", sql)
     assert re.search(r"auth\.role\(\)", sql)
 
 
 def test_unread_count_function_is_not_a_definer_that_anyone_can_call():
-    fn = re.search(r"CREATE OR REPLACE FUNCTION get_unread_alert_count.*?LANGUAGE sql[^;]*;", SQL["alerts/schema.sql"], re.I | re.S).group(0)
+    fn = re.search(r"CREATE OR REPLACE FUNCTION get_unread_alert_count.*?LANGUAGE sql[^;]*;", SQL["services/alerts/schema.sql"], re.I | re.S).group(0)
     assert "SECURITY DEFINER" not in fn.upper() and "search_path" in fn
 
 

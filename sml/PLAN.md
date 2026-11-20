@@ -8,9 +8,9 @@ Full route from today's verified state to the end state (phases, gates, blockers
 
 | Area | State | Evidence |
 |---|---|---|
-| RAG engine | Healthy; 123 pages + SEBI/RBI/IRDAI/PFRDA + news indexed (~2,000 chunks); worker auto-restarts; Ollama has NUM_PARALLEL=2, KEEP_ALIVE=30m | `docs/RAG_STATUS.md` (generated), `docs/RAG_PHASES.md` Phase 9 |
-| Public benchmark | 95-96/112 (about 85%; was 76/100 at baseline, 93 before the reranker window) | `rag-engine/evaluation/benchmark.py` |
-| Personalized benchmark | 38/41 on the latest run (39 on the run before, same three failures PD-05, PG-04, PL-01: run noise), zero cross-user leaks | `rag-engine/evaluation/benchmark_personal.py` |
+| RAG engine | Healthy; 123 pages + SEBI/RBI/IRDAI/PFRDA + news indexed (~2,000 chunks); worker auto-restarts; Ollama has NUM_PARALLEL=2, KEEP_ALIVE=30m | `docs/rag/RAG_STATUS.md` (generated), `docs/rag/RAG_PHASES.md` Phase 9 |
+| Public benchmark | 95-96/112 (about 85%; was 76/100 at baseline, 93 before the reranker window) | `services/rag-engine/evaluation/benchmark.py` |
+| Personalized benchmark | 38/41 on the latest run (39 on the run before, same three failures PD-05, PG-04, PL-01: run noise), zero cross-user leaks | `services/rag-engine/evaluation/benchmark_personal.py` |
 | Router 0.4.1 | Predictor default and shadow-week model. One-shot test_v6 (217): macro-F1 0.966, guard recall 53/53, false alarm 4.3% (limits: single set, 4-7% false alarm across sets). Shadow mode only; NOT an active guard (F3) | `sml/models/router/0.4.1/MODEL_CARD.md`, TRACKER C14-C16 |
 | Number checker + facts gaps | Live in Arya, fail-open, loaded on demand | `js/sml/*`, `js/finos-facts.js`, 67 tests |
 | Regression tests | 590+ JS tests and 58 python tests (sml + rag-engine evaluation), all passing at last run (TRACKER bottom) | `npm test`-style commands in section 6 |
@@ -26,7 +26,7 @@ Status key: TODO / DOING / DONE / BLOCKED(who).
 
 ### W1 Router in shadow mode  [DONE and browser-verified; waiting for the founder's week of real use]
 Goal: learn how the router behaves on REAL messages without changing any answer.
-- W1.1 DONE (server.py `/api/route` + metrics `ROUTER_DECISIONS`; rag-engine/evaluation/test_route_endpoint.py, 5 tests; needs server restart). `POST /api/route` in rag-engine returning the router decision (intent, confidence, risk, needs_guard). Local only. Test: contract + no personal data logged.
+- W1.1 DONE (server.py `/api/route` + metrics `ROUTER_DECISIONS`; services/rag-engine/evaluation/test_route_endpoint.py, 5 tests; needs server restart). `POST /api/route` in rag-engine returning the router decision (intent, confidence, risk, needs_guard). Local only. Test: contract + no personal data logged.
 - W1.2 DONE (js/sml/router-shadow.js + routerShadow() in js/arya-sidebar-panel.js; tests/sml-router-shadow.test.js, 15 tests; FLOWS 'ai' entry amended). Arya panel calls it non-blocking after each user message when flag `finos_sml_router_shadow` is on (default OFF); stores only counters in localStorage: intent, risk class, needs_guard, agree/disagree with `AryaGuardrails` flags. NEVER the text.
 - W1.4 DONE 2026-10-25 real-browser run: flag off = 0 requests; flag on, 5 messages = counters moved, no text stored, 56-122 ms; flag removed = 0 requests again (TRACKER C9).
 - W1.3 DONE (`AryaSidebar.routerStats()` returns {stats, summary, enabled}; stubbed in js/arya-lazy.js, where it returns a Promise). `AryaSidebar.routerStats()` + a one-line view for the founder.
@@ -57,7 +57,7 @@ Goal: fewer wrong or missing facts. Targets: the 20 failing public questions, PX
   - DONE class-A triage: most are real generation errors (number borrowed from a neighbouring sentence), not label problems. Quote-first prompt tested: 90/112 vs 95-96 -> rejected (`RAG_PROMPT_VARIANT`, default base). Next levers: verifier that catches misattribution (W2.5), larger generator for fact questions (latency cost), shorter contexts.
   - TODO personal-namespace boost for "my ..." questions (PX-01 / PG-04), only after W1 shadow data shows how often it matters.
 - W3.3 Router-driven retrieval filters: after W1 shadow results.
-Accept: public benchmark >= 100/112 with no regression on personalized, each fix in `docs/RAG_PHASES.md` with before/after.
+Accept: public benchmark >= 100/112 with no regression on personalized, each fix in `docs/rag/RAG_PHASES.md` with before/after.
 
 ### W4 Router 0.4  [0.4.1 built on blind-writer data; real-message gate BLOCKED on the founder]
 - Real consented messages (needs U3: feedback endpoint + consent text) or shadow counters plus founder-labelled disagreements.
@@ -106,18 +106,18 @@ Compare mxbai-embed-large with bge-m3 and Qwen3-Embedding-0.6B on recall@5 over 
 ## 6. How to run things (commands)
 ```bash
 # engine health + counts
-rag-engine/.venv/bin/python scripts/rag_status.py
+services/rag-engine/.venv/bin/python scripts/rag_status.py
 # engine start (also applies Ollama env)
-rag-engine/start-all.sh
+services/rag-engine/start-all.sh
 # benchmarks
 cd rag-engine && .venv/bin/python evaluation/benchmark.py --json out.json
 cd rag-engine && .venv/bin/python evaluation/benchmark_personal.py --json out.json   # stop the server first (memory)
 # router: data -> ingest -> train -> predict
-python3 sml/data/router_data.py && rag-engine/.venv/bin/python sml/data/ingest_incoming.py
-rag-engine/.venv/bin/python sml/training/train_router_v2.py --version 0.5.0   # --version is required; an existing version is refused without --overwrite
-rag-engine/.venv/bin/python sml/runtime/router_predict.py "your message"
+python3 sml/data/router_data.py && services/rag-engine/.venv/bin/python sml/data/ingest_incoming.py
+services/rag-engine/.venv/bin/python sml/training/train_router_v2.py --version 0.5.0   # --version is required; an existing version is refused without --overwrite
+services/rag-engine/.venv/bin/python sml/runtime/router_predict.py "your message"
 # tests
-rag-engine/.venv/bin/pytest sml/tests rag-engine/evaluation/test_*.py -q
+services/rag-engine/.venv/bin/pytest sml/tests rag-engine/evaluation/test_*.py -q
 node --test tests/*.test.js
 ```
 Never commit from the assistant; commit messages carry no AI attribution (founder rule).

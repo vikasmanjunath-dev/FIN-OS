@@ -1,4 +1,4 @@
-// Local, sideloadable Android release builds (APK handed out from the website; see docs/RELEASE_RUNBOOK.md).
+// Local, sideloadable Android release builds (APK handed out from the website; see docs/ops/RELEASE_RUNBOOK.md).
 //
 // `expo prebuild` regenerates android/ from scratch, so anything edited there by hand is lost. This plugin re-applies:
 //   1. release signing from ~/finos-release-signing/signing.properties (key and passwords stay OUT of the repo); skipped

@@ -1,7 +1,7 @@
 """
 W2.6: local LLM as the verifier. For every real claim, ask a local Ollama model whether the claim is fully supported by the
 evidence windows the generator saw. Resumable (appends to llm_judge_<model>.jsonl). Then scores against the agreed labels.
-    rag-engine/.venv/bin/python sml/verifier/llm_judge_real.py [model]      # default qwen3:8b
+    services/rag-engine/.venv/bin/python sml/verifier/llm_judge_real.py [model]      # default qwen3:8b
 temperature 0, think off, one-word verdict. The prompt mirrors the annotators' instructions (no outside knowledge, strict on numbers).
 """
 import json, re, sys, time, collections

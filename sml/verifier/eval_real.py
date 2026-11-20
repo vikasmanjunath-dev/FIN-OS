@@ -1,6 +1,6 @@
 """
 W2.5: judge the verifier variants on REAL claims (the engine's own answers) with two independent labelers.
-    rag-engine/.venv/bin/python sml/verifier/eval_real.py
+    services/rag-engine/.venv/bin/python sml/verifier/eval_real.py
 Inputs : real_claims_raw.jsonl, labels_A1/A2.jsonl (labeler A), labels_B1/B2.jsonl (labeler B)
 Output : real_eval_results.json (+ a printed summary). 'Not supported' (the positive class) = contradicted or unsupported.
 tau is the value tuned on SYNTHETIC validation data (experiments_results.json); it is NOT re-tuned on real labels here

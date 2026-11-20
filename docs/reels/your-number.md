@@ -1,6 +1,6 @@
 # Your Number: reels rebuilt from the person's own figures
 
-Part of the Money Reels guide (`docs/REELS.md`, section 4). 17 live reels speak in the person's own SIP, spending, fund, loan or income. Nothing is written or sent; sharing always uses the example reel.
+Part of the Money Reels guide (`docs/reels/REELS.md`, section 4). 17 live reels speak in the person's own SIP, spending, fund, loan or income. Nothing is written or sent; sharing always uses the example reel.
 
 ## The first three and sharing safety
 

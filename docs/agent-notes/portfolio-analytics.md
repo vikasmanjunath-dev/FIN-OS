@@ -46,7 +46,7 @@ Run: `cd mobile && npx tsc --noEmit && npm test` (1040 pass at time of writing).
 - Futures roll jumps appear in commodity history.
 
 ## Backend requests (not edited)
-1. `/api/chart` (`arya-ai/data/market.py get_chart`): do not round to 2 decimals for prices under about 10 (JPYINR, DOGE, XRP). Keep 4+.
+1. `/api/chart` (`services/arya-ai/data/market.py get_chart`): do not round to 2 decimals for prices under about 10 (JPYINR, DOGE, XRP). Keep 4+.
 2. `/api/market/overview`: NIFTY MIDCAP 50 and NIFTY MIDCAP return identical price/change (16,946.30, -0.06%) in a live check; one is probably mis-mapped.
 3. Shareholding pattern endpoint (promoter %, pledge, by quarter) from NSE filings to enable the promoter trend.
 4. Bulk fundamentals (`/api/fundamentals?symbols=`) so the screener and peers need one call, not 50.
@@ -59,8 +59,8 @@ Run: `cd mobile && npx tsc --noEmit && npm test` (1040 pass at time of writing).
 - `scripts/smoke-routes.py` SAMPLES: `'market/crypto/[id]': ['/market/crypto/bitcoin','/market/crypto/matic-network']`, `'market/commodity/[key]': ['/market/commodity/gold']`, `'market/fx/[pair]': ['/market/fx/USD_INR']`.
 - `lib/privacy.ts`: no new host or permission. New requests to the same Arya backend: `/api/chart` for Yahoo symbols (your holdings' tickers as `SYMBOL.NS`, `^NSEI`, BTC-USD, GC=F, USDINR=X...), `/api/mf/history/{code}?years=2`, `/api/fundamentals/{symbol}` for each share you hold. Mention that holding tickers and fund codes go to your own backend for these screens. New cache keys inside `marketcache_v1:` (`ychart:`, `series:`, `fundseries:`, `sectorindices`, `fundamentals:`). The privacy guard (only `app/market/news.tsx` opens web pages) is respected: research screen links to Market news instead.
 - `lib/i18nHi.ts`: titles "Portfolio analytics", "Sectors and treemap", "Risk and market sensitivity", "Portfolio simulation", "Holdings research", "Market map", "Options calculator", "Price history".
-- Tracker `docs/MOBILE_PARITY_TRACKER.xlsx`: M-07/M-08/M-09 Done (detail with history; gold/silver in USD, Polygon no history); M-14 Partial (market map, not the deep-dive); M-16 Partial (calculator + payoff; no chain/IV rank, no data); M-17 Not built (static placeholder values); M-18 Partial (risk metrics + calculators); M-20 Not built (mock-up, needs sharing backend); S-04 Done; S-05 Partial (Monte Carlo + one-factor regression; no multi-factor); S-06 Partial (news, valuation table, opt-in peers; no promoter trend); S-07 Partial (valuation filters from backend data only).
-- `docs/MOBILE_APP.md`, `mobile/README.md`: list the routes above; `docs/PENDING.md`: the backend requests.
+- Tracker `docs/mobile/MOBILE_PARITY_TRACKER.xlsx`: M-07/M-08/M-09 Done (detail with history; gold/silver in USD, Polygon no history); M-14 Partial (market map, not the deep-dive); M-16 Partial (calculator + payoff; no chain/IV rank, no data); M-17 Not built (static placeholder values); M-18 Partial (risk metrics + calculators); M-20 Not built (mock-up, needs sharing backend); S-04 Done; S-05 Partial (Monte Carlo + one-factor regression; no multi-factor); S-06 Partial (news, valuation table, opt-in peers; no promoter trend); S-07 Partial (valuation filters from backend data only).
+- `docs/mobile/MOBILE_APP.md`, `mobile/README.md`: list the routes above; `docs/ops/PENDING.md`: the backend requests.
 - Website issues seen (not mine): `Porfolio Analyser/portfolio-analyser-v10.html` sector guessing from ticker keywords (INDIGO as paints), hard-coded promoter/peer/fundamentals tables, AI-generated news requiring an API key; `html/hedgefund.html` hard-coded ticker and invented "your trading DNA"; `html/options-intelligence.html` random IV rank/chain.
 
 ## Commit

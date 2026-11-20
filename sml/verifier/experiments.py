@@ -3,7 +3,7 @@
 (b) margin threshold: supported iff P(ent) - max(P(con), P(neu)) >= tau, tau chosen on a validation split of train.jsonl
     (carved by page group), never on test.
 Also: paraphrased-entailed subset (rule-based light paraphrase, 150 rows from test) and the numeric detector OR-combination.
-One process loads the NLI model (as rag-engine/generation/faithfulness.py), batches of 8, frees it. Logits are cached in
+One process loads the NLI model (as services/rag-engine/generation/faithfulness.py), batches of 8, frees it. Logits are cached in
 nli_logits_cache.json so the analysis re-runs without the model.  Usage: python experiments.py"""
 import json, re, os, sys, gc, math, random, subprocess, hashlib
 from pathlib import Path
@@ -149,7 +149,7 @@ def val_split(train, frac=0.3, seed=SEED):
 
 # ---------- NLI ----------
 def run_nli(pairs, bs=8):
-    sys.path.insert(0, str(ROOT / "rag-engine"))
+    sys.path.insert(0, str(ROOT / "services" / "rag-engine"))
     from generation.faithfulness import _get_model
     model, _ = _get_model()
     id2 = {int(k): v.lower() for k, v in model.model.config.id2label.items()}

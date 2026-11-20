@@ -22,7 +22,7 @@ function userTables(sql: string): { table: string; col: string; cascades: boolea
 }
 
 test('every table in the repo schemas that stores a person\'s rows is handled by delete_my_account()', () => {
-  const files = ['supabase/core_tables.sql', 'supabase/holdings.sql', 'supabase/tracker_snapshot.sql', 'alerts/schema.sql', 'voiceagent/schema.sql'].filter(f => existsSync(path.join(repo, f)));
+  const files = ['supabase/core_tables.sql', 'supabase/holdings.sql', 'supabase/tracker_snapshot.sql', 'services/alerts/schema.sql', 'voiceagent/schema.sql'].filter(f => existsSync(path.join(repo, f)));
   assert.ok(files.length >= 4);
   const tables = files.flatMap(f => userTables(read(f)));
   assert.ok(tables.length >= 10, `found ${tables.length}`);

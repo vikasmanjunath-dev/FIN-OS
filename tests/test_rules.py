@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import pytest
 from datetime import datetime, date, timedelta
-from alerts.rules import (
+from services.alerts.rules import (
     ALL_RULES, RULES_BY_ID,
     SipMissed, SalaryCredited, MarketDrop, GoalBehind,
     EmergencyFundLow, BudgetOverrun, NetWorthMilestone,

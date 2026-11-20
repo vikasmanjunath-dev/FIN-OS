@@ -13,7 +13,7 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const A = { name: 'A', income: 120000, expense: 50000 }, B = { name: 'B', income: 80000, expense: 30000 };
 
 test('the rules taken from the server are still the server\'s rules (a change there must be looked at here)', () => {
-  const py = fs.readFileSync(path.join(ROOT, 'alerts/alert-engine.py'), 'utf8');
+  const py = fs.readFileSync(path.join(ROOT, 'services/alerts/alert-engine.py'), 'utf8');
   assert.match(py, /if pct > 15:/);                                         // a category over 15% of joint income
   assert.match(py, /savings_rate = \(\(joint_inc - exp_a - exp_b\) \/ joint_inc\)/);   // joint savings rate
   assert.equal(c.LARGE_ITEM_SHARE, 0.15);

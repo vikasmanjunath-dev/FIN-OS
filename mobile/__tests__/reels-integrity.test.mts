@@ -1,4 +1,4 @@
-// Cross-slice integrity for Money Reels: bugs found in the review of everything the parallel sessions built (docs/REELS-INTEGRITY.md), each with a test that
+// Cross-slice integrity for Money Reels: bugs found in the review of everything the parallel sessions built (docs/reels/REELS-INTEGRITY.md), each with a test that
 // fails if it comes back, plus guards for the places where two copies of the same rule can drift apart (day keys, the website's streak, import cycles).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

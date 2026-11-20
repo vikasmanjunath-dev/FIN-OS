@@ -26,7 +26,7 @@ from fastapi.testclient import TestClient  # noqa: E402
 @pytest.fixture(scope="module")
 def arya():
     before_mods, before_path = set(sys.modules), list(sys.path)
-    sys.path.insert(0, os.path.join(ROOT, "arya-ai"))
+    sys.path.insert(0, os.path.join(ROOT, "services", "arya-ai"))
     try:
         if "ta" not in sys.modules:
             try:
@@ -240,7 +240,7 @@ def test_read_url_error_text_does_not_leak_internal_detail(env, monkeypatch):
 # ── rate limits, size limits, validation ──────────────────────────────────────
 
 def test_limiter_counts_per_group_and_client_and_recovers():
-    sys.path.insert(0, os.path.join(ROOT, "arya-ai"))
+    sys.path.insert(0, os.path.join(ROOT, "services", "arya-ai"))
     try:
         sys.modules.pop("ratelimit", None)
         rl = importlib.import_module("ratelimit")
@@ -257,11 +257,11 @@ def test_limiter_counts_per_group_and_client_and_recovers():
         assert rl.parse_limits("off") is None
     finally:
         sys.modules.pop("ratelimit", None)
-        sys.path.remove(os.path.join(ROOT, "arya-ai"))
+        sys.path.remove(os.path.join(ROOT, "services", "arya-ai"))
 
 
 def test_limiter_memory_is_bounded():
-    sys.path.insert(0, os.path.join(ROOT, "arya-ai"))
+    sys.path.insert(0, os.path.join(ROOT, "services", "arya-ai"))
     try:
         sys.modules.pop("ratelimit", None)
         rl = importlib.import_module("ratelimit")
@@ -271,7 +271,7 @@ def test_limiter_memory_is_bounded():
         assert len(lim._hits) <= rl.MAX_KEYS + 1
     finally:
         sys.modules.pop("ratelimit", None)
-        sys.path.remove(os.path.join(ROOT, "arya-ai"))
+        sys.path.remove(os.path.join(ROOT, "services", "arya-ai"))
 
 
 def _chat_offline(env, monkeypatch):

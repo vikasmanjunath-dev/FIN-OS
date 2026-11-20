@@ -1,6 +1,6 @@
 """C17-style error taxonomy of the TF-IDF-only candidate (see eval_tfidf_only.py) on test_v7. Diagnostic only: it reads the spent sealed set to say WHAT to write
 for training (patterns, never the rows themselves) and what a new candidate must fix. Writes sml/eval/alt_router_0.4.1_tfidf_only_errors.json.
-  rag-engine/.venv/bin/python sml/training/error_taxonomy.py"""
+  services/rag-engine/.venv/bin/python sml/training/error_taxonomy.py"""
 import json, re, sys
 from collections import Counter, defaultdict
 from pathlib import Path

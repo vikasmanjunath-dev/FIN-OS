@@ -1711,7 +1711,7 @@ const DOC={
       this.render(data);
     }catch(err){
       const isOffline=err.message.includes('fetch')||err.message.includes('Failed');
-      this.status(isOffline?'⚠️ Document AI server offline. Start it: <code style="background:rgba(255,255,255,.1);padding:2px 6px;border-radius:4px;">uvicorn server:app --port 8004</code> in the <code>document-ai/</code> folder.':'❌ '+err.message,'error',0);
+      this.status(isOffline?'⚠️ Document AI server offline. Start it: <code style="background:rgba(255,255,255,.1);padding:2px 6px;border-radius:4px;">uvicorn server:app --port 8004</code> in the <code>services/document-ai/</code> folder.':'❌ '+err.message,'error',0);
     }
   },
   status(html,type,prog=-1){

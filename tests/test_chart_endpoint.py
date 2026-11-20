@@ -31,7 +31,7 @@ def arya():
     """arya-ai's modules are named server/config/data/db, which other backends in this repo also use, so they are imported for this
     module only and removed again afterwards (otherwise document-ai's tests would get the wrong `server`)."""
     before_mods, before_path = set(sys.modules), list(sys.path)
-    sys.path.insert(0, os.path.join(ROOT, "arya-ai"))
+    sys.path.insert(0, os.path.join(ROOT, "services", "arya-ai"))
     try:
         if "ta" not in sys.modules:           # technical-indicator library: not needed for this route, may not be installed
             try:

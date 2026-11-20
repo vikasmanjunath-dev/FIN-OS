@@ -1,8 +1,8 @@
-// Couple finance, on one phone. The website's page (html/couple-finance.html) shows what a server (alerts/alert-engine.py,
+// Couple finance, on one phone. The website's page (html/couple-finance.html) shows what a server (services/alerts/alert-engine.py,
 // /couple/overview) works out for two linked accounts; there is no browser-side logic to port. This module is the arithmetic that
 // server does that is sound (joint income, spending and savings, the share each person earns, joint goals with both contributions),
 // plus a proportional split of shared bills, which the website does not have. What is NOT carried over, and why:
-//   - the server counts ANY positive transaction amount as income (alerts/health_score.py _monthly_income), so it can double count;
+//   - the server counts ANY positive transaction amount as income (services/alerts/health_score.py _monthly_income), so it can double count;
 //   - its "top 20% of couples" message has no source behind it;
 //   - it halves every spending figure on the assumption of a 60-day window with a 100-row cap.
 // Both people's figures are typed on this phone and stay on it. Nothing is a default: an unknown figure is null, never 0.

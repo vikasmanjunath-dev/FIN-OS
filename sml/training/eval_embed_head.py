@@ -1,7 +1,7 @@
 """C25: feasibility of the embedding head (mxbai-embed-large via Ollama) and the TF-IDF+embedding blend as the router guard. NO sealed set is touched.
 Everything (C, blend weight, guard threshold) is chosen on DEV only, by the same rules as train_router_v2.py; then the frozen candidate is reported on dev,
 test_v5, test_v6 and the two SPENT sealed sets test_v7 and test_v8 as EXPLORATORY numbers (they were already looked at, so they cannot be a gate). If it looks
-promising, a fresh sealed set (test_v9) is the real test.   rag-engine/.venv/bin/python sml/training/eval_embed_head.py [--with-extra2]"""
+promising, a fresh sealed set (test_v9) is the real test.   services/rag-engine/.venv/bin/python sml/training/eval_embed_head.py [--with-extra2]"""
 import argparse, json, sys
 from pathlib import Path
 import numpy as np

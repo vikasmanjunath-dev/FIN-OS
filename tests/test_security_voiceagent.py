@@ -90,6 +90,6 @@ def test_agent_is_wired_to_the_policy_and_compiles(tmp_path):
 def test_private_key_and_certificate_are_not_tracked_going_forward():
     ignore = open(os.path.join(VA, ".gitignore")).read()
     assert "*.pem" in ignore and ".env" in ignore
-    for d in ("arya-ai", "alerts", "voiceagent"):
+    for d in ("services/arya-ai", "services/alerts", "voiceagent"):
         di = open(os.path.join(ROOT, d, ".dockerignore")).read()
         assert ".env" in di and "*.pem" in di, d                 # `COPY . .` must not bake secrets into an image layer

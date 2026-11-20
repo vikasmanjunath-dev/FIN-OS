@@ -10,7 +10,7 @@ Rules enforced (a failure is reported, the offending rows are dropped, nothing i
   * exact duplicates (case/space-insensitive) removed within and ACROSS every set, with priority
     test_v1 > test_v2 > dev > valid > train  (the more held-out a set, the more it keeps)
   * near-duplicates (character 4-gram Jaccard >= 0.7) between a TRAIN row and any dev/test row are dropped from TRAIN
-Run:  rag-engine/.venv/bin/python sml/data/ingest_incoming.py
+Run:  services/rag-engine/.venv/bin/python sml/data/ingest_incoming.py
 """
 from __future__ import annotations
 import hashlib, json, re

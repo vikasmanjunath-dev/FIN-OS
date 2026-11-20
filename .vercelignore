@@ -16,20 +16,20 @@ ExpenseTracker/finos-budget/node_modules/
 # Django / Python backends
 ExpenseTracker/finos_backend/
 finos 2/
-market intelligence/
-stock-engine/
-rag-engine/
+services/market-intelligence/
+services/stock-engine/
+services/rag-engine/
 
 # Backend source files that live alongside servable frontend assets in the
 # same folder (e.g. chatbot/ also has qft-hud.css + qft-engine.js that DO
 # need to ship) — exclude only the Python/db/log files, not the whole dir.
 app.py
-alerts/*.py
-alerts/__pycache__/
+services/alerts/*.py
+services/alerts/__pycache__/
 chatbot/*.py
 chatbot/__pycache__/
-document-ai/*.py
-document-ai/__pycache__/
+services/document-ai/*.py
+services/document-ai/__pycache__/
 stock-dashboard/*.py
 stock-dashboard/__pycache__/
 *.db
@@ -55,9 +55,9 @@ tests/
 scripts/
 package.json
 dist-min/
-rag-engine/Dockerfile
-arya-ai/Dockerfile
-gateway/
+services/rag-engine/Dockerfile
+services/arya-ai/Dockerfile
+services/gateway/
 
 # CI
 .github/

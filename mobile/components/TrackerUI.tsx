@@ -10,6 +10,7 @@ import { Glass } from '@/components/ui/Glass';
 import { Reveal } from '@/components/ui/Reveal';
 import { parseTrackerMoney, parseTrackerNumber } from '@/lib/trackerInput';
 import { canRenderLoadedTrackerData, getTrackerStorageStatus, subscribeTrackerStorageStatus, type TrackerStorageIssue } from '@/lib/trackerStorageStatus';
+import { translate } from '@/lib/i18n';
 
 export const inr = (n: number) => '₹' + Math.round(n).toLocaleString('en-IN');
 export const inrShort = (n: number) => {
@@ -67,7 +68,7 @@ export function TrackerScreen({ title, subtitle, children, scrollRef }: { title:
 
       {/* the nav bar floats over the content on a blurred material, so what scrolls beneath it shows through */}
       <Glass style={ui.bar} intensity={55}>
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back" style={ui.backBtn} onPress={goBack} hitSlop={8} haptic="selection">
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel={translate('Back')} style={ui.backBtn} onPress={goBack} hitSlop={8} haptic="selection">
           <Ionicons name="chevron-back" size={22} color={Colors.cyan} />
           <Text style={ui.back}>Back</Text>
         </TouchableOpacity>

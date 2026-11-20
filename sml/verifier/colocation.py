@@ -2,7 +2,7 @@
 Co-location check (W2.7): catches a number that appears in the evidence but in a sentence about something else.
 For every number in the claim: find the evidence sentences containing it; flag the claim if (a) no sentence has it, or
 (b) the best such sentence shares too little of the claim's other content words (overlap < theta).
-Pure and deterministic; no model. Evaluated on the REAL labelled claims: rag-engine/.venv/bin/python sml/verifier/colocation.py
+Pure and deterministic; no model. Evaluated on the REAL labelled claims: services/rag-engine/.venv/bin/python sml/verifier/colocation.py
 """
 import json, re, collections
 from pathlib import Path

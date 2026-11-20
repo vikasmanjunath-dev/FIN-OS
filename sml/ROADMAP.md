@@ -21,7 +21,7 @@ Binding founder rules (unchanged, repeated because every item below obeys them):
 | The measured gap that matters | On the same labelled sets the **live regex guard (`js/arya-guardrails.js`) catches about 10% of risky messages**: dev 14/146 (9.6%), test_v5 4/30 (13%), test_v6 6/53 (11%). Router 0.4.1 catches 53/53 on test_v6. Misses are paraphrases in Hinglish, Devanagari and plain English ("kala dhan ko safed kaise kare", "make fake salary slip") | TRACKER H16 |
 | Verifier | **NO-GO for any automated gate.** On 224 agreed real claims (34 not supported, kappa 0.769) the best single judge is qwen3:14b decomposition P 0.68 / R 0.44 (13.5 s per claim); 2-of-3 votes P 0.90 / R 0.27; NLI with best-sentence premise P 0.17 (it scored 0.997 on synthetic data and did not transfer). The deterministic numeric check stays | TRACKER D1-D8; `verifier/REPORT.md` |
 | Categoriser, PULSE ranker, on-device runtime, embedding bake-off, feedback loop | Not started. Categoriser needs real rows (F1), the ranker needs real taps (G2), device work needs topology and phones (F5), the bake-off needs downloads and free memory (F6, F8), the feedback loop needs endpoint and consent (F2) | TRACKER B14, C11-C13, D9, G2 |
-| Tests | JS `node --test tests/*.test.js` **590 / 590**; python `rag-engine/.venv/bin/pytest sml/tests rag-engine/evaluation/test_*.py -q` **58 passed**. Both re-run while writing this file | TRACKER bottom |
+| Tests | JS `node --test tests/*.test.js` **590 / 590**; python `services/rag-engine/.venv/bin/pytest sml/tests rag-engine/evaluation/test_*.py -q` **58 passed**. Both re-run while writing this file | TRACKER bottom |
 | Risk of loss | All SML work (about 67 changed / new paths) is uncommitted in one checkout on branch `audit/track-finances-production`. A commit message was handed over (TRACKER F7) | `git status`; hand-over file in the sibling notes folder `local_5343cbdf-.../COMMIT_MESSAGE_sml_audit.txt` |
 
 Three structural facts the older documents did not state plainly:
@@ -293,13 +293,13 @@ Ordered list (do them in this order; one heavy job at a time):
 
 **Files.** `sml/training/export_tfidf.py` (new), `sml/runtime/router_predict.py` (loader only, behind a parameter), `sml/eval/router_0.4.1_tfidf_only.json` (output), `sml/tests/test_router_predict.py` or a new `sml/tests/test_tfidf_export.py` (parity test), `sml/TRACKER.md` rows C21 and C18, `.gitignore` check so the small JSON / npz is trackable while `*.joblib` stays ignored.
 
-**Done when.** Parity test passes on all sets; `rag-engine/.venv/bin/pytest sml/tests rag-engine/evaluation/test_*.py -q` >= 58 passed; the eval JSON holds macro-F1, dev-chosen threshold, dev recall / false alarm and the exploratory v5 / v6 numbers; the TRACKER row states plainly pass / fail against the pre-declared Gate J inputs (size <= 1 MB gzipped, F1 within 0.02 of the blend on the same sets, dev recall >= 0.99) and what the confirmation step is. Light machine only (CPU plus the cached embeddings; the embedding head is not needed for this).
+**Done when.** Parity test passes on all sets; `services/rag-engine/.venv/bin/pytest sml/tests rag-engine/evaluation/test_*.py -q` >= 58 passed; the eval JSON holds macro-F1, dev-chosen threshold, dev recall / false alarm and the exploratory v5 / v6 numbers; the TRACKER row states plainly pass / fail against the pre-declared Gate J inputs (size <= 1 MB gzipped, F1 within 0.02 of the blend on the same sets, dev recall >= 0.99) and what the confirmation step is. Light machine only (CPU plus the cached embeddings; the embedding head is not needed for this).
 
 ### Brief 3: B15 doc-type oracle upper bound for router-driven retrieval filters
 
-**Task.** Decide with evidence whether W3.3 deserves any build. Retrieval-only, no generation: for each of the 112 public benchmark questions (`rag-engine/evaluation/benchmark.py` question list) record the doc_type of the chunk(s) whose text contains the expected answer, and compute where that gold chunk ranks (a) with the current retrieval and (b) with an **oracle** hard filter on the gold doc_type and (c) with an oracle soft boost (x1.3 on the gold doc_type, the size of the recency multiplier). Also report router 0.4.1's intent for each question and how often intent -> doc_type mapping (`regulation_question` -> `regulation`; others unfiltered) agrees with the oracle. Count how many questions would newly reach the prompt top-3. Protocol: same as H15 (server stopped, in-process reranker, retrieval-only, restart the server afterwards); nothing seeded into the live collection; the script stays in the scratchpad unless the verdict is "build".
+**Task.** Decide with evidence whether W3.3 deserves any build. Retrieval-only, no generation: for each of the 112 public benchmark questions (`services/rag-engine/evaluation/benchmark.py` question list) record the doc_type of the chunk(s) whose text contains the expected answer, and compute where that gold chunk ranks (a) with the current retrieval and (b) with an **oracle** hard filter on the gold doc_type and (c) with an oracle soft boost (x1.3 on the gold doc_type, the size of the recency multiplier). Also report router 0.4.1's intent for each question and how often intent -> doc_type mapping (`regulation_question` -> `regulation`; others unfiltered) agrees with the oracle. Count how many questions would newly reach the prompt top-3. Protocol: same as H15 (server stopped, in-process reranker, retrieval-only, restart the server afterwards); nothing seeded into the live collection; the script stays in the scratchpad unless the verdict is "build".
 
-**Files.** One analysis script (scratchpad), `docs/RAG_PHASES.md` addendum bullet with the result, TRACKER row B15 with the numbers; no change to `rag-engine/` code.
+**Files.** One analysis script (scratchpad), `docs/rag/RAG_PHASES.md` addendum bullet with the result, TRACKER row B15 with the numbers; no change to `services/rag-engine/` code.
 
 **Done when.** The row states: the ceiling in questions (e.g. "+N at best"), the router-agreement rate, and the verdict by the pre-declared rule: if the oracle ceiling is below +3 questions or the mapping agrees on less than 90% of the questions where it would act, W3.3 is dropped (B16 not built); otherwise B16 is specified as a soft boost behind `RAG_DOCTYPE_BOOST` (default 1.0, in the cache signature), gated by Gate B. Server restarted and `/api/health` ok afterwards; swap checked before starting (section 8).
 
@@ -375,10 +375,10 @@ Real rows go to the **test and dev** side first, not to training, until there ar
 
 Procedure (reproducible, proven in TRACKER H4):
 ```bash
-python3 sml/data/router_data.py && rag-engine/.venv/bin/python sml/data/ingest_incoming.py
-rag-engine/.venv/bin/python sml/training/train_router_v2.py --version 0.5.0   # --version is required; an existing version is refused without --overwrite
-rag-engine/.venv/bin/python sml/training/eval_fresh.py ...                    # frozen-model scoring on a sealed set
-rag-engine/.venv/bin/pytest sml/tests rag-engine/evaluation/test_*.py -q
+python3 sml/data/router_data.py && services/rag-engine/.venv/bin/python sml/data/ingest_incoming.py
+services/rag-engine/.venv/bin/python sml/training/train_router_v2.py --version 0.5.0   # --version is required; an existing version is refused without --overwrite
+services/rag-engine/.venv/bin/python sml/training/eval_fresh.py ...                    # frozen-model scoring on a sealed set
+services/rag-engine/.venv/bin/pytest sml/tests rag-engine/evaluation/test_*.py -q
 ```
 The embedding step needs Ollama with `mxbai-embed-large`; the cache is tagged with the embedding model.
 
@@ -434,7 +434,7 @@ Policy recommended (decision N3; F9 implements it):
 
 - The Mac swaps (about 20.0 of 21.5 GB swap used when this was written). Check `sysctl -n vm.swapusage` and `vm_stat` before any heavy job.
 - Heavy jobs run **one at a time**: benchmarks, bake-off indexing, any fine-tune. Never run two together.
-- **Stop the rag-engine server on :7476 before `evaluation/benchmark_personal.py` (it runs in-process) and restart afterwards** with `rag-engine/start-all.sh`; confirm `/api/health`. (It is running now; the roadmap-writing session did not touch it.)
+- **Stop the rag-engine server on :7476 before `evaluation/benchmark_personal.py` (it runs in-process) and restart afterwards** with `services/rag-engine/start-all.sh`; confirm `/api/health`. (It is running now; the roadmap-writing session did not touch it.)
 - No long `sleep`s (a long foreground sleep is killed and a machine sleep during a run produces fake multi-thousand-second latencies, so a run that spans a sleep is not a measurement). Use the Monitor tool or poll in short steps.
 - macOS has no `setsid` and no `timeout`. Background python ignores SIGINT; stop it with `kill`.
 - A base fine-tune needs 6-8 GB free with Ollama paused; otherwise use the small variant or LoRA.
@@ -445,20 +445,20 @@ Policy recommended (decision N3; F9 implements it):
 ```bash
 # tests (re-run 2026-10-25: JS 590 pass, python 58 passed)
 node --test tests/*.test.js
-rag-engine/.venv/bin/pytest sml/tests rag-engine/evaluation/test_*.py -q
+services/rag-engine/.venv/bin/pytest sml/tests rag-engine/evaluation/test_*.py -q
 
 # engine
-rag-engine/.venv/bin/python scripts/rag_status.py       # health and counts
-rag-engine/start-all.sh                                  # (re)start the stack; also applies the Ollama env
+services/rag-engine/.venv/bin/python scripts/rag_status.py       # health and counts
+services/rag-engine/start-all.sh                                  # (re)start the stack; also applies the Ollama env
 
 # benchmarks (one at a time)
 cd rag-engine && .venv/bin/python evaluation/benchmark.py --json out.json
 cd rag-engine && .venv/bin/python evaluation/benchmark_personal.py --json out.json   # stop the server first
 
 # router
-python3 sml/data/router_data.py && rag-engine/.venv/bin/python sml/data/ingest_incoming.py
-rag-engine/.venv/bin/python sml/training/train_router_v2.py --version 0.5.0           # --version required; refuses to overwrite
-rag-engine/.venv/bin/python sml/runtime/router_predict.py "your message"
+python3 sml/data/router_data.py && services/rag-engine/.venv/bin/python sml/data/ingest_incoming.py
+services/rag-engine/.venv/bin/python sml/training/train_router_v2.py --version 0.5.0           # --version required; refuses to overwrite
+services/rag-engine/.venv/bin/python sml/runtime/router_predict.py "your message"
 
 # the founder's shadow week, in the browser console of a FIN-OS page
 localStorage.setItem('finos_sml_router_shadow','1'); localStorage.setItem('finos_pulse_counters_on','1')
@@ -521,6 +521,6 @@ Flags (all default off): `finos_sml_router_shadow`, `finos_pulse_counters_on` (e
 |---|---|---|---|
 | `PLAN.md` section 1 | personalized "39/41 on the last run (38 before)" | 38 / 41 after audit pass 2; 39 was the earlier run (H17) | fixed in PLAN |
 | `PLAN.md` W2 header | "decision GO (conditional)" | NO-GO for any automated gate (D8) | fixed in PLAN |
-| `docs/RAG_PHASES.md` Phase 9 addendum, router / verifier bullet | "conditional GO on a better verifier" | superseded by NO-GO (D8); the bullet below it in the same file already says so | fixed in RAG_PHASES |
+| `docs/rag/RAG_PHASES.md` Phase 9 addendum, router / verifier bullet | "conditional GO on a better verifier" | superseded by NO-GO (D8); the bullet below it in the same file already says so | fixed in RAG_PHASES |
 | `TRACKER.md` summary table | F row "6 done, 1 open (F7)" | F7 is DONE in the F table (F1-F7 done) | fixed in TRACKER (F row now 8 with F8) |
 | `PLAN.md` W1 exit gate | "founder review of disagreements" | counters hold no text, so the review cannot happen (not a contradiction of TRACKER, a gap in the design) | raised as blocker N1 here; the PLAN line is left as is |

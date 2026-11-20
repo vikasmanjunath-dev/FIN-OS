@@ -1,6 +1,6 @@
 # Playable reels: beats, sliders and the cast
 
-Part of the Money Reels guide (`docs/REELS.md`, section 3). A beat is the one thing a viewer does inside a reel: the reel stops after a middle scene, the viewer acts, then it plays on. Seven kinds exist; 71 of the 177 live reels have one (slider 16, spot 15, myth 12, guess 10, sort 7, path 6, order 5; the other 106 are plain explainers).
+Part of the Money Reels guide (`docs/reels/REELS.md`, section 3). A beat is the one thing a viewer does inside a reel: the reel stops after a middle scene, the viewer acts, then it plays on. Seven kinds exist; 71 of the 177 live reels have one (slider 16, spot 15, myth 12, guess 10, sort 7, path 6, order 5; the other 106 are plain explainers).
 
 
 ## The beat engine (guess, slider, myth)

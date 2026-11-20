@@ -1,1227 +1,463 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <script>
-  (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();
+  (function(){var t=localStorage.getItem('finos-theme')||localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',t);document.documentElement.classList.add('js');try{if(!sessionStorage.getItem('finos-intro')&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!(navigator.connection&&navigator.connection.saveData)&&!(navigator.deviceMemory&&navigator.deviceMemory<=2))document.documentElement.classList.add('intro');}catch(e){}})();
 </script>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="FIN-OS — India's financial operating system. Replace money myths with clarity and long-term thinking.">
-  <meta name="theme-color" content="#0B0D12">
-  <meta property="og:title" content="FIN-OS | Financial Operating System for India">
-  <meta property="og:description" content="Replace confusion, myths, and noise with clarity and long-term thinking.">
-  <link rel="manifest" href="manifest.json">
-  <!-- Theme guard: reads localStorage before any paint to prevent flash -->
-  <script src="js/ui.js?v=5"></script>
-
-  <title>FIN-OS | Financial Operating System for India</title>
-
-  <!-- Design tokens first so all subsequent CSS can reference variables -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;600;700&display=swap">
-  <link rel="stylesheet" href="css/design-tokens.css">
-  <link rel="stylesheet" href="css/base.css?v=2">
-  <link rel="stylesheet" href="css/components.css?v=2">
-  <link rel="stylesheet" href="css/animations.css">
-  <link rel="stylesheet" href="css/landing.css">
-  <link rel="stylesheet" href="css/interactions.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FIN-OS | Financial Operating System for India</title>
+<meta name="description" content="FIN-OS is India's financial operating system. Replace money myths, confusion and noise with clarity and long-term thinking.">
+<meta name="theme-color" content="#040A1B">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="FIN-OS">
+<meta property="og:title" content="FIN-OS | Financial Operating System for India">
+<meta property="og:description" content="Replace confusion, myths, and noise with clarity and long-term thinking.">
+<meta property="og:image" content="assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="FIN-OS: India doesn’t have a money problem. It has a thinking problem. Illustrative wealth curve.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="assets/og-image.png">
+<!-- [TODO] before launch: add <link rel="canonical"> and make og:image / twitter:image absolute URLs (https://<your-domain>/assets/og-image.png); crawlers ignore relative image paths -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%23040a1b%27/%3E%3Cpath d=%27M12 46 L26 32 L34 38 L52 16%27 fill=%27none%27 stroke=%27%23b6ff3b%27 stroke-width=%278%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3Ccircle cx=%2752%27 cy=%2716%27 r=%276%27 fill=%27%23b6ff3b%27/%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap"></noscript>
+<link rel="stylesheet" href="css/design-tokens.css">
+<link rel="stylesheet" href="css/landing2.css">
+<script src="js/ui.js?v=5"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"FIN-OS","description":"India's financial operating system. Built for long-term thinkers."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"Is FIN-OS financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. FIN-OS is not SEBI registered and does not give financial advice. It is built to improve how you think about money. Returns are never guaranteed — thinking is."}},
+{"@type":"Question","name":"Will FIN-OS give me stock tips?","acceptedAnswer":{"@type":"Answer","text":"No. No tips: we don’t chase excitement. No noise: clarity beats constant information."}},
+{"@type":"Question","name":"Who is FIN-OS for?","acceptedAnswer":{"@type":"Answer","text":"It is for you if you want clarity, long-term thinking, and fewer but better decisions. It is not for you if you want shortcuts, hype, or daily stock excitement."}},
+{"@type":"Question","name":"Are the numbers on this page real returns?","acceptedAnswer":{"@type":"Answer","text":"No, they are illustrations. The hero chart simulates ₹10,000 a month by default (you can change the amount) for 20 years at an assumed 12% a year, with random market swings. The timeline assumes ₹500 a month from age 25 at an assumed 12% a year, compounded monthly, before tax, costs and inflation. Returns are never guaranteed."}},
+{"@type":"Question","name":"Is it free to start?","acceptedAnswer":{"@type":"Answer","text":"Yes. Starting to build your financial OS is free."}},
+{"@type":"Question","name":"What is inside FIN-OS?","acceptedAnswer":{"@type":"Answer","text":"The app includes Learn, Diagnostics and Track Finances."}},
+{"@type":"Question","name":"How is my data handled?","acceptedAnswer":{"@type":"Answer","text":"Read the Privacy Policy and the Terms of Use for details."}}]}</script>
 </head>
-
 <body>
-  <!-- Skip to main content (WCAG 2.4.1) -->
-  <a href="#landing-main" class="landing-skip-link">Skip to main content</a>
+<div class="intro" aria-hidden="true"><div class="intro__in"><span class="intro__logo">FIN<i>•</i>OS</span><div class="intro__bar"><i></i></div><span class="intro__pct mono"><b id="introPct">0</b>%</span></div></div>
+<a class="skip" href="#main">Skip to main content</a>
 
-  <!-- FIN-OS LOGO (TOP LEFT) -->
-  <a href="index.html" class="finos-logo" aria-label="FIN-OS — Home">FIN•OS</a>
-
-  <!-- PREMIUM BACKGROUND CANVAS (decorative) -->
-  <div class="bg-canvas" aria-hidden="true"></div>
-
-  <!-- THEME TOGGLE -->
-  <button id="themeToggle" class="theme-btn landing-theme"
-          aria-label="Toggle dark/light theme" title="Toggle theme">🌙</button>
-
-<main id="landing-main">
-<div class="landing">
-
-  <!-- ================= HERO ================= -->
-  <section class="landing-hero">
-    <span class="eyebrow">Introducing FIN-OS</span>
-
-    <h1>
-      India doesn’t have a money problem.<br/>
-      <span class="text-highlight gradient-highlight">
-      <span class="gradient-text">It has a thinking problem.</span>
-    </span>
-
-    </h1>
-
-    <p class="hero-sub">
-      FIN-OS is a financial operating system built for Indians —
-      to replace confusion, myths, and noise with clarity and
-      long-term thinking.
-    </p>
-
-    <div class="hero-cta">
-      <button class="primary-btn" id="loginBtn">Enter FIN-OS</button>
-      
+<!-- NAV -->
+<header class="nav" id="nav">
+  <div class="wrap nav__in">
+    <a class="logo" href="index.html" aria-label="FIN-OS — Home">FIN<i>•</i>OS</a>
+    <nav class="nav__links" id="navLinks" aria-label="Primary">
+      <a href="#why">The problem</a>
+      <a href="#time">Time</a>
+      <a href="#thinking">Three Indias</a>
+      <a href="#try">Try it</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav__act">
+      <button id="themeToggle" class="icon-btn" type="button" aria-label="Toggle dark/light theme" title="Toggle theme"></button>
+      <button class="btn btn--primary btn--sm" type="button" data-enter>Enter FIN-OS <span class="arr" aria-hidden="true">→</span></button>
+      <button class="icon-btn burger" id="burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="navLinks"><span></span></button>
     </div>
-  </section>
-
-  <div class="fin-divider fin-divider--mark"></div>
-
-<div class="fin-divider fin-divider--label"></div>
-
-
-<section class="money-brain-section">
-
-  <h2 class="section-title">
-    <span class="text-highlight">What Is Money, Really?</span>
-  </h2>
-
-  <p class="section-sub">
-    Money is not paper. Not numbers. It is stored time, energy, and choices —
-    moving through life.
-  </p>
-
-  <!-- ENERGY STREAM -->
-  <div class="money-energy">
-    <div class="energy-core">LIFE ENERGY</div>
-    <div class="energy-stream salary">Salary</div>
-    <div class="energy-stream business">Business</div>
-    <div class="energy-stream capital">Capital</div>
-    <div class="energy-stream emi">EMI</div>
-    <div class="energy-stream marriage">Marriage</div>
-    <div class="energy-stream home-loan">Home Loan</div>
-    <div class="energy-stream liabilities">Liabilities</div>
-    <div class="energy-stream obligations">Obligations</div>
   </div>
+</header>
 
-  <p class="section-sub subtle">
-    Everyone earns money differently. What changes everything is how they see it.
-  </p>
+<main id="main">
 
-  <!-- THREE INDIAS -->
-  <div class="india-realities">
-
-    <!-- INDIA 3 -->
-    <div class="india-card india-3">
-      <h3>India 3</h3>
-      <p class="mindset">Money = Survival</p>
-
-      <ul>
-        <li>Earn: Daily wages / unstable income</li>
-        <li>Spend: Immediately</li>
-        <li>Save: Rarely</li>
-        <li>Invest: Never</li>
-      </ul>
-
-      <div class="life-end">Ends with: Stress + Dependence</div>
-    </div>
-
-    <!-- INDIA 2 -->
-    <div class="india-card india-2">
-      <h3>India 2</h3>
-      <p class="mindset">Money = Lifestyle</p>
-
-      <ul>
-        <li>Earn: Salary / profession</li>
-        <li>Spend: EMIs + status</li>
-        <li>Save: Whatever is left</li>
-        <li>Invest: Late</li>
-      </ul>
-
-      <div class="life-end">Ends with: Working longer than needed</div>
-    </div>
-
-    <!-- INDIA 1 -->
-    <div class="india-card india-1">
-      <h3>India 1</h3>
-      <p class="mindset">Money = Tool</p>
-
-      <ul>
-        <li>Earn: Salary / business / capital</li>
-        <li>Save: Before spending</li>
-        <li>Invest: From day one</li>
-        <li>Let time work</li>
-      </ul>
-
-      <div class="life-end">Ends with: Freedom + Choice</div>
-    </div>
-
-  </div>
-
-  <!-- QUESTION -->
-  <div class="choice-question">
-    <p>Same country. Same time. Different thinking.</p>
-    <h3>Where do <span class="text-highlight">you</span> want to end up?</h3>
-  </div>
-
-</section>
-
-<div class="fin-divider fin-divider--mark"></div>
-
-<!-- ================= LIFE–LONG MONEY MAP (OLD vs NEW THINKING) ================= -->
-<section class="money-life-section">
-
-  <h2 class="section-title">
-    <span class="text-highlight">How Money Really Works — From Birth to Death</span>
-  </h2>
-
-  <p class="section-sub">
-    Money is not income. It’s stored time, energy, and future choices.
-  </p>
-
-  <div class="life-simulator">
-
-    <!-- OLD CYCLE -->
-    <div class="life-column old-life">
-      <h3>Traditional Indian Money Cycle</h3>
-
-      <div class="life-track">
-        <div class="life-node">Birth</div>
-        <div class="life-line"></div>
-        <div class="life-node">Education</div>
-        <div class="life-line"></div>
-        <div class="life-node">Job</div>
-        <div class="life-line"></div>
-        <div class="life-node">EMIs</div>
-        <div class="life-line"></div>
-        <div class="life-node">Family</div>
-        <div class="life-line"></div>
-        <div class="life-node end">₹0 Retirement</div>
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="wrap hero__grid">
+    <div class="hero__copy">
+      <p class="eyebrow" id="eyebrow">Introducing FIN-OS</p>
+      <h1 class="display"><span class="w" style="--i:0">India</span> <span class="w" style="--i:1">doesn’t</span> <span class="w" style="--i:2">have</span> <span class="w" style="--i:3">a</span> <span class="w" style="--i:4">money</span> <span class="w" style="--i:5">problem.</span> <span class="line2"><span class="w grad" style="--i:6">It</span> <span class="w grad" style="--i:7">has</span> <span class="w grad" style="--i:8">a</span> <span class="w grad" style="--i:9">thinking</span> <span class="w grad" style="--i:10">problem.</span></span></h1>
+      <p class="lead">FIN-OS is a financial operating system built for Indians — to replace confusion, myths, and noise with clarity and long-term thinking.</p>
+      <div class="hero__cta">
+        <button class="btn btn--primary btn--lg" id="loginBtn" type="button">Enter FIN-OS <span class="arr" aria-hidden="true">→</span></button>
+        <a class="btn btn--ghost btn--lg" href="#thinking">See how it thinks</a>
       </div>
-
-      <p class="life-note">
-        Money flows in → disappears → repeats.<br>
-        No system. No memory. No future leverage.
-      </p>
     </div>
 
-    <!-- DIVIDER -->
-    <div class="life-divider">⇄</div>
-
-    <!-- NEW CYCLE -->
-    <div class="life-column new-life">
-      <h3>FIN-OS Life-First Money System</h3>
-
-      <div class="life-track">
-        <div class="life-node">Birth</div>
-        <div class="life-line grow"></div>
-        <div class="life-node">Early Learn</div>
-        <div class="life-line grow"></div>
-        <div class="life-node">Invest Small</div>
-        <div class="life-line grow"></div>
-        <div class="life-node">Compound</div>
-        <div class="life-line grow"></div>
-        <div class="life-node">Freedom</div>
-        <div class="life-line grow"></div>
-        <div class="life-node end">A corpus that keeps growing</div>
+    <!-- signature: live wealth simulation -->
+    <div class="stage" id="stage" data-m="3">
+      <div class="chip chip--a" aria-hidden="true"><b>SIP</b> <span id="chipAmt">₹10,000</span> / month</div>
+      <div class="chip chip--b" aria-hidden="true"><b>12%</b> a year, assumed</div>
+      <div class="stage__bar">
+        <span class="stage__title">20 years · <b id="amtTitle">₹10,000 / month</b></span>
+        <div class="seg" role="group" aria-label="Choose a money mindset">
+          <button type="button" data-n="3" aria-pressed="true">India 3</button>
+          <button type="button" data-n="2" aria-pressed="false">India 2</button>
+          <button type="button" data-n="1" aria-pressed="false">India 1</button>
+        </div>
       </div>
-
-      <p class="life-note">
-        Money remembers every decision.<br>
-        Life is funded before it’s lived.
-      </p>
-    </div>
-
-  </div>
-
-  <p class="illustration-note" style="font-size:12px;opacity:.7;text-align:center;margin:18px auto 0;max-width:640px;">
-    An illustration of two habits, not a forecast of anyone’s finances.
-  </p>
-
-  <button class="primary-btn" id="runLifeSim">
-    Play the full life
-  </button>
-
-  <div class="life-message" id="lifeMessage">
-    Same life. Same income.<br>
-    One system creates freedom. The other creates stress.
-  </div>
-
-</section>
-
-<div class="fin-divider fin-divider--mark"></div>
-
-
-<section class="desi-money-universe">
-
-  <h2 class="section-title">
-    <span class="text-highlight">Money Is Not Meant to Be Hoarded</span>
-  </h2>
-
-  <p class="section-sub">
-    It’s meant to cook today’s roti, add ghee to life,
-    and quietly keep the fire alive for tomorrow.
-  </p>
-
-  <div class="chulha">
-
-    <!-- FIRE (FUTURE) -->
-    <div class="fire-core" id="fireCore">
-      FUTURE
-    </div>
-
-    <!-- ROTI (DAILY LIFE) -->
-    <div class="orbit roti">
-      ROTI<br>
-      <small>Life today</small>
-    </div>
-
-    <!-- GHEE (JOY) -->
-    <div class="orbit ghee">
-      GHEE<br>
-      <small>Enjoyment</small>
-    </div>
-
-  </div>
-
-  <p class="desi-note">
-    Most people burn all the fuel cooking today’s roti.<br>
-    FIN-OS teaches how to cook, enjoy ghee —
-    <strong>without killing the fire.</strong>
-  </p>
-
-  <button class="primary-btn" id="igniteLife">
-    Show me the balanced life
-  </button>
-
-  <div class="desi-message" id="desiMessage">
-    You didn’t stop living.<br>
-    You stopped fearing the future.
-  </div>
-
-</section>
-
-<div class="fin-divider fin-divider--mark"></div>   
-
-<!-- ================= FINANCIAL LITERACY & MISCONCEPTION SECTION ================= -->
-<section class="literacy-section">
-
-  <h2 class="section-title">
-    <span class="text-highlight">The Financial Literacy Gap in India</span>
-  </h2>
-
-  <p class="section-sub">
-    Most money mistakes aren’t personal failures — they’re inherited thinking.
-  </p>
-
-  <div class="literacy-simulator">
-
-    <!-- CURRENT REALITY -->
-    <div class="literacy-column">
-      <h3>What Most People Are Taught</h3>
-
-      <div class="literacy-bar">
-        <div class="literacy-fill misconception-fill"></div>
+      <div class="amt"><label for="amt">Your monthly amount <output id="amtOut" class="mono" for="amt">₹10,000</output></label><input id="amt" class="range" type="range" min="0" max="8" step="1" value="4" aria-valuetext="₹10,000 a month"></div>
+      <div class="stage__read">
+        <div class="stage__num mono" id="num" aria-hidden="true">₹0</div>
+        <p class="stage__cap" id="cap"></p>
+        <span class="sr" id="sr" role="status"></span>
+        <p class="note">Illustrative only: ₹<span id="noteAmt">10,000</span> a month for 20 years at an assumed 12% a year, with simulated market swings. Not real market data. Returns are never guaranteed. Not advice.</p>
+        <div class="stage__tools">
+          <details class="data"><summary>View data as table</summary>
+            <table id="dataTable"><caption>Value of each mindset at a steady assumed 12% a year (the chart adds simulated market swings)</caption><thead><tr><th scope="col">When</th><th scope="col">India 1</th><th scope="col">India 2</th><th scope="col">India 3</th></tr></thead><tbody></tbody></table>
+          </details>
+          <button type="button" class="link" id="shareBtn">Save my card</button>
+        </div>
       </div>
+    </div>
+  </div>
+</section>
 
-      <ul class="literacy-list">
-        <li>Save whatever is left</li>
-        <li>Gold & real estate = safety</li>
-        <li>EMIs are normal life</li>
-        <li>Markets are gambling</li>
-      </ul>
+<!-- PROOF / PRINCIPLES STRIP -->
+<div class="proof" aria-label="What FIN-OS stands for">
+  <div class="wrap"><div class="proof__row" data-r>
+    <div><i></i>Education before action</div>
+    <div><i></i>Designed for Indian realities</div>
+    <div><i></i>Long-term over short-term</div>
+    <div><i></i>Personalized financial thinking</div>
+  </div></div>
+</div>
+
+<!-- PROBLEM -->
+<section id="why">
+  <div class="wrap">
+    <div class="sec-head" data-r>
+      <p class="eyebrow">The problem</p>
+      <h2>The money you never see yourself losing</h2>
+    </div>
+    <div class="grid g3 leak">
+      <article class="card" data-r style="--i:0"><h3>Inflation</h3><p>Quietly reduces purchasing power every year you stay idle.</p></article>
+      <article class="card" data-r style="--i:1"><h3>EMIs</h3><p>Steal future flexibility while feeling “normal” today.</p></article>
+      <article class="card" data-r style="--i:2"><h3>Delay</h3><p>Time lost can never be recovered — even with higher income.</p></article>
     </div>
 
-    <!-- ARROW -->
-    <div class="literacy-arrow">→</div>
+    <div class="sub-head" data-r><p class="eyebrow">Why it keeps happening</p><h3>Why most financial advice fails</h3></div>
+    <div class="grid g3">
+      <article class="card" data-r style="--i:0"><h3>Generic</h3><p>One-size-fits-all advice ignores your life stage.</p></article>
+      <article class="card" data-r style="--i:1"><h3>Product-driven</h3><p>Optimized for selling, not thinking.</p></article>
+      <article class="card" data-r style="--i:2"><h3>Unrealistic</h3><p>Assumes perfect discipline — humans don’t work that way.</p></article>
+    </div>
+  </div>
+</section>
 
-    <!-- FIN-OS THINKING -->
-    <div class="literacy-column">
-      <h3>What Actually Works</h3>
+<!-- TIME -->
+<section class="time" id="time">
+  <div class="wrap">
+    <div class="sec-head" data-r>
+      <p class="eyebrow">Compounding</p>
+      <h2>Your money, over time</h2>
+      <p class="lead">Most people don’t lose money by bad decisions — they lose it by repeating small ones.</p>
+    </div>
+    <div class="tl">
+      <div class="tl__c" data-r="z" style="--i:0;--h:6%"><span class="tl__y">Age 25</span><h3>₹0 Invested</h3><p>Waiting for more income</p></div>
+      <div class="tl__c tl__c--hl" data-r="z" style="--i:1;--h:22%"><span class="tl__y">Age 35</span><h3>about ₹<span data-count="1.2" data-dec="1">1.2</span> Lakh</h3><p>₹500/month started early</p></div>
+      <div class="tl__c" data-r="z" style="--i:2;--h:48%"><span class="tl__y">Age 45</span><h3>about ₹<span data-count="5" data-dec="0">5</span> Lakh</h3><p>Consistency beats intensity</p></div>
+      <div class="tl__c tl__c--end" data-r="z" style="--i:3;--h:100%"><span class="tl__y">Age 60</span><h3>about ₹<span data-count="32" data-dec="0">32</span> Lakh</h3><p>Time did the heavy lifting</p></div>
+    </div>
+    <p class="note" style="margin-top:24px;max-width:78ch" data-r>Illustration: ₹500 invested every month from age 25, growing at an assumed 12% a year (compounded monthly, before tax, costs and inflation). Returns are never guaranteed.</p>
 
-      <div class="literacy-bar">
-        <div class="literacy-fill literacy-fill-correct"></div>
-        <div class="literacy-fill literacy-fill-invest"></div>
+    <div class="wait" id="wait" data-r>
+      <div class="wait__head"><p class="eyebrow">Interactive</p><h3>What waiting costs</h3><p class="lead">Move the start age. Same monthly amount, same assumed 12% a year, always stopping at age 60.</p></div>
+      <div class="wait__grid">
+        <div class="wait__ctl">
+          <div class="seg" role="group" aria-label="Monthly amount"><button type="button" data-amt="500" aria-pressed="true">₹500</button><button type="button" data-amt="2000" aria-pressed="false">₹2,000</button><button type="button" data-amt="5000" aria-pressed="false">₹5,000</button></div>
+          <label class="wait__lab" for="waitAge">Start investing at age <output id="waitAgeOut" class="mono" for="waitAge">25</output></label>
+          <input id="waitAge" class="range" type="range" min="25" max="50" step="1" value="25">
+          <dl class="wait__stats">
+            <div><dt>Corpus at 60</dt><dd id="waitCorpus" class="mono">₹32.5 L</dd></div>
+            <div><dt>You put in</dt><dd id="waitIn" class="mono">₹2.1 L</dd></div>
+            <div><dt>Versus starting at 25</dt><dd id="waitLoss" class="mono">—</dd></div>
+          </dl>
+          <span class="sr" id="waitSr" role="status"></span>
+          <p class="note">Illustration: invested every month from the chosen age, growing at an assumed 12% a year (compounded monthly, before tax, costs and inflation). Returns are never guaranteed.</p>
+        </div>
+        <figure class="wait__viz"><svg id="waitSvg" viewBox="0 0 600 300" role="img" aria-label="Chart comparing the corpus at age 60 when you start at the chosen age against starting at 25. Illustrative."></svg></figure>
       </div>
-
-      <ul class="literacy-list">
-        <li>Pay yourself first</li>
-        <li>Invest systematically</li>
-        <li>Debt is a tool, not lifestyle</li>
-        <li>Time beats timing</li>
-      </ul>
     </div>
 
-  </div>
-
-  <p class="illustration-note" style="font-size:12px;opacity:.7;text-align:center;margin:18px auto 0;max-width:640px;">
-    The bars are a visual illustration, not survey data.
-  </p>
-
-  <button class="primary-btn" id="runLiteracy">
-    Break the inherited cycle
-  </button>
-
-  <div class="literacy-message" id="literacyMessage">
-    When one generation learns correctly,<br>
-    the next starts ahead — not from zero.
-  </div>
-
-</section>
-
-
-<div class="fin-divider fin-divider--mark"></div>
-
-<section class="paycheck-section">
-
-  <h2 class="section-title">
-    <span class="text-highlight">The Paycheck-to-Paycheck Trap</span>
-  </h2>
-
-  <p class="section-sub">
-    Many households end every month with nothing left. An example household:
-    ₹50,000 comes in, and the usual bills take all of it.
-  </p>
-
-  <div class="paycheck-simulator">
-
-    <div class="income-bar">
-      <span>Example monthly income</span>
-      <div class="bar">
-        <div class="fill income-fill"></div>
+    <div class="pair-grid">
+      <div class="pair" data-r>
+        <article class="card"><span class="tag tag--myth">MYTH</span><h3>Earn more, then invest</h3><p>People delay investing for years waiting for the “right salary”.</p></article>
+        <article class="card real"><span class="tag tag--real">REALITY</span><h3>Time matters more than income</h3><p>In the example above, ₹500 a month from age 25 (about ₹32 lakh at 60) ends ahead of ₹5,000 a month started at 45 (about ₹25 lakh), at the same assumed 12%</p></article>
       </div>
-      <strong>₹50,000</strong>
-    </div>
-
-    <div class="expenses">
-
-      <div class="expense" data-cut="25">🏠 Rent</div>
-      <div class="expense" data-cut="15">🍲 Groceries</div>
-      <div class="expense" data-cut="30">💳 EMIs</div>
-      <div class="expense" data-cut="15">🚗 Transport</div>
-      <div class="expense" data-cut="15">📱 Misc</div>
-
-    </div>
-
-    <div class="balance">
-      Balance Left: <span id="balanceAmount">₹50,000</span>
-    </div>
-
-    <button class="primary-btn" id="runPaycheck">
-      Run the month
-    </button>
-
-    <div class="paycheck-message" id="paycheckMessage">
-      In this example, nothing is left. Again.
-    </div>
-
-  </div>
-</section>
-
-<div class="fin-divider fin-divider--mark"></div>
-
-<!-- ================= SOLUTION: BREAK THE PAYCHECK CYCLE ================= -->
-<section class="paycheck-solution">
-
-  <h2 class="section-title">
-    <span class="text-highlight">How the Cycle Is Broken</span>
-  </h2>
-
-  <p class="section-sub">
-    The solution isn’t earning more. It’s redirecting money before it disappears.
-  </p>
-
-  <div class="solution-simulator">
-
-    <!-- BEFORE -->
-    <div class="solution-column">
-      <h3>Before (Default)</h3>
-
-      <div class="solution-bar">
-        <div class="solution-fill before-fill"></div>
+      <div class="pair" data-r>
+        <article class="card"><span class="tag tag--myth">MYTH</span><h3>Buying a home means success</h3><p>EMIs are normalized without understanding opportunity cost.</p></article>
+        <article class="card real"><span class="tag tag--real">REALITY</span><h3>Flexibility creates freedom</h3><p>Cash flow and optionality matter more than ownership.</p></article>
       </div>
-
-      <ul class="solution-list">
-        <li>Income → Expenses → ₹0</li>
-        <li>No savings by design</li>
-        <li>Repeats every month</li>
-      </ul>
     </div>
 
-    <!-- ARROW -->
-    <div class="solution-arrow">→</div>
+    <div class="sub-head" data-r><p class="eyebrow">One decision</p><h3>Two futures</h3></div>
+    <div class="grid g2">
+      <article class="card" data-r style="--i:0"><h3>Start investing early</h3><p>Freedom, flexibility, and compounding on your side.</p></article>
+      <article class="card" data-r style="--i:1"><h3>Wait for perfect income</h3><p>Higher salary, but less time and fewer options.</p></article>
+    </div>
 
-    <!-- AFTER -->
-    <div class="solution-column">
-      <h3>After (FIN-OS Thinking)</h3>
+    <div class="sub-head" data-r><p class="eyebrow">Across a lifetime</p><h3>Money decisions in every decade</h3></div>
+    <div class="steps">
+      <article class="card" data-r style="--i:0"><h3>20s</h3><p>Habits form. Compounding begins quietly.</p></article>
+      <article class="card" data-r style="--i:1"><h3>30s</h3><p>EMIs rise. Decisions become heavier.</p></article>
+      <article class="card" data-r style="--i:2"><h3>40s+</h3><p>The gap between early and late choices becomes visible.</p></article>
+    </div>
+  </div>
+</section>
 
-      <div class="solution-bar">
-        <div class="solution-fill after-fill"></div>
+<!-- STORY: pinned, scroll-driven -->
+<section class="story" id="story" aria-labelledby="story-h">
+  <div class="story__track">
+    <div class="story__stick">
+      <div class="wrap story__grid">
+        <div class="story__text">
+          <p class="eyebrow">Scene by scene</p>
+          <h2 id="story-h">Same market. Different start.</h2>
+          <ol class="beats">
+            <li class="on"><span class="tl__y">Age 25 · your 20s</span><h3>Habits form. Compounding begins quietly.</h3><p>₹500 a month starts now — or waits for more income.</p></li>
+            <li><span class="tl__y">Age 35 · your 30s</span><h3>EMIs rise. Decisions become heavier.</h3><p>about ₹1.2 Lakh from ₹500 a month started early.</p></li>
+            <li><span class="tl__y">Age 45 · your 40s</span><h3>The gap between early and late choices becomes visible.</h3><p>about ₹5 Lakh. Consistency beats intensity. The late starter begins ₹5,000 a month now.</p></li>
+            <li><span class="tl__y">Age 60</span><h3>Time did the heavy lifting.</h3><p>about ₹32 Lakh versus about ₹25 Lakh, at the same assumed 12%. Time matters more than income.</p></li>
+          </ol>
+          <p class="note">Illustration: ₹500 a month from age 25 versus ₹5,000 a month from age 45, both at an assumed 12% a year (compounded monthly, before tax, costs and inflation). Returns are never guaranteed.</p>
+        </div>
+        <figure class="story__viz"><svg id="storySvg" viewBox="0 0 600 340" role="img" aria-label="Two growth curves from age 25 to 60: ₹500 a month started at 25 reaches about ₹32 lakh; ₹5,000 a month started at 45 reaches about ₹25 lakh. Illustrative."></svg></figure>
       </div>
-
-      <ul class="solution-list">
-        <li>Income → Save First</li>
-        <li>Expenses adapt automatically</li>
-        <li>Wealth compounds quietly</li>
-      </ul>
-    </div>
-  </div>
-
-  <button class="primary-btn" id="runSolution">
-    Apply one small change
-  </button>
-
-  <div class="solution-message" id="solutionMessage">
-    Example: ₹2,000 redirected before spending is ₹24,000 saved in one year,<br>
-    before any returns. Time starts working for you.
-  </div>
-
-</section>
-
-<div class="fin-divider fin-divider--mark"></div>
-
-<section class="landing-section">
-  <h2 class="section-title">
-    <span class="text-highlight">The money you never see yourself losing</span>
-
-  </h2>
- 
-
-  <div class="landing-values">
-    <div class="value-card glass">
-      <h3>Inflation</h3>
-      <p>Quietly reduces purchasing power every year you stay idle.</p>
-    </div>
-
-    <div class="value-card glass">
-      <h3>EMIs</h3>
-      <p>Steal future flexibility while feeling “normal” today.</p>
-    </div>
-
-    <div class="value-card glass">
-      <h3>Delay</h3>
-      <p>Time lost can never be recovered — even with higher income.</p>
-    </div>
-  </div>
-
-  
-</section>
-
-  <!-- ================= TRUST STRIP ================= -->
-  <section class="trust-strip">
-    <div>Education before action</div>
-    <div>Designed for Indian realities</div>
-    <div>Long-term over short-term</div>
-    <div>Personalized financial thinking</div>
-  </section>
-
-
-  <div class="fin-divider fin-divider--mark"></div>
-
-        <section class="timeline-section">
-              <div class="timeline-header">
-                <h2>
-                      <span class="text-highlight">Your Money, Over Time ...</span>
-
-                    </h2>
-
-                <p>
-                  Most people don’t lose money by bad decisions —
-                  they lose it by repeating small ones.
-                </p>
-                <p class="illustration-note" style="font-size:12px;opacity:.75;">
-                  Illustration: ₹500 invested every month from age 25, growing at an assumed 12% a year
-                  (compounded monthly, before tax, costs and inflation). Returns are never guaranteed.
-                </p>
-              </div>
-
-              <div class="timeline-track">
-
-                <div class="timeline-card">
-                  <span class="year">Age 25</span>
-                  <h4>₹0 Invested</h4>
-                  <p><span class="highlight">Waiting for more income</span></p>
-
-                </div>
-
-                <div class="timeline-card highlight">
-                  <span class="year">Age 35</span>
-                  <h4>about ₹1.2 Lakh</h4>
-                  <p>₹500/month started early</p>
-                </div>
-
-                <div class="timeline-card">
-                  <span class="year">Age 45</span>
-                  <h4>about ₹5 Lakh</h4>
-                  <p>Consistency beats intensity</p>
-                </div>
-
-                <div class="timeline-card glow">
-                  <span class="year">Age 60</span>
-                  <h4>about ₹32 Lakh</h4>
-                  <p>Time did the heavy lifting</p>
-                </div>
-
-              </div>
-
-            </section>
-
-
-
-<div class="fin-divider fin-divider--mark"></div>
-           
- <section class="landing-section">
-  <h2 class="section-title">
-    <span class="text-highlight">One decision. Two futures.</span>
-
-  </h2>
-
-
-  <div class="landing-values">
-    <div class="value-card glass">
-      <h3>Start investing early</h3>
-      <p>Freedom, flexibility, and compounding on your side.</p>
-    </div>
-
-    <div class="value-card glass">
-      <h3>Wait for perfect income</h3>
-      <p>Higher salary, but less time and fewer options.</p>
     </div>
   </div>
 </section>
 
-
-<div class="fin-divider fin-divider--mark"></div>
-
-<section class="landing-section">
-  <h2 class="section-title">
-    Why most financial advice <span class="text-highlight">fails ?</span>
-
-  </h2>
-
-  <div class="landing-values">
-    <div class="value-card glass">
-      <h3>Generic</h3>
-      <p>One-size-fits-all advice ignores your life stage.</p>
+<!-- THREE INDIAS -->
+<section id="thinking">
+  <div class="wrap">
+    <div class="sec-head" data-r>
+      <p class="eyebrow">What is money, really?</p>
+      <h2>Money is stored time, energy, and choices — moving through life</h2>
+      <p class="lead">Money is not paper. Not numbers. It is stored time, energy, and choices — moving through life.</p>
     </div>
-
-    <div class="value-card glass">
-      <h3>Product-driven</h3>
-      <p>Optimized for selling, not thinking.</p>
-    </div>
-
-    <div class="value-card glass">
-      <h3>Unrealistic</h3>
-      <p>Assumes perfect discipline — humans don’t work that way.</p>
-    </div>
-  </div>
-</section>
-
-
-<div class="fin-divider fin-divider--mark"></div>
-
-  <!-- ================= MYTHS vs FACTS ================= -->
-  <section class="landing-myths">
-  <h2 class="section-title">
-    What Indians Are <span class="text-highlight">Told</span> vs What <span class="text-highlight">Actually Works</span>
-
-  </h2>
-
-  <p class="section-sub">
-    Most financial mistakes don’t come from lack of money —
-    they come from inherited beliefs.
-  </p>
-
-  <div class="myth-reality-grid">
-
-    <!-- ITEM 1 -->
-    <div class="belief-card myth">
-      <span class="label">MYTH</span>
-      <h3>Earn more, then invest</h3>
-      <p>
-        People delay investing for years waiting for the “right salary”.
-      </p>
-    </div>
-
-    <div class="belief-card reality">
-      <span class="label">REALITY</span>
-      <h3>Time matters more than income</h3>
-      <p>
-        In the example above, ₹500 a month from age 25 (about ₹32 lakh at 60) ends ahead of ₹5,000 a month started at 45 (about ₹25 lakh), at the same assumed 12% a year.
-      </p>
-    </div>
-
-    <!-- ITEM 2 -->
-    <div class="belief-card myth">
-      <span class="label">MYTH</span>
-      <h3>Buying a home means success</h3>
-      <p>
-        EMIs are normalized without understanding opportunity cost.
-      </p>
-    </div>
-
-    <div class="belief-card reality">
-      <span class="label">REALITY</span>
-      <h3>Flexibility creates freedom</h3>
-      <p>
-        Cash flow and optionality matter more than ownership.
-      </p>
-    </div>
-
-  </div>
-</section>
-
-
-
-<div class="fin-divider fin-divider--mark"></div>
-
-<section class="landing-section">
-  <h2 class="section-title">
-    <span class="text-highlight">Money decisions</span> across a <span class="text-highlight">lifetime</span>
-
-  </h2>
-
-  <div class="landing-values">
-    <div class="value-card glass">
-      <h3>20s</h3>
-      <p>Habits form. Compounding begins quietly.</p>
-    </div>
-
-    <div class="value-card glass">
-      <h3>30s</h3>
-      <p>EMIs rise. Decisions become heavier.</p>
-    </div>
-
-    <div class="value-card glass">
-      <h3>40s+</h3>
-      <p>The gap between early and late choices becomes visible.</p>
+    <div class="think">
+      <div class="orbit" data-r="l" aria-label="Streams that draw on life energy: Salary, Business, Capital, EMI, Marriage, Home Loan, Liabilities, Obligations" role="img">
+        <div class="orbit__ring"></div>
+        <div class="orbit__core">LIFE<br>ENERGY</div>
+        <span class="orbit__chip" style="--a:0deg">Salary</span>
+        <span class="orbit__chip" style="--a:45deg">Business</span>
+        <span class="orbit__chip" style="--a:90deg">Capital</span>
+        <span class="orbit__chip out" style="--a:135deg">EMI</span>
+        <span class="orbit__chip out" style="--a:180deg">Marriage</span>
+        <span class="orbit__chip out" style="--a:225deg">Home Loan</span>
+        <span class="orbit__chip out" style="--a:270deg">Liabilities</span>
+        <span class="orbit__chip out" style="--a:315deg">Obligations</span>
+      </div>
+      <div data-r="r" id="indias" data-m="1">
+        <p class="lead" style="margin-bottom:24px">Everyone earns money differently. What changes everything is how they see it.</p>
+        <div class="tabs" role="tablist" aria-label="Three Indias">
+          <button class="tab" role="tab" type="button" data-n="3" id="t-3" aria-controls="p-3" aria-selected="false" tabindex="-1">India 3</button>
+          <button class="tab" role="tab" type="button" data-n="2" id="t-2" aria-controls="p-2" aria-selected="false" tabindex="-1">India 2</button>
+          <button class="tab" role="tab" type="button" data-n="1" id="t-1" aria-controls="p-1" aria-selected="true">India 1</button>
+        </div>
+        <div class="panel india" role="tabpanel" id="p-3" aria-labelledby="t-3" data-m="3" hidden>
+          <h3>India 3</h3><p class="mind">Money = Survival</p>
+          <ul><li><b>Earn</b><span>Daily wages / unstable income</span></li><li><b>Spend</b><span>Immediately</span></li><li><b>Save</b><span>Rarely</span></li><li><b>Invest</b><span>Never</span></li></ul>
+          <div class="end">Ends with: Stress + Dependence</div>
+        </div>
+        <div class="panel india" role="tabpanel" id="p-2" aria-labelledby="t-2" data-m="2" hidden>
+          <h3>India 2</h3><p class="mind">Money = Lifestyle</p>
+          <ul><li><b>Earn</b><span>Salary / profession</span></li><li><b>Spend</b><span>EMIs + status</span></li><li><b>Save</b><span>Whatever is left</span></li><li><b>Invest</b><span>Late</span></li></ul>
+          <div class="end">Ends with: Working longer than needed</div>
+        </div>
+        <div class="panel india" role="tabpanel" id="p-1" aria-labelledby="t-1" data-m="1">
+          <h3>India 1</h3><p class="mind">Money = Tool</p>
+          <ul><li><b>Earn</b><span>Salary / business / capital</span></li><li><b>Save</b><span>Before spending</span></li><li><b>Invest</b><span>From day one</span></li><li><b>Let time</b><span>work</span></li></ul>
+          <div class="end">Ends with: Freedom + Choice</div>
+        </div>
+        <div class="ask"><p>Same country. Same time. Different thinking.</p><h3>Where do <span class="grad">you</span> want to end up?</h3></div>
+      </div>
     </div>
   </div>
 </section>
 
-
-<div class="fin-divider fin-divider--mark"></div>
-<section class="belief-engine">
-  <h2>Your <span class="text-highlight">Beliefs</span>, Over Time</h2>
-
-  <p class="sub">
-    Most outcomes are decided long before money is involved.
-  </p>
-
-  <div class="belief-grid">
-    <button data-outcome="delay">
-      I’ll start investing when I earn more
-    </button>
-    <button data-outcome="emi">
-      EMIs are normal, everyone has them
-    </button>
-    <button data-outcome="early">
-      I’ll start small, but early
-    </button>
-  </div>
-
-  <div class="belief-result" id="beliefResult">
-    Select a belief to see where it leads.
-  </div>
-</section>
-
-
-<div class="fin-divider fin-divider--mark"></div>
-
-<section class="landing-section">
-  <h2 class="section-title">
-    What FIN-OS will <span class="text-highlight">never</span> do
-
-  </h2>
-
-  <div class="landing-values">
-    <div class="value-card glass">
-      <h3>No tips</h3>
-      <p>We don’t chase excitement.</p>
+<!-- TRY IT -->
+<section class="try" id="try">
+  <div class="wrap">
+    <div class="sec-head" data-r>
+      <p class="eyebrow">Try it</p>
+      <h2>Six small simulations. One clear idea.</h2>
+      <p class="lead">Run each example and see where the thinking leads. They are illustrations, not forecasts of anyone’s finances.</p>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Simulations" id="simTabs" data-r>
+      <button class="tab" role="tab" type="button" id="s-life" aria-controls="sp-life" aria-selected="true">The full life</button>
+      <button class="tab" role="tab" type="button" id="s-desi" aria-controls="sp-desi" aria-selected="false" tabindex="-1">Roti, ghee &amp; fire</button>
+      <button class="tab" role="tab" type="button" id="s-lit" aria-controls="sp-lit" aria-selected="false" tabindex="-1">Literacy gap</button>
+      <button class="tab" role="tab" type="button" id="s-pay" aria-controls="sp-pay" aria-selected="false" tabindex="-1">Paycheck trap</button>
+      <button class="tab" role="tab" type="button" id="s-fix" aria-controls="sp-fix" aria-selected="false" tabindex="-1">Breaking the cycle</button>
+      <button class="tab" role="tab" type="button" id="s-bel" aria-controls="sp-bel" aria-selected="false" tabindex="-1">Your beliefs</button>
     </div>
 
-    <div class="value-card glass">
-      <h3>No promises</h3>
-      <p>Returns are never guaranteed — thinking is.</p>
+    <!-- 1 life -->
+    <div class="sim panel" role="tabpanel" id="sp-life" aria-labelledby="s-life">
+      <div class="sim__head"><h3>How money really works — from birth to death</h3><p>Money is not income. It’s stored time, energy, and future choices.</p></div>
+      <div class="cols">
+        <div class="col col--bad"><h4>Traditional Indian Money Cycle</h4>
+          <ul class="nodes" data-nodes><li>Birth</li><li>Education</li><li>Job</li><li>EMIs</li><li>Family</li><li>₹0 Retirement</li></ul>
+          <p class="small">Money flows in → disappears → repeats.<br>No system. No memory. No future leverage.</p></div>
+        <div class="mid" aria-hidden="true">⇄</div>
+        <div class="col col--good"><h4>FIN-OS Life-First Money System</h4>
+          <ul class="nodes" data-nodes><li>Birth</li><li>Early Learn</li><li>Invest Small</li><li>Compound</li><li>Freedom</li><li>A corpus that keeps growing</li></ul>
+          <p class="small">Money remembers every decision.<br>Life is funded before it’s lived.</p></div>
+      </div>
+      <p class="note" style="margin-top:20px">An illustration of two habits, not a forecast of anyone’s finances.</p>
+      <div class="sim__foot"><button class="btn btn--primary" id="runLifeSim" type="button">Play the full life</button></div>
+      <div class="msg" id="lifeMessage" role="status">Same life. Same income.<br>One system creates freedom. The other creates stress.</div>
     </div>
 
-    <div class="value-card glass">
-      <h3>No noise</h3>
-      <p>Clarity beats constant information.</p>
-    </div>
-  </div>
-</section>
-
-
-<div class="fin-divider fin-divider--mark"></div>
-
-  <!-- ================= FIN-OS INDIA VISION ================= -->
-<section class="vision-section" aria-labelledby="vision-heading">
-  <div class="vision-header">
-    <h2 id="vision-heading"><span class="text-highlight">What FIN-OS Is Building for India</span></h2>
-    <p>
-      A financial operating system designed for real Indian life —
-      not sales funnels or market noise.
-    </p>
-  </div>
-
-  <div class="vision-grid">
-
-    <div class="vision-card">
-      <span class="vision-icon">🧠</span>
-      <h4>Decision-First Finance</h4>
-      <p>
-        We fix how you think about money before touching
-        calculators, products, or tips.
-      </p>
+    <!-- 2 desi -->
+    <div class="sim panel" role="tabpanel" id="sp-desi" aria-labelledby="s-desi" hidden>
+      <div class="sim__head"><h3>Money is not meant to be hoarded</h3><p>It’s meant to cook today’s roti, add ghee to life, and quietly keep the fire alive for tomorrow.</p></div>
+      <div class="chulha" id="chulha">
+        <div class="chulha__fire" id="fireCore">FUTURE</div>
+        <div class="chulha__orb roti">ROTI<small>Life today</small></div>
+        <div class="chulha__orb ghee">GHEE<small>Enjoyment</small></div>
+      </div>
+      <p class="lead">Most people burn all the fuel cooking today’s roti.<br>FIN-OS teaches how to cook, enjoy ghee — <strong>without killing the fire.</strong></p>
+      <div class="sim__foot"><button class="btn btn--primary" id="igniteLife" type="button">Show me the balanced life</button></div>
+      <div class="msg" id="desiMessage" role="status">You didn’t stop living.<br>You stopped fearing the future.</div>
     </div>
 
-    <div class="vision-card">
-      <span class="vision-icon">🇮🇳</span>
-      <h4>Built for Indian Life</h4>
-      <p>
-        EMIs, parents, inflation, taxes, uncertainty —
-        FIN-OS speaks your reality.
-      </p>
+    <!-- 3 literacy -->
+    <div class="sim panel" role="tabpanel" id="sp-lit" aria-labelledby="s-lit" hidden>
+      <div class="sim__head"><h3>The financial literacy gap in India</h3><p>Most money mistakes aren’t personal failures — they’re inherited thinking.</p></div>
+      <div class="cols">
+        <div class="col"><h4>What Most People Are Taught</h4>
+          <div class="bar"><i id="litBad"></i></div>
+          <ul class="lst"><li>Save whatever is left</li><li>Gold &amp; real estate = safety</li><li>EMIs are normal life</li><li>Markets are gambling</li></ul></div>
+        <div class="mid" aria-hidden="true">→</div>
+        <div class="col col--good"><h4>What Actually Works</h4>
+          <div class="bar"><i class="good" id="litGood"></i></div><div class="bar"><i class="blue" id="litInv"></i></div>
+          <ul class="lst"><li>Pay yourself first</li><li>Invest systematically</li><li>Debt is a tool, not lifestyle</li><li>Time beats timing</li></ul></div>
+      </div>
+      <p class="note" style="margin-top:20px">The bars are a visual illustration, not survey data.</p>
+      <div class="sim__foot"><button class="btn btn--primary" id="runLiteracy" type="button">Break the inherited cycle</button></div>
+      <div class="msg" id="literacyMessage" role="status">When one generation learns correctly,<br>the next starts ahead — not from zero.</div>
     </div>
 
-    <div class="vision-card">
-      <span class="vision-icon">📈</span>
-      <h4>Compounding Clarity</h4>
-      <p>
-        Small choices repeated over decades
-        matter more than one big decision.
-      </p>
+    <!-- 4 paycheck -->
+    <div class="sim panel" role="tabpanel" id="sp-pay" aria-labelledby="s-pay" hidden>
+      <div class="sim__head"><h3>The paycheck-to-paycheck trap</h3><p>Many households end every month with nothing left. An example household: ₹50,000 comes in, and the usual bills take all of it.</p></div>
+      <div class="pay">
+        <div><div class="pay__row"><span>Example monthly income</span><strong class="mono">₹50,000</strong></div><div class="bar" style="margin-top:8px"><i class="good" id="incFill" style="--w:100%"></i></div></div>
+        <div class="exp" id="exp"><div data-cut="25">Rent<small>25%</small></div><div data-cut="15">Groceries<small>15%</small></div><div data-cut="30">EMIs<small>30%</small></div><div data-cut="15">Transport<small>15%</small></div><div data-cut="15">Misc<small>15%</small></div></div>
+        <div class="bal">Balance Left: <b id="balanceAmount">₹50,000</b></div>
+      </div>
+      <div class="sim__foot"><button class="btn btn--primary" id="runPaycheck" type="button">Run the month</button></div>
+      <div class="msg" id="paycheckMessage" role="status">In this example, nothing is left. Again.</div>
     </div>
 
-    <div class="vision-card">
-      <span class="vision-icon">🧬</span>
-      <h4>Financial DNA</h4>
-      <p>
-        Your content adapts to your age,
-        income stage, and risk mindset.
-      </p>
+    <!-- 5 fix -->
+    <div class="sim panel" role="tabpanel" id="sp-fix" aria-labelledby="s-fix" hidden>
+      <div class="sim__head"><h3>How the cycle is broken</h3><p>The solution isn’t earning more. It’s redirecting money before it disappears.</p></div>
+      <div class="cols">
+        <div class="col"><h4>Before (Default)</h4><div class="bar"><i id="fixBefore"></i></div>
+          <ul class="lst"><li>Income → Expenses → ₹0</li><li>No savings by design</li><li>Repeats every month</li></ul></div>
+        <div class="mid" aria-hidden="true">→</div>
+        <div class="col col--good"><h4>After (FIN-OS Thinking)</h4><div class="bar"><i class="good" id="fixAfter"></i></div>
+          <ul class="lst"><li>Income → Save First</li><li>Expenses adapt automatically</li><li>Wealth compounds quietly</li></ul></div>
+      </div>
+      <div class="sim__foot"><button class="btn btn--primary" id="runSolution" type="button">Apply one small change</button></div>
+      <div class="msg" id="solutionMessage" role="status">Example: ₹2,000 redirected before spending is ₹24,000 saved in one year,<br>before any returns. Time starts working for you.</div>
     </div>
 
-  </div>
-</section>
-
-
-
-
-<div class="fin-divider fin-divider--mark"></div>
-
-<section class="landing-section">
-  <h2 class="section-title">
-    <span class="text-highlight">Built for a certain kind of mind</span>
-
-
-  </h2>
-
-  <div class="landing-values">
-    <div class="value-card glass">
-      <h3>This is for you if</h3>
-      <p>
-        You want clarity, long-term thinking,
-        and fewer but better decisions.
-      </p>
-    </div>
-
-    <div class="value-card glass">
-      <h3>Not for you if</h3>
-      <p>
-        You want shortcuts, hype,
-        or daily stock excitement.
-      </p>
+    <!-- 6 beliefs -->
+    <div class="sim panel" role="tabpanel" id="sp-bel" aria-labelledby="s-bel" hidden>
+      <div class="sim__head"><h3>Your beliefs, over time</h3><p>Most outcomes are decided long before money is involved.</p></div>
+      <div class="belief-grid">
+        <button type="button" data-outcome="delay">I’ll start investing when I earn more</button>
+        <button type="button" data-outcome="emi">EMIs are normal, everyone has them</button>
+        <button type="button" data-outcome="early">I’ll start small, but early</button>
+      </div>
+      <div class="belief-result" id="beliefResult" aria-live="polite">Select a belief to see where it leads.</div>
     </div>
   </div>
 </section>
 
-
-<section class="landing-final">
-  <h2>
-  <span class="text-highlight">
-    Where do you want to be financially <br>
-    in 20 years — and are today’s decisions aligned?
-  </span>
-</h2>
-
-
-  <button class="primary-btn" id="loginBtnFinal">
-    Start with clarity
-  </button>
+<!-- FEATURES / VISION -->
+<section id="vision" aria-labelledby="vision-heading">
+  <div class="wrap">
+    <div class="sec-head" data-r>
+      <p class="eyebrow">What FIN-OS is building for India</p>
+      <h2 id="vision-heading">A financial operating system for real Indian life</h2>
+      <p class="lead">Designed for real Indian life — not sales funnels or market noise.</p>
+    </div>
+    <div class="bento">
+      <article class="card bento__a" data-r style="--i:0"><div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg></div><h3>Decision-First Finance</h3><p>We fix how you think about money before touching calculators, products, or tips.</p><div class="viz flow" aria-hidden="true"><span class="n on">Think</span><i></i><span class="n">calculators</span><span class="n">products</span><span class="n">tips</span></div></article>
+      <article class="card bento__b" data-r style="--i:1"><div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle pathLength="1" cx="12" cy="12" r="9"/><path pathLength="1" d="M8.5 7.5h7M8.5 11h7M10 7.5c3 0 4 1.5 4 3s-1.5 3-4.5 3L15 17"/></svg></div><h3>Built for Indian Life</h3><p>EMIs, parents, inflation, taxes, uncertainty — FIN-OS speaks your reality.</p><div class="viz chips" aria-hidden="true"><span>EMIs</span><span>Parents</span><span>Inflation</span><span>Taxes</span><span>Uncertainty</span></div></article>
+      <article class="card bento__c" data-r style="--i:2"><div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg></div><h3>Compounding Clarity</h3><p>Small choices repeated over decades matter more than one big decision.</p><div class="viz bars" aria-hidden="true"><i style="--h:6%"></i><i style="--h:9%"></i><i style="--h:13%"></i><i style="--h:18%"></i><i style="--h:25%"></i><i style="--h:34%"></i><i style="--h:46%"></i><i style="--h:62%"></i><i style="--h:82%"></i><i style="--h:100%"></i></div></article>
+      <article class="card bento__d" data-r style="--i:3"><div class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M7 3c0 6 10 6 10 12M17 3c0 6-10 6-10 12M7 15c0 3 10 3 10 6M8.5 6.5h7M8.5 11h7M8.5 17.5h7"/></svg></div><h3>Financial DNA</h3><p>Your content adapts to your age, income stage, and risk mindset.</p><div class="viz dna" aria-hidden="true"><b>Age</b><span><i style="--w:72%"></i></span><b>Income stage</b><span><i style="--w:48%"></i></span><b>Risk mindset</b><span><i style="--w:60%"></i></span></div></article>
+    </div>
+  </div>
 </section>
 
-</div><!-- /.landing -->
+<!-- PRINCIPLES -->
+<section id="principles">
+  <div class="wrap">
+    <div class="sec-head center" data-r>
+      <p class="eyebrow">Principles</p>
+      <h2>What FIN-OS will never do</h2>
+    </div>
+    <div class="grid g3 never">
+      <article class="card" data-r style="--i:0"><h3>No tips</h3><p>We don’t chase excitement.</p></article>
+      <article class="card" data-r style="--i:1"><h3>No promises</h3><p>Returns are never guaranteed — thinking is.</p></article>
+      <article class="card" data-r style="--i:2"><h3>No noise</h3><p>Clarity beats constant information.</p></article>
+    </div>
+    <div class="fit">
+      <article class="card yes" data-r="l" style="--i:0"><h3>This is for you if</h3><p>You want clarity, long-term thinking, and fewer but better decisions.</p></article>
+      <article class="card no" data-r="r" style="--i:1"><h3>Not for you if</h3><p>You want shortcuts, hype, or daily stock excitement.</p></article>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-head center" data-r>
+      <p class="eyebrow">FAQ</p>
+      <h2>Straight answers</h2>
+    </div>
+    <div class="faq" data-r>
+      <details><summary>Is FIN-OS financial advice?</summary><div class="ans">No. FIN-OS is not SEBI registered and does not give financial advice. It is built to improve how you think about money. Returns are never guaranteed — thinking is.</div></details>
+      <details><summary>Will FIN-OS give me stock tips?</summary><div class="ans">No. No tips: we don’t chase excitement. No noise: clarity beats constant information.</div></details>
+      <details><summary>Who is FIN-OS for?</summary><div class="ans">It is for you if you want clarity, long-term thinking, and fewer but better decisions. It is not for you if you want shortcuts, hype, or daily stock excitement.</div></details>
+      <details><summary>Are the numbers on this page real returns?</summary><div class="ans">No, they are illustrations. The hero chart simulates ₹10,000 a month by default (you can change the amount) for 20 years at an assumed 12% a year, with random market swings. The timeline assumes ₹500 a month from age 25 at an assumed 12% a year, compounded monthly, before tax, costs and inflation. Returns are never guaranteed.</div></details>
+      <details><summary>Is it free to start?</summary><div class="ans">Yes. Starting to build your financial OS is free.</div></details>
+      <details><summary>What is inside FIN-OS?</summary><div class="ans">The app includes <a href="html/foundations.html">Learn</a>, <a href="html/diagnostics.html">Diagnostics</a> and <a href="html/track-finances.html">Track Finances</a>.</div></details>
+      <details><summary>How is my data handled?</summary><div class="ans">Read the <a href="html/privacy.html">Privacy Policy</a> and the <a href="html/terms.html">Terms of Use</a> for details.</div></details>
+    </div>
+  </div>
+</section>
+
+<div class="marquee" aria-hidden="true"><div class="marquee__track"><span><em>▲</em>PAY YOURSELF FIRST</span> <span><em>₹</em>TIME BEATS TIMING</span> <span><em>%</em>LET COMPOUNDING WORK</span> <span><em>▲</em>SAVE BEFORE YOU SPEND</span> <span><em>₹</em>DEBT IS A TOOL, NOT A LIFESTYLE</span> <span><em>%</em>INVEST SYSTEMATICALLY</span> <span><em>▲</em>START SMALL, START NOW</span><span><em>▲</em>PAY YOURSELF FIRST</span> <span><em>₹</em>TIME BEATS TIMING</span> <span><em>%</em>LET COMPOUNDING WORK</span> <span><em>▲</em>SAVE BEFORE YOU SPEND</span> <span><em>₹</em>DEBT IS A TOOL, NOT A LIFESTYLE</span> <span><em>%</em>INVEST SYSTEMATICALLY</span> <span><em>▲</em>START SMALL, START NOW</span></div></div>
+
+<!-- FINAL CTA -->
+<section class="final">
+  <div class="wrap">
+    <div class="final__box" data-r id="finalBox">
+      <svg class="final__curve" viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M0,270 C120,268 200,262 280,250 S420,226 500,200 S640,150 720,110 S880,40 1000,8"/></svg>
+      <h2>Where do you want to be financially in 20 years — and are today’s decisions aligned?</h2>
+      <button class="btn btn--primary btn--lg" id="loginBtnFinal" type="button">Start with clarity <span class="arr" aria-hidden="true">→</span></button>
+    </div>
+  </div>
+</section>
 </main>
 
-<!-- ── SITE FOOTER ──────────────────────────────────────────── -->
-<footer class="landing-footer" role="contentinfo">
-  <div class="landing-footer-inner">
-    <div class="landing-footer-brand">
-      <span class="landing-footer-logo">FIN•OS</span>
-      <p>India's financial operating system.<br>Built for long-term thinkers.</p>
+<footer class="foot" role="contentinfo">
+  <div class="wrap">
+    <div class="foot__in">
+      <div><a class="logo" href="index.html" aria-label="FIN-OS — Home">FIN<i>•</i>OS</a><p>India's financial operating system.<br>Built for long-term thinkers.</p></div>
+      <nav aria-label="Footer navigation"><h2>Explore</h2><ul><li><a href="login.html">App</a></li><li><a href="html/foundations.html">Learn</a></li><li><a href="html/diagnostics.html">Diagnostics</a></li><li><a href="html/track-finances.html">Track Finances</a></li></ul></nav>
+      <div><h2>Legal</h2><ul><li><a href="html/privacy.html">Privacy Policy</a></li><li><a href="html/terms.html">Terms of Use</a></li></ul></div>
     </div>
-    <nav class="landing-footer-nav" aria-label="Footer navigation">
-      <a href="login.html">App</a>
-      <a href="html/foundations.html">Learn</a>
-      <a href="html/diagnostics.html">Diagnostics</a>
-      <a href="html/track-finances.html">Track Finances</a>
-    </nav>
-    <div class="landing-footer-legal">
-      <a href="html/privacy.html">Privacy Policy</a>
-      <a href="html/terms.html">Terms of Use</a>
-      <span>© 2026 FIN-OS. Not SEBI registered. Not financial advice.</span>
-    </div>
+    <p class="foot__legal">© 2026 FIN-OS. Not SEBI registered. Not financial advice.</p>
   </div>
 </footer>
 
-<!-- ── STICKY CTA BAR (appears after scrolling past hero) ──── -->
-<div id="sticky-cta" class="landing-sticky-cta" aria-hidden="true">
-  <span class="sticky-cta-text">Start building your financial OS — free.</span>
-  <button class="primary-btn btn-sm" id="stickyCTABtn">Enter FIN-OS</button>
+<div class="sticky" id="sticky-cta" aria-hidden="true">
+  <span>Start building your financial OS — free.</span>
+  <button class="btn btn--primary btn--sm" id="stickyCTABtn" type="button" tabindex="-1">Enter FIN-OS</button>
 </div>
 
-<style>
-  /* ══════════════════════════════════════════════
-     BUTTON SYSTEM — Professional & Modern Refresh
-     Deep Navy → Royal Blue → Sky gradient palette
-     Replaces the blue-to-lime default
-     ══════════════════════════════════════════════ */
-
-  /* ── PRIMARY BUTTON ─────────────────────────── */
-  .primary-btn,
-  .btn,
-  .btn-primary {
-    background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 55%, #38BDF8 100%);
-    color: #FFFFFF !important;
-    box-shadow:
-      0 8px 32px rgba(37, 99, 235, 0.32),
-      inset 0 1px 0 rgba(255,255,255,0.15);
-    letter-spacing: 0.03em;
-    font-weight: 700;
-    text-transform: none;
-  }
-
-  .primary-btn:hover,
-  .btn:hover,
-  .btn-primary:hover {
-    transform: translateY(-3px);
-    box-shadow:
-      0 20px 48px rgba(37, 99, 235, 0.52),
-      inset 0 1px 0 rgba(255,255,255,0.20);
-    filter: brightness(1.1);
-  }
-
-  .primary-btn:active,
-  .btn:active,
-  .btn-primary:active {
-    transform: translateY(0) scale(0.97);
-    box-shadow: 0 4px 18px rgba(37, 99, 235, 0.38);
-    filter: brightness(1.0);
-  }
-
-  .primary-btn:focus-visible,
-  .btn:focus-visible,
-  .btn-primary:focus-visible {
-    outline: 2px solid #38BDF8;
-    outline-offset: 3px;
-    box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.25);
-  }
-
-  /* Shimmer sweep — whiter on the new darker gradient */
-  .primary-btn::after,
-  .btn::after,
-  .btn-primary::after {
-    background: linear-gradient(
-      120deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.22) 50%,
-      transparent 100%
-    );
-  }
-
-  /* ── SECONDARY / GHOST BUTTON ───────────────── */
-  .btn-secondary,
-  .btn-outline {
-    border-color: rgba(37, 99, 235, 0.35);
-    color: var(--text-primary);
-  }
-
-  .btn-secondary:hover,
-  .btn-outline:hover {
-    border-color: #2563EB;
-    color: #2563EB;
-    background: rgba(37, 99, 235, 0.06);
-    box-shadow: 0 0 0 1px #2563EB, 0 6px 24px rgba(37, 99, 235, 0.18);
-  }
-
-  /* ── SMALL SIZE (sticky CTA) ────────────────── */
-  .btn-sm {
-    letter-spacing: 0.025em;
-    font-weight: 700;
-  }
-
-  /* ── BELIEF GRID BUTTONS ────────────────────── */
-  .belief-grid button {
-    background: rgba(37, 99, 235, 0.06);
-    border: 1.5px solid rgba(56, 189, 248, 0.18);
-    color: var(--text-primary);
-    border-radius: 14px;
-    padding: 16px 22px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition:
-      transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-      background 0.3s ease,
-      box-shadow 0.3s ease,
-      border-color 0.25s ease;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    text-align: left;
-  }
-
-  .belief-grid button:hover {
-    transform: translateY(-4px);
-    background: rgba(37, 99, 235, 0.12);
-    border-color: #38BDF8;
-    color: var(--text-primary);
-    box-shadow:
-      0 0 0 1px rgba(56, 189, 248, 0.30),
-      0 10px 28px rgba(37, 99, 235, 0.18);
-  }
-
-  .belief-grid button.active {
-    background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 55%, #38BDF8 100%);
-    border-color: transparent;
-    color: #FFFFFF;
-    box-shadow:
-      0 10px 32px rgba(37, 99, 235, 0.45),
-      inset 0 1px 0 rgba(255,255,255,0.15);
-  }
-
-  /* Landing skip link */
-  .landing-skip-link {
-    position: absolute; top: -100px; left: 16px; z-index: 9999;
-    background: var(--accent); color: #fff;
-    padding: 10px 18px; border-radius: 8px;
-    font-weight: 700; font-size: 14px; text-decoration: none;
-    transition: top 0.2s;
-  }
-  .landing-skip-link:focus { top: 16px; }
-
-  /* Footer */
-  .landing-footer {
-    background: var(--bg-main);
-    border-top: 1px solid var(--border-soft);
-    padding: var(--space-14, 56px) 8vw var(--space-8, 32px);
-    margin-top: var(--space-12, 48px);
-  }
-  .landing-footer-inner {
-    max-width: 1100px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr auto auto;
-    gap: 48px;
-    align-items: start;
-  }
-  .landing-footer-logo {
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: 0.04em;
-    color: var(--text-primary);
-    display: block;
-    margin-bottom: 10px;
-  }
-  .landing-footer-brand p {
-    font-size: 14px;
-    color: var(--text-secondary);
-    line-height: 1.6;
-    margin: 0;
-  }
-  .landing-footer-nav {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .landing-footer-nav a {
-    font-size: 14px;
-    color: var(--text-secondary);
-    text-decoration: none;
-    transition: color 0.2s;
-  }
-  .landing-footer-nav a:hover { color: var(--text-primary); }
-  .landing-footer-legal {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    font-size: 12px;
-    color: var(--text-muted);
-  }
-  .landing-footer-legal a {
-    color: var(--text-secondary);
-    text-decoration: none;
-  }
-  .landing-footer-legal a:hover { text-decoration: underline; }
-
-  /* Sticky CTA */
-  .landing-sticky-cta {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(120px);
-    z-index: 500;
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    padding: 14px 24px 14px 20px;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-medium);
-    border-radius: var(--radius-pill, 9999px);
-    box-shadow: 0 8px 40px rgba(0,0,0,0.20);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-                opacity 0.4s ease;
-    opacity: 0;
-    white-space: nowrap;
-  }
-  .landing-sticky-cta.visible {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-  }
-  .sticky-cta-text {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-
-  @media (max-width: 600px) {
-    .landing-footer-inner {
-      grid-template-columns: 1fr;
-      gap: 32px;
-    }
-    .sticky-cta-text { display: none; }
-    .landing-sticky-cta { padding: 12px 20px; }
-  }
-</style>
-
-<!-- AUTH / ROUTING -->
-<script src="js/landing.js"></script>
-
-<script>
-  // ══════════════════════════════════════════════════════════════════
-  // SMART APP ENTRY  —  index → login.html → html/home.html
-  // If user already has a valid Supabase session → skip login entirely
-  // ══════════════════════════════════════════════════════════════════
-  function goToApp() {
-    try {
-      // Supabase v2 stores session as: sb-<project-ref>-auth-token
-      const raw = localStorage.getItem('sb-oeapcyucnduhwpgxfknb-auth-token');
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        const valid  = parsed?.access_token && (
-          !parsed.expires_at || (Date.now() / 1000 < parsed.expires_at)
-        );
-        if (valid) { window.location.href = 'html/profile.html'; return; }
-      }
-    } catch(_) {}
-    // No valid session → send to login first
-    window.location.href = 'login.html';
-  }
-
-  // ── Main CTA buttons ────────────────────────────────────────────────
-  document.getElementById("loginBtn")?.addEventListener("click", goToApp);
-  document.getElementById("loginBtnFinal")?.addEventListener("click", goToApp);
-
-  // ── Simulation buttons: inject "Enter FIN-OS →" after each demo ends ─
-  // When the result message becomes visible, a CTA appears inside it.
-  // The user reads the insight first, then naturally continues to FIN-OS.
-  function attachSimCTA(msgId) {
-    const el = document.getElementById(msgId);
-    if (!el) return;
-    new MutationObserver(() => {
-      if (!el.classList.contains('show') || el.querySelector('.sim-enter-cta')) return;
-      const btn = document.createElement('button');
-      btn.className = 'primary-btn btn-sm sim-enter-cta';
-      btn.style.cssText = 'margin-top: 20px; display: inline-flex;';
-      btn.innerHTML   = 'Enter FIN-OS &nbsp;→';
-      btn.addEventListener('click', goToApp);
-      el.appendChild(btn);
-    }).observe(el, { attributes: true, attributeFilter: ['class'] });
-  }
-  ['lifeMessage','desiMessage','literacyMessage','paycheckMessage','solutionMessage']
-    .forEach(attachSimCTA);
-
-  // ── Belief grid: redirect 1.8 s after user picks a belief ───────────
-  document.querySelectorAll('.belief-grid button').forEach(btn => {
-    btn.addEventListener('click', () => setTimeout(goToApp, 1800));
-  });
-
-  // ── Returning-user personalization ──────────────────────────────────────────
-  // Reads from localStorage (set by finos-context.js during previous sessions).
-  // Runs silently — no error shown to first-time visitors.
-  (function personalizeForReturningUser() {
-    try {
-      const displayName = localStorage.getItem('finos_display_name');
-      const dna         = localStorage.getItem('finos_financial_dna');
-      const savingsRate = parseFloat(localStorage.getItem('finos_savings_rate') || '0');
-
-      // 1. Personalise hero CTA for returning users
-      if (displayName) {
-        const firstName = displayName.trim().split(/\s+/)[0];
-        const loginBtn = document.getElementById('loginBtn');
-        if (loginBtn) {
-          loginBtn.textContent = `Continue, ${firstName} →`;
-          loginBtn.title = `Welcome back, ${firstName}`;
-        }
-        const heroH1 = document.querySelector('.landing-hero h1');
-        if (heroH1) {
-          const eyebrow = document.querySelector('.eyebrow');
-          if (eyebrow) eyebrow.textContent = `Welcome back, ${firstName}`;
-        }
-      }
-
-      // (The paycheck simulator is a fixed, labelled example household. It must not show the person's own income next to
-      //  invented expense shares, so it is not personalised.)
-
-      // 3. Show a returning-user DNA badge near the bottom CTA
-      if (dna && dna !== 'Explorer') {
-        const finalSection = document.querySelector('.landing-final');
-        if (finalSection && !document.getElementById('dna-badge-landing')) {
-          const badge = document.createElement('p');
-          badge.id = 'dna-badge-landing';
-          badge.style.cssText = 'font-size:13px;opacity:.55;margin-bottom:12px;';
-          badge.textContent = `Your Financial DNA: ${dna}${savingsRate > 0 ? ' · Savings rate: ' + savingsRate + '%' : ''}`;
-          finalSection.insertBefore(badge, finalSection.querySelector('button'));
-        }
-      }
-
-    } catch (_) { /* never break the landing page */ }
-  })();
-
-  // ── Sticky CTA: appears after user scrolls 400px past hero ──────────────────
-  (function() {
-    const stickyCTA = document.getElementById('sticky-cta');
-    const stickyCTABtn = document.getElementById('stickyCTABtn');
-    const heroSection = document.querySelector('.landing-hero');
-    if (!stickyCTA || !heroSection) return;
-
-    let shown = false;
-    const heroBottom = () => heroSection.getBoundingClientRect().bottom + window.scrollY;
-
-    const observer = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting && !shown) {
-        shown = true;
-        stickyCTA.classList.add('visible');
-        stickyCTA.setAttribute('aria-hidden', 'false');
-      } else if (entry.isIntersecting) {
-        shown = false;
-        stickyCTA.classList.remove('visible');
-        stickyCTA.setAttribute('aria-hidden', 'true');
-      }
-    }, { threshold: 0 });
-
-    observer.observe(heroSection);
-    if (stickyCTABtn) stickyCTABtn.addEventListener('click', goToApp);
-  })();
-</script>
-
-  <script src="js/interactions.js" defer></script>
+<script src="js/landing2.js" defer></script>
 </body>
 </html>

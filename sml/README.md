@@ -15,4 +15,4 @@ Source of truth: `TRACKER.md` (every step with evidence) and `PLAN.md` (what and
 | `tests/` | Leakage guards (held-out sets never overlap training), verifier data, predictor |
 
 Held-out sets (test_v2..test_v6, natural_test) are never trained or tuned on. `training/.embed_cache.npz` is a local cache tagged with its embedding model and can be deleted.
-Run the tests: `rag-engine/.venv/bin/pytest sml/tests rag-engine/evaluation/test_*.py -q` and `node --test tests/*.test.js`.
+Run the tests: `services/rag-engine/.venv/bin/pytest sml/tests rag-engine/evaluation/test_*.py -q` and `node --test tests/*.test.js`.

@@ -1,4 +1,4 @@
-"""Guards the router evaluation against leakage. Run: rag-engine/.venv/bin/pytest sml/tests -q"""
+"""Guards the router evaluation against leakage. Run: services/rag-engine/.venv/bin/pytest sml/tests -q"""
 import json, sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "data"))

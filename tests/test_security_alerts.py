@@ -123,13 +123,13 @@ def engine():
     stubs["prometheus_client"] = prom
 
     before_mods, before_path = set(sys.modules), list(sys.path)
-    sys.path.insert(0, os.path.join(ROOT, "alerts"))
+    sys.path.insert(0, os.path.join(ROOT, "services", "alerts"))
     try:
         for k, v in stubs.items():
             sys.modules[k] = v
         for n in ("rules", "health_score"):
             sys.modules.pop(n, None)
-        spec = importlib.util.spec_from_file_location("alert_engine_under_test", os.path.join(ROOT, "alerts", "alert-engine.py"))
+        spec = importlib.util.spec_from_file_location("alert_engine_under_test", os.path.join(ROOT, "services", "alerts", "alert-engine.py"))
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
         yield mod
@@ -285,7 +285,7 @@ def test_invite_codes_use_a_cryptographic_source_and_accept_is_authenticated(api
     engine, _, c = api
     codes = {engine._gen_invite_code() for _ in range(200)}
     assert len(codes) == 200 and all(len(x) == 10 and x.isalnum() for x in codes)
-    src = open(os.path.join(ROOT, "alerts", "alert-engine.py"), encoding="utf-8").read()
+    src = open(os.path.join(ROOT, "services", "alerts", "alert-engine.py"), encoding="utf-8").read()
     assert "random.choices" not in src
     assert c.post("/couple/accept", json={"user_id": A, "invite_code": "ABCDEF12"}).status_code == 401
     assert c.post("/couple/accept", json={"user_id": A, "invite_code": "ABCDEF12"}, headers=auth("tokB")).status_code == 403

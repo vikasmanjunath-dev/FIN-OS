@@ -1,6 +1,6 @@
 # Review sheets and the release gate
 
-Part of the Money Reels guide (`docs/REELS.md`, section 8). Hindi and compliance readers are people; these tools prepare their work. See also `docs/hindi-review/README.md` and `docs/compliance-review/README.md` (generated).
+Part of the Money Reels guide (`docs/reels/REELS.md`, section 8). Hindi and compliance readers are people; these tools prepare their work. See also `docs/hindi-review/README.md` and `docs/compliance-review/README.md` (generated).
 
 ## The two sheets
 

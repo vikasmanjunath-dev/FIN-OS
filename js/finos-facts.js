@@ -19,7 +19,7 @@
  *   (+ schema, as_of, which forPrompt drops unless they are allow-listed)
  *
  * Precision: 'exact' (a number the person typed), 'bucket_midpoint' (a range they picked, midpoint used),
- * 'unverified' (key exists, but the writer/unit could not be confirmed in the repo — see docs/PENDING.md known quirks).
+ * 'unverified' (key exists, but the writer/unit could not be confirmed in the repo — see docs/ops/PENDING.md known quirks).
  * Duplicate keys (finos_profile vs finos-profile, finos_monthly_expense vs finos_monthly_expenses) are NOT merged or
  * aliased: each is read defensively from its own key and labelled with that key.
  *

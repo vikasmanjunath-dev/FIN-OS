@@ -1,4 +1,4 @@
-"""W2.2 baseline: the engine's CURRENT faithfulness guard (rag-engine/generation/faithfulness.py) on test.jsonl,
+"""W2.2 baseline: the engine's CURRENT faithfulness guard (services/rag-engine/generation/faithfulness.py) on test.jsonl,
 plus the numeric detector (numeric_flags_test.json from numeric_baseline.js) and their union.
 Same model, same device logic, same (premise=evidence, hypothesis=claim) input, same argmax over logits and
 label read from model.config.id2label. Guard rule: sentence is OK only if label == entailment. One process,
@@ -9,7 +9,7 @@ HERE = Path(__file__).parent
 ROOT = HERE.parents[1]
 os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
 sys.dont_write_bytecode = True
-sys.path.insert(0, str(ROOT / "rag-engine"))
+sys.path.insert(0, str(ROOT / "services" / "rag-engine"))
 
 def run_nli(rows, bs=8):
     import torch

@@ -31,7 +31,7 @@ export interface MarketData {
 const FALLBACK: MarketData = {
   nifty50: null, sensex: null, niftyIT: null, niftyBank: null,
   lastUpdated: null, stale: false,
-  error: "Market data unavailable — can't reach the Arya backend. Start it with arya-ai/start.sh, or set its address in Settings.",
+  error: "Market data unavailable — can't reach the Arya backend. Start it with services/arya-ai/start.sh, or set its address in Settings.",
 };
 
 const CACHE_KEY = 'overview';
